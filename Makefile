@@ -38,12 +38,16 @@ CFLAGS = -std=c++17 #-Wall -Wextra -Werror
 OBJS = $(SRCS:.cpp=.o)
 
 INCL = -I include -I lib/imgui/include -I lib/GLFW -I lib/glm -I lib -I /usr/local/include
+EMSINCL = -I include -I lib/imgui/include -I lib/glm -I /opt/homebrew/include/
 
 LIBGLFW =  -lglfw3_arm64
 LIBGLEW = -lGLEW_arm64
 
 
 LDFLAGS =  -L lib $(LIBGLFW) -L lib $(LIBGLEW) -lm -framework OpenGL -framework OpenCL -framework Cocoa -framework IOKit -framework CoreVideo
+EMSFLAGS = -s USE_GLFW=3 -s LINKABLE=1
+EMSFLAGS += -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s NO_EXIT_RUNTIME=0 -s ASSERTIONS=1
+EMSFLAGS += --shell-file index.html
 
 CC = clang++
 
@@ -54,11 +58,14 @@ $(NAME): $(OBJS)
 	@printf "compiling \n" "$(NAME)"
 	@$(CC) $(CFLAGS) $(INCL) $(OBJS) $(LDFLAGS) -o $(NAME) -O3
 
+web: $(OBJS)
+	@printf "compiling web\n"
+	@$(CC) $(CFLAGS) $(EMSINCL) $(OBJS) $(EMSFLAGS) -o $(NAME).js -O3
+
 %.o: %.cpp
 	@mkdir -p out
 	@printf "compiling %s -> %s\n" "$<" "$@"
 	@$(CC) $(CFLAGS) $(INCL) -c $< -o  $@ -O3
-
 
 debug:
 	$(CC) -g $(CFLAGS) $(INCL) $(SRCS) $(LDFLAGS) -o $(NAME)

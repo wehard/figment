@@ -4,6 +4,7 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "GLRenderer.h"
+#include "GLObject.h"
 
 class Application
 {
@@ -16,8 +17,16 @@ private:
 
 	float lastTime;
 	float deltaTime;
+	double lastUpdateFpsTime;
+	int frameCount = 0;
 
 	GLRenderer renderer;
+
+	GLObject plane = GLObject::Plane();
+	GLObject gp = GLObject::Triangle();
+	GLObject grid = GLObject::Grid(20, 20);
+	GLObject wAxis = GLObject::Axis();
+	GLObject eAxis = GLObject::Axis();
 
 public:
 	int fps;
@@ -31,4 +40,5 @@ public:
 	Application(GLContext &gl);
 	~Application();
 	void Run();
+	void RenderFrame();
 };

@@ -90,83 +90,81 @@ Application::~Application()
 
 void Application::Run()
 {
-	GUIContext gui;
+	// GUIContext gui;
 
-	gui.Init(gl.window, gl.glslVersion);
+	// gui.Init(gl.window, gl.glslVersion);
 
-	auto plane = GLObject::Plane();
-	auto gp = GLObject::Triangle();
 	gp.color = glm::vec4(0.0, 0.8, 0.8, 1.0);
 	gp.scale = glm::vec3(0.05);
 
-	auto wAxis = GLObject::Axis();
-
-	auto grid = GLObject::Grid(20, 20);
 	grid.scale = glm::vec3(2.0); // TODO: Needs to be done during vertex creation
 
-	auto eAxis = GLObject::Axis();
 	eAxis.scale = glm::vec3(0.5);
 
 	glfwSetWindowUserPointer(gl.window, this);
 
 	lastTime = glfwGetTime();
-	double lastUpdateFpsTime = lastTime;
-	int frameCount = 0;
+	lastUpdateFpsTime = lastTime;
 	while (!glfwWindowShouldClose(gl.window) && glfwGetKey(gl.window, GLFW_KEY_ESCAPE) != GLFW_PRESS)
 	{
-		double currentTime = glfwGetTime();
-		frameCount++;
-		if (currentTime - lastUpdateFpsTime >= 1.0f)
-		{
-			msPerFrame = 1000.0 / (double)frameCount;
-			fps = 1000.0 * (1.0 / msPerFrame);
-			frameCount = 0;
-			lastUpdateFpsTime = currentTime;
-		}
-		deltaTime = currentTime - lastTime;
-		lastTime = currentTime;
-
-		if (glfwGetKey(gl.window, GLFW_KEY_W))
-		{
-			camera.Move(FORWARD, deltaTime);
-		}
-		if (glfwGetKey(gl.window, GLFW_KEY_S))
-		{
-			camera.Move(BACKWARD, deltaTime);
-		}
-		if (glfwGetKey(gl.window, GLFW_KEY_A))
-		{
-			camera.Move(LEFT, deltaTime);
-		}
-		if (glfwGetKey(gl.window, GLFW_KEY_D))
-		{
-			camera.Move(RIGHT, deltaTime);
-		}
-
-		gui.Update(*this);
-
-		// Render here!
-		renderer.Begin(camera, gl.clearColor);
-
-		if (showOverlays)
-		{
-			if (mouseInfo.gravity)
-			{
-				gp.position = mouseInfo.world;
-				renderer.DrawBillboard(gp, 0.05 + (mouseInfo.mass * 0.001), *billboardShader);
-			}
-
-			renderer.DrawLines(wAxis, *vertexColorShader);
-
-			basicShader->use();
-			basicShader->setVec4("obj_color", grid.color);
-			renderer.DrawLines(grid, *basicShader);
-		}
-
-		gui.Render();
-
-		glfwSwapBuffers(gl.window);
-		glfwPollEvents();
+		RenderFrame();
 	}
-	gui.Shutdown();
+	// gui.Shutdown();
+}
+
+void Application::RenderFrame()
+{
+	double currentTime = glfwGetTime();
+	frameCount++;
+	if (currentTime - lastUpdateFpsTime >= 1.0f)
+	{
+		msPerFrame = 1000.0 / (double)frameCount;
+		fps = 1000.0 * (1.0 / msPerFrame);
+		frameCount = 0;
+		lastUpdateFpsTime = currentTime;
+	}
+	deltaTime = currentTime - lastTime;
+	lastTime = currentTime;
+
+	if (glfwGetKey(gl.window, GLFW_KEY_W))
+	{
+		camera.Move(FORWARD, deltaTime);
+	}
+	if (glfwGetKey(gl.window, GLFW_KEY_S))
+	{
+		camera.Move(BACKWARD, deltaTime);
+	}
+	if (glfwGetKey(gl.window, GLFW_KEY_A))
+	{
+		camera.Move(LEFT, deltaTime);
+	}
+	if (glfwGetKey(gl.window, GLFW_KEY_D))
+	{
+		camera.Move(RIGHT, deltaTime);
+	}
+
+	// gui.Update(*this);
+
+	// Render here!
+	renderer.Begin(camera, gl.clearColor);
+
+	if (showOverlays)
+	{
+		if (mouseInfo.gravity)
+		{
+			gp.position = mouseInfo.world;
+			renderer.DrawBillboard(gp, 0.05 + (mouseInfo.mass * 0.001), *billboardShader);
+		}
+
+		renderer.DrawLines(wAxis, *vertexColorShader);
+
+		basicShader->use();
+		basicShader->setVec4("obj_color", grid.color);
+		renderer.DrawLines(grid, *basicShader);
+	}
+
+	// gui.Render();
+
+	glfwSwapBuffers(gl.window);
+	glfwPollEvents();
 }

@@ -27,5 +27,3 @@ public:
 	static GLObject Star();
 	static GLObject Grid(int x, int y);
 };
-
-
