@@ -2,3 +2,5 @@
 imgui.ini
 out
 figment
+*.o
+**/*.o
