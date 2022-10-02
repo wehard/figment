@@ -1,9 +1,10 @@
 #include "GLContext.h"
-#include <iostream>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/euler_angles.hpp>
 #include "GUIContext.h"
 #include "GLObject.h"
+
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/euler_angles.hpp>
+#include <iostream>
 
 static glm::mat4 getModelMatrix(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)
 {
@@ -16,44 +17,28 @@ static glm::mat4 getModelMatrix(glm::vec3 position, glm::vec3 rotation, glm::vec
 
 GLContext::GLContext(std::string title, int width, int height) : width(width), height(height)
 {
-	if (!glfwInit())
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0)
 	{
-		std::cout << "GLFW failed to initialize!" << std::endl;
-		exit(EXIT_FAILURE);
+		printf("Error: %s\n", SDL_GetError());
+		return;
 	}
 
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glslVersion = "#version 150";
 
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-	glfwWindowHint(GLFW_SAMPLES, 4);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG); // Always required on Mac
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 
-	this->glslVersion = "#version 150";
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+	SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+	window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, window_flags);
+	glContext = SDL_GL_CreateContext(window);
+	SDL_GL_MakeCurrent(window, glContext);
+	SDL_GL_SetSwapInterval(1);
 
-	window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
-	if (!window)
-	{
-		glfwTerminate();
-		std::cout << "GLFW failed to create window!" << std::endl;
-		exit(EXIT_FAILURE);
-	}
-
-	glfwMakeContextCurrent(window);
-
-	glewExperimental = true;
-	if (glewInit() != GLEW_OK)
-	{
-		std::cout << "GLEW failed to initialize!" << std::endl;
-		exit(EXIT_FAILURE);
-	}
-
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_BLEND);
-	glEnable(GL_DEPTH_TEST);
-
-	glfwSwapInterval(0);
 	readGLInfo();
 }
 
@@ -68,7 +53,8 @@ void GLContext::readGLInfo()
 
 GLContext::~GLContext()
 {
-	glfwTerminate();
+	SDL_DestroyWindow(window);
+	SDL_Quit();
 }
 
 static glm::vec3 intersect(glm::vec3 planeP, glm::vec3 planeN, glm::vec3 rayP, glm::vec3 rayD)
@@ -107,7 +93,8 @@ glm::vec3 GLContext::GetMouseWorldCoord(Camera *camera)
 	glm::vec3 world;
 	double xpos;
 	double ypos;
-	glfwGetCursorPos(window, &xpos, &ypos);
+	// glfwGetCursorPos(window, &xpos, &ypos);
+	SDL_Cursor *cursor = SDL_GetCursor();
 
 	auto pPos = glm::vec3(0.0);
 	auto pNormal = glm::normalize(camera->position - pPos);

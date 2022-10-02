@@ -4,20 +4,20 @@
 
 GUIContext::GUIContext() {}
 
-void GUIContext::Init(GLFWwindow *window, const char *glslVersion)
+void GUIContext::Init(SDL_Window *window, SDL_GLContext sdlContext, const char *glslVersion)
 {
 	IMGUI_CHECKVERSION();
 	context = ImGui::CreateContext();
 	ImGui::StyleColorsDark();
 
-	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplSDL2_InitForOpenGL(window, sdlContext);
 	ImGui_ImplOpenGL3_Init(glslVersion);
 }
 
 void GUIContext::Update(Application &app)
 {
 	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
+	ImGui_ImplSDL2_NewFrame();
 	ImGui::NewFrame();
 
 	UpdatePlatformInfo(app);
@@ -103,7 +103,7 @@ void GUIContext::Render()
 void GUIContext::Shutdown()
 {
 	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplGlfw_Shutdown();
+	ImGui_ImplSDL2_Shutdown();
 	ImGui::DestroyContext(context);
 }
 

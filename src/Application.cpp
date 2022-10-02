@@ -11,7 +11,7 @@
 #include <stdlib.h>
 
 #include <random>
-
+/*
 static void glfwMouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
 {
 	if (ImGui::GetIO().WantCaptureMouse)
@@ -62,7 +62,7 @@ static void glfwKeyCallback(GLFWwindow *window, int key, int scancode, int actio
 	// 	app->mouseInfo.gravity = !app->mouseInfo.gravity;
 	// }
 }
-
+*/
 Application::Application(GLContext &gl) : gl(gl)
 {
 	basicShader = new Shader("res/shaders/basic.vert", "res/shaders/basic.frag");
@@ -71,10 +71,10 @@ Application::Application(GLContext &gl) : gl(gl)
 	particleShader = new Shader("./res/shaders/particle.vert", "./res/shaders/particle.frag");
 	emitterShader = new Shader("./res/shaders/particle_emitter.vert", "./res/shaders/particle_emitter.frag");
 
-	glfwSetMouseButtonCallback(gl.window, glfwMouseButtonCallback);
-	glfwSetScrollCallback(gl.window, glfwMouseScrollCallback);
-	glfwSetKeyCallback(gl.window, glfwKeyCallback);
-	glfwSetCursorPosCallback(gl.window, glfwMouseCallback);
+	// glfwSetMouseButtonCallback(gl.window, glfwMouseButtonCallback);
+	// glfwSetScrollCallback(gl.window, glfwMouseScrollCallback);
+	// glfwSetKeyCallback(gl.window, glfwKeyCallback);
+	// glfwSetCursorPosCallback(gl.window, glfwMouseCallback);
 
 	camera.Reset(glm::vec3(-1.0, 2.0, 2.0), -65.0f, -40.0f);
 }
@@ -90,9 +90,9 @@ Application::~Application()
 
 void Application::Run()
 {
-	// GUIContext gui;
+	GUIContext gui;
 
-	// gui.Init(gl.window, gl.glslVersion);
+	gui.Init(gl.window, gl.glContext, gl.glslVersion);
 
 	gp.color = glm::vec4(0.0, 0.8, 0.8, 1.0);
 	gp.scale = glm::vec3(0.05);
@@ -101,20 +101,26 @@ void Application::Run()
 
 	eAxis.scale = glm::vec3(0.5);
 
-	glfwSetWindowUserPointer(gl.window, this);
+	// glfwSetWindowUserPointer(gl.window, this);
 
-	lastTime = glfwGetTime();
+	// lastTime = SDL_GetTicks glfwGetTime();
 	lastUpdateFpsTime = lastTime;
-	while (!glfwWindowShouldClose(gl.window) && glfwGetKey(gl.window, GLFW_KEY_ESCAPE) != GLFW_PRESS)
+
+	while (true)
 	{
+		SDL_Event event;
+		while (SDL_PollEvent(&event))
+		{
+			ImGui_ImplSDL2_ProcessEvent(&event);
+		}
 		RenderFrame();
 	}
-	// gui.Shutdown();
+	gui.Shutdown();
 }
 
 void Application::RenderFrame()
 {
-	double currentTime = glfwGetTime();
+	double currentTime = 0; // glfwGetTime();
 	frameCount++;
 	if (currentTime - lastUpdateFpsTime >= 1.0f)
 	{
@@ -126,26 +132,28 @@ void Application::RenderFrame()
 	deltaTime = currentTime - lastTime;
 	lastTime = currentTime;
 
-	if (glfwGetKey(gl.window, GLFW_KEY_W))
-	{
-		camera.Move(FORWARD, deltaTime);
-	}
-	if (glfwGetKey(gl.window, GLFW_KEY_S))
-	{
-		camera.Move(BACKWARD, deltaTime);
-	}
-	if (glfwGetKey(gl.window, GLFW_KEY_A))
-	{
-		camera.Move(LEFT, deltaTime);
-	}
-	if (glfwGetKey(gl.window, GLFW_KEY_D))
-	{
-		camera.Move(RIGHT, deltaTime);
-	}
+	// if (glfwGetKey(gl.window, GLFW_KEY_W))
+	// {
+	// 	camera.Move(FORWARD, deltaTime);
+	// }
+	// if (glfwGetKey(gl.window, GLFW_KEY_S))
+	// {
+	// 	camera.Move(BACKWARD, deltaTime);
+	// }
+	// if (glfwGetKey(gl.window, GLFW_KEY_A))
+	// {
+	// 	camera.Move(LEFT, deltaTime);
+	// }
+	// if (glfwGetKey(gl.window, GLFW_KEY_D))
+	// {
+	// 	camera.Move(RIGHT, deltaTime);
+	// }
 
 	// gui.Update(*this);
 
 	// Render here!
+	SDL_GL_MakeCurrent(gl.window, gl.glContext);
+
 	renderer.Begin(camera, gl.clearColor);
 
 	if (showOverlays)
@@ -165,6 +173,5 @@ void Application::RenderFrame()
 
 	// gui.Render();
 
-	glfwSwapBuffers(gl.window);
-	glfwPollEvents();
+	SDL_GL_SwapWindow(gl.window);
 }

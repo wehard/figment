@@ -1,12 +1,10 @@
 #pragma once
 
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-#include <string>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
 #include <glm/gtc/matrix_transform.hpp>
+#include <string>
 #include "Camera.h"
-
-class ParticleSystem;
 
 struct GLInfo
 {
@@ -37,7 +35,8 @@ public:
 	const char *glslVersion = "#version 150";
 	glm::vec4 clearColor = glm::vec4(0.1, 0.1, 0.1, 1.0);
 	GLInfo glInfo;
-	GLFWwindow *window;
+	SDL_Window *window = NULL;
+	SDL_GLContext glContext = NULL;
 	glm::mat4x4 projection;
 	glm::mat4x4 view;
 	int width;
