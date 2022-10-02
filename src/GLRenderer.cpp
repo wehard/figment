@@ -1,5 +1,4 @@
 #include "GLRenderer.h"
-
 #include <glm/gtc/matrix_transform.hpp>
 
 GLRenderer::GLRenderer()
@@ -42,7 +41,6 @@ static glm::mat4 getModelMatrixBillboard(GLObject &object, glm::vec3 target)
 	glm::mat4 m = matTranslate * matRotate * matScale;
 	return (m);
 }
-
 
 void GLRenderer::DrawBillboard(GLObject &object, float scale, Shader &shader)
 {

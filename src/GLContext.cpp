@@ -1,6 +1,4 @@
 #include "GLContext.h"
-#include "GUIContext.h"
-#include "GLObject.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/euler_angles.hpp>
