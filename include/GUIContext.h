@@ -6,6 +6,10 @@
 
 #include "Application.h"
 
+struct ApplicationInfo
+{
+};
+
 class GUIContext
 {
 private:

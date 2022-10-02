@@ -98,80 +98,91 @@ void Application::Run()
 	gp.scale = glm::vec3(0.05);
 
 	grid.scale = glm::vec3(2.0); // TODO: Needs to be done during vertex creation
-
+	// grid.color = glm::vec4(1.0, 0.0, 0.0, 0.5);
 	eAxis.scale = glm::vec3(0.5);
 
-	// glfwSetWindowUserPointer(gl.window, this);
-
-	// lastTime = SDL_GetTicks glfwGetTime();
 	lastUpdateFpsTime = lastTime;
 
-	while (true)
+	bool shouldQuit = false;
+	while (!shouldQuit)
 	{
 		SDL_Event event;
 		while (SDL_PollEvent(&event))
 		{
 			ImGui_ImplSDL2_ProcessEvent(&event);
+			if (event.type == SDL_QUIT)
+				shouldQuit = true;
+			if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(gl.window))
+				shouldQuit = true;
+
+			if (event.type == SDL_KEYDOWN)
+			{
+				const Uint8 *state = SDL_GetKeyboardState(nullptr);
+
+				if (state[SDL_SCANCODE_ESCAPE])
+				{
+					shouldQuit = true;
+				}
+			}
 		}
-		RenderFrame();
+		double currentTime = 0; // glfwGetTime();
+		frameCount++;
+		if (currentTime - lastUpdateFpsTime >= 1.0f)
+		{
+			msPerFrame = 1000.0 / (double)frameCount;
+			fps = 1000.0 * (1.0 / msPerFrame);
+			frameCount = 0;
+			lastUpdateFpsTime = currentTime;
+		}
+		deltaTime = currentTime - lastTime;
+		lastTime = currentTime;
+
+		// if (glfwGetKey(gl.window, GLFW_KEY_W))
+		// {
+		// 	camera.Move(FORWARD, deltaTime);
+		// }
+		// if (glfwGetKey(gl.window, GLFW_KEY_S))
+		// {
+		// 	camera.Move(BACKWARD, deltaTime);
+		// }
+		// if (glfwGetKey(gl.window, GLFW_KEY_A))
+		// {
+		// 	camera.Move(LEFT, deltaTime);
+		// }
+		// if (glfwGetKey(gl.window, GLFW_KEY_D))
+		// {
+		// 	camera.Move(RIGHT, deltaTime);
+		// }
+
+		gui.Update(*this);
+
+		// Render here!
+		SDL_GL_MakeCurrent(gl.window, gl.glContext);
+
+		renderer.Begin(camera, gl.clearColor);
+
+		if (showOverlays)
+		{
+			if (mouseInfo.gravity)
+			{
+				gp.position = mouseInfo.world;
+				renderer.DrawBillboard(gp, 0.05 + (mouseInfo.mass * 0.001), *billboardShader);
+			}
+
+			renderer.DrawLines(wAxis, *vertexColorShader);
+
+			basicShader->use();
+			basicShader->setVec4("obj_color", grid.color);
+			renderer.DrawLines(grid, *basicShader);
+		}
+
+		gui.Render();
+
+		SDL_GL_SwapWindow(gl.window);
 	}
 	gui.Shutdown();
 }
 
 void Application::RenderFrame()
 {
-	double currentTime = 0; // glfwGetTime();
-	frameCount++;
-	if (currentTime - lastUpdateFpsTime >= 1.0f)
-	{
-		msPerFrame = 1000.0 / (double)frameCount;
-		fps = 1000.0 * (1.0 / msPerFrame);
-		frameCount = 0;
-		lastUpdateFpsTime = currentTime;
-	}
-	deltaTime = currentTime - lastTime;
-	lastTime = currentTime;
-
-	// if (glfwGetKey(gl.window, GLFW_KEY_W))
-	// {
-	// 	camera.Move(FORWARD, deltaTime);
-	// }
-	// if (glfwGetKey(gl.window, GLFW_KEY_S))
-	// {
-	// 	camera.Move(BACKWARD, deltaTime);
-	// }
-	// if (glfwGetKey(gl.window, GLFW_KEY_A))
-	// {
-	// 	camera.Move(LEFT, deltaTime);
-	// }
-	// if (glfwGetKey(gl.window, GLFW_KEY_D))
-	// {
-	// 	camera.Move(RIGHT, deltaTime);
-	// }
-
-	// gui.Update(*this);
-
-	// Render here!
-	SDL_GL_MakeCurrent(gl.window, gl.glContext);
-
-	renderer.Begin(camera, gl.clearColor);
-
-	if (showOverlays)
-	{
-		if (mouseInfo.gravity)
-		{
-			gp.position = mouseInfo.world;
-			renderer.DrawBillboard(gp, 0.05 + (mouseInfo.mass * 0.001), *billboardShader);
-		}
-
-		renderer.DrawLines(wAxis, *vertexColorShader);
-
-		basicShader->use();
-		basicShader->setVec4("obj_color", grid.color);
-		renderer.DrawLines(grid, *basicShader);
-	}
-
-	// gui.Render();
-
-	SDL_GL_SwapWindow(gl.window);
 }
