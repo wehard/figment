@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <GL/glew.h>
+#include <OpenGL/gl.h>
 #include <fstream>
 #include <sstream>
 #include <stdio.h>

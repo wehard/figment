@@ -4,7 +4,6 @@
 #include <glm/gtx/euler_angles.hpp>
 #include <vector>
 
-
 GLObject::GLObject(std::vector<float> vertexPositions) : vertexCount(vertexPositions.size())
 {
 	glGenVertexArrays(1, &vao);
@@ -17,7 +16,6 @@ GLObject::GLObject(std::vector<float> vertexPositions) : vertexCount(vertexPosit
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
-
 
 GLObject::GLObject(std::vector<float> vertexPositions, std::vector<float> vertexColors) : vertexCount(vertexPositions.size())
 {
@@ -59,63 +57,49 @@ glm::mat4 GLObject::getModelMatrix()
 
 GLObject GLObject::Plane()
 {
-	auto plane = GLObject(std::vector<float>
-	{
+	auto plane = GLObject(std::vector<float>{
 		-0.5f, -0.5f, 0.0f,
 		-0.5f, 0.5f, 0.0f,
 		0.5f, 0.5f, 0.0f,
 		0.5f, 0.5f, 0.0f,
 		0.5f, -0.5f, 0.0f,
-		-0.5f, -0.5f, 0.0f
-		});
+		-0.5f, -0.5f, 0.0f});
 	return plane;
 }
 
 GLObject GLObject::Triangle()
 {
-	auto triangle = GLObject(std::vector<float>
-	{
+	auto triangle = GLObject(std::vector<float>{
 		-0.5f, -0.5f, 0.0f,
 		0.0f, 0.5f, 0.0f,
-		0.5f, -0.5f, 0.0f
-		});
+		0.5f, -0.5f, 0.0f});
 	triangle.color = glm::vec4(1.0, 1.0, 1.0, 1.0);
 	return triangle;
 }
 
 GLObject GLObject::Star()
 {
-	auto star = GLObject(std::vector<float>
-	{
+	auto star = GLObject(std::vector<float>{
 		-0.5f, -0.25f, 0.0f,
 		0.0f, 0.5f, 0.0f,
 		0.5f, -0.25f, 0.0f,
 		0.0f, -0.5f, 0.0f,
 		-0.5f, 0.25f, 0.0f,
-		0.5f, 0.25f, 0.0f
-		});
+		0.5f, 0.25f, 0.0f});
 	star.color = glm::vec4(1.0, 1.0, 1.0, 1.0);
 	return star;
 }
 
 GLObject GLObject::Axis()
 {
-	auto axis = GLObject(std::vector<float> {
-		0.0, 0.0, 0.0,
-		1.0, 0.0, 0.0,
-		0.0, 0.0, 0.0,
-		0.0, 1.0, 0.0,
-		0.0, 0.0, 0.0,
-		0.0, 0.0, 1.0
-	}, std::vector<float> 
-	{
-		1.0, 0.0, 0.0, 1.0,
-		1.0, 0.0, 0.0, 1.0,
-		0.0, 1.0, 0.0, 1.0,
-		0.0, 1.0, 0.0, 1.0,
-		0.0, 0.0, 1.0, 1.0,
-		0.0, 0.0, 1.0, 1.0
-	});
+	auto axis = GLObject(std::vector<float>{
+							 0.0, 0.0, 0.0,
+							 1.0, 0.0, 0.0,
+							 0.0, 0.0, 0.0,
+							 0.0, 1.0, 0.0,
+							 0.0, 0.0, 0.0,
+							 0.0, 0.0, 1.0},
+						 std::vector<float>{1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0});
 	axis.color = glm::vec4(1.0, 1.0, 1.0, 1.0);
 	return axis;
 }
