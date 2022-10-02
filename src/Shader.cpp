@@ -1,22 +1,10 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   shader.cpp                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: wkorande <willehard@gmail.com>             +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/03/26 17:48:23 by wkorande          #+#    #+#             */
-/*   Updated: 2022/01/02 18:49:52 by wkorande         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
+#include "Shader.h"
 #include <OpenGL/gl.h>
 #include <fstream>
 #include <sstream>
 #include <stdio.h>
 #include <vector>
 #include <map>
-#include "Shader.h"
 
 Shader::Shader(std::string vert_path, std::string frag_path)
 {

@@ -1,16 +1,16 @@
 #include "Application.h"
+#include "GUIContext.h"
+
 #include <glm/gtx/euler_angles.hpp>
 #include <iostream>
 #include <string>
 #include <fstream>
 #include <streambuf>
 #include <sstream>
-#include "GUIContext.h"
-
 #include <stdio.h>
 #include <stdlib.h>
-
 #include <random>
+
 /*
 static void glfwMouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
 {
@@ -63,6 +63,7 @@ static void glfwKeyCallback(GLFWwindow *window, int key, int scancode, int actio
 	// }
 }
 */
+
 Application::Application(GLContext &gl) : gl(gl)
 {
 	basicShader = new Shader("res/shaders/basic.vert", "res/shaders/basic.frag");
@@ -98,14 +99,22 @@ void Application::Run()
 	gp.scale = glm::vec3(0.05);
 
 	grid.scale = glm::vec3(2.0); // TODO: Needs to be done during vertex creation
-	// grid.color = glm::vec4(1.0, 0.0, 0.0, 0.5);
 	eAxis.scale = glm::vec3(0.5);
 
 	lastUpdateFpsTime = lastTime;
 
+	Uint64 now = SDL_GetPerformanceCounter();
+	Uint64 last = 0;
+	deltaTime = 0;
+
 	bool shouldQuit = false;
 	while (!shouldQuit)
 	{
+
+		last = now;
+		now = SDL_GetPerformanceCounter();
+		deltaTime = (double)((now - last) * 1000 / (double)SDL_GetPerformanceFrequency()) * 0.001;
+
 		SDL_Event event;
 		while (SDL_PollEvent(&event))
 		{
@@ -123,36 +132,37 @@ void Application::Run()
 				{
 					shouldQuit = true;
 				}
+
+				if (state[SDL_SCANCODE_W])
+				{
+					camera.Move(FORWARD, deltaTime);
+				}
+				if (state[SDL_SCANCODE_S])
+				{
+					camera.Move(BACKWARD, deltaTime);
+				}
+				if (state[SDL_SCANCODE_A])
+				{
+					camera.Move(LEFT, deltaTime);
+				}
+				if (state[SDL_SCANCODE_D])
+				{
+					camera.Move(RIGHT, deltaTime);
+				}
 			}
 		}
-		double currentTime = 0; // glfwGetTime();
-		frameCount++;
-		if (currentTime - lastUpdateFpsTime >= 1.0f)
-		{
-			msPerFrame = 1000.0 / (double)frameCount;
-			fps = 1000.0 * (1.0 / msPerFrame);
-			frameCount = 0;
-			lastUpdateFpsTime = currentTime;
-		}
-		deltaTime = currentTime - lastTime;
-		lastTime = currentTime;
 
-		// if (glfwGetKey(gl.window, GLFW_KEY_W))
+		// double currentTime = SDL_GetTi;
+		// frameCount++;
+		// if (currentTime - lastUpdateFpsTime >= 1.0f)
 		// {
-		// 	camera.Move(FORWARD, deltaTime);
+		// 	msPerFrame = 1000.0 / (double)frameCount;
+		// 	fps = 1000.0 * (1.0 / msPerFrame);
+		// 	frameCount = 0;
+		// 	lastUpdateFpsTime = currentTime;
 		// }
-		// if (glfwGetKey(gl.window, GLFW_KEY_S))
-		// {
-		// 	camera.Move(BACKWARD, deltaTime);
-		// }
-		// if (glfwGetKey(gl.window, GLFW_KEY_A))
-		// {
-		// 	camera.Move(LEFT, deltaTime);
-		// }
-		// if (glfwGetKey(gl.window, GLFW_KEY_D))
-		// {
-		// 	camera.Move(RIGHT, deltaTime);
-		// }
+		// deltaTime = currentTime - lastTime;
+		// lastTime = currentTime;
 
 		gui.Update(*this);
 
