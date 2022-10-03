@@ -14,6 +14,8 @@
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl3.h"
 
+#include "emscripten.h"
+
 #include <stdlib.h>
 #include "Application.h"
 #include "GLContext.h"
@@ -24,11 +26,18 @@
 #include <streambuf>
 #include <sstream>
 
+GLContext gl = GLContext("crap canvas", 1920, 1080);
+Application app = Application(gl);
+
+void main_loop()
+{
+	app.RenderFrame();
+}
+
 int main(int argc, char **argv)
 {
-	GLContext gl = GLContext("figment canvas", 1920, 1080);
 
-	Application app = Application(gl);
 	app.Run();
+	emscripten_set_main_loop(&main_loop, 0, true);
 	return (0);
 }
