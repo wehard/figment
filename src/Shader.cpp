@@ -1,10 +1,16 @@
 #include "Shader.h"
-#include <OpenGL/gl.h>
+#include "GLContext.h"
 #include <fstream>
 #include <sstream>
 #include <stdio.h>
 #include <vector>
 #include <map>
+
+// #ifdef __EMSCRIPTEN__
+// #include <SDL2/SDL_opengl.h>
+// #else
+// #include <OpenGL/gl.h>
+// #endif
 
 Shader::Shader(std::string vert_path, std::string frag_path)
 {

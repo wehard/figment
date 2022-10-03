@@ -2,7 +2,14 @@
 
 #define GL_GLEXT_PROTOTYPES 1
 #include <SDL2/SDL.h>
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#include <SDL_opengles2.h>
 #include <SDL2/SDL_opengl.h>
+#else
+#include <SDL2/SDL_opengl.h>
+#endif
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <string>
