@@ -23,6 +23,7 @@ private:
 
 public:
 	Shader(std::string vert_path, std::string frag_path);
+	Shader(const char *vertSource, const char *fragSource);
 	~Shader();
 	void use();
 	void setInt(std::string name, int i);

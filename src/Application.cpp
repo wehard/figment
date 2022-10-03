@@ -66,11 +66,37 @@ static void glfwKeyCallback(GLFWwindow *window, int key, int scancode, int actio
 
 Application::Application(GLContext &gl) : gl(gl)
 {
-	basicShader = new Shader("res/shaders/basic.vert", "res/shaders/basic.frag");
-	vertexColorShader = new Shader("res/shaders/vertex_color.vert", "res/shaders/vertex_color.frag");
-	billboardShader = new Shader("res/shaders/billboard.vert", "res/shaders/billboard.frag");
-	particleShader = new Shader("./res/shaders/particle.vert", "./res/shaders/particle.frag");
-	emitterShader = new Shader("./res/shaders/particle_emitter.vert", "./res/shaders/particle_emitter.frag");
+	basicShader = new Shader("#version 330 core\
+layout(location = 0) in vec3 v_pos;\
+layout(location = 1) in vec4 v_col;\
+layout(location = 2) in vec2 v_uv;\
+layout(location = 3) in vec3 v_normal;\
+uniform mat4 model_matrix;\
+uniform mat4 view_matrix;\
+uniform mat4 proj_matrix;\
+uniform vec4 obj_color;\
+out vec4 f_col;\
+out vec3 f_normal;\
+out vec4 o_col;\
+void main()\
+{\
+		o_col = v_col;\
+		f_col = v_col;\
+		f_normal = v_normal;\
+		gl_Position = proj_matrix * view_matrix * model_matrix * vec4(v_pos, 1.0);\
+}",
+							 "#version 330 core\
+in vec4 f_col;\
+in vec3 f_normal;\
+in vec4 o_col;\
+uniform vec4 obj_color;\
+out vec4 color;\
+void main()\
+{\
+	color = obj_color;\
+}");
+	// vertexColorShader = new Shader("res/shaders/vertex_color.vert", "res/shaders/vertex_color.frag");
+	// billboardShader = new Shader("res/shaders/billboard.vert", "res/shaders/billboard.frag");
 
 	// glfwSetMouseButtonCallback(gl.window, glfwMouseButtonCallback);
 	// glfwSetScrollCallback(gl.window, glfwMouseScrollCallback);
@@ -82,11 +108,9 @@ Application::Application(GLContext &gl) : gl(gl)
 
 Application::~Application()
 {
-	delete particleShader;
-	delete emitterShader;
 	delete basicShader;
-	delete vertexColorShader;
-	delete billboardShader;
+	// delete vertexColorShader;
+	// delete billboardShader;
 }
 
 void Application::Run()
@@ -173,13 +197,13 @@ void Application::Run()
 
 		if (showOverlays)
 		{
-			if (mouseInfo.gravity)
-			{
-				gp.position = mouseInfo.world;
-				renderer.DrawBillboard(gp, 0.05 + (mouseInfo.mass * 0.001), *billboardShader);
-			}
+			// if (mouseInfo.gravity)
+			// {
+			// 	gp.position = mouseInfo.world;
+			// 	renderer.DrawBillboard(gp, 0.05 + (mouseInfo.mass * 0.001), *billboardShader);
+			// }
 
-			renderer.DrawLines(wAxis, *vertexColorShader);
+			// renderer.DrawLines(wAxis, *vertexColorShader);
 
 			basicShader->use();
 			basicShader->setVec4("obj_color", grid.color);

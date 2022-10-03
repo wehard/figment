@@ -9,11 +9,9 @@
 class Application
 {
 private:
-	Shader *particleShader;
-	Shader *emitterShader;
 	Shader *basicShader;
-	Shader *vertexColorShader;
-	Shader *billboardShader;
+	// Shader *vertexColorShader;
+	// Shader *billboardShader;
 
 	float lastTime;
 	float deltaTime;
