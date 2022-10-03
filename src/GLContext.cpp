@@ -37,9 +37,9 @@ GLContext::GLContext(std::string title, int width, int height) : width(width), h
 	SDL_GL_MakeCurrent(window, glContext);
 	SDL_GL_SetSwapInterval(1);
 
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	readGLInfo();
+	// glEnable(GL_BLEND);
+	// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	// readGLInfo();
 }
 
 void GLContext::readGLInfo()

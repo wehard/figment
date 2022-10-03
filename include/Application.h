@@ -5,11 +5,15 @@
 #include "Camera.h"
 #include "GLRenderer.h"
 #include "GLObject.h"
+#include "GUIContext.h"
 
 class Application
 {
 private:
-	Shader *basicShader;
+	bool shouldQuit = false;
+	Uint64 now = 0;
+	Uint64 last = 0;
+	// Shader *basicShader;
 	// Shader *vertexColorShader;
 	// Shader *billboardShader;
 
@@ -18,13 +22,15 @@ private:
 	double lastUpdateFpsTime;
 	int frameCount = 0;
 
-	GLRenderer renderer;
+	// GLRenderer renderer;
 
-	GLObject plane = GLObject::Plane();
-	GLObject gp = GLObject::Triangle();
-	GLObject grid = GLObject::Grid(20, 20);
-	GLObject wAxis = GLObject::Axis();
-	GLObject eAxis = GLObject::Axis();
+	GUIContext gui;
+
+	// GLObject plane = GLObject::Plane();
+	// GLObject gp = GLObject::Triangle();
+	// GLObject grid = GLObject::Grid(20, 20);
+	// GLObject wAxis = GLObject::Axis();
+	// GLObject eAxis = GLObject::Axis();
 
 public:
 	int fps;
