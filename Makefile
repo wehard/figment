@@ -69,10 +69,10 @@ ems: ${OBJS} ${WEB_DIR}
 
 %.o: %.cpp
 	@printf "compiling %s -> %s\n" "$<" "$@"
-	@$(CC) $(CFLAGS) $(INCL) -c $< -o  $@ -O3
+	@$(CC) $(CFLAGS) $(INCL) -c $< -o $@ -O3
 
 $(WEB_DIR):
-	mkdir -p $@
+	@mkdir -p $@
 
 debug:
 	$(CC) -g $(CFLAGS) $(INCL) $(SRCS) $(LDFLAGS) -o $(NAME)
