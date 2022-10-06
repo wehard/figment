@@ -8,21 +8,34 @@ void GUIContext::Init(SDL_Window *window, SDL_GLContext sdlContext, const char *
 {
 	IMGUI_CHECKVERSION();
 	context = ImGui::CreateContext();
+	ImGuiIO &io = ImGui::GetIO();
+	(void)io;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
+
+	// For an Emscripten build we are disabling file-system access, so let's not attempt to do a fopen() of the imgui.ini file.
+	// You may manually call LoadIniSettingsFromMemory() to load settings from your own storage.
+	io.IniFilename = NULL;
+
 	ImGui::StyleColorsDark();
 
+	// Setup Platform/Renderer backends
 	ImGui_ImplSDL2_InitForOpenGL(window, sdlContext);
 	ImGui_ImplOpenGL3_Init(glslVersion);
 }
 
 void GUIContext::Update()
 {
+	ImGuiIO &io = ImGui::GetIO();
+
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplSDL2_NewFrame();
 	ImGui::NewFrame();
 
 	// UpdatePlatformInfo();
 	// UpdateApplicationInfo();
-	ImGui::Begin("imgui");
+
+	ImGui::Begin("test");
 	ImGui::Text("Hello, world!");
 	ImGui::End();
 }

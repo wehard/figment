@@ -1,43 +1,53 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: wkorande <willehard@gmail.com>             +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/11/22 19:41:00 by wkorande          #+#    #+#             */
-/*   Updated: 2022/01/06 15:53:29 by wkorande         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "imgui.h"
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl3.h"
+#include <stdio.h>
+#include <emscripten.h>
 
-#include "emscripten.h"
-
-#include <stdlib.h>
-#include "Application.h"
 #include "GLContext.h"
+#include "Application.h"
 
-#include <iostream>
-#include <string>
-#include <fstream>
-#include <streambuf>
-#include <sstream>
+// Emscripten requires to have full control over the main loop. We're going to store our SDL book-keeping variables globally.
+// Having a single function that acts as a loop prevents us to store state in the stack of said function. So we need some location for this.
+SDL_Window *g_Window = NULL;
+SDL_GLContext g_GLContext = NULL;
 
-GLContext gl = GLContext("crap canvas", 1920, 1080);
-Application app = Application(gl);
+GUIContext *gui;
 
-void main_loop()
+GLContext *gl = NULL;
+Application *app = NULL;
+
+static void main_loop(void *arg)
 {
-	app.RenderFrame();
+	ImGuiIO &io = ImGui::GetIO();
+	IM_UNUSED(arg);
+
+	static ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+	SDL_Event event;
+	while (SDL_PollEvent(&event))
+	{
+		ImGui_ImplSDL2_ProcessEvent(&event);
+	}
+
+	gui->Update();
+
+	SDL_GL_MakeCurrent(g_Window, g_GLContext);
+	glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
+	glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+	glClear(GL_COLOR_BUFFER_BIT);
+	gui->Render();
+	SDL_GL_SwapWindow(g_Window);
 }
 
-int main(int argc, char **argv)
+int main(int, char **)
 {
+	gl = new GLContext("crap canvas", 1920, 1080);
+	g_Window = gl->window;
+	g_GLContext = gl->glContext;
 
-	app.Run();
-	emscripten_set_main_loop(&main_loop, 0, true);
-	return (0);
+	gui = new GUIContext();
+	gui->Init(g_Window, g_GLContext, gl->glslVersion);
+
+	emscripten_set_main_loop_arg(main_loop, NULL, 0, true);
 }
