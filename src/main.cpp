@@ -18,17 +18,22 @@ const GLchar *vertexSource =
 	"uniform mat4 model_matrix;\n"
 	"uniform mat4 view_matrix;\n"
 	"uniform mat4 proj_matrix;\n"
+	"uniform vec4 obj_color;\n"
+	"out vec4 o_col;\n"
 	"void main()                  \n"
 	"{                            \n"
-	"   gl_Position =  proj_matrix * view_matrix * model_matrix * vec4(position.xyz, 1.0);  \n"
+	"	o_col = obj_color;\n"
+	"   gl_Position = proj_matrix * view_matrix * model_matrix * vec4(position.xyz, 1.0);  \n"
 	"}                            \n";
 const GLchar *fragmentSource =
 	"#version 300 es\n"
 	"precision mediump float;\n"
+	"uniform vec4 obj_color;\n"
+	"in vec4 o_col;\n"
 	"out vec4 color;\n"
 	"void main()                                  \n"
 	"{                                            \n"
-	"  color = vec4 (1.0, 0.0, 1.0, 1.0 );\n"
+	"  color = o_col;\n"
 	"}                                            \n";
 
 // Emscripten requires to have full control over the main loop. We're going to store our SDL book-keeping variables globally.
@@ -41,6 +46,7 @@ GLContext *gl = NULL;
 GLRenderer *renderer;
 Camera *camera;
 Shader *shader;
+GLObject *triangle;
 
 glm::mat4 getModelMatrix()
 {
@@ -68,15 +74,11 @@ static void main_loop(void *arg)
 	gui->Update(camera);
 
 	SDL_GL_MakeCurrent(g_Window, g_GLContext);
-	glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
+	// glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
 	renderer->Begin(*camera, glm::vec4(clear_color.x, clear_color.y, clear_color.z, clear_color.w));
 
-	shader->use();
-	shader->setMat4("proj_matrix", camera->getProjectionMatrix());
-	shader->setMat4("view_matrix", camera->getViewMatrix());
-	shader->setMat4("model_matrix", getModelMatrix());
-
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+	GLObject *grid = (GLObject *)arg;
+	renderer->DrawLines(*grid, *shader);
 
 	gui->Render();
 	SDL_GL_SwapWindow(g_Window);
@@ -95,30 +97,16 @@ int main(int, char **)
 
 	renderer = new GLRenderer();
 	camera = new Camera();
-	camera->Reset(glm::vec3(-1.0, 2.0, 2.0), -65.0f, -40.0f);
+	camera->Reset(glm::vec3(0.0, 0.0, 4.0), -90.0f, 0.0f);
 
-	{
-		// Create Vertex Array Object
-		GLuint vao;
-		glGenVertexArraysOES(1, &vao);
-		glBindVertexArrayOES(vao);
+	triangle = new GLObject(std::vector<float>{
+		-0.5f, -0.5f, 0.0f,
+		0.0f, 0.5f, 0.0f,
+		0.5f, -0.5f, 0.0f});
 
-		// Create a Vertex Buffer Object and copy the vertex data to it
-		GLuint vbo;
-		glGenBuffers(1, &vbo);
+	auto grid = GLObject::Grid(10, 10);
+	grid.scale = glm::vec3(2.0);
+	grid.color = glm::vec4(0.2, 0.2, 0.2, 1.0);
 
-		GLfloat vertices[] = {0.0f, 0.5f, 0.0f, 0.5f, -0.5f, 0.0f, -0.5f, -0.5f, 0.0f};
-
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-		shader->use();
-
-		// Specify the layout of the vertex data
-		// GLint posAttrib = glGetAttribLocation(shader->p_id, "position");
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	}
-
-	emscripten_set_main_loop_arg(main_loop, NULL, 0, true);
+	emscripten_set_main_loop_arg(main_loop, &grid, 0, true);
 }
