@@ -44,8 +44,8 @@ GLContext::GLContext(std::string title, int width, int height) : width(width), h
 	}
 	SDL_GL_SetSwapInterval(1); // Enable vsync
 
-	// glEnable(GL_BLEND);
-	// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	// readGLInfo();
 }
 

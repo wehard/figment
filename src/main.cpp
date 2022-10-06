@@ -125,7 +125,7 @@ int main(int, char **)
 
 	auto grid = GLObject::Grid(10, 10);
 	grid.scale = glm::vec3(2.0);
-	grid.color = glm::vec4(0.6, 0.6, 0.6, 1.0);
+	grid.color = glm::vec4(1.0, 1.0, 1.0, 0.3);
 
 	emscripten_set_main_loop_arg(main_loop, &grid, 0, true);
 }
