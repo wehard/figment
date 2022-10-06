@@ -56,6 +56,7 @@ void GLRenderer::DrawBillboard(GLObject &object, float scale, Shader &shader)
 void GLRenderer::DrawLines(GLObject &object, Shader &shader)
 {
 	shader.use();
+	shader.setVec4("obj_color", object.color);
 	shader.setMat4("proj_matrix", camera->getProjectionMatrix());
 	shader.setMat4("view_matrix", camera->getViewMatrix());
 	shader.setMat4("model_matrix", object.getModelMatrix());

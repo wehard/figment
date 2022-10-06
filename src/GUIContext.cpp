@@ -69,6 +69,26 @@ void GUIContext::Update(void *arg)
 	{
 		camera->Reset(glm::vec3(0.0, 2.0, 0.0), -90.0f, -89.0f);
 	}
+	ImGui::Text("Move");
+	if (ImGui::SmallButton("Move Left"))
+	{
+		camera->Move(LEFT, 0.1);
+	}
+	ImGui::SameLine();
+	if (ImGui::SmallButton("Move Right"))
+	{
+		camera->Move(RIGHT, 0.1);
+	}
+	ImGui::SameLine();
+	if (ImGui::SmallButton("Move Up"))
+	{
+		camera->Move(UP, 0.1);
+	}
+	ImGui::SameLine();
+	if (ImGui::SmallButton("Move Down"))
+	{
+		camera->Move(DOWN, 0.1);
+	}
 	ImGui::End();
 
 	GLint major;

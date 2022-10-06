@@ -39,6 +39,10 @@ void Camera::Move(CameraDirection direction, float deltaTime)
 		position -= right * velocity;
 	if (direction == RIGHT)
 		position += right * velocity;
+	if (direction == UP)
+		position += up * velocity;
+	if (direction == DOWN)
+		position -= up * velocity;
 }
 
 void Camera::Rotate(float xoffset, float yoffset, bool constrainPitch)

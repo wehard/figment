@@ -4,20 +4,20 @@
 #include <glm/gtx/euler_angles.hpp>
 #include <vector>
 
-GLObject::GLObject(std::vector<float> vertexPositions) : vertexCount(vertexPositions.size())
+GLObject::GLObject(std::vector<float> vertexPositions) : vertexCount(vertexPositions.size() / 3)
 {
 	glGenVertexArraysOES(1, &vao);
 	glBindVertexArrayOES(vao);
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * vertexPositions.size(), &vertexPositions[0], GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * vertexPositions.size(), &vertexPositions[0], GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 3, 0);
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArrayOES(0);
 }
 
-GLObject::GLObject(std::vector<float> vertexPositions, std::vector<float> vertexColors) : vertexCount(vertexPositions.size())
+GLObject::GLObject(std::vector<float> vertexPositions, std::vector<float> vertexColors) : vertexCount(vertexPositions.size() / 3)
 {
 	glGenVertexArraysOES(1, &vao);
 	glBindVertexArrayOES(vao);
@@ -26,7 +26,7 @@ GLObject::GLObject(std::vector<float> vertexPositions, std::vector<float> vertex
 	glGenBuffers(1, &cbo);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * vertexPositions.size(), &vertexPositions[0], GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * vertexPositions.size(), &vertexPositions[0], GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 3, 0);
 	glEnableVertexAttribArray(0);
 
