@@ -18,8 +18,7 @@ IMGUIDIR = lib/imgui
 WEB_DIR = web
 WEB_EXE = $(WEB_DIR)/index.html
 
-SRC = Application.cpp\
-	Camera.cpp\
+SRC = Camera.cpp\
 	GLContext.cpp\
 	GLObject.cpp\
 	GLRenderer.cpp\
@@ -48,7 +47,7 @@ LDFLAGS += -lm
 
 # ("EMS" options gets added to both CPPFLAGS and LDFLAGS, whereas some options are for linker only)
 EMS = -s USE_SDL=2
-EMS += -s DISABLE_EXCEPTION_CATCHING=1
+EMS += -s DISABLE_EXCEPTION_CATCHING=1 -sEXPORTED_FUNCTIONS=_onMouseMove,_main
 
 EMS_CFLAGS = ${CFLAGS} -DIMGUI_DISABLE_FILE_FUNCTIONS ${EMS}
 EMS_INCL = ${INCL} 
@@ -64,8 +63,7 @@ $(NAME): $(OBJS)
 	@$(CC) $(CFLAGS) $(INCL) $(OBJS) $(LDFLAGS) -o $(NAME) -O3
 
 ems: ${OBJS} ${WEB_DIR}
-	@$(CC) $(EMS_CFLAGS) $(EMS_INCL) $(OBJS) $(EMS_LDFLAGS) -o $(WEB_EXE) -O3
-	@cp index.html ${WEB_EXE}
+	@$(CC) $(EMS_CFLAGS) $(EMS_INCL) $(OBJS) $(EMS_LDFLAGS) -o $(WEB_EXE) -O3 --shell-file index.html
 
 %.o: %.cpp
 	@printf "compiling %s -> %s\n" "$<" "$@"
