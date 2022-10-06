@@ -63,15 +63,16 @@ $(NAME): $(OBJS)
 	@printf "compiling \n" "$(NAME)"
 	@$(CC) $(CFLAGS) $(INCL) $(OBJS) $(LDFLAGS) -o $(NAME) -O3
 
-ems: fclean ${OBJS} ${WEB_DIR}
+ems: ${OBJS} ${WEB_DIR}
 	@$(CC) $(EMS_CFLAGS) $(EMS_INCL) $(OBJS) $(EMS_LDFLAGS) -o $(WEB_EXE) -O3
+	@cp index.html ${WEB_EXE}
 
 %.o: %.cpp
 	@printf "compiling %s -> %s\n" "$<" "$@"
 	@$(CC) $(CFLAGS) $(INCL) -c $< -o  $@ -O3
 
 $(WEB_DIR):
-	@mkdir -p $@
+	mkdir -p $@
 
 debug:
 	$(CC) -g $(CFLAGS) $(INCL) $(SRCS) $(LDFLAGS) -o $(NAME)
