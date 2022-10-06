@@ -70,43 +70,20 @@ void GUIContext::Update(void *arg)
 		camera->Reset(glm::vec3(0.0, 2.0, 0.0), -90.0f, -89.0f);
 	}
 	ImGui::End();
+
+	GLint major;
+	GLint minor;
+	SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &major);
+	SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &minor);
+
+	ImGui::Begin("GL Platform");
+	ImGui::Text("GL version: %d.%d", major, minor);
+	ImGui::Text("GLSL version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
+	ImGui::Text("GL Vendor: %s", glGetString(GL_VENDOR));
+	ImGui::Text("GL Renderer: %s", glGetString(GL_RENDERER));
+
+	ImGui::End();
 }
-
-// void GUIContext::UpdateApplicationInfo()
-// {
-// 	ImGui::Begin("application");
-// 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-// 	ImGui::Text("FPS %d", app.fps);
-// 	ImGui::Text("ms %f", app.msPerFrame);
-// 	ImGui::Checkbox("Show Overlays", &app.showOverlays);
-// 	ImGui::Separator();
-
-// 	ImGui::Text("Mouse");
-// 	ImGui::Text("Screen x %f, y %f, z %f", app.mouseInfo.screen.x, app.mouseInfo.screen.y, app.mouseInfo.screen.z);
-// 	ImGui::Text("NDC x %f, y %f, z %f", app.mouseInfo.ndc.x, app.mouseInfo.ndc.y, app.mouseInfo.ndc.z);
-// 	ImGui::Text("World x %f, y %f, z %f", app.mouseInfo.world.x, app.mouseInfo.world.y, app.mouseInfo.world.z);
-// 	ImGui::Checkbox("Gravity", (bool *)&app.mouseInfo.gravity);
-// 	ImGui::SameLine();
-// 	ImGui::SliderFloat("Mass", &app.mouseInfo.mass, 1.0, 100.0, "%.2f", ImGuiSliderFlags_None);
-// 	ImGui::Separator();
-
-// 	ImGui::Text("Info");
-// 	ImGui::ColorEdit3("Background color", &app.gl.clearColor.r);
-
-// 	ImGui::End();
-// }
-
-// void GUIContext::UpdatePlatformInfo(Application &app)
-// {
-// 	ImGui::Begin("platform");
-// 	ImGui::Text("GL version: %d.%d", app.gl.glInfo.glMajorVersion, app.gl.glInfo.glMinorVersion);
-// 	ImGui::Text("GLSL version: %s", app.gl.glInfo.shadingLanguageVersion);
-// 	ImGui::Text("GL Vendor: %s", app.gl.glInfo.vendor);
-// 	ImGui::Text("GL Renderer: %s", app.gl.glInfo.renderer);
-// 	ImGui::Separator();
-
-// 	ImGui::End();
-// }
 
 void GUIContext::Render()
 {

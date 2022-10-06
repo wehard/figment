@@ -13,7 +13,8 @@
 #include <glm/vec3.hpp>
 
 const GLchar *vertexSource =
-	"attribute vec4 position;    \n"
+	"#version 300 es\n"
+	"layout(location = 0) in vec4 position;    \n"
 	"uniform mat4 model_matrix;\n"
 	"uniform mat4 view_matrix;\n"
 	"uniform mat4 proj_matrix;\n"
@@ -22,10 +23,12 @@ const GLchar *vertexSource =
 	"   gl_Position =  proj_matrix * view_matrix * model_matrix * vec4(position.xyz, 1.0);  \n"
 	"}                            \n";
 const GLchar *fragmentSource =
+	"#version 300 es\n"
 	"precision mediump float;\n"
+	"out vec4 color;\n"
 	"void main()                                  \n"
 	"{                                            \n"
-	"  gl_FragColor = vec4 (1.0, 0.0, 1.0, 1.0 );\n"
+	"  color = vec4 (1.0, 0.0, 1.0, 1.0 );\n"
 	"}                                            \n";
 
 // Emscripten requires to have full control over the main loop. We're going to store our SDL book-keeping variables globally.
@@ -81,7 +84,7 @@ static void main_loop(void *arg)
 
 int main(int, char **)
 {
-	gl = new GLContext("crap canvas", 1280, 720);
+	gl = new GLContext("Figment C++", 1280, 720);
 	g_Window = gl->window;
 	g_GLContext = gl->glContext;
 
@@ -112,9 +115,9 @@ int main(int, char **)
 		shader->use();
 
 		// Specify the layout of the vertex data
-		GLint posAttrib = glGetAttribLocation(shader->p_id, "position");
-		glEnableVertexAttribArray(posAttrib);
-		glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		// GLint posAttrib = glGetAttribLocation(shader->p_id, "position");
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	}
 
 	emscripten_set_main_loop_arg(main_loop, NULL, 0, true);
