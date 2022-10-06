@@ -6,18 +6,6 @@
 #include <vector>
 #include <map>
 
-Shader::Shader(std::string vert_path, std::string frag_path)
-{
-	this->vert_path = vert_path;
-	this->frag_path = frag_path;
-
-	this->v_id = compileShader(loadShader(this->vert_path), GL_VERTEX_SHADER);
-	this->f_id = compileShader(loadShader(this->frag_path), GL_FRAGMENT_SHADER);
-	this->p_id = createProgram(this->v_id, this->f_id);
-	loadUniforms();
-	loadAttributes();
-}
-
 Shader::Shader(const char *vertSource, const char *fragSource)
 {
 	this->v_id = compileShader(vertSource, GL_VERTEX_SHADER);

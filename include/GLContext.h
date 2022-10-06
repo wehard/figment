@@ -9,6 +9,7 @@
 #include <SDL2/SDL_opengl.h>
 #else
 #include <SDL2/SDL_opengl.h>
+#include <SDL2/SDL_opengles2.h>
 #endif
 
 #include <glm/gtc/matrix_transform.hpp>

@@ -6,21 +6,21 @@
 
 GLObject::GLObject(std::vector<float> vertexPositions) : vertexCount(vertexPositions.size())
 {
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
+	glGenVertexArraysOES(1, &vao);
+	glBindVertexArrayOES(vao);
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * vertexPositions.size(), &vertexPositions[0], GL_DYNAMIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 3, 0);
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+	glBindVertexArrayOES(0);
 }
 
 GLObject::GLObject(std::vector<float> vertexPositions, std::vector<float> vertexColors) : vertexCount(vertexPositions.size())
 {
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
+	glGenVertexArraysOES(1, &vao);
+	glBindVertexArrayOES(vao);
 
 	glGenBuffers(1, &vbo);
 	glGenBuffers(1, &cbo);
@@ -36,14 +36,14 @@ GLObject::GLObject(std::vector<float> vertexPositions, std::vector<float> vertex
 	glEnableVertexAttribArray(1);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+	glBindVertexArrayOES(0);
 }
 
 GLObject::~GLObject()
 {
 	glDeleteBuffers(1, &vbo);
 	glDeleteBuffers(1, &cbo);
-	glDeleteVertexArrays(1, &vao);
+	glDeleteVertexArraysOES(1, &vao);
 }
 
 glm::mat4 GLObject::getModelMatrix()

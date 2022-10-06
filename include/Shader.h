@@ -7,11 +7,8 @@
 class Shader
 {
 private:
-	uint32_t p_id;
 	uint32_t v_id;
 	uint32_t f_id;
-	std::string vert_path;
-	std::string frag_path;
 	std::map<std::string, uint32_t> uniforms;
 	std::map<std::string, uint32_t> attributes;
 
@@ -22,7 +19,7 @@ private:
 	void loadAttributes();
 
 public:
-	Shader(std::string vert_path, std::string frag_path);
+	uint32_t p_id;
 	Shader(const char *vertSource, const char *fragSource);
 	~Shader();
 	void use();
