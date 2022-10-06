@@ -16,6 +16,11 @@
     <script type='text/javascript'>
       // connect to canvas
       var Module = {
+        onRuntimeInitialized: function() {
+            document.addEventListener('mousemove', (e) => {
+              _onMouseMove(e.clientX, e.clientY);
+            })
+        },
         preRun: [],
         postRun: [],
         print: function() { 
@@ -27,6 +32,6 @@
         canvas: document.getElementById('canvas')
       }
     </script>
-    <script async type="text/javascript" src="index.js"></script>
+    {{{ SCRIPT }}}
 </body>
 </html>

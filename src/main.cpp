@@ -5,12 +5,16 @@
 #include <emscripten.h>
 
 #include "GLContext.h"
-#include "Application.h"
+#include "GLObject.h"
+#include "GUIContext.h"
+#include "GLRenderer.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/vec3.hpp>
+
+#include <math.h>
 
 const GLchar *vertexSource =
 	"#version 300 es\n"
@@ -48,6 +52,21 @@ Camera *camera;
 Shader *shader;
 GLObject *triangle;
 
+glm::vec2 mousePosition = glm::vec2(0.0);
+glm::vec2 prevMousePosition = glm::vec2(640, 360);
+
+extern "C"
+{
+
+	EMSCRIPTEN_KEEPALIVE void onMouseMove(float x, float y)
+	{
+		mousePosition = glm::vec2(x, y);
+		glm::vec2 delta = mousePosition - prevMousePosition;
+		camera->Rotate(delta.x, delta.y);
+		prevMousePosition = mousePosition;
+	}
+}
+
 glm::mat4 getModelMatrix()
 {
 	glm::vec3 rotation = glm::vec3(0.0, 0.0, 0.0);
@@ -63,7 +82,7 @@ static void main_loop(void *arg)
 	ImGuiIO &io = ImGui::GetIO();
 	IM_UNUSED(arg);
 
-	static ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+	static ImVec4 clear_color = ImVec4(0.15, 0.15, 0.15, 1.00f);
 
 	SDL_Event event;
 	while (SDL_PollEvent(&event))
@@ -106,7 +125,7 @@ int main(int, char **)
 
 	auto grid = GLObject::Grid(10, 10);
 	grid.scale = glm::vec3(2.0);
-	grid.color = glm::vec4(0.2, 0.2, 0.2, 1.0);
+	grid.color = glm::vec4(0.6, 0.6, 0.6, 1.0);
 
 	emscripten_set_main_loop_arg(main_loop, &grid, 0, true);
 }
