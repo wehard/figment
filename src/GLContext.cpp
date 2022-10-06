@@ -35,7 +35,7 @@ GLContext::GLContext(std::string title, int width, int height) : width(width), h
 	SDL_DisplayMode current;
 	SDL_GetCurrentDisplayMode(0, &current);
 	SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
-	window = SDL_CreateWindow("Dear ImGui Emscripten example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, window_flags);
+	window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, window_flags);
 	glContext = SDL_GL_CreateContext(window);
 	if (!glContext)
 	{

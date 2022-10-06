@@ -62,11 +62,16 @@ static void main_loop(void *arg)
 		ImGui_ImplSDL2_ProcessEvent(&event);
 	}
 
-	gui->Update();
+	gui->Update(camera);
 
 	SDL_GL_MakeCurrent(g_Window, g_GLContext);
 	glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
 	renderer->Begin(*camera, glm::vec4(clear_color.x, clear_color.y, clear_color.z, clear_color.w));
+
+	shader->use();
+	shader->setMat4("proj_matrix", camera->getProjectionMatrix());
+	shader->setMat4("view_matrix", camera->getViewMatrix());
+	shader->setMat4("model_matrix", getModelMatrix());
 
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 
@@ -76,7 +81,7 @@ static void main_loop(void *arg)
 
 int main(int, char **)
 {
-	gl = new GLContext("crap canvas", 1920, 1080);
+	gl = new GLContext("crap canvas", 1280, 720);
 	g_Window = gl->window;
 	g_GLContext = gl->glContext;
 
@@ -104,40 +109,12 @@ int main(int, char **)
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-		/*
-		// Create and compile the vertex shader
-		GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-		glShaderSource(vertexShader, 1, &vertexSource, NULL);
-		glCompileShader(vertexShader);
-
-		// Create and compile the fragment shader
-		GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-		glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
-		glCompileShader(fragmentShader);
-
-		// Link the vertex and fragment shader into a shader program
-		GLuint shaderProgram = glCreateProgram();
-		glAttachShader(shaderProgram, vertexShader);
-		glAttachShader(shaderProgram, fragmentShader);
-		// glBindFragDataLocation(shaderProgram, 0, "outColor");
-		glLinkProgram(shaderProgram);
-		glUseProgram(shaderProgram);
-		*/
-
 		shader->use();
 
 		// Specify the layout of the vertex data
 		GLint posAttrib = glGetAttribLocation(shader->p_id, "position");
 		glEnableVertexAttribArray(posAttrib);
 		glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-		shader->setMat4("proj_matrix", camera->getProjectionMatrix());
-		shader->setMat4("view_matrix", camera->getViewMatrix());
-		shader->setMat4("model_matrix", getModelMatrix());
-
-		// glUniformMatrix4fv(glGetUniformLocation(shader->p_id, "proj_matrix"), 1, GL_FALSE, (GLfloat *)&camera->getProjectionMatrix()[0]);
-		// glUniformMatrix4fv(glGetUniformLocation(shader->p_id, "view_matrix"), 1, GL_FALSE, (GLfloat *)&camera->getViewMatrix()[0]);
-		// glUniformMatrix4fv(glGetUniformLocation(shader->p_id, "model_matrix"), 1, GL_FALSE, (GLfloat *)&getModelMatrix()[0]);
 	}
 
 	emscripten_set_main_loop_arg(main_loop, NULL, 0, true);

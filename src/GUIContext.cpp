@@ -24,7 +24,7 @@ void GUIContext::Init(SDL_Window *window, SDL_GLContext sdlContext, const char *
 	ImGui_ImplOpenGL3_Init(glslVersion);
 }
 
-void GUIContext::Update()
+void GUIContext::Update(void *arg)
 {
 	ImGuiIO &io = ImGui::GetIO();
 
@@ -35,8 +35,40 @@ void GUIContext::Update()
 	// UpdatePlatformInfo();
 	// UpdateApplicationInfo();
 
-	ImGui::Begin("test");
-	ImGui::Text("Hello, world!");
+	Camera *camera = (Camera *)arg;
+
+	ImGui::Begin("Camera");
+	ImGui::Text("Position x %f, y %f, z %f", camera->position.x, camera->position.y, camera->position.z);
+	ImGui::Text("Yaw %f, Pitch %f", camera->yaw, camera->pitch);
+	if (ImGui::SmallButton("TopLeft"))
+	{
+		camera->Reset(glm::vec3(-1.0, 2.0, 2.0), -65.0f, -40.0f);
+	}
+	ImGui::SameLine();
+	if (ImGui::SmallButton("Front"))
+	{
+		camera->Reset(glm::vec3(0.0, 0.0, 2.0), -90.0f, 0.0f);
+	}
+	ImGui::SameLine();
+	if (ImGui::SmallButton("Back"))
+	{
+		camera->Reset(glm::vec3(0.0, 0.0, -2.0), 90.0f, 0.0f);
+	}
+	ImGui::SameLine();
+	if (ImGui::SmallButton("Left"))
+	{
+		camera->Reset(glm::vec3(-2.0, 0.0, 0.0), 0.0f, 0.0f);
+	}
+	ImGui::SameLine();
+	if (ImGui::SmallButton("Right"))
+	{
+		camera->Reset(glm::vec3(2.0, 0.0, 0.0), 180.0f, 0.0f);
+	}
+	ImGui::SameLine();
+	if (ImGui::SmallButton("Top"))
+	{
+		camera->Reset(glm::vec3(0.0, 2.0, 0.0), -90.0f, -89.0f);
+	}
 	ImGui::End();
 }
 
@@ -47,40 +79,6 @@ void GUIContext::Update()
 // 	ImGui::Text("FPS %d", app.fps);
 // 	ImGui::Text("ms %f", app.msPerFrame);
 // 	ImGui::Checkbox("Show Overlays", &app.showOverlays);
-// 	ImGui::Separator();
-
-// 	ImGui::Text("Camera");
-// 	ImGui::Text("Position x %f, y %f, z %f", app.camera.position.x, app.camera.position.y, app.camera.position.z);
-// 	ImGui::Text("Yaw %f, Pitch %f", app.camera.yaw, app.camera.pitch);
-// 	if (ImGui::SmallButton("TopLeft"))
-// 	{
-// 		app.camera.Reset(glm::vec3(-1.0, 2.0, 2.0), -65.0f, -40.0f);
-// 	}
-// 	ImGui::SameLine();
-// 	if (ImGui::SmallButton("Front"))
-// 	{
-// 		app.camera.Reset(glm::vec3(0.0, 0.0, 2.0), -90.0f, 0.0f);
-// 	}
-// 	ImGui::SameLine();
-// 	if (ImGui::SmallButton("Back"))
-// 	{
-// 		app.camera.Reset(glm::vec3(0.0, 0.0, -2.0), 90.0f, 0.0f);
-// 	}
-// 	ImGui::SameLine();
-// 	if (ImGui::SmallButton("Left"))
-// 	{
-// 		app.camera.Reset(glm::vec3(-2.0, 0.0, 0.0), 0.0f, 0.0f);
-// 	}
-// 	ImGui::SameLine();
-// 	if (ImGui::SmallButton("Right"))
-// 	{
-// 		app.camera.Reset(glm::vec3(2.0, 0.0, 0.0), 180.0f, 0.0f);
-// 	}
-// 	ImGui::SameLine();
-// 	if (ImGui::SmallButton("Top"))
-// 	{
-// 		app.camera.Reset(glm::vec3(0.0, 2.0, 0.0), -90.0f, -89.0f);
-// 	}
 // 	ImGui::Separator();
 
 // 	ImGui::Text("Mouse");

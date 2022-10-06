@@ -20,7 +20,7 @@ private:
 public:
 	GUIContext();
 	void Init(SDL_Window *window, SDL_GLContext sdlContext, const char *glslVersion);
-	void Update();
+	void Update(void *arg);
 	void Render();
 	void Shutdown();
 	~GUIContext();
