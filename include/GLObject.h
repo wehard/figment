@@ -20,7 +20,7 @@ public:
 	GLObject(std::vector<float> vertexPositions, std::vector<float> vertexColors);
 	~GLObject();
 	glm::mat4 getModelMatrix();
-	static GLObject Plane();
+	static std::vector<float> Plane();
 	static GLObject Triangle();
 	static GLObject Axis();
 	static GLObject Star();
