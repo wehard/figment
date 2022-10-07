@@ -55,16 +55,15 @@ glm::mat4 GLObject::getModelMatrix()
 	return (m);
 }
 
-GLObject GLObject::Plane()
+std::vector<float> GLObject::Plane()
 {
-	auto plane = GLObject(std::vector<float>{
+	return std::vector<float>{
 		-0.5f, -0.5f, 0.0f,
 		-0.5f, 0.5f, 0.0f,
 		0.5f, 0.5f, 0.0f,
 		0.5f, 0.5f, 0.0f,
 		0.5f, -0.5f, 0.0f,
-		-0.5f, -0.5f, 0.0f});
-	return plane;
+		-0.5f, -0.5f, 0.0f};
 }
 
 GLObject GLObject::Triangle()

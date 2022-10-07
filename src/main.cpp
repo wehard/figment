@@ -52,6 +52,8 @@ private:
 
 	ImVec4 clear_color = ImVec4(0.15, 0.15, 0.15, 1.00f);
 
+	std::vector<GLObject *> objects;
+
 public:
 	App()
 	{
@@ -80,6 +82,14 @@ public:
 		while (SDL_PollEvent(&event))
 		{
 			ImGui_ImplSDL2_ProcessEvent(&event);
+			if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_i)
+			{
+				GLObject *o = new GLObject(GLObject::Plane());
+				o->position = camera->position;
+				o->position.z = 0.0;
+				o->color.a = 0.1;
+				objects.push_back(o);
+			}
 		}
 
 		GUIUpdate();
@@ -87,6 +97,11 @@ public:
 		SDL_GL_MakeCurrent(gl->window, gl->glContext);
 		renderer->Begin(*camera, glm::vec4(clear_color.x, clear_color.y, clear_color.z, clear_color.w));
 		renderer->DrawLines(*grid, *shader);
+
+		for (auto object : objects)
+		{
+			renderer->Draw(*object, *shader);
+		}
 
 		gui->Render();
 		SDL_GL_SwapWindow(gl->window);
