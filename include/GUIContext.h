@@ -14,13 +14,10 @@ class GUIContext
 {
 private:
 	ImGuiContext *context;
-	// void UpdatePlatformInfo();
-	// void UpdateApplicationInfo();
 
 public:
 	GUIContext();
 	void Init(SDL_Window *window, SDL_GLContext sdlContext, const char *glslVersion);
-	void Update(void *arg);
 	void Render();
 	void Shutdown();
 	~GUIContext();
