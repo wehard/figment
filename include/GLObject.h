@@ -24,5 +24,5 @@ public:
 	static GLObject Triangle();
 	static GLObject Axis();
 	static GLObject Star();
-	static GLObject Grid(int x, int y);
+	static std::vector<float> Grid(int x, int y);
 };

@@ -104,7 +104,7 @@ GLObject GLObject::Axis()
 	return axis;
 }
 
-GLObject GLObject::Grid(int xs, int ys)
+std::vector<float> GLObject::Grid(int xs, int ys)
 {
 	std::vector<float> vertices;
 
@@ -134,8 +134,5 @@ GLObject GLObject::Grid(int xs, int ys)
 		vertices.push_back(0.0);
 	}
 
-	auto grid = GLObject(vertices);
-	grid.color = glm::vec4(1.0, 1.0, 1.0, 0.3);
-
-	return grid;
+	return vertices;
 }

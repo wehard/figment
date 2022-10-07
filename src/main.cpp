@@ -40,17 +40,134 @@ const GLchar *fragmentSource =
 	"  color = o_col;\n"
 	"}                                            \n";
 
-// Emscripten requires to have full control over the main loop. We're going to store our SDL book-keeping variables globally.
-// Having a single function that acts as a loop prevents us to store state in the stack of said function. So we need some location for this.
-SDL_Window *g_Window = NULL;
-SDL_GLContext g_GLContext = NULL;
+class App
+{
+private:
+	GLContext *gl;
+	GUIContext *gui;
+	GLRenderer *renderer;
+	Camera *camera;
+	Shader *shader;
+	GLObject *grid;
 
-GUIContext *gui;
-GLContext *gl = NULL;
-GLRenderer *renderer;
-Camera *camera;
-Shader *shader;
-GLObject *triangle;
+	ImVec4 clear_color = ImVec4(0.15, 0.15, 0.15, 1.00f);
+
+public:
+	App()
+	{
+		gl = new GLContext("Figment C++", 1280, 720);
+		gui = new GUIContext();
+		shader = new Shader(vertexSource, fragmentSource);
+		renderer = new GLRenderer();
+		camera = new Camera();
+
+		grid = new GLObject(GLObject::Grid(10, 10));
+		camera->Reset(glm::vec3(0.0, 0.0, 4.0), -90.0f, 0.0f);
+		gui->Init(gl->window, gl->glContext, gl->glslVersion);
+	}
+
+	~App()
+	{
+		delete gl;
+		delete shader;
+		delete camera;
+		delete gui;
+	}
+
+	void Update()
+	{
+		SDL_Event event;
+		while (SDL_PollEvent(&event))
+		{
+			ImGui_ImplSDL2_ProcessEvent(&event);
+		}
+
+		GUIUpdate();
+
+		SDL_GL_MakeCurrent(gl->window, gl->glContext);
+		renderer->Begin(*camera, glm::vec4(clear_color.x, clear_color.y, clear_color.z, clear_color.w));
+		renderer->DrawLines(*grid, *shader);
+
+		gui->Render();
+		SDL_GL_SwapWindow(gl->window);
+	}
+
+	void GUIUpdate()
+	{
+		ImGuiIO &io = ImGui::GetIO();
+
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplSDL2_NewFrame();
+		ImGui::NewFrame();
+
+		ImGui::Begin("Camera");
+		ImGui::Text("Position x %f, y %f, z %f", camera->position.x, camera->position.y, camera->position.z);
+		ImGui::Text("Yaw %f, Pitch %f", camera->yaw, camera->pitch);
+		if (ImGui::SmallButton("TopLeft"))
+		{
+			camera->Reset(glm::vec3(-1.0, 2.0, 2.0), -65.0f, -40.0f);
+		}
+		ImGui::SameLine();
+		if (ImGui::SmallButton("Front"))
+		{
+			camera->Reset(glm::vec3(0.0, 0.0, 2.0), -90.0f, 0.0f);
+		}
+		ImGui::SameLine();
+		if (ImGui::SmallButton("Back"))
+		{
+			camera->Reset(glm::vec3(0.0, 0.0, -2.0), 90.0f, 0.0f);
+		}
+		ImGui::SameLine();
+		if (ImGui::SmallButton("Left"))
+		{
+			camera->Reset(glm::vec3(-2.0, 0.0, 0.0), 0.0f, 0.0f);
+		}
+		ImGui::SameLine();
+		if (ImGui::SmallButton("Right"))
+		{
+			camera->Reset(glm::vec3(2.0, 0.0, 0.0), 180.0f, 0.0f);
+		}
+		ImGui::SameLine();
+		if (ImGui::SmallButton("Top"))
+		{
+			camera->Reset(glm::vec3(0.0, 2.0, 0.0), -90.0f, -89.0f);
+		}
+		ImGui::Text("Move");
+		if (ImGui::SmallButton("Move Left"))
+		{
+			camera->Move(LEFT, 0.1);
+		}
+		ImGui::SameLine();
+		if (ImGui::SmallButton("Move Right"))
+		{
+			camera->Move(RIGHT, 0.1);
+		}
+		ImGui::SameLine();
+		if (ImGui::SmallButton("Move Up"))
+		{
+			camera->Move(UP, 0.1);
+		}
+		ImGui::SameLine();
+		if (ImGui::SmallButton("Move Down"))
+		{
+			camera->Move(DOWN, 0.1);
+		}
+		ImGui::End();
+
+		GLint major;
+		GLint minor;
+		SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &major);
+		SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &minor);
+
+		ImGui::Begin("GL Platform");
+		ImGui::Text("GL version: %d.%d", major, minor);
+		ImGui::Text("GLSL version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
+		ImGui::Text("GL Vendor: %s", glGetString(GL_VENDOR));
+		ImGui::Text("GL Renderer: %s", glGetString(GL_RENDERER));
+
+		ImGui::End();
+	}
+};
 
 glm::vec2 mousePosition = glm::vec2(0.0);
 glm::vec2 prevMousePosition = glm::vec2(640, 360);
@@ -62,70 +179,19 @@ extern "C"
 	{
 		mousePosition = glm::vec2(x, y);
 		glm::vec2 delta = mousePosition - prevMousePosition;
-		camera->Rotate(delta.x, delta.y);
+		// camera->Rotate(delta.x, delta.y);
 		prevMousePosition = mousePosition;
 	}
 }
 
-glm::mat4 getModelMatrix()
-{
-	glm::vec3 rotation = glm::vec3(0.0, 0.0, 0.0);
-	glm::mat4 matScale = glm::scale(glm::mat4(1.0f), glm::vec3(1.0));
-	glm::mat4 matTranslate = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, 0.0));
-	glm::mat4 matRotate = glm::eulerAngleXYZ(glm::radians(rotation.x), glm::radians(rotation.y), glm::radians(rotation.z));
-	glm::mat4 m = matTranslate * matRotate * matScale;
-	return (m);
-}
-
 static void main_loop(void *arg)
 {
-	ImGuiIO &io = ImGui::GetIO();
-	IM_UNUSED(arg);
-
-	static ImVec4 clear_color = ImVec4(0.15, 0.15, 0.15, 1.00f);
-
-	SDL_Event event;
-	while (SDL_PollEvent(&event))
-	{
-		ImGui_ImplSDL2_ProcessEvent(&event);
-	}
-
-	gui->Update(camera);
-
-	SDL_GL_MakeCurrent(g_Window, g_GLContext);
-	// glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
-	renderer->Begin(*camera, glm::vec4(clear_color.x, clear_color.y, clear_color.z, clear_color.w));
-
-	GLObject *grid = (GLObject *)arg;
-	renderer->DrawLines(*grid, *shader);
-
-	gui->Render();
-	SDL_GL_SwapWindow(g_Window);
+	App *app = (App *)arg;
+	app->Update();
 }
 
 int main(int, char **)
 {
-	gl = new GLContext("Figment C++", 1280, 720);
-	g_Window = gl->window;
-	g_GLContext = gl->glContext;
-
-	gui = new GUIContext();
-	gui->Init(g_Window, g_GLContext, gl->glslVersion);
-
-	shader = new Shader(vertexSource, fragmentSource);
-
-	renderer = new GLRenderer();
-	camera = new Camera();
-	camera->Reset(glm::vec3(0.0, 0.0, 4.0), -90.0f, 0.0f);
-
-	triangle = new GLObject(std::vector<float>{
-		-0.5f, -0.5f, 0.0f,
-		0.0f, 0.5f, 0.0f,
-		0.5f, -0.5f, 0.0f});
-
-	auto grid = GLObject::Grid(10, 10);
-	grid.scale = glm::vec3(2.0);
-	grid.color = glm::vec4(1.0, 1.0, 1.0, 0.3);
-
-	emscripten_set_main_loop_arg(main_loop, &grid, 0, true);
+	App *app = new App();
+	emscripten_set_main_loop_arg(main_loop, app, 0, true);
 }
