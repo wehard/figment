@@ -1,8 +1,8 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en-us">
   <head>
-    <meta charset="utf-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Figment</title>
     <style>
       /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
@@ -12,26 +12,30 @@
     </style>
   </head>
   <body>
-  <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
-    <script type='text/javascript'>
+    <canvas
+      class="emscripten"
+      id="canvas"
+      oncontextmenu="event.preventDefault()"
+    ></canvas>
+    <script type="text/javascript">
       // connect to canvas
       var Module = {
-        onRuntimeInitialized: function() {
-            document.addEventListener('mousemove', (e) => {
-              _onMouseMove(e.clientX, e.clientY);
-            })
+        onRuntimeInitialized: function () {
+          document.addEventListener("mousemove", (e) => {
+            _onMouseMove(e.clientX, e.clientY);
+          });
         },
         preRun: [],
         postRun: [],
-        print: function() { 
-            console.log(Array.prototype.slice.call(arguments).join(" "));
+        print: function () {
+          console.log(Array.prototype.slice.call(arguments).join(" "));
         },
-        printErr: function() {
-            console.warn(Array.prototype.slice.call(arguments).join(" "));
+        printErr: function () {
+          console.warn(Array.prototype.slice.call(arguments).join(" "));
         },
-        canvas: document.getElementById('canvas')
-      }
+        canvas: document.getElementById("canvas"),
+      };
     </script>
     {{{ SCRIPT }}}
-</body>
+  </body>
 </html>
