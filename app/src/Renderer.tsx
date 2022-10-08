@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from 'react';
 
 // @ts-ignore
-import loadRenderer from "./renderer/index.js";
+import loadRenderer from './renderer/index.js';
 
 const Renderer = () => {
   const [context, setContext] = useState(undefined);
@@ -17,7 +17,7 @@ const Renderer = () => {
 
   return (
     <>
-      <canvas id="canvas" ref={canvas}></canvas>
+      <canvas id='canvas' ref={canvas}></canvas>
     </>
   );
 };
