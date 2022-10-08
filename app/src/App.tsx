@@ -4,9 +4,12 @@ import './App.css';
 
 function App() {
   return (
-    <div className='App bg-red-200'>
-      <h1>Figment</h1>
-      <Renderer></Renderer>
+    <div className='flex flex-col justify-center items-center space-y-2'>
+      <h1 className='text-white'>Figment</h1>
+      <div className='outline-dashed outline-white rounded-md'>
+        <Renderer />
+      </div>
+      <button>Insert</button>
     </div>
   );
 }
