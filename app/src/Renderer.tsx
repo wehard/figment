@@ -9,9 +9,9 @@ const Renderer = () => {
 
   useEffect(() => {
     let Module = { canvas: canvas.current };
-    loadRenderer(Module).then((result: any) => {
-      console.log(result);
-      setContext(result);
+    loadRenderer(Module).then((rendererContext: any) => {
+      console.log(rendererContext);
+      setContext(rendererContext);
     });
   }, []);
 

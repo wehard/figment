@@ -47,7 +47,7 @@ LDFLAGS += -lm
 
 # ("EMS" options gets added to both CPPFLAGS and LDFLAGS, whereas some options are for linker only)
 EMS = -s USE_SDL=2
-EMS += -s DISABLE_EXCEPTION_CATCHING=1 -sEXPORTED_FUNCTIONS=_onMouseMove,_main
+EMS += -s DISABLE_EXCEPTION_CATCHING=1 -sEXPORTED_FUNCTIONS=_onMouseMove,_insertObject,_main
 
 EMS_CFLAGS = ${CFLAGS} -DIMGUI_DISABLE_FILE_FUNCTIONS -sMODULARIZE=1 -sEXPORT_ES6=1 ${EMS}
 EMS_INCL = ${INCL} 
@@ -70,6 +70,7 @@ ems: ${OBJS} ${WEB_DIR}
 	@$(CC) $(CFLAGS) $(INCL) -c $< -o $@ -O3
 
 $(WEB_DIR):
+	@rm -Rf $(WEB_DIR)
 	@mkdir -p $@
 
 debug:

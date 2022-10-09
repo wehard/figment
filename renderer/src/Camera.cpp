@@ -7,7 +7,12 @@ Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch) : forwa
 {
 	float fovy = 45.0;
 	float aspect = 1.777;
-	this->projection_matrix = glm::perspective(glm::radians(fovy), aspect, 0.1f, 1000.0f);
+
+	float halfScreenWidth = 1280.0 * 0.5;
+	float halfScreenHeight = 720.0 * 0.5;
+
+	this->projection_matrix = glm::ortho(-halfScreenWidth, halfScreenWidth, halfScreenHeight, -halfScreenHeight, 0.1f, 1000.0f);
+	// glm::perspective(glm::radians(fovy), aspect, 0.1f, 1000.0f);
 	this->position = position;
 	this->worldUp = up;
 	this->yaw = yaw;
@@ -28,21 +33,20 @@ glm::mat4x4 Camera::getProjectionMatrix()
 	return (projection_matrix);
 }
 
-void Camera::Move(CameraDirection direction, float deltaTime)
+void Camera::Move(CameraDirection direction, float distance)
 {
-	float velocity = movementSpeed * deltaTime;
 	if (direction == FORWARD)
-		position += forward * velocity;
+		position += forward * distance;
 	if (direction == BACKWARD)
-		position -= forward * velocity;
+		position -= forward * distance;
 	if (direction == LEFT)
-		position -= right * velocity;
+		position -= right * distance;
 	if (direction == RIGHT)
-		position += right * velocity;
+		position += right * distance;
 	if (direction == UP)
-		position += up * velocity;
+		position += up * distance;
 	if (direction == DOWN)
-		position -= up * velocity;
+		position -= up * distance;
 }
 
 void Camera::Rotate(float xoffset, float yoffset, bool constrainPitch)
@@ -79,5 +83,16 @@ void Camera::Reset(glm::vec3 position, float yaw, float pitch)
 	this->position = position;
 	this->yaw = yaw;
 	this->pitch = pitch;
+	update();
+}
+
+void Camera::Scale(float delta)
+{
+	scale += 0.01 * delta;
+	float halfScreenWidth = 1280.0 * 0.5 * scale;
+	float halfScreenHeight = 720.0 * 0.5 * scale;
+
+	glm::mat4x4 m = glm::ortho(-halfScreenWidth, halfScreenWidth, halfScreenHeight, -halfScreenHeight, 0.1f, 1000.0f);
+	this->projection_matrix = m;
 	update();
 }

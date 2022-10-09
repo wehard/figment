@@ -4,12 +4,17 @@ import './App.css';
 
 function App() {
   return (
-    <div className='flex flex-col justify-center items-center space-y-2'>
-      <h1 className='text-white'>Figment</h1>
-      <div className='outline-dashed outline-white rounded-md'>
-        <Renderer />
+    <div>
+      <div className='flex h-12 w-full border-b border-neutral-700 bg-neutral-800'>
+        <button>Insert</button>
       </div>
-      <button>Insert</button>
+      <div className='flex flex-row h-screen'>
+        <div className='flex w-2/12 border-r border-neutral-700 bg-neutral-800'></div>
+        <div>
+          <Renderer />
+        </div>
+        <div className='flex w-2/12 border-l border-neutral-700 bg-neutral-800'></div>
+      </div>
     </div>
   );
 }

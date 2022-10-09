@@ -64,7 +64,8 @@ public:
 		camera = new Camera();
 
 		grid = new GLObject(GLObject::Grid(10, 10));
-		camera->Reset(glm::vec3(0.0, 0.0, 4.0), -90.0f, 0.0f);
+		grid->scale = glm::vec3(500.0);
+		camera->Reset(glm::vec3(0.0, 0.0, 10.0), -90.0f, 0.0f);
 		gui->Init(gl->window, gl->glContext, gl->glslVersion);
 	}
 
@@ -78,17 +79,41 @@ public:
 
 	void Update()
 	{
+		ImGuiIO &io = ImGui::GetIO();
 		SDL_Event event;
 		while (SDL_PollEvent(&event))
 		{
 			ImGui_ImplSDL2_ProcessEvent(&event);
+			if (io.WantCaptureMouse)
+			{
+				continue;
+			}
+
 			if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_i)
 			{
 				GLObject *o = new GLObject(GLObject::Plane());
 				o->position = camera->position;
 				o->position.z = 0.0;
 				o->color.a = 0.1;
+				o->scale = glm::vec3(500.0);
 				objects.push_back(o);
+			}
+			if (event.type == SDL_MOUSEWHEEL)
+			{
+				float delta = event.wheel.y;
+				camera->Scale(delta);
+			}
+			if (event.type == SDL_MOUSEBUTTONDOWN)
+			{
+				GLObject *o = new GLObject(GLObject::Plane());
+				o->position = camera->position + camera->forward;
+				o->position.z = 0.0;
+				o->color.a = 0.1;
+				o->scale = glm::vec3(500.0);
+				objects.push_back(o);
+			}
+			if (event.type == SDL_MOUSEBUTTONUP)
+			{
 			}
 		}
 
@@ -115,22 +140,24 @@ public:
 		ImGui_ImplSDL2_NewFrame();
 		ImGui::NewFrame();
 
+		ImGui::SetNextWindowPos(ImVec2(0, 0));
+		ImGui::SetNextWindowSize(ImVec2(500, 120));
 		ImGui::Begin("Camera");
 		ImGui::Text("Position x %f, y %f, z %f", camera->position.x, camera->position.y, camera->position.z);
 		ImGui::Text("Yaw %f, Pitch %f", camera->yaw, camera->pitch);
 		if (ImGui::SmallButton("TopLeft"))
 		{
-			camera->Reset(glm::vec3(-1.0, 2.0, 2.0), -65.0f, -40.0f);
+			camera->Reset(glm::vec3(-1.0, 2.0, 10.0), -65.0f, -40.0f);
 		}
 		ImGui::SameLine();
 		if (ImGui::SmallButton("Front"))
 		{
-			camera->Reset(glm::vec3(0.0, 0.0, 2.0), -90.0f, 0.0f);
+			camera->Reset(glm::vec3(0.0, 0.0, 10.0), -90.0f, 0.0f);
 		}
 		ImGui::SameLine();
 		if (ImGui::SmallButton("Back"))
 		{
-			camera->Reset(glm::vec3(0.0, 0.0, -2.0), 90.0f, 0.0f);
+			camera->Reset(glm::vec3(0.0, 0.0, -10.0), 90.0f, 0.0f);
 		}
 		ImGui::SameLine();
 		if (ImGui::SmallButton("Left"))
@@ -150,22 +177,33 @@ public:
 		ImGui::Text("Move");
 		if (ImGui::SmallButton("Move Left"))
 		{
-			camera->Move(LEFT, 0.1);
+			camera->Move(LEFT, 10.0);
+			printf("move left\n");
 		}
 		ImGui::SameLine();
 		if (ImGui::SmallButton("Move Right"))
 		{
-			camera->Move(RIGHT, 0.1);
+			camera->Move(RIGHT, 10.0);
 		}
 		ImGui::SameLine();
 		if (ImGui::SmallButton("Move Up"))
 		{
-			camera->Move(UP, 0.1);
+			camera->Move(UP, 10.0);
 		}
 		ImGui::SameLine();
 		if (ImGui::SmallButton("Move Down"))
 		{
-			camera->Move(DOWN, 0.1);
+			camera->Move(DOWN, 10.0);
+		}
+		ImGui::SameLine();
+		if (ImGui::SmallButton("Move Forward"))
+		{
+			camera->Move(FORWARD, 10.0);
+		}
+		ImGui::SameLine();
+		if (ImGui::SmallButton("Move Back"))
+		{
+			camera->Move(BACKWARD, 10.0);
 		}
 		ImGui::End();
 
@@ -174,12 +212,15 @@ public:
 		SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &major);
 		SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &minor);
 
-		ImGui::Begin("GL Platform");
+		ImGui::SetNextWindowPos(ImVec2(1280 - 500, 0));
+		ImGui::SetNextWindowSize(ImVec2(500, 120));
+		ImGui::Begin("Debug");
 		ImGui::Text("GL version: %d.%d", major, minor);
 		ImGui::Text("GLSL version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
 		ImGui::Text("GL Vendor: %s", glGetString(GL_VENDOR));
 		ImGui::Text("GL Renderer: %s", glGetString(GL_RENDERER));
-
+		ImGui::Separator();
+		ImGui::Text("Objects: %zu", objects.size());
 		ImGui::End();
 	}
 };
@@ -196,6 +237,11 @@ extern "C"
 		glm::vec2 delta = mousePosition - prevMousePosition;
 		// camera->Rotate(delta.x, delta.y);
 		prevMousePosition = mousePosition;
+	}
+
+	EMSCRIPTEN_KEEPALIVE void insertObject()
+	{
+		printf("WebGL insert object\n");
 	}
 }
 

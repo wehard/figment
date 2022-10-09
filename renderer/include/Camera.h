@@ -26,6 +26,7 @@ private:
 	glm::mat4x4 projection_matrix;
 	void update();
 	glm::vec3 initPosition;
+	float scale = 1.0;
 
 public:
 	glm::vec3 position;
@@ -45,7 +46,8 @@ public:
 	~Camera();
 	glm::mat4x4 getViewMatrix();
 	glm::mat4x4 getProjectionMatrix();
-	void Move(CameraDirection direction, float deltaTime);
+	void Move(CameraDirection direction, float distance);
 	void Rotate(float xoffset, float yoffset, bool constrainPitch = true);
 	void Reset(glm::vec3 position, float yaw, float pitch);
+	void Scale(float delta);
 };
