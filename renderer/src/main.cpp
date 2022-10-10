@@ -182,7 +182,7 @@ public:
 		SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &minor);
 
 		ImGui::SetNextWindowPos(ImVec2(1280 - 500, 0));
-		ImGui::SetNextWindowSize(ImVec2(500, 120));
+		ImGui::SetNextWindowSize(ImVec2(500, 200));
 		ImGui::Begin("Debug");
 		ImGui::Text("GL version: %d.%d", major, minor);
 		ImGui::Text("GLSL version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));

@@ -1,13 +1,15 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-// @ts-ignore
 import loadRenderer from './renderer/index.js';
 
 const Renderer = () => {
-  const [context, setContext] = useState(undefined);
+  const [context, setContext] = useState(null);
   const canvas = useRef(null);
 
   useEffect(() => {
+    if (context !== null) {
+      console.log('Renderer initialized!');
+    }
     let Module = { canvas: canvas.current };
     loadRenderer(Module).then((rendererContext: any) => {
       console.log(rendererContext);
