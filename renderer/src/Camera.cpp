@@ -88,14 +88,26 @@ void Camera::Reset(glm::vec3 position, float yaw, float pitch)
 
 void Camera::Scale(float delta, glm::vec2 mouse)
 {
-	position.x = (mouse.x - 1280.0 * 0.5);
-	position.y = (mouse.y - 720.0 * 0.5);
-	scale *= 1.0 + 0.05 * delta;
-	float halfScreenWidth = 1280.0 * 0.5 * scale;
-	float halfScreenHeight = 720.0 * 0.5 * scale;
+	// position.x = (mouse.x - 1280.0 * 0.5);
+	// position.y = (mouse.y - 720.0 * 0.5);
 
-	glm::mat4x4 m = glm::ortho(-halfScreenWidth, halfScreenWidth, halfScreenHeight, -halfScreenHeight, 0.1f, 1000.0f);
-	this->projection_matrix = m;
+	scale *= 1.0 + 0.05 * delta;
+	// float halfScreenWidth = 1280.0 * 0.5 * scale;
+	// float halfScreenHeight = 720.0 * 0.5 * scale;
+
+	// glm::mat4x4 m = glm::ortho(-halfScreenWidth, halfScreenWidth, halfScreenHeight, -halfScreenHeight, 0.1f, 1000.0f);
+	// this->projection_matrix = m;
+
+	float sWidth = 1280.0;
+	float sHeight = 720.0;
+	// 200%
+	float xPos = 0.75 * sWidth; // where we are centred
+	float yPos = 0.5 * sHeight; // where we are centred
+	float left = -sWidth / (2 * scale) + xPos;
+	float right = sWidth / (2 * scale) + xPos;
+	float top = -sHeight / (2 * scale) + yPos;
+	float bottom = sHeight / (2 * scale) + yPos;
+	this->projection_matrix = glm::orthoLH(left, right, bottom, top, 0.1f, 1000.0f);
 
 	update();
 }
