@@ -27,10 +27,18 @@ void OrthoCamera::Update()
     m_ViewMatrix = glm::inverse(transform);
 }
 
-void OrthoCamera::Zoom(float delta)
+void OrthoCamera::Zoom(float delta, glm::vec2 mousePosition)
 {
-    m_Zoom *= 1.0 + 0.05 * delta;
+    float zoomFactor = 1.0 + 0.05 * delta;
+    m_Zoom *= zoomFactor;
     SetProjection(-m_AspectRatio * m_Zoom, m_AspectRatio * m_Zoom, -m_Zoom, m_Zoom);
+    glm::vec2 zoomAt = glm::vec2((mousePosition.x / (1280 * 0.5)) - 1.0, (mousePosition.y / (720.0 * 0.5)) - 1.0);
+    zoomAt.x *= -1.0;
+    glm::vec3 newPosition = glm::vec3(0.0);
+    newPosition.x = (m_Position.x - zoomAt.x) / zoomFactor + zoomAt.x;
+    newPosition.y = (m_Position.y - zoomAt.y) / zoomFactor + zoomAt.y;
+    newPosition.z = (m_Position.z - 0.0) / zoomFactor + 0.0;
+    SetPosition(newPosition);
 }
 
 void OrthoCamera::OnResize(float width, float height)

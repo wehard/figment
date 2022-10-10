@@ -105,7 +105,7 @@ public:
 			if (event.type == SDL_MOUSEWHEEL)
 			{
 				float delta = event.wheel.y;
-				camera->Zoom(delta);
+				camera->Zoom(delta, mousePosition);
 			}
 			if (event.type == SDL_MOUSEBUTTONDOWN)
 			{
@@ -181,6 +181,8 @@ public:
 		SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &major);
 		SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &minor);
 
+		glm::vec2 ndc = glm::vec2((mousePosition.x / (1280 * 0.5)) - 1.0, (mousePosition.y / (720.0 * 0.5)) - 1.0);
+
 		ImGui::SetNextWindowPos(ImVec2(1280 - 500, 0));
 		ImGui::SetNextWindowSize(ImVec2(500, 200));
 		ImGui::Begin("Debug");
@@ -190,6 +192,7 @@ public:
 		ImGui::Text("GL Renderer: %s", glGetString(GL_RENDERER));
 		ImGui::Separator();
 		ImGui::Text("Mouse position: %.2f %.2f", mousePosition.x, mousePosition.y);
+		ImGui::Text("Mouse ndc: %.2f %.2f", ndc.x, ndc.y);
 		ImGui::Separator();
 		ImGui::Text("Objects: %zu", objects.size());
 
