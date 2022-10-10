@@ -3,7 +3,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <stdio.h>
 
-Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch) : forward(glm::vec3(0.0f, 0.0f, -1.0f)), movementSpeed(SPEED), mouseSensitivity(SENSITIVITY), zoom(ZOOM)
+Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch) : forward(glm::vec3(0.0f, 0.0f, -1.0f)), movementSpeed(SPEED), mouseSensitivity(SENSITIVITY)
 {
 	float fovy = 45.0;
 	float aspect = 1.777;
@@ -86,13 +86,16 @@ void Camera::Reset(glm::vec3 position, float yaw, float pitch)
 	update();
 }
 
-void Camera::Scale(float delta)
+void Camera::Scale(float delta, glm::vec2 mouse)
 {
-	scale += 0.01 * delta;
+	position.x = (mouse.x - 1280.0 * 0.5);
+	position.y = (mouse.y - 720.0 * 0.5);
+	scale *= 1.0 + 0.05 * delta;
 	float halfScreenWidth = 1280.0 * 0.5 * scale;
 	float halfScreenHeight = 720.0 * 0.5 * scale;
 
 	glm::mat4x4 m = glm::ortho(-halfScreenWidth, halfScreenWidth, halfScreenHeight, -halfScreenHeight, 0.1f, 1000.0f);
 	this->projection_matrix = m;
+
 	update();
 }

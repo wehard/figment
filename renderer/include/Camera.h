@@ -26,7 +26,6 @@ private:
 	glm::mat4x4 projection_matrix;
 	void update();
 	glm::vec3 initPosition;
-	float scale = 1.0;
 
 public:
 	glm::vec3 position;
@@ -40,7 +39,7 @@ public:
 	// camera options
 	float movementSpeed;
 	float mouseSensitivity;
-	float zoom;
+	float scale = 1.0;
 
 	Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH);
 	~Camera();
@@ -49,5 +48,5 @@ public:
 	void Move(CameraDirection direction, float distance);
 	void Rotate(float xoffset, float yoffset, bool constrainPitch = true);
 	void Reset(glm::vec3 position, float yaw, float pitch);
-	void Scale(float delta);
+	void Scale(float delta, glm::vec2 mouse);
 };

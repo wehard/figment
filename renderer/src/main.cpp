@@ -50,6 +50,7 @@ private:
 	Shader *shader;
 	GLObject *grid;
 
+	glm::vec2 mousePosition = glm::vec2(0, 0);
 	ImVec4 clear_color = ImVec4(0.15, 0.15, 0.15, 1.00f);
 
 	std::vector<GLObject *> objects;
@@ -79,6 +80,10 @@ public:
 
 	void Update()
 	{
+		int mx, my;
+		SDL_GetMouseState(&mx, &my);
+		mousePosition = glm::vec2(mx, my);
+
 		ImGuiIO &io = ImGui::GetIO();
 		SDL_Event event;
 		while (SDL_PollEvent(&event))
@@ -101,7 +106,7 @@ public:
 			if (event.type == SDL_MOUSEWHEEL)
 			{
 				float delta = event.wheel.y;
-				camera->Scale(delta);
+				camera->Scale(delta, mousePosition);
 			}
 			if (event.type == SDL_MOUSEBUTTONDOWN)
 			{
@@ -141,10 +146,12 @@ public:
 		ImGui::NewFrame();
 
 		ImGui::SetNextWindowPos(ImVec2(0, 0));
-		ImGui::SetNextWindowSize(ImVec2(500, 120));
+		ImGui::SetNextWindowSize(ImVec2(500, 200));
 		ImGui::Begin("Camera");
 		ImGui::Text("Position x %f, y %f, z %f", camera->position.x, camera->position.y, camera->position.z);
 		ImGui::Text("Yaw %f, Pitch %f", camera->yaw, camera->pitch);
+		ImGui::Text("Ortho size: %f", camera->scale);
+		ImGui::Spacing();
 		if (ImGui::SmallButton("TopLeft"))
 		{
 			camera->Reset(glm::vec3(-1.0, 2.0, 10.0), -65.0f, -40.0f);
@@ -220,7 +227,10 @@ public:
 		ImGui::Text("GL Vendor: %s", glGetString(GL_VENDOR));
 		ImGui::Text("GL Renderer: %s", glGetString(GL_RENDERER));
 		ImGui::Separator();
+		ImGui::Text("Mouse position: %.2f %.2f", mousePosition.x, mousePosition.y);
+		ImGui::Separator();
 		ImGui::Text("Objects: %zu", objects.size());
+
 		ImGui::End();
 	}
 };
