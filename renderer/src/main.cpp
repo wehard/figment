@@ -46,7 +46,7 @@ private:
 	GLContext *gl;
 	GUIContext *gui;
 	GLRenderer *renderer;
-	Camera *camera;
+	OrthoCamera *camera;
 	Shader *shader;
 	GLObject *grid;
 
@@ -62,11 +62,10 @@ public:
 		gui = new GUIContext();
 		shader = new Shader(vertexSource, fragmentSource);
 		renderer = new GLRenderer();
-		camera = new Camera();
+		camera = new OrthoCamera(1280.0 / 720.0);
 
 		grid = new GLObject(GLObject::Grid(10, 10));
-		grid->scale = glm::vec3(500.0);
-		camera->Reset(glm::vec3(0.0, 0.0, 10.0), -90.0f, 0.0f);
+		// grid->scale = glm::vec3(500.0);
 		gui->Init(gl->window, gl->glContext, gl->glslVersion);
 	}
 
@@ -97,25 +96,21 @@ public:
 			if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_i)
 			{
 				GLObject *o = new GLObject(GLObject::Plane());
-				o->position = camera->position;
+				o->position = camera->GetPosition();
 				o->position.z = 0.0;
 				o->color.a = 0.1;
-				o->scale = glm::vec3(500.0);
+				o->scale = glm::vec3(1.0);
 				objects.push_back(o);
 			}
 			if (event.type == SDL_MOUSEWHEEL)
 			{
 				float delta = event.wheel.y;
-				camera->Scale(delta, mousePosition);
+				camera->Zoom(delta);
 			}
 			if (event.type == SDL_MOUSEBUTTONDOWN)
 			{
-				GLObject *o = new GLObject(GLObject::Plane());
-				o->position = camera->position + camera->forward;
-				o->position.z = 0.0;
-				o->color.a = 0.1;
-				o->scale = glm::vec3(500.0);
-				objects.push_back(o);
+				if (event.button.button == 2)
+					printf("middle\n");
 			}
 			if (event.type == SDL_MOUSEBUTTONUP)
 			{
@@ -148,69 +143,36 @@ public:
 		ImGui::SetNextWindowPos(ImVec2(0, 0));
 		ImGui::SetNextWindowSize(ImVec2(500, 200));
 		ImGui::Begin("Camera");
-		ImGui::Text("Position x %f, y %f, z %f", camera->position.x, camera->position.y, camera->position.z);
-		ImGui::Text("Yaw %f, Pitch %f", camera->yaw, camera->pitch);
-		ImGui::Text("Ortho size: %f", camera->scale);
+		glm::vec3 cameraPosition = camera->GetPosition();
+		ImGui::Text("Position x %f, y %f, z %f", cameraPosition.x, cameraPosition.y, cameraPosition.z);
+		ImGui::Text("Zoom: %f", camera->GetZoom());
 		ImGui::Spacing();
-		if (ImGui::SmallButton("TopLeft"))
+		if (ImGui::SmallButton("Reset"))
 		{
-			camera->Reset(glm::vec3(-1.0, 2.0, 10.0), -65.0f, -40.0f);
+			camera->SetPosition(glm::vec3(0.0));
 		}
-		ImGui::SameLine();
-		if (ImGui::SmallButton("Front"))
-		{
-			camera->Reset(glm::vec3(0.0, 0.0, 10.0), -90.0f, 0.0f);
-		}
-		ImGui::SameLine();
-		if (ImGui::SmallButton("Back"))
-		{
-			camera->Reset(glm::vec3(0.0, 0.0, -10.0), 90.0f, 0.0f);
-		}
-		ImGui::SameLine();
-		if (ImGui::SmallButton("Left"))
-		{
-			camera->Reset(glm::vec3(-2.0, 0.0, 0.0), 0.0f, 0.0f);
-		}
-		ImGui::SameLine();
-		if (ImGui::SmallButton("Right"))
-		{
-			camera->Reset(glm::vec3(2.0, 0.0, 0.0), 180.0f, 0.0f);
-		}
-		ImGui::SameLine();
-		if (ImGui::SmallButton("Top"))
-		{
-			camera->Reset(glm::vec3(0.0, 2.0, 0.0), -90.0f, -89.0f);
-		}
-		ImGui::Text("Move");
 		if (ImGui::SmallButton("Move Left"))
 		{
-			camera->Move(LEFT, 10.0);
-			printf("move left\n");
+			cameraPosition.x -= 0.1;
+			camera->SetPosition(cameraPosition);
 		}
 		ImGui::SameLine();
 		if (ImGui::SmallButton("Move Right"))
 		{
-			camera->Move(RIGHT, 10.0);
+			cameraPosition.x += 0.1;
+			camera->SetPosition(cameraPosition);
 		}
 		ImGui::SameLine();
 		if (ImGui::SmallButton("Move Up"))
 		{
-			camera->Move(UP, 10.0);
+			cameraPosition.y += 0.1;
+			camera->SetPosition(cameraPosition);
 		}
 		ImGui::SameLine();
 		if (ImGui::SmallButton("Move Down"))
 		{
-			camera->Move(DOWN, 10.0);
-		}
-		ImGui::SameLine();
-		if (ImGui::SmallButton("Move Forward"))
-		{
-			camera->Move(FORWARD, 10.0);
-		}
-		ImGui::SameLine();
-		if (ImGui::SmallButton("Move Back"))
-		{
-			camera->Move(BACKWARD, 10.0);
+			cameraPosition.y -= 0.1;
+			camera->SetPosition(cameraPosition);
 		}
 		ImGui::End();
 

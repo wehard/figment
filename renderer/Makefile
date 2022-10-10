@@ -19,6 +19,7 @@ WEB_DIR = ../app/src/renderer
 WEB_EXE = $(WEB_DIR)/index.html
 
 SRC = Camera.cpp\
+	OrthoCamera.cpp\
 	GLContext.cpp\
 	GLObject.cpp\
 	GLRenderer.cpp\

@@ -17,7 +17,7 @@ const Renderer = () => {
 
   return (
     <>
-      <canvas id='canvas' ref={canvas}></canvas>
+      <canvas id='canvas' ref={canvas} onContextMenu={(e) => e.preventDefault()}></canvas>
     </>
   );
 };
