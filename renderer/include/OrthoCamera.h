@@ -15,7 +15,7 @@ public:
     void SetPosition(glm::vec3 position);
     float GetZoom() { return m_Zoom; }
     void Update();
-    void Zoom(float delta);
+    void Zoom(float delta, glm::vec2 mousePosition);
     void OnResize(float width, float height);
 
 private:
