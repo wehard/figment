@@ -43,7 +43,9 @@ private:
 	GLRenderer *renderer;
 	OrthoCamera *camera;
 	Shader *shader;
+	Shader *gridShader;
 	GLObject *grid;
+	GLObject *plane;
 
 	glm::vec2 mousePosition = glm::vec2(0, 0);
 	ImVec4 clear_color = ImVec4(0.15, 0.15, 0.15, 1.00f);
@@ -56,11 +58,13 @@ public:
 		gl = new GLContext("Figment C++", 1280, 720);
 		gui = new GUIContext();
 		shader = new Shader(readFile("shaders/basic.vert").c_str(), readFile("shaders/basic.frag").c_str());
+		gridShader = new Shader(readFile("shaders/grid.vert").c_str(), readFile("shaders/grid.frag").c_str());
 		renderer = new GLRenderer();
 		camera = new OrthoCamera(1280.0 / 720.0);
 
 		grid = new GLObject(GLObject::Grid(10, 10));
-		// grid->scale = glm::vec3(500.0);
+		plane = new GLObject(GLObject::Plane());
+		plane->color = glm::vec4(0.2, 0.2, 0.4, 0.5);
 		gui->Init(gl->window, gl->glContext, gl->glslVersion);
 	}
 
@@ -133,6 +137,11 @@ public:
 
 		SDL_GL_MakeCurrent(gl->window, gl->glContext);
 		renderer->Begin(*camera, glm::vec4(clear_color.x, clear_color.y, clear_color.z, clear_color.w));
+
+		gridShader->use();
+		gridShader->setVec2("pitch", glm::vec2(50, 50));
+		renderer->Draw(*plane);
+
 		renderer->DrawLines(*grid, *shader);
 
 		for (auto object : objects)
