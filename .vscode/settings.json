@@ -4,6 +4,7 @@
         "strings": true
       },
       "files.associations": {
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "iosfwd": "cpp"
       }
 }

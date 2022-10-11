@@ -15,30 +15,25 @@
 #include <glm/vec3.hpp>
 
 #include <math.h>
+#include <fstream>
+#include <sstream>
 
-const GLchar *vertexSource =
-	"#version 300 es\n"
-	"layout(location = 0) in vec4 position;    \n"
-	"uniform mat4 model_matrix;\n"
-	"uniform mat4 view_matrix;\n"
-	"uniform mat4 proj_matrix;\n"
-	"uniform vec4 obj_color;\n"
-	"out vec4 o_col;\n"
-	"void main()                  \n"
-	"{                            \n"
-	"	o_col = obj_color;\n"
-	"   gl_Position = proj_matrix * view_matrix * model_matrix * vec4(position.xyz, 1.0);  \n"
-	"}                            \n";
-const GLchar *fragmentSource =
-	"#version 300 es\n"
-	"precision mediump float;\n"
-	"uniform vec4 obj_color;\n"
-	"in vec4 o_col;\n"
-	"out vec4 color;\n"
-	"void main()                                  \n"
-	"{                                            \n"
-	"  color = o_col;\n"
-	"}                                            \n";
+std::string readFile(std::string path)
+{
+	std::string source;
+
+	std::ifstream shader_stream(path, std::ios::in);
+	if (shader_stream.is_open())
+	{
+		std::stringstream sstr;
+		sstr << shader_stream.rdbuf();
+		source = sstr.str();
+		shader_stream.close();
+	}
+	else
+		printf("Error opening %s\n", path.c_str());
+	return (source);
+}
 
 class App
 {
@@ -60,7 +55,7 @@ public:
 	{
 		gl = new GLContext("Figment C++", 1280, 720);
 		gui = new GUIContext();
-		shader = new Shader(vertexSource, fragmentSource);
+		shader = new Shader(readFile("shaders/basic.vert").c_str(), readFile("shaders/basic.frag").c_str());
 		renderer = new GLRenderer();
 		camera = new OrthoCamera(1280.0 / 720.0);
 
