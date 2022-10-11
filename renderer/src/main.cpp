@@ -182,6 +182,7 @@ public:
 		SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &minor);
 
 		glm::vec2 ndc = glm::vec2((mousePosition.x / (1280 * 0.5)) - 1.0, (mousePosition.y / (720.0 * 0.5)) - 1.0);
+		glm::vec2 mw = camera->ScreenToWorldSpace(mousePosition.x, mousePosition.y);
 
 		ImGui::SetNextWindowPos(ImVec2(1280 - 500, 0));
 		ImGui::SetNextWindowSize(ImVec2(500, 200));
@@ -193,6 +194,7 @@ public:
 		ImGui::Separator();
 		ImGui::Text("Mouse position: %.2f %.2f", mousePosition.x, mousePosition.y);
 		ImGui::Text("Mouse ndc: %.2f %.2f", ndc.x, ndc.y);
+		ImGui::Text("Mouse world: %.2f %.2f", mw.x, mw.y);
 		ImGui::Separator();
 		ImGui::Text("Objects: %zu", objects.size());
 
