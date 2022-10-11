@@ -110,12 +110,20 @@ public:
 			if (event.type == SDL_MOUSEBUTTONDOWN)
 			{
 				if (event.button.button == 2)
-					printf("middle\n");
+				{
+					camera->BeginPan(mousePosition);
+				}
 			}
 			if (event.type == SDL_MOUSEBUTTONUP)
 			{
+				if (event.button.button == 2)
+				{
+					camera->EndPan();
+				}
 			}
 		}
+
+		camera->OnUpdate(mousePosition);
 
 		GUIUpdate();
 
