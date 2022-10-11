@@ -139,7 +139,7 @@ public:
 		renderer->Begin(*camera, glm::vec4(clear_color.x, clear_color.y, clear_color.z, clear_color.w));
 
 		gridShader->use();
-		gridShader->setVec2("pitch", glm::vec2(50, 50));
+		gridShader->setVec2("pitch", glm::vec2(50, 50) * camera->GetZoom());
 		renderer->Draw(*plane);
 
 		renderer->DrawLines(*grid, *shader);
