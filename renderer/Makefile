@@ -18,6 +18,8 @@ IMGUIDIR = lib/imgui
 WEB_DIR = ../app/src/renderer
 WEB_EXE = $(WEB_DIR)/index.html
 
+ASSET_DIR = res
+
 SRC = Camera.cpp\
 	OrthoCamera.cpp\
 	GLContext.cpp\
@@ -52,7 +54,7 @@ EMS += -s DISABLE_EXCEPTION_CATCHING=1 -sEXPORTED_FUNCTIONS=_onMouseMove,_insert
 
 EMS_CFLAGS = ${CFLAGS} -DIMGUI_DISABLE_FILE_FUNCTIONS -sMODULARIZE=1 -sEXPORT_ES6=1 ${EMS}
 EMS_INCL = ${INCL} 
-EMS_LDFLAGS = -s WASM=1 -s USE_WEBGL2=1 -s ALLOW_MEMORY_GROWTH=1 -s NO_EXIT_RUNTIME=0 -s ASSERTIONS=1 -s NO_FILESYSTEM=1 ${EMS}
+EMS_LDFLAGS = -s WASM=1 -s USE_WEBGL2=1 -s ALLOW_MEMORY_GROWTH=1 -s NO_EXIT_RUNTIME=0 -s ASSERTIONS=1 ${EMS}
 
 CC = em++
 
@@ -64,7 +66,8 @@ $(NAME): $(OBJS)
 	@$(CC) $(CFLAGS) $(INCL) $(OBJS) $(LDFLAGS) -o $(NAME) -O3
 
 ems: ${OBJS} ${WEB_DIR}
-	@$(CC) $(EMS_CFLAGS) $(EMS_INCL) $(OBJS) $(EMS_LDFLAGS) -o $(WEB_EXE) -O3 --shell-file index.html
+	@$(CC) $(EMS_CFLAGS) $(EMS_INCL) $(OBJS) $(EMS_LDFLAGS) -o $(WEB_EXE) -O3 --shell-file index.html --preload-file ${ASSET_DIR}@
+	@mv ${WEB_DIR}/index.data ../app/public/index.data
 
 %.o: %.cpp
 	@printf "compiling %s -> %s\n" "$<" "$@"
