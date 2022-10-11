@@ -1,6 +1,5 @@
 #include "OrthoCamera.h"
 #include <glm/gtc/matrix_transform.hpp>
-#include <algorithm>
 
 OrthoCamera::OrthoCamera(float left, float right, float bottom, float top)
 {
@@ -42,39 +41,8 @@ void OrthoCamera::Zoom(float delta, glm::vec2 mousePosition)
     SetPosition(newPosition);
 }
 
-void OrthoCamera::BeginPan(glm::vec2 mousePosition)
-{
-    // m_InitialMousePosition = mousePosition;
-    // m_IsPanning = true;
-}
-
-void OrthoCamera::EndPan()
-{
-    // m_IsPanning = false;
-}
-
-void OrthoCamera::Pan(glm::vec2 mousePosition)
-{
-    glm::vec2 mw = ScreenToWorldSpace(mousePosition.x, mousePosition.y);
-    glm::vec2 delta = (mw - m_InitialMousePosition) * 0.5f;
-
-    float x = std::min(m_ViewportSize.x / 1000.0f, 2.4f); // max = 2.4f
-    float xSpeed = 0.0366f * (x * x) - 0.1778f * x + 0.3021f;
-
-    float y = std::min(m_ViewportSize.y / 1000.0f, 2.4f); // max = 2.4f
-    float ySpeed = 0.0366f * (y * y) - 0.1778f * y + 0.3021f;
-
-    glm::vec3 newPosition;
-    newPosition.x = m_Position.x - delta.x;
-    newPosition.y = m_Position.y - delta.y;
-
-    SetPosition(newPosition);
-}
-
 void OrthoCamera::OnResize(float width, float height)
 {
-    m_ViewportSize.x = width;
-    m_ViewportSize.y = height;
     m_AspectRatio = width / height;
     SetProjection(-m_AspectRatio * m_Zoom, m_AspectRatio * m_Zoom, -m_Zoom, m_Zoom);
 }
@@ -83,17 +51,4 @@ void OrthoCamera::SetPosition(glm::vec3 position)
 {
     m_Position = position;
     Update();
-}
-
-glm::vec2 OrthoCamera::ScreenToWorldSpace(int mouseX, int mouseY)
-{
-    double x = 2.0 * mouseX / m_ViewportSize.x - 1;
-    double y = 2.0 * mouseY / m_ViewportSize.y - 1;
-
-    glm::vec4 screenPos = glm::vec4(x, -y, -1.0f, 1.0f);
-    glm::mat4 ProjectionViewMatrix = GetProjectionMatrix() * GetViewMatrix();
-    glm::mat4 InverseProjectionViewMatrix = glm::inverse(ProjectionViewMatrix);
-    glm::vec4 worldPos = InverseProjectionViewMatrix * screenPos;
-
-    return glm::vec2(worldPos.x, worldPos.y);
 }

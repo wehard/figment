@@ -40,11 +40,6 @@ const GLchar *fragmentSource =
 	"  color = o_col;\n"
 	"}                                            \n";
 
-struct MouseState
-{
-	bool m_MiddlePressed;
-};
-
 class App
 {
 private:
@@ -59,8 +54,6 @@ private:
 	ImVec4 clear_color = ImVec4(0.15, 0.15, 0.15, 1.00f);
 
 	std::vector<GLObject *> objects;
-
-	MouseState m_MouseState;
 
 public:
 	App()
@@ -117,25 +110,12 @@ public:
 			if (event.type == SDL_MOUSEBUTTONDOWN)
 			{
 				if (event.button.button == 2)
-				{
-					m_MouseState.m_MiddlePressed = true;
-					camera->BeginPan(mousePosition);
-				}
+					printf("middle\n");
 			}
 			if (event.type == SDL_MOUSEBUTTONUP)
 			{
-				if (event.button.button == 2)
-				{
-					m_MouseState.m_MiddlePressed = false;
-					camera->EndPan();
-				}
 			}
 		}
-
-		// if (m_MouseState.m_MiddlePressed)
-		// {
-		// 	camera->Pan(mousePosition);
-		// }
 
 		GUIUpdate();
 
@@ -203,8 +183,6 @@ public:
 
 		glm::vec2 ndc = glm::vec2((mousePosition.x / (1280 * 0.5)) - 1.0, (mousePosition.y / (720.0 * 0.5)) - 1.0);
 
-		glm::vec2 p = camera->ScreenToWorldSpace(mousePosition.x, mousePosition.y);
-
 		ImGui::SetNextWindowPos(ImVec2(1280 - 500, 0));
 		ImGui::SetNextWindowSize(ImVec2(500, 200));
 		ImGui::Begin("Debug");
@@ -215,7 +193,6 @@ public:
 		ImGui::Separator();
 		ImGui::Text("Mouse position: %.2f %.2f", mousePosition.x, mousePosition.y);
 		ImGui::Text("Mouse ndc: %.2f %.2f", ndc.x, ndc.y);
-		ImGui::Text("Mouse world: %f %f", p.x, p.y);
 		ImGui::Separator();
 		ImGui::Text("Objects: %zu", objects.size());
 
