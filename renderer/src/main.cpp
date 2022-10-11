@@ -64,7 +64,7 @@ public:
 
 		grid = new GLObject(GLObject::Grid(10, 10));
 		plane = new GLObject(GLObject::Plane());
-		plane->color = glm::vec4(0.2, 0.2, 0.4, 0.5);
+		plane->color = glm::vec4(1.0, 1.0, 1.0, 0.3);
 		gui->Init(gl->window, gl->glContext, gl->glslVersion);
 	}
 
@@ -139,7 +139,9 @@ public:
 		renderer->Begin(*camera, glm::vec4(clear_color.x, clear_color.y, clear_color.z, clear_color.w));
 
 		gridShader->use();
+		gridShader->setVec2("offset", glm::vec2(camera->GetPosition().x, camera->GetPosition().y));
 		gridShader->setVec2("pitch", glm::vec2(50, 50) * camera->GetZoom());
+		gridShader->setVec4("obj_color", plane->color);
 		renderer->Draw(*plane);
 
 		renderer->DrawLines(*grid, *shader);
