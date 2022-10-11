@@ -11,6 +11,6 @@ void main()
         int(mod(gl_FragCoord.y, o_pitch[1])) == 0) {
         color = o_col;
     } else {
-        color = vec4(1.0,0.0,0.0,1.0);
+        color = vec4(0.0,0.0,0.0,1.0);
     }
 }
