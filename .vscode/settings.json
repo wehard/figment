@@ -2,5 +2,8 @@
     "editor.formatOnSave": true,
     "editor.quickSuggestions": {
         "strings": true
+      },
+      "files.associations": {
+        "algorithm": "cpp"
       }
 }
