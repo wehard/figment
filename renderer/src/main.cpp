@@ -77,6 +77,42 @@ public:
 		delete gui;
 	}
 
+	void HandleKeyboardInput(SDL_Event event)
+	{
+		if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_i)
+		{
+			GLObject *o = new GLObject(GLObject::Plane());
+			o->position = camera->GetPosition();
+			o->position.z = 0.0;
+			o->color.a = 0.1;
+			o->scale = glm::vec3(1.0);
+			objects.push_back(o);
+		}
+	}
+
+	void HandleMouseInput(SDL_Event event)
+	{
+		if (event.type == SDL_MOUSEWHEEL)
+		{
+			float delta = event.wheel.y;
+			camera->Zoom(delta, mousePosition);
+		}
+		if (event.type == SDL_MOUSEBUTTONDOWN)
+		{
+			if (event.button.button == 2)
+			{
+				camera->BeginPan(mousePosition);
+			}
+		}
+		if (event.type == SDL_MOUSEBUTTONUP)
+		{
+			if (event.button.button == 2)
+			{
+				camera->EndPan();
+			}
+		}
+	}
+
 	void Update()
 	{
 		int mx, my;
@@ -92,35 +128,8 @@ public:
 			{
 				continue;
 			}
-
-			if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_i)
-			{
-				GLObject *o = new GLObject(GLObject::Plane());
-				o->position = camera->GetPosition();
-				o->position.z = 0.0;
-				o->color.a = 0.1;
-				o->scale = glm::vec3(1.0);
-				objects.push_back(o);
-			}
-			if (event.type == SDL_MOUSEWHEEL)
-			{
-				float delta = event.wheel.y;
-				camera->Zoom(delta, mousePosition);
-			}
-			if (event.type == SDL_MOUSEBUTTONDOWN)
-			{
-				if (event.button.button == 2)
-				{
-					camera->BeginPan(mousePosition);
-				}
-			}
-			if (event.type == SDL_MOUSEBUTTONUP)
-			{
-				if (event.button.button == 2)
-				{
-					camera->EndPan();
-				}
-			}
+			HandleKeyboardInput(event);
+			HandleMouseInput(event);
 		}
 
 		camera->OnUpdate(mousePosition);
