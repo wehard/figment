@@ -32,6 +32,7 @@ void OrthoCamera::Zoom(float delta, glm::vec2 mousePosition)
     float zoomFactor = 1.0 + 0.05 * delta;
     m_Zoom *= zoomFactor;
     SetProjection(-m_AspectRatio * m_Zoom, m_AspectRatio * m_Zoom, -m_Zoom, m_Zoom);
+    UpdateViewMatrix();
     // glm::vec2 zoomAt = glm::vec2((mousePosition.x / (1280 * 0.5)) - 1.0, (mousePosition.y / (720.0 * 0.5)) - 1.0);
     // zoomAt.x *= -1.0;
     // glm::vec3 newPosition = glm::vec3(0.0);
