@@ -17,6 +17,7 @@
 #include <math.h>
 #include <fstream>
 #include <sstream>
+#include <stdlib.h>
 
 std::string readFile(std::string path)
 {
@@ -63,9 +64,21 @@ public:
 		camera = new OrthoCamera(1280.0 / 720.0);
 
 		grid = new GLObject(GLObject::Grid(10, 10));
+		grid->scale = glm::vec3(1.0, 1.0, 1.0);
+		grid->color = glm::vec4(1.0, 1.0, 1.0, 0.25);
 		plane = new GLObject(GLObject::Plane());
 		plane->color = glm::vec4(1.0, 1.0, 1.0, 0.3);
 		gui->Init(gl->window, gl->glContext, gl->glslVersion);
+
+		// for (size_t i = 0; i < 1000; i++)
+		// {
+		// 	GLObject *o = new GLObject(GLObject::Star());
+		// 	o->position = camera->GetPosition();
+		// 	o->position = glm::vec3((rand() % 1280) - 1280 / 2, (rand() % 720) - 720 / 2, 0.0);
+		// 	o->color.a = 0.5;
+		// 	o->scale = glm::vec3(1.0);
+		// 	objects.push_back(o);
+		// }
 	}
 
 	~App()
@@ -140,7 +153,7 @@ public:
 
 		gridShader->use();
 		gridShader->setVec2("offset", glm::vec2(camera->GetPosition().x, camera->GetPosition().y));
-		gridShader->setVec2("pitch", glm::vec2(50, 50) * camera->GetZoom());
+		gridShader->setVec2("pitch", glm::vec2(50, 50) / camera->GetZoom());
 		gridShader->setVec4("obj_color", plane->color);
 		renderer->Draw(*plane);
 
