@@ -152,9 +152,10 @@ public:
 		renderer->Begin(*camera, glm::vec4(clear_color.x, clear_color.y, clear_color.z, clear_color.w));
 
 		gridShader->use();
-		gridShader->setVec2("offset", glm::vec2(camera->GetPosition().x, camera->GetPosition().y));
-		gridShader->setVec2("pitch", glm::vec2(50, 50) / camera->GetZoom());
+		gridShader->setVec2("offset", glm::vec2(camera->GetPosition().x / 3.555, camera->GetPosition().y / 2.0));
+		gridShader->setVec2("pitch", glm::vec2(36, 36));
 		gridShader->setVec4("obj_color", plane->color);
+		gridShader->setFloat("zoom", 1.0 / camera->GetZoom());
 		renderer->Draw(*plane);
 
 		renderer->DrawLines(*grid, *shader);
