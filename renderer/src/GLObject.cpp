@@ -76,16 +76,15 @@ GLObject GLObject::Triangle()
 	return triangle;
 }
 
-GLObject GLObject::Star()
+std::vector<float> GLObject::Star()
 {
-	auto star = GLObject(std::vector<float>{
+	auto star = std::vector<float>{
 		-0.5f, -0.25f, 0.0f,
 		0.0f, 0.5f, 0.0f,
 		0.5f, -0.25f, 0.0f,
 		0.0f, -0.5f, 0.0f,
 		-0.5f, 0.25f, 0.0f,
-		0.5f, 0.25f, 0.0f});
-	star.color = glm::vec4(1.0, 1.0, 1.0, 1.0);
+		0.5f, 0.25f, 0.0f};
 	return star;
 }
 

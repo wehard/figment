@@ -23,6 +23,6 @@ public:
 	static std::vector<float> Plane();
 	static GLObject Triangle();
 	static GLObject Axis();
-	static GLObject Star();
+	static std::vector<float> Star();
 	static std::vector<float> Grid(int x, int y);
 };
