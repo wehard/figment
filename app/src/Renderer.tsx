@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import loadRenderer from './renderer/index.js';
 
 const Renderer = () => {
-  const [context, setContext] = useState(null);
+  const [context, setContext] = useState<any>(null);
   const canvas = useRef(null);
 
   useEffect(() => {
@@ -12,15 +12,27 @@ const Renderer = () => {
     }
     let Module = { canvas: canvas.current };
     loadRenderer(Module).then((rendererContext: any) => {
-      console.log(rendererContext);
       setContext(rendererContext);
+
+      window.addEventListener('resize', (ev) => {
+        if (context) {
+          context.canvas.width = window.innerWidth;
+          context.canvas.height = window.innerHeight;
+          context._onCanvasResize(window.innerWidth, window.innerHeight);
+        }
+      });
     });
   }, []);
 
   return (
-    <>
-      <canvas id='canvas' ref={canvas} onContextMenu={(e) => e.preventDefault()}></canvas>
-    </>
+    <div className='absolute h-full w-full'>
+      <canvas
+        className='webgl-canvas'
+        id='canvas'
+        ref={canvas}
+        onContextMenu={(e) => e.preventDefault()}
+      ></canvas>
+    </div>
   );
 };
 

@@ -13,7 +13,7 @@ static glm::mat4 getModelMatrix(glm::vec3 position, glm::vec3 rotation, glm::vec
 	return (m);
 }
 
-GLContext::GLContext(std::string title, int width, int height) : width(width), height(height)
+GLContext::GLContext(std::string title, int width, int height) : m_Width(width), m_Height(height)
 {
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0)
 	{
@@ -35,7 +35,7 @@ GLContext::GLContext(std::string title, int width, int height) : width(width), h
 	SDL_DisplayMode current;
 	SDL_GetCurrentDisplayMode(0, &current);
 	SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
-	window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, window_flags);
+	window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, m_Width, m_Height, window_flags);
 	glContext = SDL_GL_CreateContext(window);
 	if (!glContext)
 	{
@@ -62,6 +62,14 @@ GLContext::~GLContext()
 {
 	SDL_DestroyWindow(window);
 	SDL_Quit();
+}
+
+void GLContext::Resize(int width, int height)
+{
+	this->m_Width = width;
+	this->m_Height = height;
+	printf("Window resized to %d x %d\n", m_Width, m_Height);
+	SDL_SetWindowSize(window, m_Width, m_Height);
 }
 
 static glm::vec3 intersect(glm::vec3 planeP, glm::vec3 planeN, glm::vec3 rayP, glm::vec3 rayD)
@@ -95,17 +103,17 @@ static glm::vec3 projectMouse(int mouseX, int mouseY, float width, float height,
 	return world;
 }
 
-glm::vec3 GLContext::GetMouseWorldCoord(Camera *camera)
-{
-	glm::vec3 world;
-	double xpos;
-	double ypos;
-	// glfwGetCursorPos(window, &xpos, &ypos);
-	SDL_Cursor *cursor = SDL_GetCursor();
+// glm::vec3 GLContext::GetMouseWorldCoord(Camera *camera)
+// {
+// 	glm::vec3 world;
+// 	double xpos;
+// 	double ypos;
+// 	// glfwGetCursorPos(window, &xpos, &ypos);
+// 	SDL_Cursor *cursor = SDL_GetCursor();
 
-	auto pPos = glm::vec3(0.0);
-	auto pNormal = glm::normalize(camera->position - pPos);
+// 	auto pPos = glm::vec3(0.0);
+// 	auto pNormal = glm::normalize(camera->position - pPos);
 
-	world = intersect(pPos, pNormal, camera->position, projectMouse(xpos, ypos, width, height, camera->getProjectionMatrix(), camera->getViewMatrix()));
-	return world;
-}
+// 	world = intersect(pPos, pNormal, camera->position, projectMouse(xpos, ypos, width, height, camera->getProjectionMatrix(), camera->getViewMatrix()));
+// 	return world;
+// }

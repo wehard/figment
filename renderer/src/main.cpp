@@ -49,19 +49,23 @@ private:
 	GLObject *plane;
 
 	glm::vec2 mousePosition = glm::vec2(0, 0);
-	ImVec4 clear_color = ImVec4(0.15, 0.15, 0.15, 1.00f);
+	ImVec4 m_ClearColor = ImVec4(0.15, 0.15, 0.15, 1.00f);
 
 	std::vector<GLObject *> objects;
+
+	// static App *s_Instance;
 
 public:
 	App()
 	{
-		gl = new GLContext("Figment C++", 1280, 720);
+		int width = 1000;
+		int height = 1000;
+		gl = new GLContext("Figment C++", width, height);
 		gui = new GUIContext();
 		shader = new Shader(readFile("shaders/basic.vert").c_str(), readFile("shaders/basic.frag").c_str());
 		gridShader = new Shader(readFile("shaders/grid.vert").c_str(), readFile("shaders/grid.frag").c_str());
 		renderer = new GLRenderer();
-		camera = new OrthoCamera(1280.0 / 720.0);
+		camera = new OrthoCamera(width, height);
 
 		grid = new GLObject(GLObject::Grid(10, 10));
 		grid->scale = glm::vec3(1.0, 1.0, 1.0);
@@ -70,15 +74,7 @@ public:
 		plane->color = glm::vec4(1.0, 1.0, 1.0, 0.3);
 		gui->Init(gl->window, gl->glContext, gl->glslVersion);
 
-		// for (size_t i = 0; i < 1000; i++)
-		// {
-		// 	GLObject *o = new GLObject(GLObject::Star());
-		// 	o->position = camera->GetPosition();
-		// 	o->position = glm::vec3((rand() % 1280) - 1280 / 2, (rand() % 720) - 720 / 2, 0.0);
-		// 	o->color.a = 0.5;
-		// 	o->scale = glm::vec3(1.0);
-		// 	objects.push_back(o);
-		// }
+		// this->s_Instance = this;
 	}
 
 	~App()
@@ -88,6 +84,8 @@ public:
 		delete camera;
 		delete gui;
 	}
+
+	// static App &Get() { return *s_Instance; }
 
 	void HandleKeyboardInput(SDL_Event event)
 	{
@@ -149,7 +147,7 @@ public:
 		GUIUpdate();
 
 		SDL_GL_MakeCurrent(gl->window, gl->glContext);
-		renderer->Begin(*camera, glm::vec4(clear_color.x, clear_color.y, clear_color.z, clear_color.w));
+		renderer->Begin(*camera, glm::vec4(m_ClearColor.x, m_ClearColor.y, m_ClearColor.z, m_ClearColor.w));
 
 		// gridShader->use();
 		// gridShader->setVec2("offset", glm::vec2(camera->GetPosition().x / 3.555, camera->GetPosition().y / 2.0));
@@ -183,6 +181,7 @@ public:
 		glm::vec3 cameraPosition = camera->GetPosition();
 		ImGui::Text("Position x %f, y %f, z %f", cameraPosition.x, cameraPosition.y, cameraPosition.z);
 		ImGui::Text("Zoom: %f", camera->GetZoom());
+		ImGui::Text("Aspect: %f", camera->GetAspectRatio());
 		ImGui::Spacing();
 		if (ImGui::SmallButton("Reset"))
 		{
@@ -219,16 +218,26 @@ public:
 		SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &major);
 		SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &minor);
 
-		glm::vec2 ndc = glm::vec2((mousePosition.x / (1280 * 0.5)) - 1.0, (mousePosition.y / (720.0 * 0.5)) - 1.0);
+		int windowWidth = 0;
+		int windowHeight = 0;
+		SDL_GetWindowSize(gl->window, &windowWidth, &windowHeight);
+
+		glm::vec2 ndc = glm::vec2((mousePosition.x / ((float)windowWidth * 0.5)) - 1.0, (mousePosition.y / ((float)windowHeight * 0.5)) - 1.0);
 		glm::vec2 mw = camera->ScreenToWorldSpace(mousePosition.x, mousePosition.y);
 
-		ImGui::SetNextWindowPos(ImVec2(1280 - 500, 0));
+		ImGui::SetNextWindowPos(ImVec2(windowWidth - 500, 0));
 		ImGui::SetNextWindowSize(ImVec2(500, 300));
 		ImGui::Begin("Debug");
 		ImGui::Text("GL version: %d.%d", major, minor);
 		ImGui::Text("GLSL version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
 		ImGui::Text("GL Vendor: %s", glGetString(GL_VENDOR));
 		ImGui::Text("GL Renderer: %s", glGetString(GL_RENDERER));
+		ImGui::Separator();
+
+		ImGui::Text("Window size %d %d", windowWidth, windowHeight);
+
+		ImGui::ColorEdit3("clear color", (float *)&m_ClearColor);
+
 		if (ImGui::BeginListBox("Mouse"))
 		{
 			ImGui::Text("Screen: %.2f %.2f", mousePosition.x, mousePosition.y);
@@ -240,10 +249,20 @@ public:
 
 		ImGui::End();
 	}
+
+	void OnResize(float width, float height)
+	{
+		gl->Resize(width, height);
+		int windowWidth = 0;
+		int windowHeight = 0;
+		SDL_GetWindowSize(gl->window, &windowWidth, &windowHeight);
+		camera->OnResize(windowWidth, windowHeight);
+	}
 };
 
 glm::vec2 mousePosition = glm::vec2(0.0);
 glm::vec2 prevMousePosition = glm::vec2(640, 360);
+App *app;
 
 extern "C"
 {
@@ -260,6 +279,11 @@ extern "C"
 	{
 		printf("WebGL insert object\n");
 	}
+
+	EMSCRIPTEN_KEEPALIVE void onCanvasResize(float width, float height)
+	{
+		app->OnResize(width, height);
+	}
 }
 
 static void main_loop(void *arg)
@@ -270,6 +294,6 @@ static void main_loop(void *arg)
 
 int main(int, char **)
 {
-	App *app = new App();
+	app = new App();
 	emscripten_set_main_loop_arg(main_loop, app, 0, true);
 }
