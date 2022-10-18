@@ -14,7 +14,6 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <string>
-#include "Camera.h"
 
 struct GLInfo
 {
@@ -40,6 +39,8 @@ class GLContext
 {
 private:
 	void readGLInfo();
+	int m_Width;
+	int m_Height;
 
 public:
 	const char *glslVersion = "#version 150";
@@ -49,9 +50,9 @@ public:
 	SDL_GLContext glContext = NULL;
 	glm::mat4x4 projection;
 	glm::mat4x4 view;
-	int width;
-	int height;
 	GLContext(std::string title, int width, int height);
 	~GLContext();
-	glm::vec3 GetMouseWorldCoord(Camera *camera);
+	int GetWidth() { return m_Width; }
+	int GetHeight() { return m_Height; }
+	void Resize(int width, int height);
 };
