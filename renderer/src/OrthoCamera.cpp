@@ -93,3 +93,10 @@ void OrthoCamera::EndPan()
 {
     m_IsPanning = false;
 }
+
+void OrthoCamera::SetZoom(float amount)
+{
+    m_Zoom = amount;
+    SetProjection(-m_AspectRatio * m_Zoom, m_AspectRatio * m_Zoom, -m_Zoom, m_Zoom);
+    UpdateViewMatrix();
+}

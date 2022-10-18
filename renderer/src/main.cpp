@@ -96,8 +96,8 @@ public:
 			GLObject *o = new GLObject(GLObject::Plane());
 			o->position = camera->GetPosition();
 			o->position.z = 0.0;
-			o->color.a = 0.1;
-			o->scale = glm::vec3(1.0);
+			o->color = glm::vec4(1.0, 1.0, 1.0, 1.0);
+			o->scale = glm::vec3(1.6, 0.9, 0.0);
 			objects.push_back(o);
 		}
 	}
@@ -151,12 +151,12 @@ public:
 		SDL_GL_MakeCurrent(gl->window, gl->glContext);
 		renderer->Begin(*camera, glm::vec4(clear_color.x, clear_color.y, clear_color.z, clear_color.w));
 
-		gridShader->use();
-		gridShader->setVec2("offset", glm::vec2(camera->GetPosition().x / 3.555, camera->GetPosition().y / 2.0));
-		gridShader->setVec2("pitch", glm::vec2(36, 36));
-		gridShader->setVec4("obj_color", plane->color);
-		gridShader->setFloat("zoom", 1.0 / camera->GetZoom());
-		renderer->Draw(*plane);
+		// gridShader->use();
+		// gridShader->setVec2("offset", glm::vec2(camera->GetPosition().x / 3.555, camera->GetPosition().y / 2.0));
+		// gridShader->setVec2("pitch", glm::vec2(36, 36));
+		// gridShader->setVec4("obj_color", plane->color);
+		// gridShader->setFloat("zoom", 1.0 / camera->GetZoom());
+		// renderer->Draw(*plane);
 
 		renderer->DrawLines(*grid, *shader);
 
@@ -187,28 +187,29 @@ public:
 		if (ImGui::SmallButton("Reset"))
 		{
 			camera->SetPosition(glm::vec3(0.0));
+			camera->SetZoom(1.0);
 		}
 		if (ImGui::SmallButton("Move Left"))
 		{
-			cameraPosition.x -= 0.1;
+			cameraPosition.x -= 0.1 * camera->GetZoom();
 			camera->SetPosition(cameraPosition);
 		}
 		ImGui::SameLine();
 		if (ImGui::SmallButton("Move Right"))
 		{
-			cameraPosition.x += 0.1;
+			cameraPosition.x += 0.1 * camera->GetZoom();
 			camera->SetPosition(cameraPosition);
 		}
 		ImGui::SameLine();
 		if (ImGui::SmallButton("Move Up"))
 		{
-			cameraPosition.y += 0.1;
+			cameraPosition.y += 0.1 * camera->GetZoom();
 			camera->SetPosition(cameraPosition);
 		}
 		ImGui::SameLine();
 		if (ImGui::SmallButton("Move Down"))
 		{
-			cameraPosition.y -= 0.1;
+			cameraPosition.y -= 0.1 * camera->GetZoom();
 			camera->SetPosition(cameraPosition);
 		}
 		ImGui::End();
@@ -222,17 +223,19 @@ public:
 		glm::vec2 mw = camera->ScreenToWorldSpace(mousePosition.x, mousePosition.y);
 
 		ImGui::SetNextWindowPos(ImVec2(1280 - 500, 0));
-		ImGui::SetNextWindowSize(ImVec2(500, 200));
+		ImGui::SetNextWindowSize(ImVec2(500, 300));
 		ImGui::Begin("Debug");
 		ImGui::Text("GL version: %d.%d", major, minor);
 		ImGui::Text("GLSL version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
 		ImGui::Text("GL Vendor: %s", glGetString(GL_VENDOR));
 		ImGui::Text("GL Renderer: %s", glGetString(GL_RENDERER));
-		ImGui::Separator();
-		ImGui::Text("Mouse position: %.2f %.2f", mousePosition.x, mousePosition.y);
-		ImGui::Text("Mouse ndc: %.2f %.2f", ndc.x, ndc.y);
-		ImGui::Text("Mouse world: %.2f %.2f", mw.x, mw.y);
-		ImGui::Separator();
+		if (ImGui::BeginListBox("Mouse"))
+		{
+			ImGui::Text("Screen: %.2f %.2f", mousePosition.x, mousePosition.y);
+			ImGui::Text("NDC: %.2f %.2f", ndc.x, ndc.y);
+			ImGui::Text("World: %.2f %.2f", mw.x, mw.y);
+			ImGui::EndListBox();
+		}
 		ImGui::Text("Objects: %zu", objects.size());
 
 		ImGui::End();
