@@ -21,6 +21,7 @@ public:
     glm::vec2 ScreenToWorldSpace(int sx, int sy);
     void BeginPan(glm::vec2 mousePosition);
     void EndPan();
+    void SetZoom(float amount);
 
 private:
     glm::mat4 m_ProjectionMatrix;
