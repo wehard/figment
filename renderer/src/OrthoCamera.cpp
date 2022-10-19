@@ -32,17 +32,11 @@ void OrthoCamera::Zoom(float delta, glm::vec2 mousePosition)
     UpdateViewMatrix();
 }
 
-float OrthoCamera::GetAspectRatio()
-{
-    return m_AspectRatio;
-}
-
 void OrthoCamera::OnResize(float w, float h)
 {
     m_ViewportWidth = w;
     m_ViewportHeight = h;
     m_AspectRatio = m_ViewportWidth / m_ViewportHeight;
-    printf("Camera setting aspect ratio %f from width %f and height %f\n", m_AspectRatio, w, h);
     SetProjection(-m_AspectRatio * m_Zoom, m_AspectRatio * m_Zoom, -m_Zoom, m_Zoom);
     UpdateViewMatrix();
 }
@@ -94,7 +88,6 @@ void OrthoCamera::EndPan()
 
 void OrthoCamera::SetZoom(float amount)
 {
-    m_AspectRatio -= 0.1;
     m_Zoom = amount;
     SetProjection(-m_AspectRatio * m_Zoom, m_AspectRatio * m_Zoom, -m_Zoom, m_Zoom);
     UpdateViewMatrix();
