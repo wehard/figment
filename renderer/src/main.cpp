@@ -18,6 +18,7 @@
 #include <fstream>
 #include <sstream>
 #include <stdlib.h>
+#include <string>
 
 std::string readFile(std::string path)
 {
@@ -35,6 +36,9 @@ std::string readFile(std::string path)
 		printf("Error opening %s\n", path.c_str());
 	return (source);
 }
+
+glm::vec2 mousePosition = glm::vec2(0.0);
+glm::vec2 prevMousePosition = glm::vec2(640, 360);
 
 class App
 {
@@ -56,10 +60,8 @@ private:
 	// static App *s_Instance;
 
 public:
-	App()
+	App(float width, float height)
 	{
-		int width = 1000;
-		int height = 1000;
 		gl = new GLContext("Figment C++", width, height);
 		gui = new GUIContext();
 		shader = new Shader(readFile("shaders/basic.vert").c_str(), readFile("shaders/basic.frag").c_str());
@@ -140,6 +142,11 @@ public:
 			}
 			HandleKeyboardInput(event);
 			HandleMouseInput(event);
+
+			if (event.window.event == SDL_WINDOWEVENT_RESIZED)
+			{
+				OnResize(event.window.data1, event.window.data2);
+			}
 		}
 
 		camera->OnUpdate(mousePosition);
@@ -148,13 +155,6 @@ public:
 
 		SDL_GL_MakeCurrent(gl->window, gl->glContext);
 		renderer->Begin(*camera, glm::vec4(m_ClearColor.x, m_ClearColor.y, m_ClearColor.z, m_ClearColor.w));
-
-		// gridShader->use();
-		// gridShader->setVec2("offset", glm::vec2(camera->GetPosition().x / 3.555, camera->GetPosition().y / 2.0));
-		// gridShader->setVec2("pitch", glm::vec2(36, 36));
-		// gridShader->setVec4("obj_color", plane->color);
-		// gridShader->setFloat("zoom", 1.0 / camera->GetZoom());
-		// renderer->Draw(*plane);
 
 		renderer->DrawLines(*grid, *shader);
 
@@ -252,21 +252,15 @@ public:
 
 	void OnResize(float width, float height)
 	{
+		camera->OnResize(width, height);
 		gl->Resize(width, height);
-		int windowWidth = 0;
-		int windowHeight = 0;
-		SDL_GetWindowSize(gl->window, &windowWidth, &windowHeight);
-		camera->OnResize(windowWidth, windowHeight);
 	}
 };
 
-glm::vec2 mousePosition = glm::vec2(0.0);
-glm::vec2 prevMousePosition = glm::vec2(640, 360);
 App *app;
 
 extern "C"
 {
-
 	EMSCRIPTEN_KEEPALIVE void onMouseMove(float x, float y)
 	{
 		mousePosition = glm::vec2(x, y);
@@ -282,7 +276,8 @@ extern "C"
 
 	EMSCRIPTEN_KEEPALIVE void onCanvasResize(float width, float height)
 	{
-		app->OnResize(width, height);
+		// glViewport(0, 0, width, height);
+		// app->OnResize(width, height);
 	}
 }
 
@@ -292,8 +287,13 @@ static void main_loop(void *arg)
 	app->Update();
 }
 
-int main(int, char **)
+int main(int argc, char **argv)
 {
-	app = new App();
+	int width = atoi(argv[1]);
+	int height = atoi(argv[2]);
+
+	printf("Initial canvas size %d x %d\n", width, height);
+
+	app = new App(width, height);
 	emscripten_set_main_loop_arg(main_loop, app, 0, true);
 }

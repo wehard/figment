@@ -70,6 +70,9 @@ void GLContext::Resize(int width, int height)
 	this->m_Height = height;
 	printf("Window resized to %d x %d\n", m_Width, m_Height);
 	SDL_SetWindowSize(window, m_Width, m_Height);
+
+	// SDL_GL_DeleteContext(glContext);
+	// glContext = SDL_GL_CreateContext(window);
 }
 
 static glm::vec3 intersect(glm::vec3 planeP, glm::vec3 planeN, glm::vec3 rayP, glm::vec3 rayD)
