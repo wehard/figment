@@ -18,18 +18,18 @@ const Renderer = (props: { width: number; height: number }) => {
     if (context !== null) {
       console.log('Renderer initialized!');
     }
-    const initWidth = 100; // window.innerWidth;
-    const initHeight = 100; //window.innerHeight;
+    const initWidth = props.width; // window.innerWidth;
+    const initHeight = props.height; //window.innerHeight;
     let Module = {
       canvas: canvas.current,
       arguments: [initWidth.toString(), initHeight?.toString()],
     };
     loadRenderer(Module).then((rendererContext: any) => {
       setContext(rendererContext);
-      window.addEventListener('resize', handleResize);
+      // window.addEventListener('resize', handleResize);
     });
     return () => {
-      window.removeEventListener('resize', handleResize);
+      // window.removeEventListener('resize', handleResize);
     };
   }, []);
 

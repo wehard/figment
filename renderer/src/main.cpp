@@ -143,10 +143,10 @@ public:
 			HandleKeyboardInput(event);
 			HandleMouseInput(event);
 
-			if (event.window.event == SDL_WINDOWEVENT_RESIZED)
-			{
-				OnResize(event.window.data1, event.window.data2);
-			}
+			// if (event.window.event == SDL_WINDOWEVENT_RESIZED)
+			// {
+			// 	OnResize(event.window.data1, event.window.data2);
+			// }
 		}
 
 		camera->OnUpdate(mousePosition);
