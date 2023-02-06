@@ -89,16 +89,21 @@ public:
 
 	// static App &Get() { return *s_Instance; }
 
+	void InsertObject()
+	{
+		GLObject *o = new GLObject(GLObject::Plane());
+		o->position = camera->GetPosition();
+		o->position.z = 0.0;
+		o->color = glm::vec4(1.0, 1.0, 1.0, 1.0);
+		o->scale = glm::vec3(0.1, 0.1, 0.0);
+		objects.push_back(o);
+	}
+
 	void HandleKeyboardInput(SDL_Event event)
 	{
 		if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_i)
 		{
-			GLObject *o = new GLObject(GLObject::Plane());
-			o->position = camera->GetPosition();
-			o->position.z = 0.0;
-			o->color = glm::vec4(1.0, 1.0, 1.0, 1.0);
-			o->scale = glm::vec3(1.6, 0.9, 0.0);
-			objects.push_back(o);
+			InsertObject();
 		}
 	}
 
@@ -234,7 +239,7 @@ public:
 		ImGui::Text("GL Renderer: %s", glGetString(GL_RENDERER));
 		ImGui::Separator();
 
-		ImGui::Text("Window size %d %d", windowWidth, windowHeight);
+		// ImGui::Text("Window size %d %d", windowWidth, windowHeight);
 
 		ImGui::ColorEdit3("clear color", (float *)&m_ClearColor);
 
@@ -265,19 +270,20 @@ extern "C"
 	{
 		mousePosition = glm::vec2(x, y);
 		glm::vec2 delta = mousePosition - prevMousePosition;
-		// camera->Rotate(delta.x, delta.y);
 		prevMousePosition = mousePosition;
 	}
 
 	EMSCRIPTEN_KEEPALIVE void insertObject()
 	{
 		printf("WebGL insert object\n");
+		app->InsertObject();
 	}
 
 	EMSCRIPTEN_KEEPALIVE void onCanvasResize(float width, float height)
 	{
-		// glViewport(0, 0, width, height);
-		// app->OnResize(width, height);
+		glViewport(0, 0, width, height);
+		app->OnResize(width, height);
+		printf("%s Resize to %f x %f\n", __FILE__, width, height);
 	}
 }
 
@@ -292,7 +298,7 @@ int main(int argc, char **argv)
 	int width = atoi(argv[1]);
 	int height = atoi(argv[2]);
 
-	printf("Initial canvas size %d x %d\n", width, height);
+	printf("%s:%d Initial canvas size %d x %d\n", __FILE__, __LINE__, width, height);
 
 	app = new App(width, height);
 	emscripten_set_main_loop_arg(main_loop, app, 0, true);

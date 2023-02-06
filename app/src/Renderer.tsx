@@ -2,35 +2,43 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import loadRenderer from './renderer/index.js';
 
-const Renderer = (props: { width: number; height: number }) => {
-  const [context, setContext] = useState<any>(null);
+type CanvasContext = {
+  onCanvasResize: (w: number, h: number) => void;
+  insertObject: () => void;
+};
+
+type ModuleDesc = {
+  canvas: HTMLCanvasElement | null;
+  arguments: string[];
+};
+
+interface RendererProps {
+  width: number;
+  height: number;
+  registerCallback: (ctx: CanvasContext) => void;
+}
+
+const Renderer = (props: RendererProps) => {
+  const [context, setContext] = useState<CanvasContext>();
   const canvas = useRef<HTMLCanvasElement>(null);
 
-  const handleResize = (ev: UIEvent) => {
-    if (context) {
-      context.canvas.width = window.innerWidth;
-      context.canvas.height = window.innerHeight;
-      context._onCanvasResize(window.innerWidth, window.innerHeight);
-    }
+  const initialize = async (module: ModuleDesc) => {
+    const rendererContext = await loadRenderer(module);
+    const ctx = {
+      onCanvasResize: rendererContext._onCanvasResize,
+      insertObject: rendererContext._insertObject,
+    };
+    props.registerCallback(ctx);
+    setContext(ctx);
   };
 
   useEffect(() => {
-    if (context !== null) {
-      console.log('Renderer initialized!');
-    }
-    const initWidth = props.width; // window.innerWidth;
-    const initHeight = props.height; //window.innerHeight;
-    let Module = {
+    const module = {
       canvas: canvas.current,
-      arguments: [initWidth.toString(), initHeight?.toString()],
+      arguments: [props.width.toString(), props.height.toString()],
     };
-    loadRenderer(Module).then((rendererContext: any) => {
-      setContext(rendererContext);
-      // window.addEventListener('resize', handleResize);
-    });
-    return () => {
-      // window.removeEventListener('resize', handleResize);
-    };
+
+    initialize(module).catch(console.error);
   }, []);
 
   return (
@@ -39,8 +47,8 @@ const Renderer = (props: { width: number; height: number }) => {
         className='webgl-canvas'
         id='canvas'
         ref={canvas}
-        width={100}
-        height={100}
+        width={props.width}
+        height={props.height}
         onContextMenu={(e) => e.preventDefault()}
       ></canvas>
     </div>
