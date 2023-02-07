@@ -239,7 +239,8 @@ public:
 		ImGui::Text("GL Renderer: %s", glGetString(GL_RENDERER));
 		ImGui::Separator();
 
-		// ImGui::Text("Window size %d %d", windowWidth, windowHeight);
+		SDL_GetWindowSize(gl->window, &windowWidth, &windowHeight);
+		ImGui::Text("Window size %d %d", windowWidth, windowHeight);
 
 		ImGui::ColorEdit3("clear color", (float *)&m_ClearColor);
 
