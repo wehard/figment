@@ -12,12 +12,19 @@ function App() {
         <button
           className='w-12 active:bg-neutral-700'
           onClick={() => {
-            if (canvasContext) canvasContext.insertObject();
+            if (canvasContext) canvasContext.insertObject(1);
           }}
         >
           1
         </button>
-        <button className='w-12 active:bg-neutral-700'>2</button>
+        <button
+          className='w-12 active:bg-neutral-700'
+          onClick={() => {
+            if (canvasContext) canvasContext.insertObject(2);
+          }}
+        >
+          2
+        </button>
         <button className='w-12 active:bg-neutral-700'>3</button>
         <button className='w-12 active:bg-neutral-700'>4</button>
         <button className='w-12 active:bg-neutral-700'>5</button>

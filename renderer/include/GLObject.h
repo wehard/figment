@@ -25,4 +25,5 @@ public:
 	static GLObject Axis();
 	static std::vector<float> Star();
 	static std::vector<float> Grid(int x, int y);
+	static std::vector<float> Circle(float radius);
 };

@@ -89,7 +89,7 @@ public:
 
 	// static App &Get() { return *s_Instance; }
 
-	void InsertObject()
+	void InsertPlane()
 	{
 		GLObject *o = new GLObject(GLObject::Plane());
 		o->position = camera->GetPosition();
@@ -99,11 +99,21 @@ public:
 		objects.push_back(o);
 	}
 
+	void InsertCircle()
+	{
+		GLObject *o = new GLObject(GLObject::Circle(1.0));
+		o->position = camera->GetPosition();
+		o->position.z = 0.0;
+		o->color = glm::vec4(1.0, 1.0, 0.5, 1.0);
+		o->scale = glm::vec3(0.1, 0.1, 0.0);
+		objects.push_back(o);
+	}
+
 	void HandleKeyboardInput(SDL_Event event)
 	{
 		if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_i)
 		{
-			InsertObject();
+			InsertCircle();
 		}
 	}
 
@@ -274,10 +284,20 @@ extern "C"
 		prevMousePosition = mousePosition;
 	}
 
-	EMSCRIPTEN_KEEPALIVE void insertObject()
+	EMSCRIPTEN_KEEPALIVE void insertObject(int n)
 	{
-		printf("WebGL insert object\n");
-		app->InsertObject();
+		printf("JS insert object %d\n", n);
+		switch (n)
+		{
+		case 1:
+			app->InsertPlane();
+			break;
+		case 2:
+			app->InsertCircle();
+			break;
+		default:
+			break;
+		}
 	}
 
 	EMSCRIPTEN_KEEPALIVE void onCanvasResize(float width, float height)
