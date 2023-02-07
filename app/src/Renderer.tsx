@@ -4,7 +4,7 @@ import loadRenderer from './renderer/index.js';
 
 export type CanvasContext = {
   onCanvasResize: (w: number, h: number) => void;
-  insertObject: () => void;
+  insertObject: (n: number) => void;
 };
 
 type ModuleDesc = {

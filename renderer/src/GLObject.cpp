@@ -134,3 +134,34 @@ std::vector<float> GLObject::Grid(int xs, int ys)
 
 	return vertices;
 }
+
+std::vector<float> GLObject::Circle(float radius)
+{
+	std::vector<float> vertices;
+
+	int steps = 64;
+
+	glm::vec2 p = glm::vec2(0.0, 1.0);
+
+	for (int i = 0; i < steps + 1; i++)
+	{
+		vertices.push_back(0.0);
+		vertices.push_back(0.0);
+		vertices.push_back(0.0);
+
+		vertices.push_back(p.x);
+		vertices.push_back(p.y);
+		vertices.push_back(0.0);
+
+		float a = ((M_PI * 2.0) / (float)steps) * i;
+
+		glm::vec2 next = glm::vec2(0.0 * cos(a) - 1.0 * sin(a), 1.0 * cos(a) + 0.0 * sin(a));
+
+		vertices.push_back(next.x);
+		vertices.push_back(next.y);
+		vertices.push_back(0.0);
+
+		p = next;
+	}
+	return vertices;
+}
