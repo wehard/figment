@@ -10,6 +10,8 @@ export type CanvasContext = {
 type ModuleDesc = {
   canvas: HTMLCanvasElement | null;
   arguments: string[];
+  preRun: (() => void)[];
+  doNotCaptureKeyboard: boolean;
 };
 
 interface RendererProps {
@@ -28,12 +30,18 @@ const Renderer = (props: RendererProps) => {
       onCanvasResize: rendererContext._onCanvasResize,
       insertObject: rendererContext._insertObject,
     };
+
+    rendererContext.doNotCaptureKeyboard = true;
+    console.log(rendererContext);
+
     props.registerCallback(ctx);
     setContext(ctx);
+    window.addEventListener('resize', handleResize);
   };
 
-  const handleResize = (e: Event) => {
+  const handleResize = (e: UIEvent) => {
     console.log('resize', context);
+
     context?.onCanvasResize(1280, 720);
   };
 
@@ -41,14 +49,19 @@ const Renderer = (props: RendererProps) => {
     const module = {
       canvas: canvas.current,
       arguments: [props.initialWidth.toString(), props.initialHeight.toString()],
+      doNotCaptureKeyboard: true,
+      preRun: [
+        function () {
+          const SDL_EMSCRIPTEN_KEYBOARD_ELEMENT = '...';
+        },
+      ],
     };
 
     initialize(module).catch(console.error);
-    window.addEventListener('resize', handleResize);
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [props.initialWidth, props.initialHeight]);
+  }, []);
 
   return (
     <div className=''>
