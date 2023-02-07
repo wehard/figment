@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import loadRenderer from './renderer/index.js';
 
-type CanvasContext = {
+export type CanvasContext = {
   onCanvasResize: (w: number, h: number) => void;
   insertObject: () => void;
 };
@@ -13,8 +13,8 @@ type ModuleDesc = {
 };
 
 interface RendererProps {
-  width: number;
-  height: number;
+  initialWidth: number;
+  initialHeight: number;
   registerCallback: (ctx: CanvasContext) => void;
 }
 
@@ -32,14 +32,23 @@ const Renderer = (props: RendererProps) => {
     setContext(ctx);
   };
 
+  const handleResize = (e: Event) => {
+    console.log('resize', context);
+    context?.onCanvasResize(1280, 720);
+  };
+
   useEffect(() => {
     const module = {
       canvas: canvas.current,
-      arguments: [props.width.toString(), props.height.toString()],
+      arguments: [props.initialWidth.toString(), props.initialHeight.toString()],
     };
 
     initialize(module).catch(console.error);
-  }, []);
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [props.initialWidth, props.initialHeight]);
 
   return (
     <div className=''>
@@ -47,8 +56,8 @@ const Renderer = (props: RendererProps) => {
         className='webgl-canvas'
         id='canvas'
         ref={canvas}
-        width={props.width}
-        height={props.height}
+        width={props.initialWidth}
+        height={props.initialHeight}
         onContextMenu={(e) => e.preventDefault()}
       ></canvas>
     </div>
