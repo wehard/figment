@@ -6,5 +6,5 @@
 .webgl-canvas {
   width: 1920px;
   height: 1080px;
-  border: solid 1px red;
+  /* border: solid 1px red; */
 }

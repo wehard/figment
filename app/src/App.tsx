@@ -23,7 +23,7 @@ function App() {
   // }, [rref.current]);
 
   return (
-    <div className='h-screen overflow-y-hidden'>
+    <div className='h-screen w-screen overflow-x-hidden overflow-y-hidden bg-black'>
       <div className='flex h-12 w-full border-b border-neutral-700 bg-neutral-800'>
         <button
           className='w-12 active:bg-neutral-700'
@@ -41,11 +41,14 @@ function App() {
         <button className='w-12 active:bg-neutral-700'>7</button>
         <button className='w-12 active:bg-neutral-700'>8</button>
       </div>
-      <div className='flex h-full flex-row opacity-70'>
-        <div className='fixed h-full w-64 min-w-max grow-0 border-r border-neutral-700 bg-neutral-800 p-2 opacity-70'>
-          Hello, world!
+      <div className='flex h-full flex-row '>
+        <div className='flex h-full w-[15rem] flex-col content-start items-start justify-start border-r border-neutral-700 bg-neutral-800 p-2'>
+          <ul className='flex list-inside list-decimal flex-col flex-wrap content-start items-start justify-start justify-items-start'>
+            <li>Insert quad</li>
+            <li>Insert circle</li>
+          </ul>
         </div>
-        <div>
+        <div className=''>
           <Renderer
             width={size.width}
             height={size.height}
