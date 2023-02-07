@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import Editor from '@monaco-editor/react';
 import Renderer, { CanvasContext } from './Renderer';
 import './App.css';
 
@@ -6,8 +7,12 @@ function App() {
   const rref = useRef<HTMLDivElement>(null);
   const [canvasContext, setCanvasContext] = useState<CanvasContext>();
 
+  const handleEditorChange = (value: string | undefined, ev: any) => {
+    console.log(value);
+  };
+
   return (
-    <div className='h-screen w-screen overflow-x-hidden overflow-y-hidden bg-black'>
+    <div id='app' className='h-screen w-screen overflow-x-hidden overflow-y-hidden bg-black'>
       <div className='flex h-12 w-full border-b border-neutral-700 bg-neutral-800'>
         <button
           className='w-12 active:bg-neutral-700'
@@ -40,6 +45,16 @@ function App() {
           </ul>
         </div>
         <Renderer initialWidth={1920} initialHeight={1080} registerCallback={setCanvasContext} />
+        <div className='fixed bottom-0 h-1/4 w-1/2 border-t-4 border-r-4 border-neutral-700'>
+          <Editor
+            height='90vh'
+            defaultLanguage='glsl'
+            defaultValue='// some comment'
+            value='code'
+            theme={'vs-dark'}
+            onChange={handleEditorChange}
+          />
+        </div>
       </div>
     </div>
   );
