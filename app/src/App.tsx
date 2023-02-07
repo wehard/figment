@@ -1,26 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import Renderer from './Renderer';
+import Renderer, { CanvasContext } from './Renderer';
 import './App.css';
 
 function App() {
   const rref = useRef<HTMLDivElement>(null);
-  const [size, setSize] = useState<{ width: number; height: number }>({
-    width: 1920,
-    height: 1080,
-  });
-
-  const [ctx, setCtx] = useState<any>();
-
-  const handleRegisterCallback = (ctx: any) => {
-    setCtx(ctx);
-  };
-
-  // useEffect(() => {
-  //   if (rref.current) {
-  //     const s = getComputedStyle(rref.current);
-  //     setSize({ width: parseInt(s.width), height: parseInt(s.height) });
-  //   }
-  // }, [rref.current]);
+  const [canvasContext, setCanvasContext] = useState<CanvasContext>();
 
   return (
     <div className='h-screen w-screen overflow-x-hidden overflow-y-hidden bg-black'>
@@ -28,7 +12,7 @@ function App() {
         <button
           className='w-12 active:bg-neutral-700'
           onClick={() => {
-            ctx.insertObject();
+            if (canvasContext) canvasContext.insertObject();
           }}
         >
           1
@@ -42,19 +26,13 @@ function App() {
         <button className='w-12 active:bg-neutral-700'>8</button>
       </div>
       <div className='flex h-full flex-row '>
-        <div className='flex h-full w-[15rem] flex-col content-start items-start justify-start border-r border-neutral-700 bg-neutral-800 p-2'>
+        <div className='flex h-full w-[15rem] min-w-[15rem] flex-col content-start items-start justify-start border-r border-neutral-700 bg-neutral-800 p-2'>
           <ul className='flex list-inside list-decimal flex-col flex-wrap content-start items-start justify-start justify-items-start'>
             <li>Insert quad</li>
             <li>Insert circle</li>
           </ul>
         </div>
-        <div className=''>
-          <Renderer
-            width={size.width}
-            height={size.height}
-            registerCallback={handleRegisterCallback}
-          />
-        </div>
+        <Renderer initialWidth={1920} initialHeight={1080} registerCallback={setCanvasContext} />
       </div>
     </div>
   );
