@@ -5,6 +5,7 @@ import loadRenderer from './renderer/index.js';
 export type CanvasContext = {
   onCanvasResize: (w: number, h: number) => void;
   insertObject: (n: number) => void;
+  setInputEnabled: (n: number) => void;
 };
 
 type ModuleDesc = {
@@ -26,9 +27,10 @@ const Renderer = (props: RendererProps) => {
 
   const initialize = async (module: ModuleDesc) => {
     const rendererContext = await loadRenderer(module);
-    const ctx = {
+    const ctx: CanvasContext = {
       onCanvasResize: rendererContext._onCanvasResize,
       insertObject: rendererContext._insertObject,
+      setInputEnabled: rendererContext._setInputEnabled,
     };
 
     rendererContext.doNotCaptureKeyboard = true;
@@ -50,11 +52,7 @@ const Renderer = (props: RendererProps) => {
       canvas: canvas.current,
       arguments: [props.initialWidth.toString(), props.initialHeight.toString()],
       doNotCaptureKeyboard: true,
-      preRun: [
-        function () {
-          const SDL_EMSCRIPTEN_KEYBOARD_ELEMENT = '...';
-        },
-      ],
+      preRun: [],
     };
 
     initialize(module).catch(console.error);

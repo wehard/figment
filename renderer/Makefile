@@ -20,7 +20,8 @@ WEB_EXE = $(WEB_DIR)/index.html
 
 ASSET_DIR = res
 
-SRC = OrthoCamera.cpp\
+SRC = App.cpp\
+	OrthoCamera.cpp\
 	GLContext.cpp\
 	GLObject.cpp\
 	GLRenderer.cpp\
