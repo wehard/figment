@@ -60,6 +60,12 @@ App::App(float width, float height)
         static_cast<App *>(glfwGetWindowUserPointer(w))->SetMousePosition(x, y);
     };
     glfwSetCursorPosCallback(gl->window, mouseCursorCallback);
+
+    auto mouseScrollCallback = [](GLFWwindow *w, double xOffset, double yOffset)
+    {
+        static_cast<App *>(glfwGetWindowUserPointer(w))->HandleMouseScroll(xOffset, yOffset);
+    };
+    glfwSetScrollCallback(gl->window, mouseScrollCallback);
 }
 
 App::~App()
@@ -92,10 +98,10 @@ void App::InsertCircle()
 
 void App::HandleKeyboardInput(int key, int scancode, int action, int mods)
 {
+    // ImGui_ImplGlfw_KeyCallback(gl->window, key, scancode, action, mods);
     // ImGuiIO &io = ImGui::GetIO();
     // if (io.WantCaptureKeyboard)
     // {
-    //     ImGui_ImplGlfw_KeyCallback(gl->window, key, scancode, action, mods);
     //     return;
     // }
 
@@ -111,16 +117,11 @@ void App::HandleKeyboardInput(int key, int scancode, int action, int mods)
 
 void App::HandleMouseInput(int button, int action, int mods)
 {
-    // if (event.type == SDL_MOUSEWHEEL)
-    // {
-    //     float delta = event.wheel.y;
-    //     camera->Zoom(delta, mousePosition);
-    // }
+    ImGui_ImplGlfw_MouseButtonCallback(gl->window, button, action, mods);
 
     ImGuiIO &io = ImGui::GetIO();
     if (io.WantCaptureMouse)
     {
-        ImGui_ImplGlfw_MouseButtonCallback(gl->window, button, action, mods);
         return;
     }
 
@@ -143,14 +144,19 @@ void App::HandleMouseInput(int button, int action, int mods)
 
 void App::SetMousePosition(double x, double y)
 {
+    ImGui_ImplGlfw_CursorPosCallback(gl->window, x, y);
     ImGuiIO &io = ImGui::GetIO();
     if (io.WantCaptureMouse)
     {
-        ImGui_ImplGlfw_CursorPosCallback(gl->window, x, y);
         return;
     }
     this->mousePosition.x = x;
     this->mousePosition.y = y;
+}
+
+void App::HandleMouseScroll(double xOffset, double yOffset)
+{
+    camera->Zoom(yOffset, mousePosition);
 }
 
 void App::Update()
