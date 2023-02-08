@@ -33,7 +33,8 @@ public:
     void InsertPlane();
     void InsertCircle();
     void HandleKeyboardInput(int key, int scancode, int action, int mods);
-    // void HandleMouseInput(SDL_Event event);
+    void HandleMouseInput(int button, int action, int mods);
+    void SetMousePosition(double x, double y);
     void Update();
     void GUIUpdate();
 
