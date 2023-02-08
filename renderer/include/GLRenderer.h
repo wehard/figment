@@ -4,6 +4,13 @@
 #include "Shader.h"
 #include "OrthoCamera.h"
 
+class IRenderer
+{
+	virtual void BeginFrame() = 0;
+	virtual void EndFrame() = 0;
+	virtual void Submit(GLObject &obj) = 0;
+};
+
 class GLRenderer
 {
 private:
