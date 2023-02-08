@@ -37,7 +37,7 @@ App::App(float width, float height)
     grid->color = glm::vec4(1.0, 1.0, 1.0, 0.25);
     plane = new GLObject(GLObject::Plane());
     plane->color = glm::vec4(1.0, 1.0, 1.0, 0.3);
-    gui->Init(gl->window, gl->glContext, gl->glslVersion);
+    gui->Init(gl->window, gl->glslVersion);
 }
 
 App::~App()
@@ -68,66 +68,68 @@ void App::InsertCircle()
     objects.push_back(o);
 }
 
-void App::HandleKeyboardInput(SDL_Event event)
-{
-    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_i)
-    {
-        InsertCircle();
-    }
-}
+// void App::HandleKeyboardInput(SDL_Event event)
+// {
+//     if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_i)
+//     {
+//         InsertCircle();
+//     }
+// }
 
-void App::HandleMouseInput(SDL_Event event)
-{
-    if (event.type == SDL_MOUSEWHEEL)
-    {
-        float delta = event.wheel.y;
-        camera->Zoom(delta, mousePosition);
-    }
-    if (event.type == SDL_MOUSEBUTTONDOWN)
-    {
-        if (event.button.button == 2)
-        {
-            camera->BeginPan(mousePosition);
-        }
-    }
-    if (event.type == SDL_MOUSEBUTTONUP)
-    {
-        if (event.button.button == 2)
-        {
-            camera->EndPan();
-        }
-    }
-}
+// void App::HandleMouseInput(SDL_Event event)
+// {
+//     if (event.type == SDL_MOUSEWHEEL)
+//     {
+//         float delta = event.wheel.y;
+//         camera->Zoom(delta, mousePosition);
+//     }
+//     if (event.type == SDL_MOUSEBUTTONDOWN)
+//     {
+//         if (event.button.button == 2)
+//         {
+//             camera->BeginPan(mousePosition);
+//         }
+//     }
+//     if (event.type == SDL_MOUSEBUTTONUP)
+//     {
+//         if (event.button.button == 2)
+//         {
+//             camera->EndPan();
+//         }
+//     }
+// }
 
 void App::Update()
 {
     int mx, my;
-    SDL_GetMouseState(&mx, &my);
+    // SDL_GetMouseState(&mx, &my);
+
     mousePosition = glm::vec2(mx, my);
 
     ImGuiIO &io = ImGui::GetIO();
-    SDL_Event event;
-    while (m_handleEvents && SDL_PollEvent(&event))
-    {
-        ImGui_ImplSDL2_ProcessEvent(&event);
-        if (io.WantCaptureMouse)
-        {
-            continue;
-        }
-        HandleKeyboardInput(event);
-        HandleMouseInput(event);
+    // SDL_Event event;
+    // while (m_handleEvents && SDL_PollEvent(&event))
+    // {
+    //     ImGui_ImplSDL2_ProcessEvent(&event);
+    //     if (io.WantCaptureMouse)
+    //     {
+    //         continue;
+    //     }
+    //     HandleKeyboardInput(event);
+    //     HandleMouseInput(event);
 
-        // if (event.window.event == SDL_WINDOWEVENT_RESIZED)
-        // {
-        //     OnResize(event.window.data1, event.window.data2);
-        // }
-    }
+    //     // if (event.window.event == SDL_WINDOWEVENT_RESIZED)
+    //     // {
+    //     //     OnResize(event.window.data1, event.window.data2);
+    //     // }
+    // }
 
     camera->OnUpdate(mousePosition);
 
     GUIUpdate();
 
-    SDL_GL_MakeCurrent(gl->window, gl->glContext);
+    // SDL_GL_MakeCurrent(gl->window, gl->glContext);
+    glfwMakeContextCurrent(gl->window);
     renderer->Begin(*camera, glm::vec4(m_ClearColor.x, m_ClearColor.y, m_ClearColor.z, m_ClearColor.w));
 
     renderer->DrawLines(*grid, *shader);
@@ -138,7 +140,9 @@ void App::Update()
     }
 
     gui->Render();
-    SDL_GL_SwapWindow(gl->window);
+    // SDL_GL_SwapWindow(gl->window);
+    glfwSwapBuffers(gl->window);
+    glfwPollEvents();
 }
 
 void App::GUIUpdate()
@@ -146,7 +150,7 @@ void App::GUIUpdate()
     ImGuiIO &io = ImGui::GetIO();
 
     ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplSDL2_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
     ImGui::SetNextWindowPos(ImVec2(0, 0));
@@ -189,12 +193,12 @@ void App::GUIUpdate()
 
     GLint major;
     GLint minor;
-    SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &major);
-    SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &minor);
+    // SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &major);
+    // SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &minor);
 
     int windowWidth = 0;
     int windowHeight = 0;
-    SDL_GetWindowSize(gl->window, &windowWidth, &windowHeight);
+    // SDL_GetWindowSize(gl->window, &windowWidth, &windowHeight);
 
     glm::vec2 ndc = glm::vec2((mousePosition.x / ((float)windowWidth * 0.5)) - 1.0, (mousePosition.y / ((float)windowHeight * 0.5)) - 1.0);
     glm::vec2 mw = camera->ScreenToWorldSpace(mousePosition.x, mousePosition.y);
@@ -208,7 +212,7 @@ void App::GUIUpdate()
     ImGui::Text("GL Renderer: %s", glGetString(GL_RENDERER));
     ImGui::Separator();
 
-    SDL_GetWindowSize(gl->window, &windowWidth, &windowHeight);
+    // SDL_GetWindowSize(gl->window, &windowWidth, &windowHeight);
     ImGui::Text("Window size %d %d", windowWidth, windowHeight);
 
     ImGui::ColorEdit3("clear color", (float *)&m_ClearColor);
@@ -233,11 +237,11 @@ void App::OnResize(float width, float height)
 
 void App::SetSDLEventEnabled(bool enabled)
 {
-    int state = enabled ? SDL_ENABLE : SDL_DISABLE;
-    SDL_EventState(SDL_TEXTINPUT, state);
-    SDL_EventState(SDL_KEYDOWN, state);
-    SDL_EventState(SDL_KEYUP, state);
-    SDL_EventState(SDL_MOUSEMOTION, state);
-    SDL_EventState(SDL_MOUSEBUTTONDOWN, state);
-    SDL_EventState(SDL_MOUSEBUTTONUP, state);
+    // int state = enabled ? SDL_ENABLE : SDL_DISABLE;
+    // SDL_EventState(SDL_TEXTINPUT, state);
+    // SDL_EventState(SDL_KEYDOWN, state);
+    // SDL_EventState(SDL_KEYUP, state);
+    // SDL_EventState(SDL_MOUSEMOTION, state);
+    // SDL_EventState(SDL_MOUSEBUTTONDOWN, state);
+    // SDL_EventState(SDL_MOUSEBUTTONUP, state);
 }

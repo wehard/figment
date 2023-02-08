@@ -32,7 +32,7 @@ SRC = App.cpp\
 IMGGUI_SRC = imgui.cpp\
 	imgui_demo.cpp\
 	imgui_draw.cpp\
-	imgui_impl_sdl.cpp\
+	imgui_impl_glfw.cpp\
 	imgui_impl_opengl3.cpp\
 	imgui_tables.cpp\
 	imgui_widgets.cpp
@@ -42,14 +42,13 @@ OBJS = $(SRCS:.cpp=.o)
 
 CFLAGS = -std=c++17 #-Wall -Wextra -Werror
 
-INCL = -I include -I lib/imgui/include -I lib/glm -I lib -I /opt/homebrew/include `sdl2-config --cflags`
-INCL += -I /usr/local/include -I /opt/local/include
+INCL = -I include -I lib/imgui/include -I lib/glm -I lib 
 
-LDFLAGS = -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo `sdl2-config --libs`
+LDFLAGS = -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo 
 LDFLAGS += -lm
 
 # ("EMS" options gets added to both CPPFLAGS and LDFLAGS, whereas some options are for linker only)
-EMS = -s USE_SDL=2
+EMS = -s USE_GLFW=3
 EMS += -s DISABLE_EXCEPTION_CATCHING=0 -sEXPORTED_FUNCTIONS=_onMouseMove,_insertObject,_onCanvasResize,_main
 
 EMS_CFLAGS = ${CFLAGS} -DIMGUI_DISABLE_FILE_FUNCTIONS -sMODULARIZE=1 -sEXPORT_ES6=1 ${EMS}

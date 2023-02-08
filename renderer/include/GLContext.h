@@ -1,15 +1,19 @@
 #pragma once
 
 #define GL_GLEXT_PROTOTYPES 1
-#include <SDL2/SDL.h>
+// #include <SDL2/SDL.h>
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
-#include <SDL_opengles2.h>
-#include <SDL2/SDL_opengl.h>
+// #include <SDL_opengles2.h>
+// #include <SDL2/SDL_opengl.h>
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 #else
-#include <SDL2/SDL_opengl.h>
-#include <SDL2/SDL_opengles2.h>
+// #include <SDL2/SDL_opengl.h>
+// #include <SDL2/SDL_opengles2.h>
 #endif
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -46,8 +50,8 @@ public:
 	const char *glslVersion = "#version 150";
 	glm::vec4 clearColor = glm::vec4(0.1, 0.1, 0.1, 1.0);
 	GLInfo glInfo;
-	SDL_Window *window = NULL;
-	SDL_GLContext glContext = NULL;
+	GLFWwindow *window = NULL;
+	// SDL_GLContext glContext = NULL;
 	glm::mat4x4 projection;
 	glm::mat4x4 view;
 	GLContext(std::string title, int width, int height);

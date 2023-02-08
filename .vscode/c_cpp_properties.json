@@ -4,7 +4,6 @@
             "name": "Mac",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/opt/homebrew/include",
                 "/Users/willehardkorander/dev/emsdk/upstream/emscripten/**"
             ],
             "defines": [],
