@@ -1,7 +1,7 @@
 #pragma once
 
 #include "imgui.h"
-#include "imgui_impl_sdl.h"
+#include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
 #include "GLContext.h"
@@ -17,7 +17,7 @@ private:
 
 public:
 	GUIContext();
-	void Init(SDL_Window *window, SDL_GLContext sdlContext, const char *glslVersion);
+	void Init(GLFWwindow *window, const char *glslVersion);
 	void Render();
 	void Shutdown();
 	~GUIContext();
