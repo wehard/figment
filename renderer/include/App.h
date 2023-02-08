@@ -34,6 +34,7 @@ public:
     void InsertCircle();
     void HandleKeyboardInput(int key, int scancode, int action, int mods);
     void HandleMouseInput(int button, int action, int mods);
+    void HandleMouseScroll(double xOffset, double yOffset);
     void SetMousePosition(double x, double y);
     void Update();
     void GUIUpdate();
