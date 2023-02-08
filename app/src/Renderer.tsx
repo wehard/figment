@@ -51,7 +51,7 @@ const Renderer = (props: RendererProps) => {
     const module = {
       canvas: canvas.current,
       arguments: [props.initialWidth.toString(), props.initialHeight.toString()],
-      doNotCaptureKeyboard: true,
+      doNotCaptureKeyboard: false,
       preRun: [],
     };
 

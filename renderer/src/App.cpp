@@ -38,6 +38,15 @@ App::App(float width, float height)
     plane = new GLObject(GLObject::Plane());
     plane->color = glm::vec4(1.0, 1.0, 1.0, 0.3);
     gui->Init(gl->window, gl->glslVersion);
+
+    glfwSetWindowUserPointer(gl->window, this);
+
+    auto func = [](GLFWwindow *w, int key, int scancode, int action, int mods)
+    {
+        static_cast<App *>(glfwGetWindowUserPointer(w))->HandleKeyboardInput(key, scancode, action, mods);
+    };
+
+    glfwSetKeyCallback(gl->window, func);
 }
 
 App::~App()
@@ -68,13 +77,17 @@ void App::InsertCircle()
     objects.push_back(o);
 }
 
-// void App::HandleKeyboardInput(SDL_Event event)
-// {
-//     if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_i)
-//     {
-//         InsertCircle();
-//     }
-// }
+void App::HandleKeyboardInput(int key, int scancode, int action, int mods)
+{
+    if (key == GLFW_KEY_1)
+    {
+        InsertPlane();
+    }
+    if (key == GLFW_KEY_2)
+    {
+        InsertCircle();
+    }
+}
 
 // void App::HandleMouseInput(SDL_Event event)
 // {

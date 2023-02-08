@@ -36,7 +36,7 @@ GLContext::GLContext(std::string title, int width, int height) : m_Width(width),
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
-	window = glfwCreateWindow(1280, 720, "ems-gl", nullptr, nullptr);
+	window = glfwCreateWindow(width, height, "Figment", nullptr, nullptr);
 	if (!window)
 	{
 		glfwTerminate();
@@ -49,7 +49,7 @@ GLContext::GLContext(std::string title, int width, int height) : m_Width(width),
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	// readGLInfo();
+	// readGLInfo();∏
 }
 
 void GLContext::readGLInfo()
