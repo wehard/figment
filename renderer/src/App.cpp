@@ -101,10 +101,10 @@ void App::InsertCircle()
 
 void App::Update()
 {
-    int mx, my;
-    // SDL_GetMouseState(&mx, &my);
+    double mx, my;
 
-    mousePosition = glm::vec2(mx, my);
+    mousePosition = glm::vec2(0, 0);
+    glfwGetCursorPos(gl->window, &mx, &my);
 
     ImGuiIO &io = ImGui::GetIO();
     // SDL_Event event;
@@ -191,14 +191,11 @@ void App::GUIUpdate()
     }
     ImGui::End();
 
-    GLint major;
-    GLint minor;
-    // SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &major);
-    // SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &minor);
+    const GLubyte *version = glGetString(GL_VERSION);
 
     int windowWidth = 0;
     int windowHeight = 0;
-    // SDL_GetWindowSize(gl->window, &windowWidth, &windowHeight);
+    glfwGetWindowSize(gl->window, &windowWidth, &windowHeight);
 
     glm::vec2 ndc = glm::vec2((mousePosition.x / ((float)windowWidth * 0.5)) - 1.0, (mousePosition.y / ((float)windowHeight * 0.5)) - 1.0);
     glm::vec2 mw = camera->ScreenToWorldSpace(mousePosition.x, mousePosition.y);
@@ -206,7 +203,7 @@ void App::GUIUpdate()
     ImGui::SetNextWindowPos(ImVec2(windowWidth - 500, 0));
     ImGui::SetNextWindowSize(ImVec2(500, 300));
     ImGui::Begin("Debug");
-    ImGui::Text("GL version: %d.%d", major, minor);
+    ImGui::Text("GL version: %s", version);
     ImGui::Text("GLSL version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
     ImGui::Text("GL Vendor: %s", glGetString(GL_VENDOR));
     ImGui::Text("GL Renderer: %s", glGetString(GL_RENDERER));

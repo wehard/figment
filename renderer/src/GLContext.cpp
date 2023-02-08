@@ -20,11 +20,6 @@ static void printGlfwError(int error, const char *message)
 
 GLContext::GLContext(std::string title, int width, int height) : m_Width(width), m_Height(height)
 {
-	// if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0)
-	// {
-	// 	printf("Error: %s\n", SDL_GetError());
-	// 	return;
-	// }
 	glfwSetErrorCallback(printGlfwError);
 	if (!glfwInit())
 	{
@@ -33,11 +28,6 @@ GLContext::GLContext(std::string title, int width, int height) : m_Width(width),
 
 	glslVersion = "#version 300 es";
 
-	// SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
-	// SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-	// SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-	// SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
@@ -45,15 +35,6 @@ GLContext::GLContext(std::string title, int width, int height) : m_Width(width),
 
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
-
-	// // Create window with graphics context
-	// SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	// SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-	// SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-	// SDL_DisplayMode current;
-	// SDL_GetCurrentDisplayMode(0, &current);
-	// SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
-	// window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, m_Width, m_Height, window_flags);
 
 	window = glfwCreateWindow(1280, 720, "ems-gl", nullptr, nullptr);
 	if (!window)
@@ -65,14 +46,6 @@ GLContext::GLContext(std::string title, int width, int height) : m_Width(width),
 	glfwShowWindow(window);
 
 	glfwMakeContextCurrent(window);
-
-	// glContext = SDL_GL_CreateContext(window);
-	// if (!glContext)
-	// {
-	// 	fprintf(stderr, "Failed to initialize WebGL context!\n");
-	// 	return;
-	// }
-	// SDL_GL_SetSwapInterval(1); // Enable vsync
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -90,8 +63,6 @@ void GLContext::readGLInfo()
 
 GLContext::~GLContext()
 {
-	// SDL_DestroyWindow(window);
-	// SDL_Quit();
 	glfwDestroyWindow(window);
 }
 
@@ -100,11 +71,7 @@ void GLContext::Resize(int width, int height)
 	this->m_Width = width;
 	this->m_Height = height;
 	printf("Window resized to %d x %d\n", m_Width, m_Height);
-	// SDL_SetWindowSize(window, m_Width, m_Height);
 	glfwSetWindowSize(window, m_Width, m_Height);
-
-	// SDL_GL_DeleteContext(glContext);
-	// glContext = SDL_GL_CreateContext(window);
 }
 
 static glm::vec3 intersect(glm::vec3 planeP, glm::vec3 planeN, glm::vec3 rayP, glm::vec3 rayD)
