@@ -29,7 +29,14 @@ const Toolbar = (props: ToolbarProps) => {
       >
         2
       </button>
-      <button className='w-12 active:bg-neutral-700'>3</button>
+      <button
+        className='w-12 active:bg-neutral-700'
+        onClick={() => {
+          if (canvasContext) canvasContext.insertObject(3);
+        }}
+      >
+        3
+      </button>
       <button className='w-12 active:bg-neutral-700'>4</button>
       <button className='w-12 active:bg-neutral-700'>5</button>
       <button className='w-12 active:bg-neutral-700'>6</button>

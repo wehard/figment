@@ -96,6 +96,17 @@ void App::InsertCircle()
     objects.push_back(o);
 }
 
+void App::InsertCube()
+{
+    GLObject *o = new GLObject(GLObject::Cube());
+    o->position = camera->GetPosition();
+    o->position.z = 0.0;
+    o->color = glm::vec4(1.0, 1.0, 0.5, 1.0);
+    o->scale = glm::vec3(0.1, 0.1, 0.0);
+    o->rotation = glm::vec3(45.0, 45.0, 0.0);
+    objects.push_back(o);
+}
+
 void App::HandleKeyboardInput(int key, int scancode, int action, int mods)
 {
     if (key == GLFW_KEY_1)
