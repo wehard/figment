@@ -36,7 +36,7 @@ GLContext::GLContext(std::string title, int width, int height) : m_Width(width),
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
-	window = glfwCreateWindow(width, height, "Figment", nullptr, nullptr);
+	window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
 	if (!window)
 	{
 		glfwTerminate();
@@ -46,6 +46,7 @@ GLContext::GLContext(std::string title, int width, int height) : m_Width(width),
 	glfwShowWindow(window);
 
 	glfwMakeContextCurrent(window);
+	glfwSetWindowTitle(window, title.c_str());
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
