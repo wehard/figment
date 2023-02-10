@@ -32,6 +32,7 @@ public:
 
     void InsertPlane();
     void InsertCircle();
+    void InsertCube();
     void HandleKeyboardInput(int key, int scancode, int action, int mods);
     void HandleMouseInput(int button, int action, int mods);
     void HandleMouseScroll(double xOffset, double yOffset);

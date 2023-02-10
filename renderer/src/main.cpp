@@ -59,6 +59,9 @@ extern "C"
 		case 2:
 			app->InsertCircle();
 			break;
+		case 3:
+			app->InsertCube();
+			break;
 		default:
 			break;
 		}
