@@ -4,7 +4,8 @@
 }
 
 .app {
-  border: solid 1px red;
+  width: vw;
+  height: vh;
 }
 
 .webgl-canvas {
