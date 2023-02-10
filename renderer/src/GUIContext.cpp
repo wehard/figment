@@ -19,7 +19,6 @@ void GUIContext::Init(GLFWwindow *window, const char *glslVersion)
 
 	ImGui::StyleColorsDark();
 
-	// Setup Platform/Renderer backends
 	ImGui_ImplGlfw_InitForOpenGL(window, false);
 	ImGui_ImplOpenGL3_Init(glslVersion);
 }

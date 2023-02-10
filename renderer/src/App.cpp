@@ -98,13 +98,6 @@ void App::InsertCircle()
 
 void App::HandleKeyboardInput(int key, int scancode, int action, int mods)
 {
-    // ImGui_ImplGlfw_KeyCallback(gl->window, key, scancode, action, mods);
-    // ImGuiIO &io = ImGui::GetIO();
-    // if (io.WantCaptureKeyboard)
-    // {
-    //     return;
-    // }
-
     if (key == GLFW_KEY_1)
     {
         InsertPlane();
@@ -125,7 +118,7 @@ void App::HandleMouseInput(int button, int action, int mods)
         return;
     }
 
-    if (action == 1) // down
+    if (action == 1)
     {
         if (button == GLFW_MOUSE_BUTTON_MIDDLE)
         {
@@ -139,7 +132,6 @@ void App::HandleMouseInput(int button, int action, int mods)
             camera->EndPan();
         }
     }
-    // printf("button: %d, action: %d, mods: %d\n", button, action, mods);
 }
 
 void App::SetMousePosition(double x, double y)
@@ -284,15 +276,4 @@ void App::OnResize(float width, float height)
 {
     camera->OnResize(width, height);
     gl->Resize(width, height);
-}
-
-void App::SetSDLEventEnabled(bool enabled)
-{
-    // int state = enabled ? SDL_ENABLE : SDL_DISABLE;
-    // SDL_EventState(SDL_TEXTINPUT, state);
-    // SDL_EventState(SDL_KEYDOWN, state);
-    // SDL_EventState(SDL_KEYUP, state);
-    // SDL_EventState(SDL_MOUSEMOTION, state);
-    // SDL_EventState(SDL_MOUSEBUTTONDOWN, state);
-    // SDL_EventState(SDL_MOUSEBUTTONUP, state);
 }

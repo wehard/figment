@@ -68,7 +68,6 @@ extern "C"
 	{
 		glViewport(0, 0, width, height);
 		app->OnResize(width, height);
-		printf("%s Resize to %f x %f\n", __FILE__, width, height);
 	}
 
 	EMSCRIPTEN_KEEPALIVE void setInputEnabled(int enabled)
