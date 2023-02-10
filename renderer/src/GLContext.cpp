@@ -102,18 +102,3 @@ static glm::vec3 projectMouse(int mouseX, int mouseY, float width, float height,
 
 	return world;
 }
-
-// glm::vec3 GLContext::GetMouseWorldCoord(Camera *camera)
-// {
-// 	glm::vec3 world;
-// 	double xpos;
-// 	double ypos;
-// 	// glfwGetCursorPos(window, &xpos, &ypos);
-// 	SDL_Cursor *cursor = SDL_GetCursor();
-
-// 	auto pPos = glm::vec3(0.0);
-// 	auto pNormal = glm::normalize(camera->position - pPos);
-
-// 	world = intersect(pPos, pNormal, camera->position, projectMouse(xpos, ypos, width, height, camera->getProjectionMatrix(), camera->getViewMatrix()));
-// 	return world;
-// }
