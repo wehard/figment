@@ -28,7 +28,6 @@ SRC = App.cpp\
 	GUIContext.cpp\
 	Shader.cpp\
 	main.cpp\
-	Test.cpp
 
 IMGGUI_SRC = imgui.cpp\
 	imgui_demo.cpp\

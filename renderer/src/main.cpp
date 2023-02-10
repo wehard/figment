@@ -72,7 +72,6 @@ extern "C"
 
 	EMSCRIPTEN_KEEPALIVE void setInputEnabled(int enabled)
 	{
-		app->SetSDLEventEnabled(enabled);
 	}
 }
 
