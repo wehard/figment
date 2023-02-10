@@ -153,24 +153,6 @@ void App::HandleMouseScroll(double xOffset, double yOffset)
 
 void App::Update()
 {
-
-    // SDL_Event event;
-    // while (m_handleEvents && SDL_PollEvent(&event))
-    // {
-    //     ImGui_ImplSDL2_ProcessEvent(&event);
-    //     if (io.WantCaptureMouse)
-    //     {
-    //         continue;
-    //     }
-    //     HandleKeyboardInput(event);
-    //     HandleMouseInput(event);
-
-    //     // if (event.window.event == SDL_WINDOWEVENT_RESIZED)
-    //     // {
-    //     //     OnResize(event.window.data1, event.window.data2);
-    //     // }
-    // }
-
     camera->OnUpdate(mousePosition);
 
     GUIUpdate();
@@ -193,8 +175,6 @@ void App::Update()
 
 void App::GUIUpdate()
 {
-    // ImGuiIO &io = ImGui::GetIO();
-
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
@@ -255,7 +235,6 @@ void App::GUIUpdate()
     ImGui::Text("GL Renderer: %s", glGetString(GL_RENDERER));
     ImGui::Separator();
 
-    // SDL_GetWindowSize(gl->window, &windowWidth, &windowHeight);
     ImGui::Text("Window size %d %d", windowWidth, windowHeight);
 
     ImGui::ColorEdit3("clear color", (float *)&m_ClearColor);
