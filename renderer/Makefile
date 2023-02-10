@@ -27,7 +27,8 @@ SRC = App.cpp\
 	GLRenderer.cpp\
 	GUIContext.cpp\
 	Shader.cpp\
-	main.cpp
+	main.cpp\
+	Test.cpp
 
 IMGGUI_SRC = imgui.cpp\
 	imgui_demo.cpp\

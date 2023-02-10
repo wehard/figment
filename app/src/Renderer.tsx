@@ -38,13 +38,6 @@ const Renderer = (props: RendererProps) => {
 
     props.registerCallback(ctx);
     setContext(ctx);
-    window.addEventListener('resize', handleResize);
-  };
-
-  const handleResize = (e: UIEvent) => {
-    console.log('resize', context);
-
-    context?.onCanvasResize(1280, 720);
   };
 
   useEffect(() => {
@@ -56,22 +49,17 @@ const Renderer = (props: RendererProps) => {
     };
 
     initialize(module).catch(console.error);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
   }, []);
 
   return (
-    <div className=''>
-      <canvas
-        className='webgl-canvas'
-        id='canvas'
-        ref={canvas}
-        width={props.initialWidth}
-        height={props.initialHeight}
-        onContextMenu={(e) => e.preventDefault()}
-      ></canvas>
-    </div>
+    <canvas
+      className='webgl-canvas'
+      id='canvas'
+      ref={canvas}
+      width={props.initialWidth}
+      height={props.initialHeight}
+      onContextMenu={(e) => e.preventDefault()}
+    ></canvas>
   );
 };
 

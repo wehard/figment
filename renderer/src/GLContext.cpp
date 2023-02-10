@@ -49,7 +49,6 @@ GLContext::GLContext(std::string title, int width, int height) : m_Width(width),
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	// readGLInfo();∏
 }
 
 void GLContext::readGLInfo()
@@ -70,7 +69,6 @@ void GLContext::Resize(int width, int height)
 {
 	this->m_Width = width;
 	this->m_Height = height;
-	printf("Window resized to %d x %d\n", m_Width, m_Height);
 	glfwSetWindowSize(window, m_Width, m_Height);
 }
 

@@ -76,14 +76,6 @@ void Shader::loadUniforms()
 		glGetActiveUniform(p_id, i, 30, &len, &size, &type, &name[0]);
 		uniforms.insert(std::pair<std::string, GLuint>(name, (GLuint)i));
 	}
-	// printf("Active uniforms: %d\n", count);
-
-	// std::map<std::string, GLuint>::iterator it = uniforms.begin();
-	// while (it != uniforms.end())
-	// {
-	// 	printf("%5d: %s\n", it->second, it->first.c_str());
-	// 	it++;
-	// }
 }
 
 void Shader::loadAttributes()
@@ -100,14 +92,6 @@ void Shader::loadAttributes()
 		glGetActiveAttrib(p_id, i, 30, &len, &size, &type, &name[0]);
 		attributes.insert(std::pair<std::string, GLuint>(name, (GLuint)glGetAttribLocation(p_id, name)));
 	}
-	// printf("Active attributes: %d\n", count);
-
-	// std::map<std::string, GLuint>::iterator it = attributes.begin();
-	// while (it != attributes.end())
-	// {
-	// 	printf("%5d: %s\n", it->second, it->first.c_str());
-	// 	it++;
-	// }
 }
 
 std::string Shader::loadShader(std::string path)
