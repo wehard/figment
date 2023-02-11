@@ -268,9 +268,9 @@ void App::OnResize(float width, float height)
     gl->Resize(width, height);
 }
 
-void App::UpdateShader(const char *fragSource)
+void App::UpdateShader(const char *vertSource, const char *fragSource)
 {
-    Shader *newShader = new Shader(readFile("shaders/basic.vert").c_str(), fragSource);
+    Shader *newShader = new Shader(vertSource, fragSource);
     if (!newShader->IsValid())
     {
         delete newShader;
