@@ -145,10 +145,10 @@ function App() {
             registerCallback={setCanvasContext}
           />
         </div>
-        <div className='fixed bottom-0 right-0 w-[60rem] border-neutral-900 bg-neutral-900'>
-          <div className='flex items-start space-x-1'>
+        <div className='fixed bottom-0 right-0 block w-[60rem] rounded-tl-lg border-neutral-900 bg-neutral-900'>
+          <div className='flex items-start space-x-1 rounded-tl-lg'>
             <button
-              className='w-12 bg-neutral-500 active:bg-neutral-700'
+              className='w-12 rounded-tl-lg bg-neutral-500 hover:rounded-tl-lg active:bg-neutral-700'
               onClick={() => setShowEditor(!showEditor)}
             >
               <span>{showEditor ? 'v' : '^'}</span>
