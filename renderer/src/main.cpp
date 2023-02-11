@@ -76,6 +76,12 @@ extern "C"
 	EMSCRIPTEN_KEEPALIVE void setInputEnabled(int enabled)
 	{
 	}
+
+	EMSCRIPTEN_KEEPALIVE void updateShader(const char *shaderSource)
+	{
+		printf("%s\n", shaderSource);
+		// app->UpdateShader(shaderSource);
+	}
 }
 
 static void main_loop(void *arg)

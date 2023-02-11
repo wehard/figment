@@ -43,4 +43,5 @@ public:
 
     void OnResize(float width, float height);
     void SetSDLEventEnabled(bool enabled);
+    void UpdateShader(const char *fragSource);
 };

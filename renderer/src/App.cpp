@@ -267,3 +267,9 @@ void App::OnResize(float width, float height)
     camera->OnResize(width, height);
     gl->Resize(width, height);
 }
+
+void App::UpdateShader(const char *fragSource)
+{
+    delete shader;
+    shader = new Shader(readFile("shaders/basic.vert").c_str(), fragSource);
+}
