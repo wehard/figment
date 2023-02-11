@@ -1,6 +1,6 @@
 ## figment
 
-![Screenshot 2023-02-11 at 12 21 39](https://user-images.githubusercontent.com/4597568/218252862-3ff245ff-c3d2-4fd8-ad89-ddcbbb464eb9.png)
+![Screenshot 2023-02-11 at 17 27 24](https://user-images.githubusercontent.com/4597568/218266732-13809568-5b1f-4f49-a515-0568fdf97cc0.png)
 
 ```
 cd renderer && make ems && cd ../app && npm run dev
