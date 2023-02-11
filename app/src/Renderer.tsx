@@ -7,6 +7,7 @@ export type CanvasContext = {
   insertObject: (n: number) => void;
   setInputEnabled: (n: number) => void;
   updateShader: (source: string) => void;
+  allocate?: (buffer: number[], t: string) => number;
 };
 
 type ModuleDesc = {
@@ -32,7 +33,14 @@ const Renderer = (props: RendererProps) => {
       onCanvasResize: rendererContext._onCanvasResize,
       insertObject: rendererContext._insertObject,
       setInputEnabled: rendererContext._setInputEnabled,
-      updateShader: rendererContext._updateShader,
+      updateShader: (value: string) => {
+        var ptr = rendererContext.allocate(
+          rendererContext.intArrayFromString(value),
+          rendererContext.ALLOC_NORMAL
+        );
+        rendererContext._updateShader(ptr);
+        // rendererContext._free(ptr);
+      },
     };
 
     rendererContext.doNotCaptureKeyboard = true;

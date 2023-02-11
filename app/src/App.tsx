@@ -74,7 +74,7 @@ const CodeEditor = (props: CodeEditorProps) => {
     <div className='h-[30rem] w-[60rem]'>
       <Editor
         defaultLanguage='glsl'
-        defaultValue='// some comment'
+        defaultValue={fragSource}
         value={fragSource}
         theme={'vs-dark'}
         onChange={handleEditorChange}
@@ -98,7 +98,7 @@ function App() {
   const renderDivRef = useRef<HTMLDivElement>(null);
   const [canvasContext, setCanvasContext] = useState<CanvasContext>();
   const [showEditor, setShowEditor] = useState<boolean>(true);
-  const [shaderSource, setShaderSource] = useState<string>('');
+  const [shaderSource, setShaderSource] = useState<string>(fragSource);
 
   useEffect(() => {
     const debounceHandleResize = debounce(() => {
@@ -115,17 +115,6 @@ function App() {
       window.removeEventListener('resize', debounceHandleResize);
     };
   });
-
-  const sendShaderString = (s: string) => {
-    // Create a pointer using the 'Glue' method and the String value
-    // var ptr  = allocate(intArrayFromString(myStrValue), 'i8', ALLOC_NORMAL);
-    // Call the method passing the pointer
-    // val retPtr = _hello(ptr);
-    // Retransform back your pointer to string using 'Glue' method
-    // var resValue = Pointer_stringify(retPtr);
-    // Free the memory allocated by 'allocate'
-    // _free(ptr);
-  };
 
   return (
     <div id='app' className='app h-screen w-screen overflow-x-hidden  bg-black'>

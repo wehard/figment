@@ -79,8 +79,7 @@ extern "C"
 
 	EMSCRIPTEN_KEEPALIVE void updateShader(const char *shaderSource)
 	{
-		printf("%s\n", shaderSource);
-		// app->UpdateShader(shaderSource);
+		app->UpdateShader(shaderSource);
 	}
 }
 
