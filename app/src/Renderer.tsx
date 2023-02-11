@@ -47,7 +47,6 @@ const Renderer = (props: RendererProps) => {
       },
     };
 
-    rendererContext.doNotCaptureKeyboard = true;
     console.log(rendererContext);
 
     props.registerCallback(ctx);
@@ -58,7 +57,7 @@ const Renderer = (props: RendererProps) => {
     const module = {
       canvas: canvas.current,
       arguments: [props.initialWidth.toString(), props.initialHeight.toString()],
-      doNotCaptureKeyboard: false,
+      doNotCaptureKeyboard: true,
       preRun: [],
     };
 

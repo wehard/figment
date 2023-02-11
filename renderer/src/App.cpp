@@ -170,7 +170,6 @@ void App::Update()
 
     glfwMakeContextCurrent(gl->window);
     renderer->Begin(*camera, glm::vec4(m_ClearColor.x, m_ClearColor.y, m_ClearColor.z, m_ClearColor.w));
-
     renderer->DrawLines(*grid, *shader);
 
     for (auto object : objects)
