@@ -57,12 +57,12 @@ precision mediump float;
         
 uniform vec4 obj_color;
 in vec4 o_col;
- out vec4 color;
+out vec4 color;
         
- void main()
- {
-   color = o_col;
- }
+void main()
+{
+  color = o_col;
+}
 `;
 
 const CodeEditor = (props: CodeEditorProps) => {
