@@ -48,9 +48,26 @@ const Toolbar = (props: ToolbarProps) => {
   );
 };
 
-const CodeEditor = () => {
+interface CodeEditorProps {
+  onChange: (v: string) => void;
+}
+
+const fragSource = `#version 300 es
+precision mediump float;
+        
+uniform vec4 obj_color;
+in vec4 o_col;
+ out vec4 color;
+        
+ void main()
+ {
+   color = o_col;
+ }
+`;
+
+const CodeEditor = (props: CodeEditorProps) => {
   const handleEditorChange = (value: string | undefined, ev: any) => {
-    console.log(value);
+    props.onChange(value ?? '');
   };
 
   return (
@@ -58,7 +75,7 @@ const CodeEditor = () => {
       <Editor
         defaultLanguage='glsl'
         defaultValue='// some comment'
-        value='#'
+        value={fragSource}
         theme={'vs-dark'}
         onChange={handleEditorChange}
       />
@@ -81,6 +98,7 @@ function App() {
   const renderDivRef = useRef<HTMLDivElement>(null);
   const [canvasContext, setCanvasContext] = useState<CanvasContext>();
   const [showEditor, setShowEditor] = useState<boolean>(true);
+  const [shaderSource, setShaderSource] = useState<string>('');
 
   useEffect(() => {
     const debounceHandleResize = debounce(() => {
@@ -97,6 +115,17 @@ function App() {
       window.removeEventListener('resize', debounceHandleResize);
     };
   });
+
+  const sendShaderString = (s: string) => {
+    // Create a pointer using the 'Glue' method and the String value
+    // var ptr  = allocate(intArrayFromString(myStrValue), 'i8', ALLOC_NORMAL);
+    // Call the method passing the pointer
+    // val retPtr = _hello(ptr);
+    // Retransform back your pointer to string using 'Glue' method
+    // var resValue = Pointer_stringify(retPtr);
+    // Free the memory allocated by 'allocate'
+    // _free(ptr);
+  };
 
   return (
     <div id='app' className='app h-screen w-screen overflow-x-hidden  bg-black'>
@@ -117,15 +146,21 @@ function App() {
           />
         </div>
         <div className='fixed bottom-0 right-0 w-[60rem] border-neutral-900 bg-neutral-900'>
-          <div className='flex items-start '>
+          <div className='flex items-start space-x-1'>
             <button
               className='w-12 bg-neutral-500 active:bg-neutral-700'
               onClick={() => setShowEditor(!showEditor)}
             >
               <span>{showEditor ? 'v' : '^'}</span>
             </button>
+            <button
+              className='w-12 bg-neutral-500 active:bg-neutral-700'
+              onClick={() => canvasContext?.updateShader(shaderSource)}
+            >
+              S
+            </button>
           </div>
-          {showEditor && <CodeEditor />}
+          {showEditor && <CodeEditor onChange={setShaderSource} />}
         </div>
       </div>
     </div>
