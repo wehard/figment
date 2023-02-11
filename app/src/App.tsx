@@ -172,6 +172,15 @@ function App() {
             >
               S
             </button>
+            <button
+              className='w-12 bg-neutral-500 active:bg-neutral-700'
+              onClick={() => {
+                setVertShaderSource(vertSource);
+                setFragShaderSource(fragSource);
+              }}
+            >
+              R
+            </button>
           </div>
           <div className='flex flex-row'>
             {showEditor && <CodeEditor value={vertShaderSource} onChange={setVertShaderSource} />}
