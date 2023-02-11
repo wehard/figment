@@ -17,6 +17,7 @@ private:
 	uint32_t createProgram(uint32_t vert_id, uint32_t frag_id);
 	void loadUniforms();
 	void loadAttributes();
+	bool m_IsValid = true;
 
 public:
 	uint32_t p_id;
@@ -29,4 +30,5 @@ public:
 	void setVec3(std::string name, glm::vec3 v);
 	void setVec4(std::string name, glm::vec4 v);
 	void setMat4(std::string name, glm::mat4x4 m);
+	bool IsValid() { return m_IsValid; }
 };
