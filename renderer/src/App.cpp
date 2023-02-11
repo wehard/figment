@@ -270,6 +270,13 @@ void App::OnResize(float width, float height)
 
 void App::UpdateShader(const char *fragSource)
 {
+    Shader *newShader = new Shader(readFile("shaders/basic.vert").c_str(), fragSource);
+    if (!newShader->IsValid())
+    {
+        delete newShader;
+        return;
+    }
+
     delete shader;
-    shader = new Shader(readFile("shaders/basic.vert").c_str(), fragSource);
+    shader = newShader;
 }

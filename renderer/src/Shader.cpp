@@ -128,6 +128,7 @@ uint32_t Shader::compileShader(std::string src, uint32_t shader_type)
 		std::vector<char> error_message(log_len + 1);
 		glGetShaderInfoLog(shader_id, log_len, NULL, &error_message[0]);
 		printf("%s: %s\n", shader_type == GL_FRAGMENT_SHADER ? "frag" : "vert", &error_message[0]);
+		m_IsValid = false;
 	}
 	return (shader_id);
 }
