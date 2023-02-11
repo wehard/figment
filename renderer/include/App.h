@@ -4,6 +4,7 @@
 #include "GLObject.h"
 #include "GUIContext.h"
 #include "GLRenderer.h"
+#include "PerspectiveCamera.h"
 
 class App
 {

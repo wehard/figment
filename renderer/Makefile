@@ -22,6 +22,7 @@ ASSET_DIR = res
 
 SRC = App.cpp\
 	OrthoCamera.cpp\
+	PerspectiveCamera.cpp\
 	GLContext.cpp\
 	GLObject.cpp\
 	GLRenderer.cpp\
