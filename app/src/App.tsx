@@ -49,6 +49,7 @@ const Toolbar = (props: ToolbarProps) => {
 };
 
 interface CodeEditorProps {
+  value: string;
   onChange: (v: string) => void;
 }
 
@@ -65,8 +66,30 @@ void main()
 }
 `;
 
+const vertSource = `#version 300 es
+
+layout(location = 0) in vec4 position;
+
+uniform mat4 model_matrix;
+uniform mat4 view_matrix;
+uniform mat4 proj_matrix;
+uniform vec4 obj_color;
+
+out vec4 o_col;
+
+void main()
+{
+	o_col = obj_color;
+	gl_Position = proj_matrix * view_matrix * model_matrix * vec4(position.xyz, 1.0);
+}
+
+`;
+
 const CodeEditor = (props: CodeEditorProps) => {
-  const handleEditorChange = (value: string | undefined, ev: any) => {
+  const handleEditorChange = (
+    value: string | undefined,
+    ev: monaco.editor.IModelContentChangedEvent
+  ) => {
     props.onChange(value ?? '');
   };
 
@@ -74,8 +97,8 @@ const CodeEditor = (props: CodeEditorProps) => {
     <div className='h-[30rem] w-[60rem]'>
       <Editor
         defaultLanguage='glsl'
-        defaultValue={fragSource}
-        value={fragSource}
+        defaultValue={props.value}
+        value={props.value}
         theme={'vs-dark'}
         onChange={handleEditorChange}
       />
@@ -98,7 +121,8 @@ function App() {
   const renderDivRef = useRef<HTMLDivElement>(null);
   const [canvasContext, setCanvasContext] = useState<CanvasContext>();
   const [showEditor, setShowEditor] = useState<boolean>(true);
-  const [shaderSource, setShaderSource] = useState<string>(fragSource);
+  const [vertShaderSource, setVertShaderSource] = useState<string>(vertSource);
+  const [fragShaderSource, setFragShaderSource] = useState<string>(fragSource);
 
   useEffect(() => {
     const debounceHandleResize = debounce(() => {
@@ -134,7 +158,7 @@ function App() {
             registerCallback={setCanvasContext}
           />
         </div>
-        <div className='fixed bottom-0 right-0 block w-[60rem] rounded-tl-lg border-neutral-900 bg-neutral-900'>
+        <div className='fixed bottom-0 right-0 block w-[120rem] rounded-tl-lg border-neutral-900 bg-neutral-900'>
           <div className='flex items-start space-x-1 rounded-tl-lg'>
             <button
               className='w-12 rounded-tl-lg bg-neutral-500 hover:rounded-tl-lg active:bg-neutral-700'
@@ -144,12 +168,15 @@ function App() {
             </button>
             <button
               className='w-12 bg-neutral-500 active:bg-neutral-700'
-              onClick={() => canvasContext?.updateShader(shaderSource)}
+              onClick={() => canvasContext?.updateShader(fragShaderSource)}
             >
               S
             </button>
           </div>
-          {showEditor && <CodeEditor onChange={setShaderSource} />}
+          <div className='flex flex-row'>
+            {showEditor && <CodeEditor value={vertShaderSource} onChange={setVertShaderSource} />}
+            {showEditor && <CodeEditor value={fragShaderSource} onChange={setFragShaderSource} />}
+          </div>
         </div>
       </div>
     </div>
