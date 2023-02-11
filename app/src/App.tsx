@@ -168,7 +168,7 @@ function App() {
             </button>
             <button
               className='w-12 bg-neutral-500 active:bg-neutral-700'
-              onClick={() => canvasContext?.updateShader(fragShaderSource)}
+              onClick={() => canvasContext?.updateShader(vertShaderSource, fragShaderSource)}
             >
               S
             </button>

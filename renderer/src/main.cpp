@@ -77,9 +77,9 @@ extern "C"
 	{
 	}
 
-	EMSCRIPTEN_KEEPALIVE void updateShader(const char *shaderSource)
+	EMSCRIPTEN_KEEPALIVE void updateShader(const char *vertSource, const char *fragSource)
 	{
-		app->UpdateShader(shaderSource);
+		app->UpdateShader(vertSource, fragSource);
 	}
 }
 

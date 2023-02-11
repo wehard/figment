@@ -6,7 +6,7 @@ export type CanvasContext = {
   onCanvasResize: (w: number, h: number) => void;
   insertObject: (n: number) => void;
   setInputEnabled: (n: number) => void;
-  updateShader: (source: string) => void;
+  updateShader: (vert: string, frag: string) => void;
   allocate?: (buffer: number[], t: string) => number;
 };
 
@@ -33,12 +33,16 @@ const Renderer = (props: RendererProps) => {
       onCanvasResize: rendererContext._onCanvasResize,
       insertObject: rendererContext._insertObject,
       setInputEnabled: rendererContext._setInputEnabled,
-      updateShader: (value: string) => {
-        var ptr = rendererContext.allocate(
-          rendererContext.intArrayFromString(value),
+      updateShader: (vert: string, frag: string) => {
+        var vertPtr = rendererContext.allocate(
+          rendererContext.intArrayFromString(vert),
           rendererContext.ALLOC_NORMAL
         );
-        rendererContext._updateShader(ptr);
+        var fragPtr = rendererContext.allocate(
+          rendererContext.intArrayFromString(frag),
+          rendererContext.ALLOC_NORMAL
+        );
+        rendererContext._updateShader(vertPtr, fragPtr);
         // rendererContext._free(ptr);
       },
     };
