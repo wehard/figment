@@ -28,7 +28,7 @@ Framebuffer::Framebuffer(const FramebufferDesc &desc) : m_Desc(desc)
 	FramebufferTextureDesc id;
 	id.m_InternalFormat = GL_R32I;
 	id.m_Format = GL_RED_INTEGER;
-	// m_ColorAttachmentDescs.emplace_back(id);
+	m_ColorAttachmentDescs.emplace_back(t); // !!!
 
 	m_DepthAttachmentDesc.m_InternalFormat = GL_DEPTH_COMPONENT24;
 	m_DepthAttachmentDesc.m_Format = GL_DEPTH_COMPONENT;
