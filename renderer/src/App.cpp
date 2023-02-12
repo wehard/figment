@@ -29,6 +29,7 @@ App::App(float width, float height)
     gui = new GUIContext();
     shader = new Shader(readFile("shaders/basic.vert").c_str(), readFile("shaders/basic.frag").c_str());
     gridShader = new Shader(readFile("shaders/grid.vert").c_str(), readFile("shaders/grid.frag").c_str());
+    m_FramebufferShader = new Shader(readFile("shaders/framebuffer.vert").c_str(), readFile("shaders/framebuffer.frag").c_str());
     renderer = new GLRenderer();
     camera = new OrthoCamera(width, height);
 
@@ -176,6 +177,8 @@ void App::Update()
 
     glfwMakeContextCurrent(gl->window);
 
+    m_Framebuffer->Bind();
+
     renderer->Begin(*camera, glm::vec4(m_ClearColor.x, m_ClearColor.y, m_ClearColor.z, m_ClearColor.w));
     renderer->DrawLines(*grid, *shader);
 
@@ -183,6 +186,32 @@ void App::Update()
     {
         renderer->Draw(*object, *shader);
     }
+
+    m_Framebuffer->Unbind();
+
+    float quadVertices[] = {
+        -1.0f, -1.0f, 0.0, 0.0f, 0.0f,
+        -1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+        1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+        1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+        -1.0f, -1.0f, 0.0, 0.0f, 0.0f};
+    unsigned int quadVBO;
+    glGenBuffers(1, &quadVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+    unsigned int quadVAO;
+    glGenVertexArrays(1, &quadVAO);
+    glBindVertexArray(quadVAO);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+
+    m_FramebufferShader->use();
+    glBindVertexArray(quadVAO);
+    glBindTexture(GL_TEXTURE_2D, m_Framebuffer->GetColorAttachmentId(0));
+    glDrawArrays(GL_TRIANGLES, 0, 6);
 
     gui->Render();
 

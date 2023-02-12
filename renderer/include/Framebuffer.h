@@ -32,6 +32,10 @@ public:
 	void Bind();
 	void Unbind();
 	void ClearAttachment(GLuint index, int value);
+	GLuint GetColorAttachmentId(uint32_t index = 0) const
+	{
+		return m_ColorAttachments[index];
+	}
 
 private:
 	FramebufferDesc m_Desc;

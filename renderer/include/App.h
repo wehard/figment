@@ -16,6 +16,7 @@ private:
     OrthoCamera *camera;
     Shader *shader;
     Shader *gridShader;
+    Shader *m_FramebufferShader;
     GLObject *grid;
     GLObject *plane;
 
