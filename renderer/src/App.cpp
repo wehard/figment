@@ -5,6 +5,7 @@
 #include <sstream>
 #include <stdlib.h>
 #include <string>
+#include <glm/gtc/matrix_transform.hpp>
 
 static std::string readFile(std::string path)
 {
@@ -188,30 +189,7 @@ void App::Update()
     }
 
     m_Framebuffer->Unbind();
-
-    float quadVertices[] = {
-        -1.0f, -1.0f, 0.0, 0.0f, 0.0f,
-        -1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-        1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-        1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-        1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-        -1.0f, -1.0f, 0.0, 0.0f, 0.0f};
-    unsigned int quadVBO;
-    glGenBuffers(1, &quadVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
-    unsigned int quadVAO;
-    glGenVertexArrays(1, &quadVAO);
-    glBindVertexArray(quadVAO);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-
-    m_FramebufferShader->use();
-    glBindVertexArray(quadVAO);
-    glBindTexture(GL_TEXTURE_2D, m_Framebuffer->GetColorAttachmentId(0));
-    glDrawArrays(GL_TRIANGLES, 0, 6);
+    renderer->DrawTexturedQuad(glm::identity<glm::mat4>(), m_Framebuffer->GetColorAttachmentId(0), *m_FramebufferShader);
 
     gui->Render();
 
@@ -299,6 +277,7 @@ void App::GUIUpdate()
 
 void App::OnResize(float width, float height)
 {
+    m_Framebuffer->Resize(width, height);
     camera->OnResize(width, height);
     gl->Resize(width, height);
 }

@@ -25,6 +25,11 @@ Framebuffer::Framebuffer(const FramebufferDesc &desc) : m_Desc(desc)
 	t.m_Format = GL_RGBA;
 	m_ColorAttachmentDescs.emplace_back(t);
 
+	FramebufferTextureDesc id;
+	id.m_InternalFormat = GL_R32I;
+	id.m_Format = GL_RED_INTEGER;
+	// m_ColorAttachmentDescs.emplace_back(id);
+
 	m_DepthAttachmentDesc.m_InternalFormat = GL_DEPTH_COMPONENT24;
 	m_DepthAttachmentDesc.m_Format = GL_DEPTH_COMPONENT;
 	Recreate();
@@ -109,4 +114,16 @@ void Framebuffer::Bind()
 void Framebuffer::Unbind()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void Framebuffer::Resize(uint32_t width, uint32_t height)
+{
+	m_Desc.m_Width = width;
+	m_Desc.m_Height = height;
+	Recreate();
+}
+
+void Framebuffer::ClearAttachment(GLuint index, int value)
+{
+	// glClearColor(m_ColorAttachments[index], 0, m_ColorAttachmentDescs[index].m_Format, GL_INT, &value);
 }
