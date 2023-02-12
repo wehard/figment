@@ -71,7 +71,7 @@ void Framebuffer::Recreate()
 		glGenTextures(1, &m_DepthAttachment);
 		glBindTexture(GL_TEXTURE_2D, m_DepthAttachment);
 
-		glTexImage2D(GL_TEXTURE_2D, 1, m_DepthAttachmentDesc.m_InternalFormat, m_Desc.m_Width, m_Desc.m_Height, 0, m_DepthAttachmentDesc.m_Format, GL_UNSIGNED_INT, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, m_DepthAttachmentDesc.m_InternalFormat, m_Desc.m_Width, m_Desc.m_Height, 0, m_DepthAttachmentDesc.m_Format, GL_UNSIGNED_INT, NULL);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -81,8 +81,17 @@ void Framebuffer::Recreate()
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_DepthAttachment, 0);
 	}
 
-	GLenum drawBuffers[] = {GL_NONE};
-	glDrawBuffers(1, drawBuffers);
+	if (m_ColorAttachments.size() > 1)
+	{
+		GLenum buffers[4] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3};
+		glDrawBuffers(m_ColorAttachments.size(), buffers);
+	}
+	else if (m_ColorAttachments.empty())
+	{
+		// Only depth-pass
+		GLenum buffers[1] = {GL_NONE};
+		glDrawBuffers(1, buffers);
+	}
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		std::cout << "Framebuffer not complete!" << std::endl;
