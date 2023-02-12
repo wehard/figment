@@ -32,6 +32,7 @@ public:
 	void Bind();
 	void Unbind();
 	void ClearAttachment(GLuint index, int value);
+	void Resize(uint32_t width, uint32_t height);
 	GLuint GetColorAttachmentId(uint32_t index = 0) const
 	{
 		return m_ColorAttachments[index];

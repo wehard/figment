@@ -3,6 +3,22 @@
 
 GLRenderer::GLRenderer()
 {
+	float quadVertices[] = {
+		-1.0f, -1.0f, 0.0, 0.0f, 0.0f,
+		-1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+		1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+		1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+		-1.0f, -1.0f, 0.0, 0.0f, 0.0f};
+	glGenBuffers(1, &m_QuadVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_QuadVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+	glGenVertexArrays(1, &m_QuadVAO);
+	glBindVertexArray(m_QuadVAO);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
 }
 
 GLRenderer::~GLRenderer()
@@ -13,7 +29,7 @@ void GLRenderer::Begin(OrthoCamera &camera, glm::vec4 clearColor)
 {
 	this->camera = &camera;
 	glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
 void GLRenderer::Draw(GLObject &object)
@@ -64,4 +80,13 @@ void GLRenderer::DrawLines(GLObject &object, Shader &shader)
 	glBindVertexArray(object.vao);
 	glBindBuffer(GL_ARRAY_BUFFER, object.vbo);
 	glDrawArrays(GL_LINES, 0, object.vertexCount);
+}
+
+void GLRenderer::DrawTexturedQuad(glm::mat4 transform, uint32_t textureId, Shader &shader)
+{
+	shader.use();
+	glBindVertexArray(m_QuadVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_QuadVBO);
+	glBindTexture(GL_TEXTURE_2D, textureId);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
