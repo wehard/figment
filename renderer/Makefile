@@ -21,6 +21,7 @@ WEB_EXE = $(WEB_DIR)/index.html
 ASSET_DIR = res
 
 SRC = App.cpp\
+	Framebuffer.cpp\
 	OrthoCamera.cpp\
 	PerspectiveCamera.cpp\
 	GLContext.cpp\
