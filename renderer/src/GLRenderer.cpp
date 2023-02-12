@@ -85,6 +85,7 @@ void GLRenderer::DrawLines(GLObject &object, Shader &shader)
 void GLRenderer::DrawTexturedQuad(glm::mat4 transform, uint32_t textureId, Shader &shader)
 {
 	shader.use();
+	shader.setMat4("model_matrix", transform);
 	glBindVertexArray(m_QuadVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, m_QuadVBO);
 	glBindTexture(GL_TEXTURE_2D, textureId);
