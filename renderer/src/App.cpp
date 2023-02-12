@@ -66,6 +66,11 @@ App::App(float width, float height)
         static_cast<App *>(glfwGetWindowUserPointer(w))->HandleMouseScroll(xOffset, yOffset);
     };
     glfwSetScrollCallback(gl->window, mouseScrollCallback);
+
+    FramebufferDesc desc;
+    desc.m_Width = width;
+    desc.m_Height = height;
+    m_Framebuffer = new Framebuffer(desc);
 }
 
 App::~App()
@@ -74,6 +79,7 @@ App::~App()
     delete shader;
     delete camera;
     delete gui;
+    delete m_Framebuffer;
 }
 
 void App::InsertPlane()
@@ -169,6 +175,7 @@ void App::Update()
     GUIUpdate();
 
     glfwMakeContextCurrent(gl->window);
+
     renderer->Begin(*camera, glm::vec4(m_ClearColor.x, m_ClearColor.y, m_ClearColor.z, m_ClearColor.w));
     renderer->DrawLines(*grid, *shader);
 

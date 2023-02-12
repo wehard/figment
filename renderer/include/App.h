@@ -5,6 +5,7 @@
 #include "GUIContext.h"
 #include "GLRenderer.h"
 #include "PerspectiveCamera.h"
+#include "Framebuffer.h"
 
 class App
 {
@@ -17,6 +18,8 @@ private:
     Shader *gridShader;
     GLObject *grid;
     GLObject *plane;
+
+    Framebuffer *m_Framebuffer;
 
     glm::vec2 mousePosition = glm::vec2(0, 0);
     ImVec4 m_ClearColor = ImVec4(0.15, 0.15, 0.15, 1.00f);
