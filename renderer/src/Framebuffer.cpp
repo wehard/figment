@@ -25,8 +25,8 @@ Framebuffer::Framebuffer(const FramebufferDesc &desc) : m_Desc(desc)
 	t.m_Format = GL_RGBA;
 	m_ColorAttachmentDescs.emplace_back(t);
 
-	m_DepthAttachmentDesc.m_InternalFormat = GL_DEPTH24_STENCIL8;
-	m_DepthAttachmentDesc.m_Format = GL_DEPTH24_STENCIL8;
+	m_DepthAttachmentDesc.m_InternalFormat = GL_DEPTH_COMPONENT24;
+	m_DepthAttachmentDesc.m_Format = GL_DEPTH_COMPONENT;
 	Recreate();
 }
 
@@ -67,19 +67,22 @@ void Framebuffer::Recreate()
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, m_ColorAttachments[i], 0);
 	}
 
-	// {
-	// 	glGenTextures(1, &m_DepthAttachment);
-	// 	glBindTexture(GL_TEXTURE_2D, m_DepthAttachment);
+	{
+		glGenTextures(1, &m_DepthAttachment);
+		glBindTexture(GL_TEXTURE_2D, m_DepthAttachment);
 
-	// 	glTexImage2D(GL_TEXTURE_2D, 1, m_DepthAttachmentDesc.m_InternalFormat, m_Desc.m_Width, m_Desc.m_Height, 0, m_DepthAttachmentDesc.m_Format, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 1, m_DepthAttachmentDesc.m_InternalFormat, m_Desc.m_Width, m_Desc.m_Height, 0, m_DepthAttachmentDesc.m_Format, GL_UNSIGNED_INT, NULL);
 
-	// 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	// 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-	// 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	// 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	// 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_DepthAttachment, 0);
-	// }
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_DepthAttachment, 0);
+	}
+
+	GLenum drawBuffers[] = {GL_NONE};
+	glDrawBuffers(1, drawBuffers);
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		std::cout << "Framebuffer not complete!" << std::endl;

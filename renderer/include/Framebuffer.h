@@ -18,6 +18,14 @@ struct FramebufferTextureDesc
 class Framebuffer
 {
 public:
+	enum class TextureFormat
+	{
+		RGBA8 = GL_RGBA8,
+		RED_INTEGER = GL_RED_INTEGER,
+		Depth = GL_DEPTH24_STENCIL8
+
+	};
+
 	Framebuffer(const FramebufferDesc &desc);
 	~Framebuffer();
 	void Recreate();
