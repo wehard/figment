@@ -37,6 +37,7 @@ public:
 	{
 		return m_ColorAttachments[index];
 	}
+	GLuint GetPixel(uint32_t attachmentIndex, int x, int y);
 
 private:
 	FramebufferDesc m_Desc;
