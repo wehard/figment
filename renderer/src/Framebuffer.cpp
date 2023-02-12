@@ -136,8 +136,9 @@ void Framebuffer::ClearAttachment(GLuint index, int value)
 
 GLuint Framebuffer::GetPixel(uint32_t attachmentIndex, int x, int y)
 {
+	glBindFramebuffer(GL_FRAMEBUFFER, m_FboID);
 	glReadBuffer(GL_COLOR_ATTACHMENT0 + attachmentIndex);
-	GLuint pixel;
+	GLuint pixel = 0;
 	glReadPixels(x, y, 1, 1, GL_RED_INTEGER, GL_UNSIGNED_BYTE, &pixel);
 	return pixel;
 }
