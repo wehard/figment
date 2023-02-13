@@ -6,10 +6,10 @@ uniform int obj_id;
 in vec4 o_col;
 
 layout(location = 0) out vec4 color;
-layout(location = 1) out uint id;
+layout(location = 1) out int id;
 
 void main()
 {
   color = o_col;
-  id = uint(obj_id);
+  id = obj_id;
 }
