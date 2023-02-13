@@ -8,8 +8,9 @@ class GLObject
 {
 private:
 public:
+	static int s_Id;
 	GLsizei vertexCount;
-	int m_Id = 1;
+	int m_Id = -1;
 	GLuint vao;
 	GLuint vbo;
 	GLuint cbo;
