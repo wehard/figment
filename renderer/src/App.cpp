@@ -182,7 +182,7 @@ void App::Update()
     renderer->Begin(*camera, glm::vec4(m_ClearColor.x, m_ClearColor.y, m_ClearColor.z, m_ClearColor.w));
     m_Framebuffer->Bind();
     m_Framebuffer->ClearAttachment(0, 0);
-    m_Framebuffer->ClearAttachment(1, 0);
+    // m_Framebuffer->ClearAttachment(1, 0);
     renderer->DrawLines(*grid, *shader);
 
     for (auto object : objects)

@@ -13,7 +13,8 @@ struct FramebufferDesc
 struct FramebufferTextureDesc
 {
 	GLint m_InternalFormat;
-	GLint m_Format;
+	GLenum m_Format;
+	GLenum m_Type;
 };
 
 class Framebuffer
@@ -38,7 +39,7 @@ public:
 	{
 		return m_ColorAttachments[index];
 	}
-	GLuint GetPixel(uint32_t attachmentIndex, int x, int y);
+	int GetPixel(uint32_t attachmentIndex, int x, int y);
 
 private:
 	FramebufferDesc m_Desc;

@@ -2,14 +2,14 @@
 #include "glm/vec4.hpp"
 #include <iostream>
 
-static GLuint CreateTexture(int32_t width, int32_t height, GLint internalFormat, GLenum format)
+static GLuint CreateTexture(int32_t width, int32_t height, GLint internalFormat, GLenum format, GLenum type)
 {
 	GLuint textureId = 0;
 	glGenTextures(1, &textureId);
 	glBindTexture(GL_TEXTURE_2D, textureId);
-	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, NULL);
+	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	return textureId;
 }
@@ -24,15 +24,18 @@ Framebuffer::Framebuffer(const FramebufferDesc &desc) : m_Desc(desc)
 	FramebufferTextureDesc t;
 	t.m_InternalFormat = GL_RGBA;
 	t.m_Format = GL_RGBA;
+	t.m_Type = GL_UNSIGNED_BYTE;
 	m_ColorAttachmentDescs.emplace_back(t);
 
 	FramebufferTextureDesc id;
-	id.m_InternalFormat = GL_R8UI;
+	id.m_InternalFormat = GL_R16I;
 	id.m_Format = GL_RED_INTEGER;
+	id.m_Type = GL_SHORT;
 	m_ColorAttachmentDescs.emplace_back(id);
 
 	m_DepthAttachmentDesc.m_InternalFormat = GL_DEPTH_COMPONENT24;
 	m_DepthAttachmentDesc.m_Format = GL_DEPTH_COMPONENT;
+	m_DepthAttachmentDesc.m_Type = GL_UNSIGNED_INT;
 	Recreate();
 }
 
@@ -57,13 +60,13 @@ void Framebuffer::Recreate()
 
 	for (size_t i = 0; i < m_ColorAttachments.size(); i++)
 	{
-		m_ColorAttachments[i] = CreateTexture(m_Desc.m_Width, m_Desc.m_Height, m_ColorAttachmentDescs[i].m_InternalFormat, m_ColorAttachmentDescs[i].m_Format);
+		m_ColorAttachments[i] = CreateTexture(m_Desc.m_Width, m_Desc.m_Height, m_ColorAttachmentDescs[i].m_InternalFormat, m_ColorAttachmentDescs[i].m_Format, m_ColorAttachmentDescs[i].m_Type);
 	}
 
 	for (size_t i = 0; i < m_ColorAttachments.size(); i++)
 	{
 		glBindTexture(GL_TEXTURE_2D, m_ColorAttachments[i]);
-		glTexImage2D(GL_TEXTURE_2D, 0, m_ColorAttachmentDescs[i].m_InternalFormat, m_Desc.m_Width, m_Desc.m_Height, 0, m_ColorAttachmentDescs[i].m_Format, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, m_ColorAttachmentDescs[i].m_InternalFormat, m_Desc.m_Width, m_Desc.m_Height, 0, m_ColorAttachmentDescs[i].m_Format, m_ColorAttachmentDescs[i].m_Type, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
@@ -77,7 +80,7 @@ void Framebuffer::Recreate()
 		glGenTextures(1, &m_DepthAttachment);
 		glBindTexture(GL_TEXTURE_2D, m_DepthAttachment);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, m_DepthAttachmentDesc.m_InternalFormat, m_Desc.m_Width, m_Desc.m_Height, 0, m_DepthAttachmentDesc.m_Format, GL_UNSIGNED_INT, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, m_DepthAttachmentDesc.m_InternalFormat, m_Desc.m_Width, m_Desc.m_Height, 0, m_DepthAttachmentDesc.m_Format, m_DepthAttachmentDesc.m_Type, NULL);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -132,14 +135,14 @@ void Framebuffer::ClearAttachment(GLuint index, int value)
 
 	static const float c[] = {0.15, 0.15, 0.15, 1.0};
 	glClearBufferfv(GL_COLOR, 0, c);
-	glClearBufferuiv(GL_COLOR, 1, 0);
+	glClearBufferiv(GL_COLOR, 1, &value);
 }
 
-GLuint Framebuffer::GetPixel(uint32_t attachmentIndex, int x, int y)
+int Framebuffer::GetPixel(uint32_t attachmentIndex, int x, int y)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, m_FboID);
-	glReadBuffer(GL_COLOR_ATTACHMENT0 + attachmentIndex);
-	GLuint pixel = 0;
-	glReadPixels(x, y, 1, 1, GL_RED_INTEGER, GL_UNSIGNED_BYTE, &pixel);
+	glReadBuffer(GL_COLOR_ATTACHMENT1);
+	int pixel = 0;
+	glReadPixels(x, y, 1, 1, GL_RED_INTEGER, GL_SHORT, &pixel);
 	return pixel;
 }
