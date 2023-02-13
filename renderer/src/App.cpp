@@ -181,6 +181,7 @@ void App::Update()
     renderer->Begin(*camera, glm::vec4(m_ClearColor.x, m_ClearColor.y, m_ClearColor.z, m_ClearColor.w));
     m_Framebuffer->Bind();
     m_Framebuffer->ClearAttachment(0, 0);
+    m_Framebuffer->ClearAttachment(1, 0);
     renderer->DrawLines(*grid, *shader);
 
     for (auto object : objects)
@@ -188,7 +189,7 @@ void App::Update()
         renderer->Draw(*object, *shader);
     }
 
-    m_HoveredId = m_Framebuffer->GetPixel(1, (uint32_t)mousePosition.x, (uint32_t)mousePosition.y);
+    m_HoveredId = m_Framebuffer->GetPixel(1, (uint32_t)mousePosition.x, gl->GetHeight() - (uint32_t)mousePosition.y);
     m_Framebuffer->Unbind();
     renderer->DrawTexturedQuad(glm::identity<glm::mat4>(), m_Framebuffer->GetColorAttachmentId(0), *m_FramebufferShader);
 
