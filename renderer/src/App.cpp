@@ -188,11 +188,9 @@ void App::Update()
         renderer->Draw(*object, *shader);
     }
 
+    m_HoveredId = m_Framebuffer->GetPixel(1, (uint32_t)mousePosition.x, (uint32_t)mousePosition.y);
     m_Framebuffer->Unbind();
     renderer->DrawTexturedQuad(glm::identity<glm::mat4>(), m_Framebuffer->GetColorAttachmentId(0), *m_FramebufferShader);
-
-    // int pixel = m_Framebuffer->GetPixel(1, mousePosition.x, mousePosition.y);
-    // std::cout << pixel << std::endl;
 
     gui->Render();
 
@@ -254,7 +252,7 @@ void App::GUIUpdate()
     glm::vec2 mw = camera->ScreenToWorldSpace(mousePosition.x, mousePosition.y);
 
     ImGui::SetNextWindowPos(ImVec2(windowWidth - 500, 0));
-    ImGui::SetNextWindowSize(ImVec2(500, 300));
+    ImGui::SetNextWindowSize(ImVec2(500, 500));
     ImGui::Begin("Debug");
     ImGui::Text("GL version: %s", version);
     ImGui::Text("GLSL version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
@@ -274,6 +272,7 @@ void App::GUIUpdate()
         ImGui::EndListBox();
     }
     ImGui::Text("Objects: %zu", objects.size());
+    ImGui::Text("Hovered id: %d", m_HoveredId);
 
     ImGui::End();
 }
