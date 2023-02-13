@@ -118,11 +118,11 @@ void App::InsertCube()
 
 void App::HandleKeyboardInput(int key, int scancode, int action, int mods)
 {
-    if (key == GLFW_KEY_1)
+    if (key == GLFW_KEY_1 && action == GLFW_PRESS)
     {
         InsertPlane();
     }
-    if (key == GLFW_KEY_2)
+    if (key == GLFW_KEY_2 && action == GLFW_PRESS)
     {
         InsertCircle();
     }
