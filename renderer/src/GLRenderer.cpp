@@ -46,6 +46,7 @@ void GLRenderer::Draw(GLObject &object, Shader &shader)
 	shader.setMat4("proj_matrix", camera->GetProjectionMatrix());
 	shader.setMat4("view_matrix", camera->GetViewMatrix());
 	shader.setMat4("model_matrix", object.getModelMatrix());
+	shader.setInt("obj_id", 42);
 	Draw(object);
 }
 

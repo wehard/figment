@@ -9,6 +9,7 @@ class GLObject
 private:
 public:
 	GLsizei vertexCount;
+	int m_Id = 1;
 	GLuint vao;
 	GLuint vbo;
 	GLuint cbo;

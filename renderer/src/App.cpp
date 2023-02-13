@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/vec4.hpp>
 
 static std::string readFile(std::string path)
 {

@@ -15,6 +15,7 @@ GLObject::GLObject(std::vector<float> vertexPositions) : vertexCount(vertexPosit
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+	m_Id = 1234;
 }
 
 GLObject::GLObject(std::vector<float> vertexPositions, std::vector<float> vertexColors) : vertexCount(vertexPositions.size() / 3)
@@ -37,6 +38,7 @@ GLObject::GLObject(std::vector<float> vertexPositions, std::vector<float> vertex
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+	m_Id = 5678;
 }
 
 GLObject::~GLObject()

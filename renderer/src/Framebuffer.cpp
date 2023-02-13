@@ -1,4 +1,5 @@
 #include "Framebuffer.h"
+#include "glm/vec4.hpp"
 #include <iostream>
 
 static GLuint CreateTexture(int32_t width, int32_t height, GLint internalFormat, GLenum format)
