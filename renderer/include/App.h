@@ -28,6 +28,7 @@ private:
     std::vector<GLObject *> objects;
 
     bool m_handleEvents;
+    int m_HoveredId = -1;
 
     // static App *s_Instance;
 
