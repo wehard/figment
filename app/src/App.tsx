@@ -51,39 +51,8 @@ const Toolbar = (props: ToolbarProps) => {
 interface CodeEditorProps {
   value: string;
   onChange: (v: string) => void;
+  onLoad: (v: string) => void;
 }
-
-const fragSource = `#version 300 es
-precision mediump float;
-        
-uniform vec4 obj_color;
-in vec4 o_col;
-out vec4 color;
-        
-void main()
-{
-  color = o_col;
-}
-`;
-
-const vertSource = `#version 300 es
-
-layout(location = 0) in vec4 position;
-
-uniform mat4 model_matrix;
-uniform mat4 view_matrix;
-uniform mat4 proj_matrix;
-uniform vec4 obj_color;
-
-out vec4 o_col;
-
-void main()
-{
-	o_col = obj_color;
-	gl_Position = proj_matrix * view_matrix * model_matrix * vec4(position.xyz, 1.0);
-}
-
-`;
 
 const CodeEditor = (props: CodeEditorProps) => {
   const handleEditorChange = (
@@ -101,6 +70,7 @@ const CodeEditor = (props: CodeEditorProps) => {
         value={props.value}
         theme={'vs-dark'}
         onChange={handleEditorChange}
+        onMount={() => props.onLoad(props.value)}
       />
     </div>
   );
@@ -121,8 +91,8 @@ function App() {
   const renderDivRef = useRef<HTMLDivElement>(null);
   const [canvasContext, setCanvasContext] = useState<CanvasContext>();
   const [showEditor, setShowEditor] = useState<boolean>(true);
-  const [vertShaderSource, setVertShaderSource] = useState<string>(vertSource);
-  const [fragShaderSource, setFragShaderSource] = useState<string>(fragSource);
+  const [vertShaderSource, setVertShaderSource] = useState<string>();
+  const [fragShaderSource, setFragShaderSource] = useState<string>();
 
   useEffect(() => {
     const debounceHandleResize = debounce(() => {
@@ -168,23 +138,40 @@ function App() {
             </button>
             <button
               className='w-12 bg-neutral-500 active:bg-neutral-700'
-              onClick={() => canvasContext?.updateShader(vertShaderSource, fragShaderSource)}
+              onClick={() => {
+                if (vertShaderSource && fragShaderSource) {
+                  console.log('shader sources:', vertShaderSource, fragShaderSource);
+                  canvasContext?.updateShader(vertShaderSource, fragShaderSource);
+                }
+              }}
             >
               S
             </button>
             <button
               className='w-12 bg-neutral-500 active:bg-neutral-700'
               onClick={() => {
-                setVertShaderSource(vertSource);
-                setFragShaderSource(fragSource);
+                setVertShaderSource(vertShaderSource);
+                setFragShaderSource(fragShaderSource);
               }}
             >
               R
             </button>
           </div>
           <div className='flex flex-row'>
-            {showEditor && <CodeEditor value={vertShaderSource} onChange={setVertShaderSource} />}
-            {showEditor && <CodeEditor value={fragShaderSource} onChange={setFragShaderSource} />}
+            {showEditor && canvasContext && (
+              <CodeEditor
+                value={canvasContext?.defaultVertSource}
+                onChange={setVertShaderSource}
+                onLoad={setVertShaderSource}
+              />
+            )}
+            {showEditor && canvasContext && (
+              <CodeEditor
+                value={canvasContext.defaultFragSource}
+                onChange={setFragShaderSource}
+                onLoad={setFragShaderSource}
+              />
+            )}
           </div>
         </div>
       </div>
