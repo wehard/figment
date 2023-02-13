@@ -18,23 +18,6 @@
 #include <stdlib.h>
 #include <string>
 
-std::string readFile(std::string path)
-{
-	std::string source;
-
-	std::ifstream shader_stream(path, std::ios::in);
-	if (shader_stream.is_open())
-	{
-		std::stringstream sstr;
-		sstr << shader_stream.rdbuf();
-		source = sstr.str();
-		shader_stream.close();
-	}
-	else
-		printf("Error opening %s\n", path.c_str());
-	return (source);
-}
-
 glm::vec2 mousePosition = glm::vec2(0.0);
 glm::vec2 prevMousePosition = glm::vec2(640, 360);
 
