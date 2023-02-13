@@ -51,7 +51,7 @@ LDFLAGS += -lm
 
 # ("EMS" options gets added to both CPPFLAGS and LDFLAGS, whereas some options are for linker only)
 EMS = -s USE_GLFW=3
-EMS += -s DISABLE_EXCEPTION_CATCHING=0 -sEXPORTED_FUNCTIONS=_onMouseMove,_insertObject,_onCanvasResize,_main -s EXPORTED_RUNTIME_METHODS='["cwrap", "allocate", "intArrayFromString", "ALLOC_NORMAL"]'
+EMS += -s DISABLE_EXCEPTION_CATCHING=0 -sEXPORTED_FUNCTIONS=_onMouseMove,_insertObject,_onCanvasResize,_main -s EXPORTED_RUNTIME_METHODS='["cwrap", "allocate", "intArrayFromString", "ALLOC_NORMAL", "UTF8ToString"]'
 
 EMS_CFLAGS = ${CFLAGS} -DIMGUI_DISABLE_FILE_FUNCTIONS -sMODULARIZE=1 -sEXPORT_ES6=1 ${EMS}
 EMS_INCL = ${INCL} 

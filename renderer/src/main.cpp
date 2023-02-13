@@ -5,6 +5,7 @@
 #include <emscripten.h>
 
 #include "App.h"
+#include "Utils.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -80,6 +81,16 @@ extern "C"
 	EMSCRIPTEN_KEEPALIVE void updateShader(const char *vertSource, const char *fragSource)
 	{
 		app->UpdateShader(vertSource, fragSource);
+	}
+
+	EMSCRIPTEN_KEEPALIVE const char *getDefaultVertShaderSource()
+	{
+		return Utils::LoadFile("shaders/basic.vert").c_str();
+	}
+
+	EMSCRIPTEN_KEEPALIVE const char *getDefaultFragShaderSource()
+	{
+		return Utils::LoadFile("shaders/basic.frag").c_str();
 	}
 }
 

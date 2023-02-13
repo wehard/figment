@@ -7,6 +7,8 @@ export type CanvasContext = {
   insertObject: (n: number) => void;
   setInputEnabled: (n: number) => void;
   updateShader: (vert: string, frag: string) => void;
+  defaultVertSource: string;
+  defaultFragSource: string;
   allocate?: (buffer: number[], t: string) => number;
 };
 
@@ -45,6 +47,12 @@ const Renderer = (props: RendererProps) => {
         rendererContext._updateShader(vertPtr, fragPtr);
         // rendererContext._free(ptr);
       },
+      defaultVertSource: rendererContext.UTF8ToString(
+        rendererContext._getDefaultVertShaderSource()
+      ),
+      defaultFragSource: rendererContext.UTF8ToString(
+        rendererContext._getDefaultFragShaderSource()
+      ),
     };
 
     console.log(rendererContext);

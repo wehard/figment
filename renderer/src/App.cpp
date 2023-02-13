@@ -191,8 +191,8 @@ void App::Update()
     m_Framebuffer->Unbind();
     renderer->DrawTexturedQuad(glm::identity<glm::mat4>(), m_Framebuffer->GetColorAttachmentId(0), *m_FramebufferShader);
 
-    int pixel = m_Framebuffer->GetPixel(1, mousePosition.x, mousePosition.y);
-    std::cout << pixel << std::endl;
+    // int pixel = m_Framebuffer->GetPixel(1, mousePosition.x, mousePosition.y);
+    // std::cout << pixel << std::endl;
 
     gui->Render();
 
