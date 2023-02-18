@@ -38,8 +38,7 @@ App::App(float width, float height)
     grid = new GLObject(GLObject::Grid(10, 10));
     grid->scale = glm::vec3(1.0, 1.0, 1.0);
     grid->color = glm::vec4(1.0, 1.0, 1.0, 0.25);
-    plane = new GLObject(GLObject::Plane());
-    plane->color = glm::vec4(1.0, 1.0, 1.0, 0.3);
+
     gui->Init(gl->window, gl->glslVersion);
 
     glfwSetWindowUserPointer(gl->window, this);

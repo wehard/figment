@@ -18,7 +18,6 @@ private:
     Shader *gridShader;
     Shader *m_FramebufferShader;
     GLObject *grid;
-    GLObject *plane;
 
     Framebuffer *m_Framebuffer;
 
