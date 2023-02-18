@@ -31,6 +31,8 @@ App::App(float width, float height)
     gui = new GUIContext();
     shader = new Shader(readFile("shaders/basic.vert").c_str(), readFile("shaders/basic.frag").c_str());
     gridShader = new Shader(readFile("shaders/grid.vert").c_str(), readFile("shaders/grid.frag").c_str());
+    m_CircleShader = std::make_unique<Shader>(readFile("shaders/circle.vert").c_str(), readFile("shaders/circle.frag").c_str());
+
     m_FramebufferShader = new Shader(readFile("shaders/framebuffer.vert").c_str(), readFile("shaders/framebuffer.frag").c_str());
     renderer = new GLRenderer();
     camera = new OrthoCamera(width, height);
@@ -186,7 +188,7 @@ void App::Update()
 
     for (auto object : objects)
     {
-        renderer->Draw(*object, *shader);
+        renderer->DrawCircle(*object, *m_CircleShader);
     }
 
     m_HoveredId = m_Framebuffer->GetPixel(1, (uint32_t)mousePosition.x, gl->GetHeight() - (uint32_t)mousePosition.y);

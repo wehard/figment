@@ -50,6 +50,17 @@ void GLRenderer::Draw(GLObject &object, Shader &shader)
 	Draw(object);
 }
 
+void GLRenderer::DrawCircle(GLObject &object, Shader &shader)
+{
+	shader.use();
+	shader.setVec4("obj_color", object.color);
+	shader.setMat4("proj_matrix", camera->GetProjectionMatrix());
+	shader.setMat4("view_matrix", camera->GetViewMatrix());
+	shader.setMat4("model_matrix", object.getModelMatrix());
+	shader.setInt("obj_id", object.m_Id);
+	Draw(object);
+}
+
 static glm::mat4 getModelMatrixBillboard(GLObject &object, glm::vec3 target)
 {
 	glm::mat4 matScale = glm::scale(glm::mat4(1.0f), object.scale);
