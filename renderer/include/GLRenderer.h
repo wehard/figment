@@ -25,6 +25,7 @@ public:
 	void Begin(OrthoCamera &camera, glm::vec4 clearColor);
 	void Draw(GLObject &object);
 	void Draw(GLObject &object, Shader &shader);
+	void DrawCircle(GLObject &object, Shader &shader);
 	void DrawBillboard(GLObject &object, float scale, Shader &shader);
 	void DrawLines(GLObject &object, Shader &shader);
 	void DrawTexturedQuad(glm::mat4 transform, uint32_t textureId, Shader &shader);

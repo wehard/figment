@@ -7,6 +7,8 @@
 #include "PerspectiveCamera.h"
 #include "Framebuffer.h"
 
+#include <memory>
+
 class App
 {
 private:
@@ -16,6 +18,7 @@ private:
     OrthoCamera *camera;
     Shader *shader;
     Shader *gridShader;
+    std::unique_ptr<Shader> m_CircleShader;
     Shader *m_FramebufferShader;
     GLObject *grid;
 

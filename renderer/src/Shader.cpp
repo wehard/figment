@@ -17,7 +17,6 @@ Shader::Shader(const char *vertSource, const char *fragSource)
 
 Shader::~Shader()
 {
-	printf("destroyed shader: %d\n", this->p_id);
 	glDeleteProgram(p_id);
 }
 
