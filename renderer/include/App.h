@@ -6,6 +6,8 @@
 #include "GLRenderer.h"
 #include "PerspectiveCamera.h"
 #include "Framebuffer.h"
+#include "Entity.h"
+#include "Scene.h"
 
 #include <memory>
 
@@ -21,6 +23,7 @@ private:
     std::unique_ptr<Shader> m_CircleShader;
     Shader *m_FramebufferShader;
     GLObject *grid;
+    Scene m_Scene;
 
     Framebuffer *m_Framebuffer;
 

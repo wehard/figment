@@ -30,6 +30,8 @@ SRC = App.cpp\
 	GUIContext.cpp\
 	Shader.cpp\
 	main.cpp\
+	scene/Entity.cpp\
+	scene/Scene.cpp
 
 IMGGUI_SRC = imgui.cpp\
 	imgui_demo.cpp\
@@ -44,7 +46,7 @@ OBJS = $(SRCS:.cpp=.o)
 
 CFLAGS = -std=c++17 #-Wall -Wextra -Werror
 
-INCL = -I include -I lib/imgui/include -I lib/glm -I lib 
+INCL = -I include -I lib/imgui/include -I lib/glm -I lib -I lib/entt -I src/scene
 
 LDFLAGS = -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo 
 LDFLAGS += -lm
