@@ -141,6 +141,31 @@ void App::HandleMouseInput(int button, int action, int mods)
 
     if (action == 1)
     {
+        if (button == GLFW_MOUSE_BUTTON_LEFT)
+        {
+            GLObject *o = new GLObject(GLObject::Plane());
+            o->position = glm::vec3(camera->ScreenToWorldSpace(mousePosition.x, mousePosition.y), 0.0);
+            o->color = glm::vec4(1.0, 1.0, 1.0, 1.0);
+            o->scale = glm::vec3(0.1) * camera->GetZoom();
+            objects.push_back(o);
+        }
+        if (button == GLFW_MOUSE_BUTTON_RIGHT)
+        {
+            if (m_HoveredId != 0)
+            {
+
+                int index = -1;
+                for (size_t i = 0; i < objects.size(); i++)
+                {
+                    index++;
+                    if (objects[i]->m_Id == m_HoveredId)
+                        break;
+                }
+
+                delete objects[index];
+                objects.erase(objects.begin() + index);
+            }
+        }
         if (button == GLFW_MOUSE_BUTTON_MIDDLE)
         {
             camera->BeginPan(mousePosition);
