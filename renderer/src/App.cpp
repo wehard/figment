@@ -1,4 +1,6 @@
 #include "App.h"
+#include "Scene.h"
+#include "Entity.h"
 
 #include <math.h>
 #include <fstream>
@@ -75,6 +77,10 @@ App::App(float width, float height)
     desc.m_Width = width;
     desc.m_Height = height;
     m_Framebuffer = new Framebuffer(desc);
+
+    m_Scene.CreateEntity("Test entity");
+    m_Scene.CreateEntity("Test entity 2");
+    m_Scene.CreateEntity();
 }
 
 App::~App()
@@ -302,6 +308,23 @@ void App::GUIUpdate()
     ImGui::Text("Objects: %zu", objects.size());
     ImGui::Text("Hovered id: %d", m_HoveredId);
 
+    ImGui::End();
+
+    auto entities = m_Scene.GetEntities();
+
+    ImGui::Begin("Entities");
+    for (auto e : m_Scene.GetEntities())
+    {
+        auto name = e.GetComponent<InfoComponent>().m_Name.c_str();
+        ImGui::Text("%-20s (%llu)", name, e.GetComponent<IDComponent>().ID);
+        auto &transform = e.GetComponent<TransformComponent>();
+        ImGui::PushID(name);
+        ImGui::DragFloat3("Position", (float *)&transform.Position.x, 0.1f, 0.0f, 0.0f, "%.2f");
+        ImGui::DragFloat3("Rotation", (float *)&transform.Rotation.x, 0.1f, 0.0f, 0.0f, "%.2f");
+        ImGui::DragFloat3("Scale", (float *)&transform.Scale.x, 0.1f, 0.0f, 0.0f, "%.2f");
+        ImGui::Separator();
+        ImGui::PopID();
+    }
     ImGui::End();
 }
 
