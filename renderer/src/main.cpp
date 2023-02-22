@@ -68,12 +68,12 @@ extern "C"
 
 	EMSCRIPTEN_KEEPALIVE const char *getDefaultVertShaderSource()
 	{
-		return Utils::LoadFile("shaders/basic.vert").c_str();
+		return Utils::LoadFile("shaders/circle.vert").c_str();
 	}
 
 	EMSCRIPTEN_KEEPALIVE const char *getDefaultFragShaderSource()
 	{
-		return Utils::LoadFile("shaders/basic.frag").c_str();
+		return Utils::LoadFile("shaders/circle.frag").c_str();
 	}
 }
 

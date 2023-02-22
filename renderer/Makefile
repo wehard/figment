@@ -20,29 +20,23 @@ WEB_EXE = $(WEB_DIR)/index.html
 
 ASSET_DIR = res
 
-SRC = App.cpp\
-	Framebuffer.cpp\
-	OrthoCamera.cpp\
-	PerspectiveCamera.cpp\
-	GLContext.cpp\
-	GLObject.cpp\
-	GLRenderer.cpp\
-	GUIContext.cpp\
-	Shader.cpp\
-	main.cpp\
-	scene/Entity.cpp\
-	scene/Scene.cpp
+# Define the directories where source files are located
+SRC_DIRS := $(shell find src lib/imgui -type d)
 
-IMGGUI_SRC = imgui.cpp\
-	imgui_demo.cpp\
-	imgui_draw.cpp\
-	imgui_impl_glfw.cpp\
-	imgui_impl_opengl3.cpp\
-	imgui_tables.cpp\
-	imgui_widgets.cpp
+# Define the directory where object files will be placed
+OBJ_DIR := build/objs
 
-SRCS = $(addprefix $(SRCDIR)/, $(SRC)) $(addprefix $(IMGUIDIR)/, $(IMGGUI_SRC))
-OBJS = $(SRCS:.cpp=.o)
+# Define the directory where the final executable will be placed
+BIN_DIR := build/bin
+
+# Get a list of all the source files in the source directories
+SRCS := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.cpp))
+
+# Generate a list of object files to build
+OBJS := $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(SRCS))
+
+# Define the name of the final executable
+BIN := $(BIN_DIR)/myprogram
 
 CFLAGS = -std=c++17 #-Wall -Wextra -Werror
 
@@ -72,8 +66,9 @@ ems: ${OBJS} ${WEB_DIR}
 	@$(CC) $(EMS_CFLAGS) $(EMS_INCL) $(OBJS) $(EMS_LDFLAGS) -o $(WEB_EXE) -O3 --shell-file index.html --preload-file ${ASSET_DIR}@
 	@mv ${WEB_DIR}/index.data ../app/public/index.data
 
-%.o: %.cpp
-	@printf "compiling %s -> %s\n" "$<" "$@"
+$(OBJ_DIR)/%.o: %.cpp
+	@printf "Compiling %s -> %s\n" "$<" "$@"
+	@mkdir -p $(@D)
 	@$(CC) $(CFLAGS) $(INCL) -c $< -o $@ -O3
 
 $(WEB_DIR):
@@ -84,10 +79,11 @@ debug:
 
 clean:
 	@rm -rf $(OBJS)
-	@rm -Rf $(WEB_DIR)
 
 fclean: clean
+	@rm -Rf $(WEB_DIR)
 	@rm -f $(NAME)
+	@rm -rf build
 
 re: fclean all
 

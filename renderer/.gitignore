@@ -5,3 +5,4 @@ figment
 *.o
 **/*.o
 web
+build

@@ -219,7 +219,7 @@ void App::Update()
 
     for (auto object : objects)
     {
-        renderer->DrawCircle(*object, *m_CircleShader);
+        renderer->Draw(*object, *shader);
     }
 
     m_HoveredId = m_Framebuffer->GetPixel(1, (uint32_t)mousePosition.x, gl->GetHeight() - (uint32_t)mousePosition.y);
