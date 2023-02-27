@@ -2,6 +2,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <stdio.h>
 
+OrthoCamera::OrthoCamera()
+{
+}
+
 OrthoCamera::OrthoCamera(float width, float height)
 {
     m_ViewportWidth = width;

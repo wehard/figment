@@ -36,8 +36,6 @@ App::App(float width, float height)
     m_CircleShader = std::make_unique<Shader>(readFile("shaders/circle.vert").c_str(), readFile("shaders/circle.frag").c_str());
 
     m_FramebufferShader = new Shader(readFile("shaders/framebuffer.vert").c_str(), readFile("shaders/framebuffer.frag").c_str());
-    renderer = new GLRenderer();
-    camera = new OrthoCamera(width, height);
 
     grid = new GLObject(GLObject::Grid(10, 10));
     grid->scale = glm::vec3(1.0, 1.0, 1.0);
@@ -73,29 +71,24 @@ App::App(float width, float height)
     };
     glfwSetScrollCallback(gl->window, mouseScrollCallback);
 
-    FramebufferDesc desc;
-    desc.m_Width = width;
-    desc.m_Height = height;
-    m_Framebuffer = new Framebuffer(desc);
-
-    m_Scene.CreateEntity("Test entity");
-    m_Scene.CreateEntity("Test entity 2");
-    m_Scene.CreateEntity();
+    m_Scene = new Scene(width, height);
+    m_Scene->CreateEntity("Test entity");
+    m_Scene->CreateEntity("Test entity 2");
+    m_Scene->CreateEntity();
 }
 
 App::~App()
 {
     delete gl;
     delete shader;
-    delete camera;
     delete gui;
-    delete m_Framebuffer;
+    delete m_Scene;
 }
 
 void App::InsertPlane()
 {
     GLObject *o = new GLObject(GLObject::Plane());
-    o->position = camera->GetPosition();
+    o->position = m_Scene->GetCamera().GetPosition();
     o->position.z = 0.0;
     o->color = glm::vec4(1.0, 1.0, 1.0, 1.0);
     o->scale = glm::vec3(0.1, 0.1, 0.0);
@@ -105,7 +98,7 @@ void App::InsertPlane()
 void App::InsertCircle()
 {
     GLObject *o = new GLObject(GLObject::Circle(1.0));
-    o->position = camera->GetPosition();
+    o->position = m_Scene->GetCamera().GetPosition();
     o->position.z = 0.0;
     o->color = glm::vec4(1.0, 1.0, 0.5, 1.0);
     o->scale = glm::vec3(0.1, 0.1, 0.0);
@@ -115,7 +108,7 @@ void App::InsertCircle()
 void App::InsertCube()
 {
     GLObject *o = new GLObject(GLObject::Cube());
-    o->position = camera->GetPosition();
+    o->position = m_Scene->GetCamera().GetPosition();
     o->position.z = 0.0;
     o->color = glm::vec4(0.1, 1.0, 0.2, 1.0);
     o->scale = glm::vec3(0.1, 0.1, 0.0);
@@ -149,22 +142,20 @@ void App::HandleMouseInput(int button, int action, int mods)
     {
         if (button == GLFW_MOUSE_BUTTON_LEFT)
         {
-            GLObject *o = new GLObject(GLObject::Plane());
-            o->position = glm::vec3(camera->ScreenToWorldSpace(mousePosition.x, mousePosition.y), 0.0);
-            o->color = glm::vec4(1.0, 1.0, 1.0, 1.0);
-            o->scale = glm::vec3(0.1) * camera->GetZoom();
-            objects.push_back(o);
+            Entity e = m_Scene->CreateEntity("New");
+            auto t = e.GetComponent<TransformComponent>();
+            t.Position = glm::vec3(m_Scene->GetCamera().ScreenToWorldSpace(mousePosition.x, mousePosition.y), 0.0);
         }
         if (button == GLFW_MOUSE_BUTTON_RIGHT)
         {
-            if (m_HoveredId != 0)
+            if (m_Scene->m_HoveredId != 0)
             {
 
                 int index = -1;
                 for (size_t i = 0; i < objects.size(); i++)
                 {
                     index++;
-                    if (objects[i]->m_Id == m_HoveredId)
+                    if (objects[i]->m_Id == m_Scene->m_HoveredId)
                         break;
                 }
 
@@ -174,14 +165,14 @@ void App::HandleMouseInput(int button, int action, int mods)
         }
         if (button == GLFW_MOUSE_BUTTON_MIDDLE)
         {
-            camera->BeginPan(mousePosition);
+            m_Scene->GetCamera().BeginPan(mousePosition);
         }
     }
     if (action == 0)
     {
         if (button == GLFW_MOUSE_BUTTON_MIDDLE)
         {
-            camera->EndPan();
+            m_Scene->GetCamera().EndPan();
         }
     }
 }
@@ -200,31 +191,32 @@ void App::SetMousePosition(double x, double y)
 
 void App::HandleMouseScroll(double xOffset, double yOffset)
 {
-    camera->Zoom(yOffset, mousePosition);
+    m_Scene->GetCamera().Zoom(yOffset, mousePosition);
 }
 
 void App::Update()
 {
-    camera->OnUpdate(mousePosition);
+    //  m_Scene->GetCamera().OnUpdate(mousePosition);
 
     GUIUpdate();
 
     glfwMakeContextCurrent(gl->window);
+    m_Scene->Update(1.0, mousePosition);
 
-    renderer->Begin(*camera, glm::vec4(m_ClearColor.x, m_ClearColor.y, m_ClearColor.z, m_ClearColor.w));
-    m_Framebuffer->Bind();
-    m_Framebuffer->ClearAttachment(0, 0);
-    // m_Framebuffer->ClearAttachment(1, 0);
-    renderer->DrawLines(*grid, *shader);
+    // renderer->Begin(*camera, glm::vec4(m_ClearColor.x, m_ClearColor.y, m_ClearColor.z, m_ClearColor.w));
+    // m_Framebuffer->Bind();
+    // m_Framebuffer->ClearAttachment(0, 0);
+    // // m_Framebuffer->ClearAttachment(1, 0);
+    // renderer->DrawLines(*grid, *shader);
 
-    for (auto object : objects)
-    {
-        renderer->Draw(*object, *shader);
-    }
+    // for (auto object : objects)
+    // {
+    //     renderer->Draw(*object, *shader);
+    // }
 
-    m_HoveredId = m_Framebuffer->GetPixel(1, (uint32_t)mousePosition.x, gl->GetHeight() - (uint32_t)mousePosition.y);
-    m_Framebuffer->Unbind();
-    renderer->DrawTexturedQuad(glm::identity<glm::mat4>(), m_Framebuffer->GetColorAttachmentId(0), *m_FramebufferShader);
+    // m_HoveredId = m_Framebuffer->GetPixel(1, (uint32_t)mousePosition.x, gl->GetHeight() - (uint32_t)mousePosition.y);
+    // m_Framebuffer->Unbind();
+    // renderer->DrawTexturedQuad(glm::identity<glm::mat4>(), m_Framebuffer->GetColorAttachmentId(0), *m_FramebufferShader);
 
     gui->Render();
 
@@ -241,38 +233,38 @@ void App::GUIUpdate()
     ImGui::SetNextWindowPos(ImVec2(0, 0));
     ImGui::SetNextWindowSize(ImVec2(500, 200));
     ImGui::Begin("Camera");
-    glm::vec3 cameraPosition = camera->GetPosition();
+    glm::vec3 cameraPosition = m_Scene->GetCamera().GetPosition();
     ImGui::Text("Position x %f, y %f, z %f", cameraPosition.x, cameraPosition.y, cameraPosition.z);
-    ImGui::Text("Zoom: %f", camera->GetZoom());
-    ImGui::Text("Aspect: %f", camera->GetAspectRatio());
+    ImGui::Text("Zoom: %f", m_Scene->GetCamera().GetZoom());
+    ImGui::Text("Aspect: %f", m_Scene->GetCamera().GetAspectRatio());
     ImGui::Spacing();
     if (ImGui::SmallButton("Reset"))
     {
-        camera->SetPosition(glm::vec3(0.0));
-        camera->SetZoom(1.0);
+        m_Scene->GetCamera().SetPosition(glm::vec3(0.0));
+        m_Scene->GetCamera().SetZoom(1.0);
     }
     if (ImGui::SmallButton("Move Left"))
     {
-        cameraPosition.x -= 0.1 * camera->GetZoom();
-        camera->SetPosition(cameraPosition);
+        cameraPosition.x -= 0.1 * m_Scene->GetCamera().GetZoom();
+        m_Scene->GetCamera().SetPosition(cameraPosition);
     }
     ImGui::SameLine();
     if (ImGui::SmallButton("Move Right"))
     {
-        cameraPosition.x += 0.1 * camera->GetZoom();
-        camera->SetPosition(cameraPosition);
+        cameraPosition.x += 0.1 * m_Scene->GetCamera().GetZoom();
+        m_Scene->GetCamera().SetPosition(cameraPosition);
     }
     ImGui::SameLine();
     if (ImGui::SmallButton("Move Up"))
     {
-        cameraPosition.y += 0.1 * camera->GetZoom();
-        camera->SetPosition(cameraPosition);
+        cameraPosition.y += 0.1 * m_Scene->GetCamera().GetZoom();
+        m_Scene->GetCamera().SetPosition(cameraPosition);
     }
     ImGui::SameLine();
     if (ImGui::SmallButton("Move Down"))
     {
-        cameraPosition.y -= 0.1 * camera->GetZoom();
-        camera->SetPosition(cameraPosition);
+        cameraPosition.y -= 0.1 * m_Scene->GetCamera().GetZoom();
+        m_Scene->GetCamera().SetPosition(cameraPosition);
     }
     ImGui::End();
 
@@ -283,7 +275,7 @@ void App::GUIUpdate()
     glfwGetWindowSize(gl->window, &windowWidth, &windowHeight);
 
     glm::vec2 ndc = glm::vec2((mousePosition.x / ((float)windowWidth * 0.5)) - 1.0, (mousePosition.y / ((float)windowHeight * 0.5)) - 1.0);
-    glm::vec2 mw = camera->ScreenToWorldSpace(mousePosition.x, mousePosition.y);
+    glm::vec2 mw = m_Scene->GetCamera().ScreenToWorldSpace(mousePosition.x, mousePosition.y);
 
     ImGui::SetNextWindowPos(ImVec2(windowWidth - 500, 0));
     ImGui::SetNextWindowSize(ImVec2(500, 500));
@@ -306,14 +298,14 @@ void App::GUIUpdate()
         ImGui::EndListBox();
     }
     ImGui::Text("Objects: %zu", objects.size());
-    ImGui::Text("Hovered id: %d", m_HoveredId);
+    ImGui::Text("Hovered id: %d", m_Scene->m_HoveredId);
 
     ImGui::End();
 
-    auto entities = m_Scene.GetEntities();
+    auto entities = m_Scene->GetEntities();
 
     ImGui::Begin("Entities");
-    for (auto e : m_Scene.GetEntities())
+    for (auto e : m_Scene->GetEntities())
     {
         auto name = e.GetComponent<InfoComponent>().m_Name.c_str();
         ImGui::Text("%-20s (%llu)", name, e.GetComponent<IDComponent>().ID);
@@ -330,8 +322,9 @@ void App::GUIUpdate()
 
 void App::OnResize(float width, float height)
 {
-    m_Framebuffer->Resize(width, height);
-    camera->OnResize(width, height);
+    m_Scene->OnResize(width, height);
+    // m_Framebuffer->Resize(width, height);
+    // m_Scene->GetCamera().OnResize(width, height);
     gl->Resize(width, height);
 }
 
