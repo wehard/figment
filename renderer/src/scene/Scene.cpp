@@ -63,9 +63,8 @@ void Scene::Update(float deltaTime, glm::vec2 mousePosition)
         m_Renderer->DrawQuad(entity.GetComponent<TransformComponent>().GetTransform(), 42);
     }
 
+    // m_HoveredId = m_Renderer->m_Framebuffer->GetPixel(1, (uint32_t)mousePosition.x, m_Height - (uint32_t)mousePosition.y);
     m_Renderer->End();
-
-    m_HoveredId = m_Renderer->m_Framebuffer->GetPixel(1, (uint32_t)mousePosition.x, m_Height - (uint32_t)mousePosition.y);
 }
 
 OrthoCamera &Scene::GetCamera()
