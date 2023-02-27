@@ -5,6 +5,7 @@
 class OrthoCamera
 {
 public:
+    OrthoCamera();
     OrthoCamera(float width, float height);
 
     void SetProjection(float left, float right, float bottom, float top);
