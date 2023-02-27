@@ -143,7 +143,7 @@ void App::HandleMouseInput(int button, int action, int mods)
         if (button == GLFW_MOUSE_BUTTON_LEFT)
         {
             Entity e = m_Scene->CreateEntity("New");
-            auto t = e.GetComponent<TransformComponent>();
+            auto &t = e.GetComponent<TransformComponent>();
             t.Position = glm::vec3(m_Scene->GetCamera().ScreenToWorldSpace(mousePosition.x, mousePosition.y), 0.0);
         }
         if (button == GLFW_MOUSE_BUTTON_RIGHT)
@@ -310,7 +310,7 @@ void App::GUIUpdate()
         auto name = e.GetComponent<InfoComponent>().m_Name.c_str();
         ImGui::Text("%-20s (%llu)", name, e.GetComponent<IDComponent>().ID);
         auto &transform = e.GetComponent<TransformComponent>();
-        ImGui::PushID(name);
+        ImGui::PushID(e.GetComponent<IDComponent>().ID);
         ImGui::DragFloat3("Position", (float *)&transform.Position.x, 0.1f, 0.0f, 0.0f, "%.2f");
         ImGui::DragFloat3("Rotation", (float *)&transform.Rotation.x, 0.1f, 0.0f, 0.0f, "%.2f");
         ImGui::DragFloat3("Scale", (float *)&transform.Scale.x, 0.1f, 0.0f, 0.0f, "%.2f");
