@@ -61,7 +61,7 @@ void Scene::Update(float deltaTime, glm::vec2 mousePosition)
     for (auto e : view)
     {
         Entity entity = {e, this};
-        m_Renderer->DrawQuad(entity.GetComponent<TransformComponent>().GetTransform(), (int)e);
+        m_Renderer->DrawCircle(entity.GetComponent<TransformComponent>().GetTransform(), glm::vec4(1.0), (int)e);
     }
 
     m_HoveredId = m_Renderer->m_Framebuffer->GetPixel(1, (uint32_t)mousePosition.x, m_Height - (uint32_t)mousePosition.y);
