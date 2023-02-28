@@ -28,9 +28,9 @@ Framebuffer::Framebuffer(const FramebufferDesc &desc) : m_Desc(desc)
 	m_ColorAttachmentDescs.emplace_back(t);
 
 	FramebufferTextureDesc id;
-	id.m_InternalFormat = GL_R16I;
+	id.m_InternalFormat = GL_R32I;
 	id.m_Format = GL_RED_INTEGER;
-	id.m_Type = GL_SHORT;
+	id.m_Type = GL_INT;
 	m_ColorAttachmentDescs.emplace_back(id);
 
 	m_DepthAttachmentDesc.m_InternalFormat = GL_DEPTH_COMPONENT24;
@@ -143,6 +143,6 @@ int Framebuffer::GetPixel(uint32_t attachmentIndex, int x, int y)
 	glBindFramebuffer(GL_FRAMEBUFFER, m_FboID);
 	glReadBuffer(GL_COLOR_ATTACHMENT1);
 	int pixel = 0;
-	glReadPixels(x, y, 1, 1, GL_RED_INTEGER, GL_SHORT, &pixel);
+	glReadPixels(x, y, 1, 1, GL_RED_INTEGER, GL_INT, &pixel);
 	return pixel;
 }
