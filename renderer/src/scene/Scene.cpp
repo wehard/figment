@@ -45,25 +45,26 @@ std::vector<Entity> Scene::GetEntities()
     return entities;
 }
 
+Entity Scene::GetHoveredEntity()
+{
+    if (m_Registry.valid((entt::entity)m_HoveredId))
+        return {(entt::entity)m_HoveredId, this};
+    return {(entt::entity)0, this};
+}
+
 void Scene::Update(float deltaTime, glm::vec2 mousePosition)
 {
     m_Camera.OnUpdate(mousePosition);
     m_Renderer->Begin(m_Camera, m_ClearColor);
 
-    // m_Framebuffer->Bind();
-    // m_Framebuffer->ClearAttachment(0, 0);
-    // m_Framebuffer->ClearAttachment(1, 0);
-
-    // m_Renderer.DrawLines(*grid, *shader);
-
     auto view = m_Registry.view<TransformComponent>();
     for (auto e : view)
     {
         Entity entity = {e, this};
-        m_Renderer->DrawQuad(entity.GetComponent<TransformComponent>().GetTransform(), 42);
+        m_Renderer->DrawQuad(entity.GetComponent<TransformComponent>().GetTransform(), (int)e);
     }
 
-    // m_HoveredId = m_Renderer->m_Framebuffer->GetPixel(1, (uint32_t)mousePosition.x, m_Height - (uint32_t)mousePosition.y);
+    m_HoveredId = m_Renderer->m_Framebuffer->GetPixel(1, (uint32_t)mousePosition.x, m_Height - (uint32_t)mousePosition.y);
     m_Renderer->End();
 }
 
