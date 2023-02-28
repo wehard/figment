@@ -72,8 +72,6 @@ App::App(float width, float height)
     glfwSetScrollCallback(gl->window, mouseScrollCallback);
 
     m_Scene = new Scene(width, height);
-    m_Scene->CreateEntity("Test entity");
-    m_Scene->CreateEntity("Test entity 2");
     m_Scene->CreateEntity();
 }
 
@@ -298,7 +296,7 @@ void App::GUIUpdate()
         ImGui::EndListBox();
     }
     ImGui::Text("Objects: %zu", objects.size());
-    ImGui::Text("Hovered id: %d", m_Scene->m_HoveredId);
+    ImGui::Text("Hovered entt: %d, id: %llu", m_Scene->m_HoveredId, m_Scene->GetHoveredEntity().GetComponent<IDComponent>().ID);
 
     ImGui::End();
 

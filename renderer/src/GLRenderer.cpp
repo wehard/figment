@@ -59,11 +59,8 @@ GLRenderer::~GLRenderer()
 void GLRenderer::Begin(OrthoCamera &camera, glm::vec4 clearColor)
 {
 	m_Camera = &camera;
-	glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
 	m_Framebuffer->Bind();
-	m_Framebuffer->ClearAttachment(0, 0);
+	m_Framebuffer->ClearAttachment(0, -1);
 }
 
 void GLRenderer::End()

@@ -27,6 +27,7 @@ public:
     Entity CreateEntity(uint32_t id);
     void DestroyEntity(Entity entity);
     std::vector<Entity> GetEntities();
+    Entity GetHoveredEntity();
 
     void Update(float deltaTime, glm::vec2 mousePosition);
     OrthoCamera &GetCamera();
