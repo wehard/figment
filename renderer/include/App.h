@@ -1,7 +1,6 @@
 #pragma once
 
 #include "GLContext.h"
-#include "GLObject.h"
 #include "GUIContext.h"
 #include "PerspectiveCamera.h"
 #include "Framebuffer.h"
@@ -19,17 +18,14 @@ private:
     Shader *gridShader;
     std::unique_ptr<Shader> m_CircleShader;
     Shader *m_FramebufferShader;
-    GLObject *grid;
     Scene *m_Scene;
 
     glm::vec2 mousePosition = glm::vec2(0, 0);
     ImVec4 m_ClearColor = ImVec4(0.15, 0.15, 0.15, 1.00f);
 
-    std::vector<GLObject *> objects;
+    // std::vector<GLObject *> objects;
 
     bool m_handleEvents;
-
-    // static App *s_Instance;
 
 public:
     App(float width, float height);
