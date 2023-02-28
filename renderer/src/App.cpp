@@ -37,10 +37,6 @@ App::App(float width, float height)
 
     m_FramebufferShader = new Shader(readFile("shaders/framebuffer.vert").c_str(), readFile("shaders/framebuffer.frag").c_str());
 
-    grid = new GLObject(GLObject::Grid(10, 10));
-    grid->scale = glm::vec3(1.0, 1.0, 1.0);
-    grid->color = glm::vec4(1.0, 1.0, 1.0, 0.25);
-
     gui->Init(gl->window, gl->glslVersion);
 
     glfwSetWindowUserPointer(gl->window, this);
@@ -85,33 +81,14 @@ App::~App()
 
 void App::InsertPlane()
 {
-    GLObject *o = new GLObject(GLObject::Plane());
-    o->position = m_Scene->GetCamera().GetPosition();
-    o->position.z = 0.0;
-    o->color = glm::vec4(1.0, 1.0, 1.0, 1.0);
-    o->scale = glm::vec3(0.1, 0.1, 0.0);
-    objects.push_back(o);
 }
 
 void App::InsertCircle()
 {
-    GLObject *o = new GLObject(GLObject::Circle(1.0));
-    o->position = m_Scene->GetCamera().GetPosition();
-    o->position.z = 0.0;
-    o->color = glm::vec4(1.0, 1.0, 0.5, 1.0);
-    o->scale = glm::vec3(0.1, 0.1, 0.0);
-    objects.push_back(o);
 }
 
 void App::InsertCube()
 {
-    GLObject *o = new GLObject(GLObject::Cube());
-    o->position = m_Scene->GetCamera().GetPosition();
-    o->position.z = 0.0;
-    o->color = glm::vec4(0.1, 1.0, 0.2, 1.0);
-    o->scale = glm::vec3(0.1, 0.1, 0.0);
-    o->rotation = glm::vec3(45.0, 45.0, 0.0);
-    objects.push_back(o);
 }
 
 void App::HandleKeyboardInput(int key, int scancode, int action, int mods)
@@ -146,19 +123,9 @@ void App::HandleMouseInput(int button, int action, int mods)
         }
         if (button == GLFW_MOUSE_BUTTON_RIGHT)
         {
-            if (m_Scene->m_HoveredId != 0)
+            if (m_Scene->m_HoveredId > -1)
             {
-
-                int index = -1;
-                for (size_t i = 0; i < objects.size(); i++)
-                {
-                    index++;
-                    if (objects[i]->m_Id == m_Scene->m_HoveredId)
-                        break;
-                }
-
-                delete objects[index];
-                objects.erase(objects.begin() + index);
+                m_Scene->DestroyEntity(m_Scene->GetHoveredEntity());
             }
         }
         if (button == GLFW_MOUSE_BUTTON_MIDDLE)
@@ -194,27 +161,10 @@ void App::HandleMouseScroll(double xOffset, double yOffset)
 
 void App::Update()
 {
-    //  m_Scene->GetCamera().OnUpdate(mousePosition);
-
     GUIUpdate();
 
     glfwMakeContextCurrent(gl->window);
     m_Scene->Update(1.0, mousePosition);
-
-    // renderer->Begin(*camera, glm::vec4(m_ClearColor.x, m_ClearColor.y, m_ClearColor.z, m_ClearColor.w));
-    // m_Framebuffer->Bind();
-    // m_Framebuffer->ClearAttachment(0, 0);
-    // // m_Framebuffer->ClearAttachment(1, 0);
-    // renderer->DrawLines(*grid, *shader);
-
-    // for (auto object : objects)
-    // {
-    //     renderer->Draw(*object, *shader);
-    // }
-
-    // m_HoveredId = m_Framebuffer->GetPixel(1, (uint32_t)mousePosition.x, gl->GetHeight() - (uint32_t)mousePosition.y);
-    // m_Framebuffer->Unbind();
-    // renderer->DrawTexturedQuad(glm::identity<glm::mat4>(), m_Framebuffer->GetColorAttachmentId(0), *m_FramebufferShader);
 
     gui->Render();
 
@@ -295,7 +245,6 @@ void App::GUIUpdate()
         ImGui::Text("World: %.2f %.2f", mw.x, mw.y);
         ImGui::EndListBox();
     }
-    ImGui::Text("Objects: %zu", objects.size());
     ImGui::Text("Hovered entt: %d, id: %llu", m_Scene->m_HoveredId, m_Scene->GetHoveredEntity().GetComponent<IDComponent>().ID);
 
     ImGui::End();
@@ -321,8 +270,6 @@ void App::GUIUpdate()
 void App::OnResize(float width, float height)
 {
     m_Scene->OnResize(width, height);
-    // m_Framebuffer->Resize(width, height);
-    // m_Scene->GetCamera().OnResize(width, height);
     gl->Resize(width, height);
 }
 
