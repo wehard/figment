@@ -127,15 +127,15 @@ void Framebuffer::Resize(uint32_t width, uint32_t height)
 	Recreate();
 }
 
-void Framebuffer::ClearAttachment(GLuint index, int value)
+void Framebuffer::ClearAttachment(GLuint index, glm::vec4 clearColor, int clearId)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, m_FboID);
 	static const GLenum draw_buffers[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
 	glDrawBuffers(2, draw_buffers);
 
-	static const float c[] = {0.15, 0.15, 0.15, 1.0};
+	float c[] = {clearColor.r, clearColor.g, clearColor.b, clearColor.a};
 	glClearBufferfv(GL_COLOR, 0, c);
-	glClearBufferiv(GL_COLOR, 1, &value);
+	glClearBufferiv(GL_COLOR, 1, &clearId);
 }
 
 int Framebuffer::GetPixel(uint32_t attachmentIndex, int x, int y)
