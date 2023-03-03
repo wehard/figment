@@ -33,7 +33,7 @@ public:
 	void Recreate();
 	void Bind();
 	void Unbind();
-	void ClearAttachment(GLuint index, int value);
+	void ClearAttachment(GLuint index, glm::vec4 clearColor, int clearId);
 	void Resize(uint32_t width, uint32_t height);
 	GLuint GetColorAttachmentId(uint32_t index = 0) const
 	{

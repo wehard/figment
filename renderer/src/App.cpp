@@ -236,7 +236,7 @@ void App::GUIUpdate()
 
     ImGui::Text("Window size %d %d", windowWidth, windowHeight);
 
-    ImGui::ColorEdit3("clear color", (float *)&m_ClearColor);
+    ImGui::ColorEdit4("clear color", (float *)&m_Scene->m_ClearColor.x);
 
     if (ImGui::BeginListBox("Mouse"))
     {
