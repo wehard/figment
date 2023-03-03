@@ -32,7 +32,10 @@ Entity Scene::CreateEntity(uint32_t id)
 
 void Scene::DestroyEntity(Entity entity)
 {
-    m_Registry.destroy(entity);
+    if (m_Registry.valid(entity))
+    {
+        m_Registry.destroy(entity);
+    }
 }
 
 std::vector<Entity> Scene::GetEntities()

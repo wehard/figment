@@ -125,7 +125,7 @@ void App::HandleMouseInput(int button, int action, int mods)
         {
             if (m_Scene->m_HoveredId > -1)
             {
-                m_Scene->DestroyEntity(m_Scene->GetHoveredEntity());
+                m_Scene->DestroyEntity({(uint32_t)m_Scene->m_HoveredId, m_Scene});
             }
         }
         if (button == GLFW_MOUSE_BUTTON_MIDDLE)
@@ -245,11 +245,11 @@ void App::GUIUpdate()
         ImGui::Text("World: %.2f %.2f", mw.x, mw.y);
         ImGui::EndListBox();
     }
-    ImGui::Text("Hovered entt: %d, id: %llu", m_Scene->m_HoveredId, m_Scene->GetHoveredEntity().GetComponent<IDComponent>().ID);
+    ImGui::Text("Hovered entt: %d", m_Scene->m_HoveredId);
 
     ImGui::End();
 
-    auto entities = m_Scene->GetEntities();
+    // auto entities = m_Scene->GetEntities();
 
     ImGui::Begin("Entities");
     for (auto e : m_Scene->GetEntities())

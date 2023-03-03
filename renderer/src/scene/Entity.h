@@ -58,6 +58,7 @@ private:
 public:
     Entity();
     Entity(entt::entity handle, Scene *scene);
+    Entity(uint32_t handle, Scene *scene);
 
     template <typename T, typename... Args>
     T &AddComponent(Args &&...args)
