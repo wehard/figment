@@ -63,7 +63,7 @@ const CodeEditor = (props: CodeEditorProps) => {
   };
 
   return (
-    <div className='h-[30rem] w-[60rem]'>
+    <div className='h-[30rem] w-full'>
       <Editor
         defaultLanguage='glsl'
         defaultValue={props.value}
@@ -128,7 +128,7 @@ function App() {
             registerCallback={setCanvasContext}
           />
         </div>
-        <div className='fixed bottom-0 right-0 block w-[120rem] rounded-tl-lg border-neutral-900 bg-neutral-900'>
+        <div className='fixed bottom-0 right-0 block w-[90rem] rounded-tl-lg border-neutral-900 bg-neutral-900'>
           <div className='flex items-start space-x-1 rounded-tl-lg'>
             <button
               className='w-12 rounded-tl-lg bg-neutral-500 hover:rounded-tl-lg active:bg-neutral-700'
