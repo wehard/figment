@@ -49,6 +49,11 @@ struct TransformComponent
     }
 };
 
+struct VerletBodyComponent
+{
+    glm::vec3 m_PreviousPosition = glm::vec3(0);
+};
+
 class Entity
 {
 private:

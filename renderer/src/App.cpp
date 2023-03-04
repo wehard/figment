@@ -120,6 +120,7 @@ void App::HandleMouseInput(int button, int action, int mods)
             Entity e = m_Scene->CreateEntity("New");
             auto &t = e.GetComponent<TransformComponent>();
             t.Position = glm::vec3(m_Scene->GetCamera().ScreenToWorldSpace(mousePosition.x, mousePosition.y), 0.0);
+            e.AddComponent<VerletBodyComponent>();
         }
         if (button == GLFW_MOUSE_BUTTON_RIGHT)
         {
@@ -264,6 +265,12 @@ void App::GUIUpdate()
         ImGui::DragFloat3("Position", (float *)&transform.Position.x, 0.1f, 0.0f, 0.0f, "%.2f");
         ImGui::DragFloat3("Rotation", (float *)&transform.Rotation.x, 0.1f, 0.0f, 0.0f, "%.2f");
         ImGui::DragFloat3("Scale", (float *)&transform.Scale.x, 0.1f, 0.0f, 0.0f, "%.2f");
+        if (e.HasComponent<VerletBodyComponent>())
+        {
+            auto &body = e.GetComponent<VerletBodyComponent>();
+            ImGui::Text("Verlet Body");
+            ImGui::DragFloat3("Previous position", (float *)&body.m_PreviousPosition.x);
+        }
         ImGui::PopID();
     }
     ImGui::End();
