@@ -2,6 +2,7 @@
 
 #include "GLRenderer.h"
 #include "OrthoCamera.h"
+#include "VerletPhysics.h"
 
 #include "entt.hpp"
 #include <vector>
@@ -16,6 +17,8 @@ private:
 
     uint32_t m_Width;
     uint32_t m_Height;
+
+    VerletPhysics m_VerletPhysics;
 
 public:
     glm::vec4 m_ClearColor;

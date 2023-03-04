@@ -120,7 +120,10 @@ void App::HandleMouseInput(int button, int action, int mods)
             Entity e = m_Scene->CreateEntity("New");
             auto &t = e.GetComponent<TransformComponent>();
             t.Position = glm::vec3(m_Scene->GetCamera().ScreenToWorldSpace(mousePosition.x, mousePosition.y), 0.0);
-            e.AddComponent<VerletBodyComponent>();
+            auto &b = e.AddComponent<VerletBodyComponent>();
+            b.m_PreviousPosition = t.Position;
+            b.m_PreviousPosition.x -= 0.5;
+            b.m_PreviousPosition.y += 0.1;
         }
         if (button == GLFW_MOUSE_BUTTON_RIGHT)
         {
@@ -162,10 +165,14 @@ void App::HandleMouseScroll(double xOffset, double yOffset)
 
 void App::Update()
 {
+    m_CurrentTime = glfwGetTime();
+    double deltaTime = m_CurrentTime - m_LastTime;
+    m_LastTime = m_CurrentTime;
+
     GUIUpdate();
 
     glfwMakeContextCurrent(gl->window);
-    m_Scene->Update(1.0, mousePosition);
+    m_Scene->Update(deltaTime, mousePosition);
 
     gui->Render();
 
@@ -253,7 +260,7 @@ void App::GUIUpdate()
     // auto entities = m_Scene->GetEntities();
 
     ImGui::SetNextWindowPos(ImVec2(0, 200));
-    ImGui::SetNextWindowSize(ImVec2(300, 0));
+    ImGui::SetNextWindowSize(ImVec2(0, 0));
     ImGui::Begin("Entities");
     for (auto e : m_Scene->GetEntities())
     {

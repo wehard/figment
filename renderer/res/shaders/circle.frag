@@ -12,7 +12,7 @@ layout(location = 1) out int id;
 void main()
 {
   float edge_smooth = 0.0;
-  float width = 0.05;
+  float width = 1.0;
   float distance = 1.0 - length(v_pos);
   float inside = smoothstep(0.0, edge_smooth, distance);
   inside *= smoothstep(width + edge_smooth, width, distance);
