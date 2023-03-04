@@ -179,7 +179,7 @@ void App::GUIUpdate()
     ImGui::NewFrame();
 
     ImGui::SetNextWindowPos(ImVec2(0, 0));
-    ImGui::SetNextWindowSize(ImVec2(500, 200));
+    ImGui::SetNextWindowSize(ImVec2(0, 0));
     ImGui::Begin("Camera");
     glm::vec3 cameraPosition = m_Scene->GetCamera().GetPosition();
     ImGui::Text("Position x %f, y %f, z %f", cameraPosition.x, cameraPosition.y, cameraPosition.z);
@@ -226,7 +226,7 @@ void App::GUIUpdate()
     glm::vec2 mw = m_Scene->GetCamera().ScreenToWorldSpace(mousePosition.x, mousePosition.y);
 
     ImGui::SetNextWindowPos(ImVec2(windowWidth - 500, 0));
-    ImGui::SetNextWindowSize(ImVec2(500, 500));
+    ImGui::SetNextWindowSize(ImVec2(0, 0));
     ImGui::Begin("Debug");
     ImGui::Text("GL version: %s", version);
     ImGui::Text("GLSL version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
@@ -251,9 +251,12 @@ void App::GUIUpdate()
 
     // auto entities = m_Scene->GetEntities();
 
+    ImGui::SetNextWindowPos(ImVec2(0, 200));
+    ImGui::SetNextWindowSize(ImVec2(300, 0));
     ImGui::Begin("Entities");
     for (auto e : m_Scene->GetEntities())
     {
+        ImGui::Separator();
         auto name = e.GetComponent<InfoComponent>().m_Name.c_str();
         ImGui::Text("%-20s (%llu)", name, e.GetComponent<IDComponent>().ID);
         auto &transform = e.GetComponent<TransformComponent>();
@@ -261,7 +264,6 @@ void App::GUIUpdate()
         ImGui::DragFloat3("Position", (float *)&transform.Position.x, 0.1f, 0.0f, 0.0f, "%.2f");
         ImGui::DragFloat3("Rotation", (float *)&transform.Rotation.x, 0.1f, 0.0f, 0.0f, "%.2f");
         ImGui::DragFloat3("Scale", (float *)&transform.Scale.x, 0.1f, 0.0f, 0.0f, "%.2f");
-        ImGui::Separator();
         ImGui::PopID();
     }
     ImGui::End();
