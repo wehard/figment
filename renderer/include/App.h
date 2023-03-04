@@ -26,6 +26,8 @@ private:
     // std::vector<GLObject *> objects;
 
     bool m_handleEvents;
+    double m_CurrentTime = 0;
+    double m_LastTime = 0;
 
 public:
     App(float width, float height);
