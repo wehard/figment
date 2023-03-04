@@ -186,7 +186,7 @@ void App::GUIUpdate()
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    ImGui::SetNextWindowPos(ImVec2(0, 0));
+    ImGui::SetNextWindowPos(ImVec2(600, 0));
     ImGui::SetNextWindowSize(ImVec2(0, 0));
     ImGui::Begin("Camera");
     glm::vec3 cameraPosition = m_Scene->GetCamera().GetPosition();
@@ -259,7 +259,7 @@ void App::GUIUpdate()
 
     // auto entities = m_Scene->GetEntities();
 
-    ImGui::SetNextWindowPos(ImVec2(0, 200));
+    ImGui::SetNextWindowPos(ImVec2(0, 0));
     ImGui::SetNextWindowSize(ImVec2(0, 0));
     ImGui::Begin("Entities");
     for (auto e : m_Scene->GetEntities())
