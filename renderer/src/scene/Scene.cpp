@@ -8,6 +8,7 @@ Scene::Scene(uint32_t width, uint32_t height) : m_Width(width), m_Height(height)
 {
     m_Renderer = new GLRenderer(width, height);
     m_Camera = OrthoCamera(width, height);
+    m_Camera.SetZoom(10.0);
     m_ClearColor = glm::vec4(0.1, 0.1, 0.1, 1.0);
 }
 
