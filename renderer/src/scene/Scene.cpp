@@ -65,7 +65,7 @@ void Scene::Update(float deltaTime, glm::vec2 mousePosition)
     m_Renderer->Begin(m_Camera, m_ClearColor);
 
     auto t = TransformComponent();
-    t.Scale = glm::vec3(21, 21, 1);
+    t.Scale = glm::vec3(m_VerletPhysics.GetWidth() + 1, m_VerletPhysics.GetHeight() + 1, 1);
     t.Position = glm::vec3(0);
     m_Renderer->DrawQuad(t.GetTransform(), glm::vec4(0.1, 0.3, 0.8, 0.2), -1);
 
@@ -75,7 +75,7 @@ void Scene::Update(float deltaTime, glm::vec2 mousePosition)
         Entity entity = {e, this};
         if (entity.HasComponent<VerletBodyComponent>())
             m_VerletPhysics.Update(entity, deltaTime);
-        m_Renderer->DrawCircle(entity.GetComponent<TransformComponent>().GetTransform(), glm::vec4(1.0), (int)e);
+        m_Renderer->DrawCircle(entity.GetComponent<TransformComponent>().GetTransform(), glm::vec4(0.8, 1.0, 0.2, 0.5), (int)e);
     }
 
     m_HoveredId = m_Renderer->m_Framebuffer->GetPixel(1, (uint32_t)mousePosition.x, m_Height - (uint32_t)mousePosition.y);
