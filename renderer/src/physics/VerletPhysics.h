@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 class Entity;
 
 class VerletPhysics
@@ -14,7 +16,7 @@ private:
 public:
     VerletPhysics(/* args */);
     ~VerletPhysics();
-    void Update(Entity &entity, float deltaTime);
+    void Update(Entity &entity, std::vector<Entity> others, float deltaTime);
     float GetWidth() { return m_WorldWidth; }
     float GetHeight() { return m_WorldHeight; }
 };

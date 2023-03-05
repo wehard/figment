@@ -74,7 +74,7 @@ void Scene::Update(float deltaTime, glm::vec2 mousePosition)
     {
         Entity entity = {e, this};
         if (entity.HasComponent<VerletBodyComponent>())
-            m_VerletPhysics.Update(entity, deltaTime);
+            m_VerletPhysics.Update(entity, GetEntities(), deltaTime);
         m_Renderer->DrawCircle(entity.GetComponent<TransformComponent>().GetTransform(), glm::vec4(0.8, 1.0, 0.2, 0.5), (int)e);
     }
 
