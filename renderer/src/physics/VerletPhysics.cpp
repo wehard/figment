@@ -11,7 +11,7 @@ VerletPhysics::~VerletPhysics()
 {
 }
 
-void VerletPhysics::Update(Entity &entity, float deltaTime)
+void VerletPhysics::Update(Entity &entity, std::vector<Entity> others, float deltaTime)
 {
     auto &transform = entity.GetComponent<TransformComponent>();
     auto &body = entity.GetComponent<VerletBodyComponent>();
@@ -25,6 +25,20 @@ void VerletPhysics::Update(Entity &entity, float deltaTime)
     transform.Position.x += vx;
     transform.Position.y += vy;
     transform.Position.y -= m_Gravity;
+
+    for (Entity other : others)
+    {
+        if (other == entity)
+            continue;
+        auto ot = other.GetComponent<TransformComponent>();
+        glm::vec3 dir = ot.Position - transform.Position;
+        float dist = glm::length(dir);
+        if (dist < 1.0)
+        {
+            glm::normalize(dir);
+            transform.Position += -dir * (dist / 2);
+        }
+    }
 
     if (transform.Position.x > m_WorldWidth)
     {
