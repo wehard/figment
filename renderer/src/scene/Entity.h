@@ -52,6 +52,7 @@ struct TransformComponent
 struct VerletBodyComponent
 {
     glm::vec3 m_PreviousPosition = glm::vec3(0);
+    glm::vec3 m_Velocity = glm::vec3(0.0, 0.0, 0.0);
 };
 
 class Entity

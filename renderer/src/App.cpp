@@ -277,6 +277,7 @@ void App::GUIUpdate()
             auto &body = e.GetComponent<VerletBodyComponent>();
             ImGui::Text("Verlet Body");
             ImGui::DragFloat3("Previous position", (float *)&body.m_PreviousPosition.x);
+            ImGui::Text("Velocity: x %f y %f z %f", body.m_Velocity.x, body.m_Velocity.y, body.m_Velocity.z);
         }
         ImGui::PopID();
     }

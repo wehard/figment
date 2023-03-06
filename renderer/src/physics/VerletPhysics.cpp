@@ -61,4 +61,6 @@ void VerletPhysics::Update(Entity &entity, std::vector<Entity> others, float del
         transform.Position.y = m_WorldHeight;
         body.m_PreviousPosition.y = transform.Position.y + vy * m_BounceFriction;
     }
+
+    body.m_Velocity = glm::vec3(vx, vy, 0.0);
 }
