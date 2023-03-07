@@ -93,6 +93,15 @@ void App::InsertCube()
 
 void App::HandleKeyboardInput(int key, int scancode, int action, int mods)
 {
+
+    ImGuiIO &io = ImGui::GetIO();
+    if (io.WantCaptureKeyboard)
+    {
+        printf("imgui keyboard capture\n");
+        ImGui_ImplGlfw_KeyCallback(gl->window, key, scancode, action, mods);
+        return;
+    }
+
     if (key == GLFW_KEY_1 && action == GLFW_PRESS)
     {
         InsertPlane();
@@ -100,6 +109,16 @@ void App::HandleKeyboardInput(int key, int scancode, int action, int mods)
     if (key == GLFW_KEY_2 && action == GLFW_PRESS)
     {
         InsertCircle();
+    }
+    if (key == GLFW_KEY_I)
+    {
+        Entity e = m_Scene->CreateEntity("New");
+        auto &t = e.GetComponent<TransformComponent>();
+        t.Position = glm::vec3(m_Scene->GetCamera().ScreenToWorldSpace(mousePosition.x, mousePosition.y), 0.0);
+        auto &b = e.AddComponent<VerletBodyComponent>();
+        b.m_PreviousPosition = t.Position;
+        b.m_PreviousPosition.x -= 0.5;
+        b.m_PreviousPosition.y += 0.1;
     }
 }
 
@@ -117,19 +136,18 @@ void App::HandleMouseInput(int button, int action, int mods)
     {
         if (button == GLFW_MOUSE_BUTTON_LEFT)
         {
-            Entity e = m_Scene->CreateEntity("New");
-            auto &t = e.GetComponent<TransformComponent>();
-            t.Position = glm::vec3(m_Scene->GetCamera().ScreenToWorldSpace(mousePosition.x, mousePosition.y), 0.0);
-            auto &b = e.AddComponent<VerletBodyComponent>();
-            b.m_PreviousPosition = t.Position;
-            b.m_PreviousPosition.x -= 0.5;
-            b.m_PreviousPosition.y += 0.1;
+            SelectEntity({(uint32_t)m_Scene->m_HoveredId, m_Scene});
         }
         if (button == GLFW_MOUSE_BUTTON_RIGHT)
         {
             if (m_Scene->m_HoveredId > -1)
             {
-                m_Scene->DestroyEntity({(uint32_t)m_Scene->m_HoveredId, m_Scene});
+                Entity hoveredEntity = {(uint32_t)m_Scene->m_HoveredId, m_Scene};
+                if (m_SelectedEntity == hoveredEntity)
+                {
+                    SelectEntity({});
+                }
+                m_Scene->DestroyEntity(hoveredEntity);
             }
         }
         if (button == GLFW_MOUSE_BUTTON_MIDDLE)
@@ -160,6 +178,13 @@ void App::SetMousePosition(double x, double y)
 
 void App::HandleMouseScroll(double xOffset, double yOffset)
 {
+    ImGui_ImplGlfw_ScrollCallback(gl->window, xOffset, yOffset);
+    ImGuiIO &io = ImGui::GetIO();
+    if (io.WantCaptureMouse)
+    {
+        return;
+    }
+
     m_Scene->GetCamera().Zoom(yOffset, mousePosition);
 }
 
@@ -257,29 +282,42 @@ void App::GUIUpdate()
 
     ImGui::End();
 
-    // auto entities = m_Scene->GetEntities();
+    auto entities = m_Scene->GetEntities();
 
-    ImGui::SetNextWindowPos(ImVec2(0, 0));
-    ImGui::SetNextWindowSize(ImVec2(0, 0));
+    ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Once);
+    ImGui::SetNextWindowSize(ImVec2(0, 0), ImGuiCond_Once);
     ImGui::Begin("Entities");
-    for (auto e : m_Scene->GetEntities())
+    for (auto entity : m_Scene->GetEntities())
     {
-        ImGui::Separator();
-        auto name = e.GetComponent<InfoComponent>().m_Name.c_str();
-        ImGui::Text("%-20s (%llu)", name, e.GetComponent<IDComponent>().ID);
-        auto &transform = e.GetComponent<TransformComponent>();
-        ImGui::PushID(e.GetComponent<IDComponent>().ID);
+        auto &id = entity.GetComponent<IDComponent>();
+        auto &info = entity.GetComponent<InfoComponent>();
+        ImGui::PushID(id.ID);
+        ImGui::Text("%-20s (%llu)", info.m_Name.c_str(), id.ID);
+        ImGui::PopID();
+    }
+    ImGui::End();
+
+    ImGui::SetNextWindowPos(ImVec2(0, 300), ImGuiCond_Once);
+    ImGui::SetNextWindowSize(ImVec2(300, 500), ImGuiCond_Once);
+    ImGui::Begin("Inspector");
+    if (m_SelectedEntity)
+    {
+        auto &id = m_SelectedEntity.GetComponent<IDComponent>();
+        auto &info = m_SelectedEntity.GetComponent<InfoComponent>();
+
+        ImGui::Text("%-20s (%llu)", info.m_Name.c_str(), id.ID);
+
+        auto &transform = m_SelectedEntity.GetComponent<TransformComponent>();
         ImGui::DragFloat3("Position", (float *)&transform.Position.x, 0.1f, 0.0f, 0.0f, "%.2f");
         ImGui::DragFloat3("Rotation", (float *)&transform.Rotation.x, 0.1f, 0.0f, 0.0f, "%.2f");
         ImGui::DragFloat3("Scale", (float *)&transform.Scale.x, 0.1f, 0.0f, 0.0f, "%.2f");
-        if (e.HasComponent<VerletBodyComponent>())
+        if (m_SelectedEntity.HasComponent<VerletBodyComponent>())
         {
-            auto &body = e.GetComponent<VerletBodyComponent>();
+            auto &body = m_SelectedEntity.GetComponent<VerletBodyComponent>();
             ImGui::Text("Verlet Body");
             ImGui::DragFloat3("Previous position", (float *)&body.m_PreviousPosition.x);
             ImGui::Text("Velocity: x %f y %f z %f", body.m_Velocity.x, body.m_Velocity.y, body.m_Velocity.z);
         }
-        ImGui::PopID();
     }
     ImGui::End();
 }
@@ -301,4 +339,9 @@ void App::UpdateShader(const char *vertSource, const char *fragSource)
 
     delete shader;
     shader = newShader;
+}
+
+void App::SelectEntity(Entity entity)
+{
+    m_SelectedEntity = entity;
 }
