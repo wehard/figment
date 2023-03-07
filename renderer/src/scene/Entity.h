@@ -58,11 +58,11 @@ struct VerletBodyComponent
 class Entity
 {
 private:
-    entt::entity m_Handle;
-    Scene *m_Scene;
+    entt::entity m_Handle{entt::null};
+    Scene *m_Scene = nullptr;
 
 public:
-    Entity();
+    Entity() = default;
     Entity(entt::entity handle, Scene *scene);
     Entity(uint32_t handle, Scene *scene);
 
@@ -90,5 +90,11 @@ public:
         return m_Scene->m_Registry.any_of<T>(m_Handle);
     }
 
+    bool operator==(const Entity &other) const
+    {
+        return m_Handle == other.m_Handle && m_Scene == other.m_Scene;
+    }
+
+    operator bool() const { return m_Handle != entt::null; }
     operator entt::entity() { return m_Handle; }
 };

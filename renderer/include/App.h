@@ -29,6 +29,8 @@ private:
     double m_CurrentTime = 0;
     double m_LastTime = 0;
 
+    Entity m_SelectedEntity = {};
+
 public:
     App(float width, float height);
     ~App();
@@ -46,4 +48,6 @@ public:
     void OnResize(float width, float height);
     void SetSDLEventEnabled(bool enabled);
     void UpdateShader(const char *vertSource, const char *fragSource);
+
+    void SelectEntity(Entity entity);
 };

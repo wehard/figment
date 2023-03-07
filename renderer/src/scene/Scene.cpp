@@ -55,7 +55,7 @@ Entity Scene::GetHoveredEntity()
 {
     if (m_Registry.valid((entt::entity)m_HoveredId))
         return {(entt::entity)m_HoveredId, this};
-    return {(entt::entity)0, this};
+    return {};
 }
 
 void Scene::Update(float deltaTime, glm::vec2 mousePosition)
