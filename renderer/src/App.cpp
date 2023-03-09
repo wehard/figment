@@ -285,14 +285,20 @@ void App::GUIUpdate()
     auto entities = m_Scene->GetEntities();
 
     ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Once);
-    ImGui::SetNextWindowSize(ImVec2(0, 0), ImGuiCond_Once);
+    ImGui::SetNextWindowSize(ImVec2(300, 200), ImGuiCond_Once);
     ImGui::Begin("Entities");
     for (auto entity : m_Scene->GetEntities())
     {
         auto &id = entity.GetComponent<IDComponent>();
         auto &info = entity.GetComponent<InfoComponent>();
         ImGui::PushID(id.ID);
-        ImGui::Text("%-20s (%llu)", info.m_Name.c_str(), id.ID);
+        char buf[128];
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "%-20s (%llu)", info.m_Name.c_str(), id.ID);
+        if (ImGui::Selectable(buf))
+        {
+            SelectEntity(entity);
+        }
         ImGui::PopID();
     }
     ImGui::End();
@@ -305,7 +311,13 @@ void App::GUIUpdate()
         auto &id = m_SelectedEntity.GetComponent<IDComponent>();
         auto &info = m_SelectedEntity.GetComponent<InfoComponent>();
 
-        ImGui::Text("%-20s (%llu)", info.m_Name.c_str(), id.ID);
+        char buf[128];
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "%s", info.m_Name.c_str());
+        if (ImGui::InputText("##Name", buf, sizeof(buf)))
+        {
+            info.m_Name = std::string(buf);
+        }
 
         auto &transform = m_SelectedEntity.GetComponent<TransformComponent>();
         ImGui::DragFloat3("Position", (float *)&transform.Position.x, 0.1f, 0.0f, 0.0f, "%.2f");
