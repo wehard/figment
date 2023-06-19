@@ -20,8 +20,8 @@
 #include <stdlib.h>
 #include <string>
 
-glm::vec2 mousePosition = glm::vec2(0.0);
-glm::vec2 prevMousePosition = glm::vec2(640, 360);
+// glm::vec2 mousePosition = glm::vec2(0.0);
+// glm::vec2 prevMousePosition = glm::vec2(640, 360);
 
 App *app;
 

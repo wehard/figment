@@ -48,7 +48,7 @@ App::App(float width, float height)
     m_Scene = new Scene(width, height);
     m_Scene->CreateEntity();
 
-    while (!glfwWindowShouldClose(m_GLCtx->window))
+    while (!glfwWindowShouldClose(m_GLCtx->window) && glfwGetKey(m_GLCtx->window, GLFW_KEY_ESCAPE) != GLFW_PRESS)
     {
         Update();
     }
@@ -193,8 +193,8 @@ void App::GUIUpdate()
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    ImGui::SetNextWindowPos(ImVec2(600, 0));
-    ImGui::SetNextWindowSize(ImVec2(0, 0));
+    ImGui::SetNextWindowPos(ImVec2(600, 0), ImGuiCond_Once);
+    ImGui::SetNextWindowSize(ImVec2(0, 0), ImGuiCond_Once);
     ImGui::Begin("Camera");
     glm::vec3 cameraPosition = m_Scene->GetCamera().GetPosition();
     ImGui::Text("Position x %f, y %f, z %f", cameraPosition.x, cameraPosition.y, cameraPosition.z);
@@ -240,8 +240,8 @@ void App::GUIUpdate()
     glm::vec2 ndc = glm::vec2((m_MousePosition.x / ((float)windowWidth * 0.5)) - 1.0, (m_MousePosition.y / ((float)windowHeight * 0.5)) - 1.0);
     glm::vec2 mw = m_Scene->GetCamera().ScreenToWorldSpace(m_MousePosition.x, m_MousePosition.y);
 
-    ImGui::SetNextWindowPos(ImVec2(windowWidth - 500, 0));
-    ImGui::SetNextWindowSize(ImVec2(0, 0));
+    ImGui::SetNextWindowPos(ImVec2(windowWidth - 500, 0), ImGuiCond_Once);
+    ImGui::SetNextWindowSize(ImVec2(500, 0), ImGuiCond_Once);
     ImGui::Begin("Debug");
     ImGui::Text("GL version: %s", version);
     ImGui::Text("GLSL version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
