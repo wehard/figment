@@ -7,7 +7,7 @@ GUIContext::GUIContext() {}
 void GUIContext::Init(GLFWwindow *window, const char *glslVersion)
 {
 	IMGUI_CHECKVERSION();
-	context = ImGui::CreateContext();
+	m_Context = ImGui::CreateContext();
 	ImGuiIO &io = ImGui::GetIO();
 	(void)io;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
@@ -33,7 +33,7 @@ void GUIContext::Shutdown()
 {
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
-	ImGui::DestroyContext(context);
+	ImGui::DestroyContext(m_Context);
 }
 
 GUIContext::~GUIContext() {}

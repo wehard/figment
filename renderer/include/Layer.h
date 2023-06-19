@@ -12,5 +12,4 @@ public:
     virtual void OnDetach() {}
     virtual void OnUpdate(float deltaTime) {}
     virtual void OnImGuiRender() {}
-    // virtual void OnEvent(Event &event) {}
 };

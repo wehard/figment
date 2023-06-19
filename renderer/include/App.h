@@ -12,14 +12,14 @@
 class App
 {
 private:
-    GLContext *gl;
-    GUIContext *gui;
+    GLContext *m_GLCtx;
+    GUIContext *m_GUICtx;
     Scene *m_Scene;
 
-    glm::vec2 mousePosition = glm::vec2(0, 0);
+    glm::vec2 m_MousePosition = glm::vec2(0, 0);
     ImVec4 m_ClearColor = ImVec4(0.15, 0.15, 0.15, 1.00f);
 
-    bool m_handleEvents;
+    bool m_HandleEvents;
     double m_CurrentTime = 0;
     double m_LastTime = 0;
 

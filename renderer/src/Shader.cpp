@@ -8,56 +8,56 @@
 
 Shader::Shader(const char *vertSource, const char *fragSource)
 {
-	this->v_id = compileShader(vertSource, GL_VERTEX_SHADER);
-	this->f_id = compileShader(fragSource, GL_FRAGMENT_SHADER);
-	this->p_id = createProgram(this->v_id, this->f_id);
+	this->m_VertID = compileShader(vertSource, GL_VERTEX_SHADER);
+	this->m_FragID = compileShader(fragSource, GL_FRAGMENT_SHADER);
+	this->m_ID = createProgram(this->m_VertID, this->m_FragID);
 	loadUniforms();
 	loadAttributes();
 }
 
 Shader::~Shader()
 {
-	glDeleteProgram(p_id);
+	glDeleteProgram(m_ID);
 }
 
 void Shader::use()
 {
-	glUseProgram(p_id);
+	glUseProgram(m_ID);
 }
 
 void Shader::setInt(std::string name, int i)
 {
-	GLuint location = glGetUniformLocation(p_id, name.c_str());
+	GLuint location = glGetUniformLocation(m_ID, name.c_str());
 	glUniform1i(location, i);
 }
 
 void Shader::setFloat(std::string name, float f)
 {
-	GLuint location = glGetUniformLocation(p_id, name.c_str());
+	GLuint location = glGetUniformLocation(m_ID, name.c_str());
 	glUniform1f(location, f);
 }
 
 void Shader::setVec2(std::string name, glm::vec2 v)
 {
-	GLuint location = glGetUniformLocation(p_id, name.c_str());
+	GLuint location = glGetUniformLocation(m_ID, name.c_str());
 	glUniform2f(location, v[0], v[1]);
 }
 
 void Shader::setVec3(std::string name, glm::vec3 v)
 {
-	GLuint location = glGetUniformLocation(p_id, name.c_str());
+	GLuint location = glGetUniformLocation(m_ID, name.c_str());
 	glUniform3f(location, v[0], v[1], v[2]);
 }
 
 void Shader::setVec4(std::string name, glm::vec4 v)
 {
-	GLuint location = glGetUniformLocation(p_id, name.c_str());
+	GLuint location = glGetUniformLocation(m_ID, name.c_str());
 	glUniform4f(location, v[0], v[1], v[2], v[3]);
 }
 
 void Shader::setMat4(std::string name, glm::mat4x4 m)
 {
-	GLuint location = glGetUniformLocation(p_id, name.c_str());
+	GLuint location = glGetUniformLocation(m_ID, name.c_str());
 	glUniformMatrix4fv(location, 1, GL_FALSE, (GLfloat *)&m[0]);
 }
 
@@ -65,15 +65,15 @@ void Shader::loadUniforms()
 {
 	GLint count;
 
-	glGetProgramiv(p_id, GL_ACTIVE_UNIFORMS, &count);
+	glGetProgramiv(m_ID, GL_ACTIVE_UNIFORMS, &count);
 	for (GLint i = 0; i < count; i++)
 	{
 		GLsizei len;
 		GLint size;
 		GLenum type;
 		GLchar name[30];
-		glGetActiveUniform(p_id, i, 30, &len, &size, &type, &name[0]);
-		uniforms.insert(std::pair<std::string, GLuint>(name, (GLuint)i));
+		glGetActiveUniform(m_ID, i, 30, &len, &size, &type, &name[0]);
+		m_Uniforms.insert(std::pair<std::string, GLuint>(name, (GLuint)i));
 	}
 }
 
@@ -81,15 +81,15 @@ void Shader::loadAttributes()
 {
 	GLint count;
 
-	glGetProgramiv(p_id, GL_ACTIVE_ATTRIBUTES, &count);
+	glGetProgramiv(m_ID, GL_ACTIVE_ATTRIBUTES, &count);
 	for (GLint i = 0; i < count; i++)
 	{
 		GLsizei len;
 		GLint size;
 		GLenum type;
 		GLchar name[30];
-		glGetActiveAttrib(p_id, i, 30, &len, &size, &type, &name[0]);
-		attributes.insert(std::pair<std::string, GLuint>(name, (GLuint)glGetAttribLocation(p_id, name)));
+		glGetActiveAttrib(m_ID, i, 30, &len, &size, &type, &name[0]);
+		m_Attributes.insert(std::pair<std::string, GLuint>(name, (GLuint)glGetAttribLocation(m_ID, name)));
 	}
 }
 

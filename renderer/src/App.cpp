@@ -12,43 +12,43 @@
 
 App::App(float width, float height)
 {
-    gl = new GLContext("Figment C++", width, height);
-    gui = new GUIContext();
+    m_GLCtx = new GLContext("Figment C++", width, height);
+    m_GUICtx = new GUIContext();
 
-    gui->Init(gl->window, gl->glslVersion);
+    m_GUICtx->Init(m_GLCtx->window, m_GLCtx->glslVersion);
 
-    glfwSetWindowUserPointer(gl->window, this);
+    glfwSetWindowUserPointer(m_GLCtx->window, this);
 
     auto keyCallback = [](GLFWwindow *w, int key, int scancode, int action, int mods)
     {
         static_cast<App *>(glfwGetWindowUserPointer(w))->HandleKeyboardInput(key, scancode, action, mods);
     };
 
-    glfwSetKeyCallback(gl->window, keyCallback);
+    glfwSetKeyCallback(m_GLCtx->window, keyCallback);
 
     auto mouseButtonCallback = [](GLFWwindow *w, int button, int action, int mods)
     {
         static_cast<App *>(glfwGetWindowUserPointer(w))->HandleMouseInput(button, action, mods);
     };
 
-    glfwSetMouseButtonCallback(gl->window, mouseButtonCallback);
+    glfwSetMouseButtonCallback(m_GLCtx->window, mouseButtonCallback);
 
     auto mouseCursorCallback = [](GLFWwindow *w, double x, double y)
     {
         static_cast<App *>(glfwGetWindowUserPointer(w))->SetMousePosition(x, y);
     };
-    glfwSetCursorPosCallback(gl->window, mouseCursorCallback);
+    glfwSetCursorPosCallback(m_GLCtx->window, mouseCursorCallback);
 
     auto mouseScrollCallback = [](GLFWwindow *w, double xOffset, double yOffset)
     {
         static_cast<App *>(glfwGetWindowUserPointer(w))->HandleMouseScroll(xOffset, yOffset);
     };
-    glfwSetScrollCallback(gl->window, mouseScrollCallback);
+    glfwSetScrollCallback(m_GLCtx->window, mouseScrollCallback);
 
     m_Scene = new Scene(width, height);
     m_Scene->CreateEntity();
 
-    while (!glfwWindowShouldClose(gl->window))
+    while (!glfwWindowShouldClose(m_GLCtx->window))
     {
         Update();
     }
@@ -56,8 +56,8 @@ App::App(float width, float height)
 
 App::~App()
 {
-    delete gl;
-    delete gui;
+    delete m_GLCtx;
+    delete m_GUICtx;
     delete m_Scene;
 }
 
@@ -80,7 +80,7 @@ void App::HandleKeyboardInput(int key, int scancode, int action, int mods)
     if (io.WantCaptureKeyboard)
     {
         printf("imgui keyboard capture\n");
-        ImGui_ImplGlfw_KeyCallback(gl->window, key, scancode, action, mods);
+        ImGui_ImplGlfw_KeyCallback(m_GLCtx->window, key, scancode, action, mods);
         return;
     }
 
@@ -96,7 +96,7 @@ void App::HandleKeyboardInput(int key, int scancode, int action, int mods)
     {
         Entity e = m_Scene->CreateEntity("New");
         auto &t = e.GetComponent<TransformComponent>();
-        t.Position = glm::vec3(m_Scene->GetCamera().ScreenToWorldSpace(mousePosition.x, mousePosition.y), 0.0);
+        t.Position = glm::vec3(m_Scene->GetCamera().ScreenToWorldSpace(m_MousePosition.x, m_MousePosition.y), 0.0);
         auto &b = e.AddComponent<VerletBodyComponent>();
         b.m_PreviousPosition = t.Position;
         b.m_PreviousPosition.x -= 0.5;
@@ -106,7 +106,7 @@ void App::HandleKeyboardInput(int key, int scancode, int action, int mods)
 
 void App::HandleMouseInput(int button, int action, int mods)
 {
-    ImGui_ImplGlfw_MouseButtonCallback(gl->window, button, action, mods);
+    ImGui_ImplGlfw_MouseButtonCallback(m_GLCtx->window, button, action, mods);
 
     ImGuiIO &io = ImGui::GetIO();
     if (io.WantCaptureMouse)
@@ -134,7 +134,7 @@ void App::HandleMouseInput(int button, int action, int mods)
         }
         if (button == GLFW_MOUSE_BUTTON_MIDDLE)
         {
-            m_Scene->GetCamera().BeginPan(mousePosition);
+            m_Scene->GetCamera().BeginPan(m_MousePosition);
         }
     }
     if (action == 0)
@@ -148,26 +148,26 @@ void App::HandleMouseInput(int button, int action, int mods)
 
 void App::SetMousePosition(double x, double y)
 {
-    ImGui_ImplGlfw_CursorPosCallback(gl->window, x, y);
+    ImGui_ImplGlfw_CursorPosCallback(m_GLCtx->window, x, y);
     ImGuiIO &io = ImGui::GetIO();
     if (io.WantCaptureMouse)
     {
         return;
     }
-    this->mousePosition.x = x;
-    this->mousePosition.y = y;
+    this->m_MousePosition.x = x;
+    this->m_MousePosition.y = y;
 }
 
 void App::HandleMouseScroll(double xOffset, double yOffset)
 {
-    ImGui_ImplGlfw_ScrollCallback(gl->window, xOffset, yOffset);
+    ImGui_ImplGlfw_ScrollCallback(m_GLCtx->window, xOffset, yOffset);
     ImGuiIO &io = ImGui::GetIO();
     if (io.WantCaptureMouse)
     {
         return;
     }
 
-    m_Scene->GetCamera().Zoom(yOffset, mousePosition);
+    m_Scene->GetCamera().Zoom(yOffset, m_MousePosition);
 }
 
 void App::Update()
@@ -178,12 +178,12 @@ void App::Update()
 
     GUIUpdate();
 
-    glfwMakeContextCurrent(gl->window);
-    m_Scene->Update(deltaTime, mousePosition);
+    glfwMakeContextCurrent(m_GLCtx->window);
+    m_Scene->Update(deltaTime, m_MousePosition);
 
-    gui->Render();
+    m_GUICtx->Render();
 
-    glfwSwapBuffers(gl->window);
+    glfwSwapBuffers(m_GLCtx->window);
     glfwPollEvents();
 }
 
@@ -235,10 +235,10 @@ void App::GUIUpdate()
 
     int windowWidth = 0;
     int windowHeight = 0;
-    glfwGetWindowSize(gl->window, &windowWidth, &windowHeight);
+    glfwGetWindowSize(m_GLCtx->window, &windowWidth, &windowHeight);
 
-    glm::vec2 ndc = glm::vec2((mousePosition.x / ((float)windowWidth * 0.5)) - 1.0, (mousePosition.y / ((float)windowHeight * 0.5)) - 1.0);
-    glm::vec2 mw = m_Scene->GetCamera().ScreenToWorldSpace(mousePosition.x, mousePosition.y);
+    glm::vec2 ndc = glm::vec2((m_MousePosition.x / ((float)windowWidth * 0.5)) - 1.0, (m_MousePosition.y / ((float)windowHeight * 0.5)) - 1.0);
+    glm::vec2 mw = m_Scene->GetCamera().ScreenToWorldSpace(m_MousePosition.x, m_MousePosition.y);
 
     ImGui::SetNextWindowPos(ImVec2(windowWidth - 500, 0));
     ImGui::SetNextWindowSize(ImVec2(0, 0));
@@ -255,7 +255,7 @@ void App::GUIUpdate()
 
     if (ImGui::BeginListBox("Mouse"))
     {
-        ImGui::Text("Screen: %.2f %.2f", mousePosition.x, mousePosition.y);
+        ImGui::Text("Screen: %.2f %.2f", m_MousePosition.x, m_MousePosition.y);
         ImGui::Text("NDC: %.2f %.2f", ndc.x, ndc.y);
         ImGui::Text("World: %.2f %.2f", mw.x, mw.y);
         ImGui::EndListBox();
@@ -319,7 +319,7 @@ void App::GUIUpdate()
 void App::OnResize(float width, float height)
 {
     m_Scene->OnResize(width, height);
-    gl->Resize(width, height);
+    m_GLCtx->Resize(width, height);
 }
 
 void App::UpdateShader(const char *vertSource, const char *fragSource)

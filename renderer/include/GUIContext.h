@@ -13,7 +13,7 @@ struct ApplicationInfo
 class GUIContext
 {
 private:
-	ImGuiContext *context;
+	ImGuiContext *m_Context;
 
 public:
 	GUIContext();

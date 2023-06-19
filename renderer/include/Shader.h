@@ -7,10 +7,10 @@
 class Shader
 {
 private:
-	uint32_t v_id;
-	uint32_t f_id;
-	std::map<std::string, uint32_t> uniforms;
-	std::map<std::string, uint32_t> attributes;
+	uint32_t m_VertID;
+	uint32_t m_FragID;
+	std::map<std::string, uint32_t> m_Uniforms;
+	std::map<std::string, uint32_t> m_Attributes;
 
 	std::string loadShader(std::string path);
 	uint32_t compileShader(std::string src, uint32_t shader_type);
@@ -19,8 +19,9 @@ private:
 	void loadAttributes();
 	bool m_IsValid = true;
 
+	uint32_t m_ID;
+
 public:
-	uint32_t p_id;
 	Shader(const char *vertSource, const char *fragSource);
 	~Shader();
 	void use();
