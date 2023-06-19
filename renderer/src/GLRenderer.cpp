@@ -1,25 +1,9 @@
 #include "GLRenderer.h"
+#include "Utils.h"
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <fstream>
 #include <sstream>
-
-static std::string readFile(std::string path)
-{
-	std::string source;
-
-	std::ifstream shader_stream(path, std::ios::in);
-	if (shader_stream.is_open())
-	{
-		std::stringstream sstr;
-		sstr << shader_stream.rdbuf();
-		source = sstr.str();
-		shader_stream.close();
-	}
-	else
-		printf("Error opening %s\n", path.c_str());
-	return (source);
-}
 
 GLRenderer::GLRenderer(uint32_t width, uint32_t height) : m_Width(width), m_Height(height)
 {
@@ -45,9 +29,9 @@ GLRenderer::GLRenderer(uint32_t width, uint32_t height) : m_Width(width), m_Heig
 	desc.m_Height = height;
 	m_Framebuffer = new Framebuffer(desc);
 
-	m_QuadShader = new Shader(readFile("res/shaders/basic.vert").c_str(), readFile("res/shaders/basic.frag").c_str());
-	m_CircleShader = new Shader(readFile("res/shaders/circle.vert").c_str(), readFile("res/shaders/circle.frag").c_str());
-	m_FramebufferShader = new Shader(readFile("res/shaders/framebuffer.vert").c_str(), readFile("res/shaders/framebuffer.frag").c_str());
+	m_QuadShader = new Shader(Utils::LoadFile("res/shaders/basic.vert").c_str(), Utils::LoadFile("res/shaders/basic.frag").c_str());
+	m_CircleShader = new Shader(Utils::LoadFile("res/shaders/circle.vert").c_str(), Utils::LoadFile("res/shaders/circle.frag").c_str());
+	m_FramebufferShader = new Shader(Utils::LoadFile("res/shaders/framebuffer.vert").c_str(), Utils::LoadFile("res/shaders/framebuffer.frag").c_str());
 }
 
 GLRenderer::~GLRenderer()

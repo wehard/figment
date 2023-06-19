@@ -10,32 +10,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/vec4.hpp>
 
-static std::string readFile(std::string path)
-{
-    std::string source;
-
-    std::ifstream shader_stream(path, std::ios::in);
-    if (shader_stream.is_open())
-    {
-        std::stringstream sstr;
-        sstr << shader_stream.rdbuf();
-        source = sstr.str();
-        shader_stream.close();
-    }
-    else
-        printf("Error opening %s\n", path.c_str());
-    return (source);
-}
-
 App::App(float width, float height)
 {
     gl = new GLContext("Figment C++", width, height);
     gui = new GUIContext();
-    shader = new Shader(readFile("res/shaders/basic.vert").c_str(), readFile("res/shaders/basic.frag").c_str());
-    gridShader = new Shader(readFile("res/shaders/grid.vert").c_str(), readFile("res/shaders/grid.frag").c_str());
-    m_CircleShader = std::make_unique<Shader>(readFile("res/shaders/circle.vert").c_str(), readFile("res/shaders/circle.frag").c_str());
-
-    m_FramebufferShader = new Shader(readFile("res/shaders/framebuffer.vert").c_str(), readFile("res/shaders/framebuffer.frag").c_str());
 
     gui->Init(gl->window, gl->glslVersion);
 
@@ -79,7 +57,6 @@ App::App(float width, float height)
 App::~App()
 {
     delete gl;
-    delete shader;
     delete gui;
     delete m_Scene;
 }
@@ -347,15 +324,7 @@ void App::OnResize(float width, float height)
 
 void App::UpdateShader(const char *vertSource, const char *fragSource)
 {
-    Shader *newShader = new Shader(vertSource, fragSource);
-    if (!newShader->IsValid())
-    {
-        delete newShader;
-        return;
-    }
-
-    delete shader;
-    shader = newShader;
+    printf("App::UpdateShader -- Not implemented!\n");
 }
 
 void App::SelectEntity(Entity entity)
