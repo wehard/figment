@@ -26,7 +26,7 @@ GLContext::GLContext(std::string title, int width, int height) : m_Width(width),
 		return;
 	}
 
-	glslVersion = "#version 300 es";
+	glslVersion = "#version 330 core";
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
@@ -46,6 +46,14 @@ GLContext::GLContext(std::string title, int width, int height) : m_Width(width),
 	glfwShowWindow(window);
 
 	glfwMakeContextCurrent(window);
+
+	glewExperimental = true;
+	if (glewInit() != GLEW_OK)
+	{
+		std::cout << "GLEW failed to initialize!" << std::endl;
+		exit(EXIT_FAILURE);
+	}
+
 	glfwSetWindowTitle(window, title.c_str());
 
 	glEnable(GL_BLEND);

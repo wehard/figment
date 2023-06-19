@@ -38,11 +38,11 @@ OBJS := $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(SRCS))
 # Define the name of the final executable
 BIN := $(BIN_DIR)/myprogram
 
-CFLAGS = -std=c++17 #-Wall -Wextra -Werror
+CFLAGS = -g -std=c++17 #-Wall -Wextra -Werror
 
-INCL = -I include -I lib/imgui/include -I lib/glm -I lib -I lib/entt -I src/scene -I src/physics
+INCL = -I include -I lib/imgui/include -I lib/glm -I lib -I lib/entt -I src/scene -I src/physics -I /opt/homebrew/include
 
-LDFLAGS = -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo 
+LDFLAGS = -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo -L /opt/homebrew/lib -lglfw -L /opt/homebrew/lib -lGLEW
 LDFLAGS += -lm
 
 # ("EMS" options gets added to both CPPFLAGS and LDFLAGS, whereas some options are for linker only)
@@ -53,14 +53,17 @@ EMS_CFLAGS = ${CFLAGS} -DIMGUI_DISABLE_FILE_FUNCTIONS -sMODULARIZE=1 -sEXPORT_ES
 EMS_INCL = ${INCL} 
 EMS_LDFLAGS = -s WASM=1 -s USE_WEBGL2=1 -s ALLOW_MEMORY_GROWTH=1 -s NO_EXIT_RUNTIME=0 -s ASSERTIONS=1 ${EMS}
 
-CC = em++
+UNAME_S := $(shell uname -s)
+
+#CC = em++
+CC = clang++
 
 all: $(NAME)
 
 $(NAME): $(OBJS)
 	@printf "Architecture: %s Platform: %s\n" "$(UNAME_S)" "$(UNAME_P)"
-	@printf "compiling \n" "$(NAME)"
-	@$(CC) $(CFLAGS) $(INCL) $(OBJS) $(LDFLAGS) -o $(NAME) -O3
+	@printf "Building \n" "$(NAME)"
+	@$(CC) $(CFLAGS) $(INCL) $(OBJS) $(LDFLAGS) -o $(NAME)
 
 ems: ${OBJS} ${WEB_DIR}
 	@$(CC) $(EMS_CFLAGS) $(EMS_INCL) $(OBJS) $(EMS_LDFLAGS) -o $(WEB_EXE) -O3 --shell-file index.html --preload-file ${ASSET_DIR}@

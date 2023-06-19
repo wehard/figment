@@ -1,8 +1,11 @@
 #include "imgui.h"
-#include "imgui_impl_sdl.h"
+#include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include <stdio.h>
+
+#ifdef __EMSCRIPTEN__
 #include <emscripten.h>
+#endif
 
 #include "App.h"
 #include "Utils.h"
@@ -23,6 +26,7 @@ glm::vec2 prevMousePosition = glm::vec2(640, 360);
 
 App *app;
 
+#ifdef __EMSCRIPTEN__
 extern "C"
 {
 	EMSCRIPTEN_KEEPALIVE void onMouseMove(float x, float y)
@@ -76,6 +80,7 @@ extern "C"
 		return Utils::LoadFile("shaders/circle.frag").c_str();
 	}
 }
+#endif
 
 static void main_loop(void *arg)
 {
@@ -85,12 +90,14 @@ static void main_loop(void *arg)
 
 int main(int argc, char **argv)
 {
-	int width = atoi(argv[1]);
-	int height = atoi(argv[2]);
+	// int width = atoi(argv[1]);
+	// int height = atoi(argv[2]);
 
-	printf("%s:%d Initial canvas size %d x %d\n", __FILE__, __LINE__, width, height);
+	// printf("%s:%d Initial canvas size %d x %d\n", __FILE__, __LINE__, width, height);
 
-	app = new App(width, height);
+	app = new App(1920, 1080);
 
+#ifdef __EMSCRIPTEN__
 	emscripten_set_main_loop_arg(main_loop, app, 0, true);
+#endif
 }

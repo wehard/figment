@@ -45,9 +45,9 @@ GLRenderer::GLRenderer(uint32_t width, uint32_t height) : m_Width(width), m_Heig
 	desc.m_Height = height;
 	m_Framebuffer = new Framebuffer(desc);
 
-	m_QuadShader = new Shader(readFile("shaders/basic.vert").c_str(), readFile("shaders/basic.frag").c_str());
-	m_CircleShader = new Shader(readFile("shaders/circle.vert").c_str(), readFile("shaders/circle.frag").c_str());
-	m_FramebufferShader = new Shader(readFile("shaders/framebuffer.vert").c_str(), readFile("shaders/framebuffer.frag").c_str());
+	m_QuadShader = new Shader(readFile("res/shaders/basic.vert").c_str(), readFile("res/shaders/basic.frag").c_str());
+	m_CircleShader = new Shader(readFile("res/shaders/circle.vert").c_str(), readFile("res/shaders/circle.frag").c_str());
+	m_FramebufferShader = new Shader(readFile("res/shaders/framebuffer.vert").c_str(), readFile("res/shaders/framebuffer.frag").c_str());
 }
 
 GLRenderer::~GLRenderer()

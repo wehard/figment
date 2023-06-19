@@ -46,7 +46,6 @@ public:
     void GUIUpdate();
 
     void OnResize(float width, float height);
-    void SetSDLEventEnabled(bool enabled);
     void UpdateShader(const char *vertSource, const char *fragSource);
 
     void SelectEntity(Entity entity);
