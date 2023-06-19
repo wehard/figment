@@ -42,9 +42,9 @@ struct MouseInfo
 class GLContext
 {
 private:
-	void readGLInfo();
 	int m_Width;
 	int m_Height;
+	void readGLInfo();
 
 public:
 	const char *glslVersion = "#version 150";

@@ -8,7 +8,6 @@ class IRenderer
 {
 	virtual void BeginFrame() = 0;
 	virtual void EndFrame() = 0;
-	// virtual void Submit(GLObject &obj) = 0;
 };
 
 class GLRenderer
@@ -25,8 +24,9 @@ private:
 	uint32_t m_Width;
 	uint32_t m_Height;
 
-public:
 	Framebuffer *m_Framebuffer;
+
+public:
 	GLRenderer(uint32_t width, uint32_t height);
 	~GLRenderer();
 	void Begin(OrthoCamera &camera, glm::vec4 clearColor);
@@ -35,4 +35,5 @@ public:
 	void DrawQuad(glm::mat4 transform, glm::vec4 color, int id);
 	void DrawTexturedQuad(glm::mat4 transform, uint32_t textureId, Shader &shader);
 	void OnResize(uint32_t width, uint32_t height);
+	Framebuffer *GetFramebuffer() { return m_Framebuffer; }
 };

@@ -2,14 +2,13 @@
 
 #include <string>
 
-class Layer
-{
+class Layer {
 public:
-    Layer(std::string &name);
-    virtual ~Layer() = default;
+  Layer(std::string &name);
+  virtual ~Layer() = default;
 
-    virtual void OnAttach() {}
-    virtual void OnDetach() {}
-    virtual void OnUpdate(float deltaTime) {}
-    virtual void OnImGuiRender() {}
+  virtual void OnAttach() {}
+  virtual void OnDetach() {}
+  virtual void OnUpdate(float deltaTime) {}
+  virtual void OnImGuiRender() {}
 };

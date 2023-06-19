@@ -1,5 +1,4 @@
 #include "Scene.h"
-
 #include "Entity.h"
 
 Scene::Scene() {}
@@ -78,7 +77,7 @@ void Scene::Update(float deltaTime, glm::vec2 mousePosition)
         m_Renderer->DrawCircle(entity.GetComponent<TransformComponent>().GetTransform(), glm::vec4(0.8, 1.0, 0.2, 0.5), (int)e);
     }
 
-    m_HoveredId = m_Renderer->m_Framebuffer->GetPixel(1, (uint32_t)mousePosition.x, m_Height - (uint32_t)mousePosition.y);
+    m_HoveredId = m_Renderer->GetFramebuffer()->GetPixel(1, (uint32_t)mousePosition.x, m_Height - (uint32_t)mousePosition.y);
     m_Renderer->End();
 }
 
