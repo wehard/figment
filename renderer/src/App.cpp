@@ -193,8 +193,13 @@ void App::GUIUpdate()
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    ImGui::SetNextWindowPos(ImVec2(600, 0), ImGuiCond_Once);
-    ImGui::SetNextWindowSize(ImVec2(0, 0), ImGuiCond_Once);
+    int windowWidth = 0;
+    int windowHeight = 0;
+    glfwGetWindowSize(m_GLCtx->window, &windowWidth, &windowHeight);
+
+    size_t cameraWindowWidth = 400;
+    ImGui::SetNextWindowPos(ImVec2(windowWidth / 2 - cameraWindowWidth / 2, 0), ImGuiCond_Once);
+    ImGui::SetNextWindowSize(ImVec2(cameraWindowWidth, 0), ImGuiCond_Once);
     ImGui::Begin("Camera");
     glm::vec3 cameraPosition = m_Scene->GetCamera().GetPosition();
     ImGui::Text("Position x %f, y %f, z %f", cameraPosition.x, cameraPosition.y, cameraPosition.z);
@@ -232,10 +237,6 @@ void App::GUIUpdate()
     ImGui::End();
 
     const GLubyte *version = glGetString(GL_VERSION);
-
-    int windowWidth = 0;
-    int windowHeight = 0;
-    glfwGetWindowSize(m_GLCtx->window, &windowWidth, &windowHeight);
 
     glm::vec2 ndc = glm::vec2((m_MousePosition.x / ((float)windowWidth * 0.5)) - 1.0, (m_MousePosition.y / ((float)windowHeight * 0.5)) - 1.0);
     glm::vec2 mw = m_Scene->GetCamera().ScreenToWorldSpace(m_MousePosition.x, m_MousePosition.y);
