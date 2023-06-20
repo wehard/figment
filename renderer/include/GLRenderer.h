@@ -14,9 +14,9 @@ class GLRenderer
 {
 private:
 	OrthoCamera *m_Camera;
-	Shader *m_QuadShader;
-	Shader *m_FramebufferShader;
-	Shader *m_CircleShader;
+	std::shared_ptr<Shader> m_QuadShader;
+	std::shared_ptr<Shader> m_FramebufferShader;
+	std::shared_ptr<Shader> m_CircleShader;
 
 	unsigned int m_QuadVBO;
 	unsigned int m_QuadVAO;

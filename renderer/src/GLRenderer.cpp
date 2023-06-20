@@ -1,5 +1,4 @@
 #include "GLRenderer.h"
-#include "Utils.h"
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <fstream>
@@ -29,16 +28,14 @@ GLRenderer::GLRenderer(uint32_t width, uint32_t height) : m_Width(width), m_Heig
 	desc.m_Height = height;
 	m_Framebuffer = new Framebuffer(desc);
 
-	m_QuadShader = new Shader(Utils::LoadFile("res/shaders/basic.vert").c_str(), Utils::LoadFile("res/shaders/basic.frag").c_str());
-	m_CircleShader = new Shader(Utils::LoadFile("res/shaders/circle.vert").c_str(), Utils::LoadFile("res/shaders/circle.frag").c_str());
-	m_FramebufferShader = new Shader(Utils::LoadFile("res/shaders/framebuffer.vert").c_str(), Utils::LoadFile("res/shaders/framebuffer.frag").c_str());
+	m_QuadShader = Shader::Create("res/shaders/basic.vert", "res/shaders/basic.frag");
+	m_CircleShader = Shader::Create("res/shaders/circle.vert", "res/shaders/circle.frag");
+	m_FramebufferShader = Shader::Create("res/shaders/framebuffer.vert", "res/shaders/framebuffer.frag");
 }
 
 GLRenderer::~GLRenderer()
 {
 	delete m_Framebuffer;
-	delete m_QuadShader;
-	delete m_FramebufferShader;
 }
 
 void GLRenderer::Begin(OrthoCamera &camera, glm::vec4 clearColor)
@@ -58,7 +55,7 @@ void GLRenderer::End()
 
 void GLRenderer::DrawCircle(glm::mat4 transform, glm::vec4 color, int id)
 {
-	m_CircleShader->use();
+	m_CircleShader->bind();
 	m_CircleShader->setVec4("obj_color", color);
 	m_CircleShader->setMat4("proj_matrix", m_Camera->GetProjectionMatrix());
 	m_CircleShader->setMat4("view_matrix", m_Camera->GetViewMatrix());
@@ -72,7 +69,7 @@ void GLRenderer::DrawCircle(glm::mat4 transform, glm::vec4 color, int id)
 
 void GLRenderer::DrawQuad(glm::mat4 transform, glm::vec4 color, int id)
 {
-	m_QuadShader->use();
+	m_QuadShader->bind();
 	m_QuadShader->setVec4("obj_color", color);
 	m_QuadShader->setMat4("proj_matrix", m_Camera->GetProjectionMatrix());
 	m_QuadShader->setMat4("view_matrix", m_Camera->GetViewMatrix());
@@ -86,7 +83,7 @@ void GLRenderer::DrawQuad(glm::mat4 transform, glm::vec4 color, int id)
 
 void GLRenderer::DrawTexturedQuad(glm::mat4 transform, uint32_t textureId, Shader &shader)
 {
-	shader.use();
+	shader.bind();
 	shader.setMat4("model_matrix", transform);
 	glBindVertexArray(m_QuadVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, m_QuadVBO);
