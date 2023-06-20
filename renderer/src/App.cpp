@@ -9,6 +9,7 @@
 #include <string>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/vec4.hpp>
+#include <GLFW/glfw3.h>
 
 App::App(float width, float height)
 {
@@ -58,7 +59,6 @@ App::App(float width, float height)
 
 App::~App()
 {
-    delete m_GLCtx;
     delete m_GUICtx;
     delete m_Scene;
 }
@@ -322,7 +322,6 @@ void App::GUIUpdate()
 void App::OnResize(float width, float height)
 {
     m_Scene->OnResize(width, height);
-    m_GLCtx->Resize(width, height);
 }
 
 void App::UpdateShader(const char *vertSource, const char *fragSource)
