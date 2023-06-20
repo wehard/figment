@@ -12,43 +12,45 @@
 
 App::App(float width, float height)
 {
-    m_GLCtx = new GLContext("Figment C++", width, height);
+    m_Window = Window::Create("Figment C++", width, height);
+    GLFWwindow *glfwWindow = (GLFWwindow *)m_Window->GetNative();
+    // m_GLCtx = new GLContext("Figment C++", width, height);
     m_GUICtx = new GUIContext();
 
-    m_GUICtx->Init(m_GLCtx->window, m_GLCtx->glslVersion);
+    m_GUICtx->Init(glfwWindow, "#version 150");
 
-    glfwSetWindowUserPointer(m_GLCtx->window, this);
+    glfwSetWindowUserPointer(glfwWindow, this);
 
     auto keyCallback = [](GLFWwindow *w, int key, int scancode, int action, int mods)
     {
         static_cast<App *>(glfwGetWindowUserPointer(w))->HandleKeyboardInput(key, scancode, action, mods);
     };
 
-    glfwSetKeyCallback(m_GLCtx->window, keyCallback);
+    glfwSetKeyCallback(glfwWindow, keyCallback);
 
     auto mouseButtonCallback = [](GLFWwindow *w, int button, int action, int mods)
     {
         static_cast<App *>(glfwGetWindowUserPointer(w))->HandleMouseInput(button, action, mods);
     };
 
-    glfwSetMouseButtonCallback(m_GLCtx->window, mouseButtonCallback);
+    glfwSetMouseButtonCallback(glfwWindow, mouseButtonCallback);
 
     auto mouseCursorCallback = [](GLFWwindow *w, double x, double y)
     {
         static_cast<App *>(glfwGetWindowUserPointer(w))->SetMousePosition(x, y);
     };
-    glfwSetCursorPosCallback(m_GLCtx->window, mouseCursorCallback);
+    glfwSetCursorPosCallback(glfwWindow, mouseCursorCallback);
 
     auto mouseScrollCallback = [](GLFWwindow *w, double xOffset, double yOffset)
     {
         static_cast<App *>(glfwGetWindowUserPointer(w))->HandleMouseScroll(xOffset, yOffset);
     };
-    glfwSetScrollCallback(m_GLCtx->window, mouseScrollCallback);
+    glfwSetScrollCallback(glfwWindow, mouseScrollCallback);
 
     m_Scene = new Scene(width, height);
     m_Scene->CreateEntity();
 
-    while (!glfwWindowShouldClose(m_GLCtx->window) && glfwGetKey(m_GLCtx->window, GLFW_KEY_ESCAPE) != GLFW_PRESS)
+    while (!glfwWindowShouldClose(glfwWindow) && glfwGetKey(glfwWindow, GLFW_KEY_ESCAPE) != GLFW_PRESS)
     {
         Update();
     }
@@ -80,7 +82,7 @@ void App::HandleKeyboardInput(int key, int scancode, int action, int mods)
     if (io.WantCaptureKeyboard)
     {
         printf("imgui keyboard capture\n");
-        ImGui_ImplGlfw_KeyCallback(m_GLCtx->window, key, scancode, action, mods);
+        ImGui_ImplGlfw_KeyCallback((GLFWwindow *)m_Window->GetNative(), key, scancode, action, mods);
         return;
     }
 
@@ -106,7 +108,7 @@ void App::HandleKeyboardInput(int key, int scancode, int action, int mods)
 
 void App::HandleMouseInput(int button, int action, int mods)
 {
-    ImGui_ImplGlfw_MouseButtonCallback(m_GLCtx->window, button, action, mods);
+    ImGui_ImplGlfw_MouseButtonCallback((GLFWwindow *)m_Window->GetNative(), button, action, mods);
 
     ImGuiIO &io = ImGui::GetIO();
     if (io.WantCaptureMouse)
@@ -148,7 +150,7 @@ void App::HandleMouseInput(int button, int action, int mods)
 
 void App::SetMousePosition(double x, double y)
 {
-    ImGui_ImplGlfw_CursorPosCallback(m_GLCtx->window, x, y);
+    ImGui_ImplGlfw_CursorPosCallback((GLFWwindow *)m_Window->GetNative(), x, y);
     ImGuiIO &io = ImGui::GetIO();
     if (io.WantCaptureMouse)
     {
@@ -160,7 +162,7 @@ void App::SetMousePosition(double x, double y)
 
 void App::HandleMouseScroll(double xOffset, double yOffset)
 {
-    ImGui_ImplGlfw_ScrollCallback(m_GLCtx->window, xOffset, yOffset);
+    ImGui_ImplGlfw_ScrollCallback((GLFWwindow *)m_Window->GetNative(), xOffset, yOffset);
     ImGuiIO &io = ImGui::GetIO();
     if (io.WantCaptureMouse)
     {
@@ -178,12 +180,12 @@ void App::Update()
 
     GUIUpdate();
 
-    glfwMakeContextCurrent(m_GLCtx->window);
+    glfwMakeContextCurrent((GLFWwindow *)m_Window->GetNative());
     m_Scene->Update(deltaTime, m_MousePosition);
 
     m_GUICtx->Render();
 
-    glfwSwapBuffers(m_GLCtx->window);
+    glfwSwapBuffers((GLFWwindow *)m_Window->GetNative());
     glfwPollEvents();
 }
 
@@ -195,7 +197,7 @@ void App::GUIUpdate()
 
     int windowWidth = 0;
     int windowHeight = 0;
-    glfwGetWindowSize(m_GLCtx->window, &windowWidth, &windowHeight);
+    glfwGetWindowSize((GLFWwindow *)m_Window->GetNative(), &windowWidth, &windowHeight);
 
     size_t cameraWindowWidth = 400;
     ImGui::SetNextWindowPos(ImVec2(windowWidth / 2 - cameraWindowWidth / 2, 0), ImGuiCond_Once);

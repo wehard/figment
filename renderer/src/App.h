@@ -2,7 +2,8 @@
 
 #include "Entity.h"
 #include "Framebuffer.h"
-#include "GLContext.h"
+#include "Window.h"
+// #include "GLContext.h"
 #include "GUIContext.h"
 #include "PerspectiveCamera.h"
 #include "Scene.h"
@@ -13,6 +14,7 @@ class App
 {
 private:
   GLContext *m_GLCtx;
+  std::shared_ptr<Window> m_Window;
   GUIContext *m_GUICtx;
   Scene *m_Scene;
 

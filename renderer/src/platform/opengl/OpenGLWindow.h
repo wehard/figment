@@ -14,6 +14,7 @@ public:
     void Resize(uint32_t width, uint32_t height);
     uint32_t GetWidth() const override;
     uint32_t GetHeight() const override;
+    void *GetNative() override { return m_Window; };
 
 private:
     GLFWwindow *m_Window;
