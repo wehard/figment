@@ -38,9 +38,9 @@ GLRenderer::~GLRenderer()
 	delete m_Framebuffer;
 }
 
-void GLRenderer::Begin(OrthoCamera &camera, glm::vec4 clearColor)
+void GLRenderer::Begin(std::shared_ptr<Camera> camera, glm::vec4 clearColor)
 {
-	m_Camera = &camera;
+	m_Camera = camera;
 	glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 	glClear(GL_COLOR_BUFFER_BIT);
 	m_Framebuffer->Bind();

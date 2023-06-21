@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Camera.h"
 #include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
 
@@ -17,7 +18,7 @@ enum CameraDirection
     RIGHT
 };
 
-class PerspectiveCamera
+class PerspectiveCamera : public Camera
 {
 private:
     float fov;
@@ -41,8 +42,8 @@ public:
     PerspectiveCamera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH);
     ~PerspectiveCamera();
     void OnUpdate(glm::vec2 mp);
-    glm::mat4x4 getViewMatrix();
-    glm::mat4x4 getProjectionMatrix();
+    glm::mat4 GetViewMatrix();
+    glm::mat4 GetProjectionMatrix();
     void Move(CameraDirection direction, float deltaTime);
     void Rotate(float xoffset, float yoffset, bool constrainPitch = true);
     void Reset(glm::vec3 position, float yaw, float pitch);
@@ -55,6 +56,6 @@ public:
     float GetZoom() { return m_Zoom; }
     void SetZoom(float amount);
     float GetAspectRatio() { return 1.777; };
-    glm::vec2 ScreenToWorldSpace(int sx, int sy);
+    glm::vec3 ScreenToWorldSpace(glm::vec2 screenPosition);
     void OnResize(float width, float height);
 };

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GLRenderer.h"
+#include "Camera.h"
 #include "OrthoCamera.h"
 #include "VerletPhysics.h"
 
@@ -12,7 +13,9 @@ class Scene
 {
 private:
     GLRenderer *m_Renderer;
-    OrthoCamera m_Camera;
+    // OrthoCamera m_Camera;
+    std::shared_ptr<Camera> m_Camera;
+
     entt::registry m_Registry;
 
     uint32_t m_Width;
@@ -33,7 +36,7 @@ public:
     Entity GetHoveredEntity();
 
     void Update(float deltaTime, glm::vec2 mousePosition);
-    OrthoCamera &GetCamera();
+    std::shared_ptr<Camera> GetCamera();
     void OnResize(uint32_t width, uint32_t height);
 
     friend class Entity;

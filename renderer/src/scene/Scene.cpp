@@ -6,9 +6,9 @@ Scene::Scene() {}
 Scene::Scene(uint32_t width, uint32_t height) : m_Width(width), m_Height(height)
 {
     m_Renderer = new GLRenderer(width, height);
-    m_Camera = OrthoCamera(width, height);
-    m_Camera.SetZoom(30.0);
-    m_Camera.SetPosition(glm::vec3(0.0, 0.0, 0.0));
+    m_Camera = Camera::CreateOrthoCamera(width, height);
+    m_Camera->SetZoom(30.0);
+    m_Camera->SetPosition(glm::vec3(0.0, 0.0, 0.0));
     m_ClearColor = glm::vec4(0.1, 0.1, 0.1, 1.0);
 }
 
@@ -59,8 +59,7 @@ Entity Scene::GetHoveredEntity()
 
 void Scene::Update(float deltaTime, glm::vec2 mousePosition)
 {
-
-    m_Camera.OnUpdate(mousePosition);
+    m_Camera->OnUpdate(mousePosition);
     m_Renderer->Begin(m_Camera, m_ClearColor);
 
     auto t = TransformComponent();
@@ -81,7 +80,7 @@ void Scene::Update(float deltaTime, glm::vec2 mousePosition)
     m_Renderer->End();
 }
 
-OrthoCamera &Scene::GetCamera()
+std::shared_ptr<Camera> Scene::GetCamera()
 {
     return m_Camera;
 }
@@ -90,6 +89,6 @@ void Scene::OnResize(uint32_t width, uint32_t height)
 {
     m_Width = width;
     m_Height = height;
-    m_Camera.OnResize(width, height);
+    m_Camera->OnResize(width, height);
     m_Renderer->OnResize(width, height);
 }

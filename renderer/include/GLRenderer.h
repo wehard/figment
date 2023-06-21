@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Shader.h"
-#include "OrthoCamera.h"
+#include "Camera.h"
 #include "Framebuffer.h"
 
 class IRenderer
@@ -13,7 +13,7 @@ class IRenderer
 class GLRenderer
 {
 private:
-	OrthoCamera *m_Camera;
+	std::shared_ptr<Camera> m_Camera;
 	std::shared_ptr<Shader> m_QuadShader;
 	std::shared_ptr<Shader> m_FramebufferShader;
 	std::shared_ptr<Shader> m_CircleShader;
@@ -29,7 +29,7 @@ private:
 public:
 	GLRenderer(uint32_t width, uint32_t height);
 	~GLRenderer();
-	void Begin(OrthoCamera &camera, glm::vec4 clearColor);
+	void Begin(std::shared_ptr<Camera> camera, glm::vec4 clearColor);
 	void End();
 	void DrawCircle(glm::mat4 transform, glm::vec4 color, int id);
 	void DrawQuad(glm::mat4 transform, glm::vec4 color, int id);

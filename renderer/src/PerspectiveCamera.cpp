@@ -17,12 +17,12 @@ PerspectiveCamera::PerspectiveCamera(glm::vec3 position, glm::vec3 up, float yaw
 
 PerspectiveCamera::~PerspectiveCamera() {}
 
-glm::mat4x4 PerspectiveCamera::getViewMatrix()
+glm::mat4 PerspectiveCamera::GetViewMatrix()
 {
 	return glm::lookAt(m_Position, m_Position + forward, up);
 }
 
-glm::mat4x4 PerspectiveCamera::getProjectionMatrix()
+glm::mat4 PerspectiveCamera::GetProjectionMatrix()
 {
 	return (projection_matrix);
 }
@@ -80,5 +80,7 @@ void PerspectiveCamera::Reset(glm::vec3 position, float yaw, float pitch)
 void PerspectiveCamera::BeginPan(glm::vec2 mousePosition) {}
 void PerspectiveCamera::EndPan() {}
 void PerspectiveCamera::Zoom(float delta, glm::vec2 mousePosition) {}
-glm::vec2 PerspectiveCamera::ScreenToWorldSpace(int sx, int sy) { return glm::vec2(0); }
+void PerspectiveCamera::SetPosition(glm::vec3 position) {}
+void PerspectiveCamera::SetZoom(float amount) {}
+glm::vec3 PerspectiveCamera::ScreenToWorldSpace(glm::vec2 screenPosition) { return glm::vec3(0); }
 void PerspectiveCamera::OnResize(float width, float height) {}

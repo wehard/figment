@@ -94,7 +94,7 @@ int main(int argc, char **argv)
 
 	// printf("%s:%d Initial canvas size %d x %d\n", __FILE__, __LINE__, width, height);
 
-	app = new App(1920, 1080);
+	app = new App(1280, 720);
 
 #ifdef __EMSCRIPTEN__
 	emscripten_set_main_loop_arg(main_loop, app, 0, true);

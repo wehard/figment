@@ -98,7 +98,8 @@ void App::HandleKeyboardInput(int key, int scancode, int action, int mods)
     {
         Entity e = m_Scene->CreateEntity("New");
         auto &t = e.GetComponent<TransformComponent>();
-        t.Position = glm::vec3(m_Scene->GetCamera().ScreenToWorldSpace(m_MousePosition.x, m_MousePosition.y), 0.0);
+        glm::vec3 p = m_Scene->GetCamera()->ScreenToWorldSpace(m_MousePosition);
+        t.Position = p;
         auto &b = e.AddComponent<VerletBodyComponent>();
         b.m_PreviousPosition = t.Position;
         b.m_PreviousPosition.x -= 0.5;
@@ -136,14 +137,14 @@ void App::HandleMouseInput(int button, int action, int mods)
         }
         if (button == GLFW_MOUSE_BUTTON_MIDDLE)
         {
-            m_Scene->GetCamera().BeginPan(m_MousePosition);
+            m_Scene->GetCamera()->BeginPan(m_MousePosition);
         }
     }
     if (action == 0)
     {
         if (button == GLFW_MOUSE_BUTTON_MIDDLE)
         {
-            m_Scene->GetCamera().EndPan();
+            m_Scene->GetCamera()->EndPan();
         }
     }
 }
@@ -169,7 +170,7 @@ void App::HandleMouseScroll(double xOffset, double yOffset)
         return;
     }
 
-    m_Scene->GetCamera().Zoom(yOffset, m_MousePosition);
+    m_Scene->GetCamera()->Zoom(yOffset, m_MousePosition);
 }
 
 void App::Update()
@@ -203,45 +204,45 @@ void App::GUIUpdate()
     ImGui::SetNextWindowPos(ImVec2(windowWidth / 2 - cameraWindowWidth / 2, 0), ImGuiCond_Once);
     ImGui::SetNextWindowSize(ImVec2(cameraWindowWidth, 0), ImGuiCond_Once);
     ImGui::Begin("Camera");
-    glm::vec3 cameraPosition = m_Scene->GetCamera().GetPosition();
+    glm::vec3 cameraPosition = m_Scene->GetCamera()->GetPosition();
     ImGui::Text("Position x %f, y %f, z %f", cameraPosition.x, cameraPosition.y, cameraPosition.z);
-    ImGui::Text("Zoom: %f", m_Scene->GetCamera().GetZoom());
-    ImGui::Text("Aspect: %f", m_Scene->GetCamera().GetAspectRatio());
+    ImGui::Text("Zoom: %f", m_Scene->GetCamera()->GetZoom());
+    ImGui::Text("Aspect: %f", m_Scene->GetCamera()->GetAspectRatio());
     ImGui::Spacing();
     if (ImGui::SmallButton("Reset"))
     {
-        m_Scene->GetCamera().SetPosition(glm::vec3(0.0));
-        m_Scene->GetCamera().SetZoom(1.0);
+        m_Scene->GetCamera()->SetPosition(glm::vec3(0.0));
+        m_Scene->GetCamera()->SetZoom(1.0);
     }
     if (ImGui::SmallButton("Move Left"))
     {
-        cameraPosition.x -= 0.1 * m_Scene->GetCamera().GetZoom();
-        m_Scene->GetCamera().SetPosition(cameraPosition);
+        cameraPosition.x -= 0.1 * m_Scene->GetCamera()->GetZoom();
+        m_Scene->GetCamera()->SetPosition(cameraPosition);
     }
     ImGui::SameLine();
     if (ImGui::SmallButton("Move Right"))
     {
-        cameraPosition.x += 0.1 * m_Scene->GetCamera().GetZoom();
-        m_Scene->GetCamera().SetPosition(cameraPosition);
+        cameraPosition.x += 0.1 * m_Scene->GetCamera()->GetZoom();
+        m_Scene->GetCamera()->SetPosition(cameraPosition);
     }
     ImGui::SameLine();
     if (ImGui::SmallButton("Move Up"))
     {
-        cameraPosition.y += 0.1 * m_Scene->GetCamera().GetZoom();
-        m_Scene->GetCamera().SetPosition(cameraPosition);
+        cameraPosition.y += 0.1 * m_Scene->GetCamera()->GetZoom();
+        m_Scene->GetCamera()->SetPosition(cameraPosition);
     }
     ImGui::SameLine();
     if (ImGui::SmallButton("Move Down"))
     {
-        cameraPosition.y -= 0.1 * m_Scene->GetCamera().GetZoom();
-        m_Scene->GetCamera().SetPosition(cameraPosition);
+        cameraPosition.y -= 0.1 * m_Scene->GetCamera()->GetZoom();
+        m_Scene->GetCamera()->SetPosition(cameraPosition);
     }
     ImGui::End();
 
     const GLubyte *version = glGetString(GL_VERSION);
 
     glm::vec2 ndc = glm::vec2((m_MousePosition.x / ((float)windowWidth * 0.5)) - 1.0, (m_MousePosition.y / ((float)windowHeight * 0.5)) - 1.0);
-    glm::vec2 mw = m_Scene->GetCamera().ScreenToWorldSpace(m_MousePosition.x, m_MousePosition.y);
+    glm::vec2 mw = m_Scene->GetCamera()->ScreenToWorldSpace(m_MousePosition);
 
     ImGui::SetNextWindowPos(ImVec2(windowWidth - 500, 0), ImGuiCond_Once);
     ImGui::SetNextWindowSize(ImVec2(500, 0), ImGuiCond_Once);
