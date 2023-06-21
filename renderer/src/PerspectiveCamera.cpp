@@ -79,8 +79,24 @@ void PerspectiveCamera::Reset(glm::vec3 position, float yaw, float pitch)
 
 void PerspectiveCamera::BeginPan(glm::vec2 mousePosition) {}
 void PerspectiveCamera::EndPan() {}
-void PerspectiveCamera::Zoom(float delta, glm::vec2 mousePosition) {}
-void PerspectiveCamera::SetPosition(glm::vec3 position) {}
-void PerspectiveCamera::SetZoom(float amount) {}
+
+void PerspectiveCamera::Zoom(float delta, glm::vec2 mousePosition)
+{
+	m_Position.z -= 1.0f;
+	OnUpdate(glm::vec2(0));
+}
+
+void PerspectiveCamera::SetPosition(glm::vec3 position)
+{
+	m_Position = position;
+	OnUpdate(glm::vec2(0));
+}
+
+void PerspectiveCamera::SetZoom(float amount)
+{
+	m_Zoom = amount;
+	OnUpdate(glm::vec2(0));
+}
+
 glm::vec3 PerspectiveCamera::ScreenToWorldSpace(glm::vec2 screenPosition) { return glm::vec3(0); }
 void PerspectiveCamera::OnResize(float width, float height) {}
