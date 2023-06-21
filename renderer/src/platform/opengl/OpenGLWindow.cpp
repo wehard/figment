@@ -21,7 +21,7 @@ OpenGLWindow::OpenGLWindow(const std::string &title, const uint32_t width, const
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     glfwWindowHint(GLFW_SAMPLES, 4);
 
     m_Window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
@@ -36,7 +36,16 @@ OpenGLWindow::OpenGLWindow(const std::string &title, const uint32_t width, const
     m_GfxContext = GfxContext::Create(m_Window);
     m_GfxContext->Init();
 
-    glfwShowWindow(m_Window);
+    glfwSwapInterval(0);
+
+    // glfwShowWindow(m_Window);
+    int w, h;
+    glfwGetWindowSize(m_Window, &w, &h);
+    std::cout << "GLFW window created: " << w << " x " << h << std::endl;
+
+    int fw, fh;
+    glfwGetFramebufferSize(m_Window, &fw, &fh);
+    std::cout << "GLFW framebuffer size: " << fw << " x " << fh << std::endl;
 }
 
 OpenGLWindow::~OpenGLWindow()

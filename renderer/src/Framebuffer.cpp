@@ -105,7 +105,7 @@ void Framebuffer::Recreate()
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		std::cout << "Framebuffer not complete!" << std::endl;
 	else
-		std::cout << "Framebuffer created: " << m_Desc.m_Width << " x " << m_Desc.m_Height << std::endl;
+		std::cout << "OpenGL framebuffer created: " << m_Desc.m_Width << " x " << m_Desc.m_Height << std::endl;
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

@@ -18,7 +18,7 @@ App::App(float width, float height)
     // m_GLCtx = new GLContext("Figment C++", width, height);
     m_GUICtx = new GUIContext();
 
-    m_GUICtx->Init(glfwWindow, "#version 150");
+    m_GUICtx->Init(glfwWindow, "#version 330 core");
 
     glfwSetWindowUserPointer(glfwWindow, this);
 
