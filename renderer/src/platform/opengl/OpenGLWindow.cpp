@@ -46,6 +46,8 @@ OpenGLWindow::OpenGLWindow(const std::string &title, const uint32_t width, const
     int fw, fh;
     glfwGetFramebufferSize(m_Window, &fw, &fh);
     std::cout << "GLFW framebuffer size: " << fw << " x " << fh << std::endl;
+    m_FramebufferWidth = (uint32_t)fw;
+    m_FramebufferHeight = (uint32_t)fh;
 }
 
 OpenGLWindow::~OpenGLWindow()
@@ -58,14 +60,19 @@ void OpenGLWindow::Resize(uint32_t width, uint32_t height)
     m_Width = width;
     m_Height = height;
     glfwSetWindowSize(m_Window, width, height);
+
+    int fw, fh;
+    glfwGetFramebufferSize(m_Window, &fw, &fh);
+    m_FramebufferWidth = (uint32_t)fw;
+    m_FramebufferHeight = (uint32_t)fh;
 }
 
 uint32_t OpenGLWindow::GetWidth() const
 {
-    return m_Width;
+    return m_FramebufferWidth;
 }
 
 uint32_t OpenGLWindow::GetHeight() const
 {
-    return m_Height;
+    return m_FramebufferHeight;
 }

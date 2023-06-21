@@ -22,6 +22,7 @@ public:
     void Zoom(float delta, glm::vec2 mousePosition);
     void BeginPan(glm::vec2 mousePosition);
     void EndPan();
+    void Move(CameraDirection direction, float deltaTime);
 
 private:
     glm::mat4 m_ProjectionMatrix;

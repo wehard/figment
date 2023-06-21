@@ -91,6 +91,10 @@ void OrthoCamera::EndPan()
     m_IsPanning = false;
 }
 
+void OrthoCamera::Move(CameraDirection direction, float deltaTime)
+{
+}
+
 void OrthoCamera::SetZoom(float amount)
 {
     m_Zoom = amount;

@@ -6,9 +6,9 @@ Scene::Scene() {}
 Scene::Scene(uint32_t width, uint32_t height) : m_Width(width), m_Height(height)
 {
     m_Renderer = new GLRenderer(width, height);
-    m_Camera = Camera::CreateOrthoCamera(width, height);
-    m_Camera->SetZoom(30.0);
-    m_Camera->SetPosition(glm::vec3(0.0, 0.0, 0.0));
+    m_Camera = Camera::CreatePerspectiveCamera();
+    // m_Camera->SetZoom(30.0);
+    m_Camera->SetPosition(glm::vec3(0.0, 0.0, 60.0));
     m_ClearColor = glm::vec4(0.1, 0.1, 0.1, 1.0);
 }
 

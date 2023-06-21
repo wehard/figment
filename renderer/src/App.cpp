@@ -48,7 +48,7 @@ App::App(float width, float height)
     };
     glfwSetScrollCallback(glfwWindow, mouseScrollCallback);
 
-    m_Scene = new Scene(width, height);
+    m_Scene = new Scene(m_Window->GetWidth(), m_Window->GetHeight());
     m_Scene->CreateEntity();
 
     while (!glfwWindowShouldClose(glfwWindow) && glfwGetKey(glfwWindow, GLFW_KEY_ESCAPE) != GLFW_PRESS)
@@ -81,7 +81,6 @@ void App::HandleKeyboardInput(int key, int scancode, int action, int mods)
     ImGuiIO &io = ImGui::GetIO();
     if (io.WantCaptureKeyboard)
     {
-        printf("imgui keyboard capture\n");
         ImGui_ImplGlfw_KeyCallback((GLFWwindow *)m_Window->GetNative(), key, scancode, action, mods);
         return;
     }
@@ -104,6 +103,15 @@ void App::HandleKeyboardInput(int key, int scancode, int action, int mods)
         b.m_PreviousPosition = t.Position;
         b.m_PreviousPosition.x -= 0.5;
         b.m_PreviousPosition.y += 0.1;
+    }
+
+    if (key == GLFW_KEY_SPACE && action == GLFW_RELEASE)
+    {
+        m_FpsCamera = !m_FpsCamera;
+        if (m_FpsCamera)
+            glfwSetInputMode((GLFWwindow *)m_Window->GetNative(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        else
+            glfwSetInputMode((GLFWwindow *)m_Window->GetNative(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     }
 }
 
@@ -178,6 +186,27 @@ void App::Update()
     m_CurrentTime = glfwGetTime();
     double deltaTime = m_CurrentTime - m_LastTime;
     m_LastTime = m_CurrentTime;
+
+    if (glfwGetKey((GLFWwindow *)m_Window->GetNative(), GLFW_KEY_W))
+    {
+        m_Scene->GetCamera()->Move(CameraDirection::Forward, deltaTime);
+    }
+    if (glfwGetKey((GLFWwindow *)m_Window->GetNative(), GLFW_KEY_S))
+    {
+        m_Scene->GetCamera()->Move(CameraDirection::Backward, deltaTime);
+    }
+    if (glfwGetKey((GLFWwindow *)m_Window->GetNative(), GLFW_KEY_A))
+    {
+        m_Scene->GetCamera()->Move(CameraDirection::Left, deltaTime);
+    }
+    if (glfwGetKey((GLFWwindow *)m_Window->GetNative(), GLFW_KEY_D))
+    {
+        m_Scene->GetCamera()->Move(CameraDirection::Right, deltaTime);
+    }
+
+    if (m_FpsCamera)
+    {
+    }
 
     GUIUpdate();
 

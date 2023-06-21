@@ -30,13 +30,13 @@ glm::mat4 PerspectiveCamera::GetProjectionMatrix()
 void PerspectiveCamera::Move(CameraDirection direction, float deltaTime)
 {
 	float velocity = movementSpeed * deltaTime;
-	if (direction == FORWARD)
+	if (direction == CameraDirection::Forward)
 		m_Position += forward * velocity;
-	if (direction == BACKWARD)
+	if (direction == CameraDirection::Backward)
 		m_Position -= forward * velocity;
-	if (direction == LEFT)
+	if (direction == CameraDirection::Left)
 		m_Position -= right * velocity;
-	if (direction == RIGHT)
+	if (direction == CameraDirection::Right)
 		m_Position += right * velocity;
 }
 
@@ -82,7 +82,7 @@ void PerspectiveCamera::EndPan() {}
 
 void PerspectiveCamera::Zoom(float delta, glm::vec2 mousePosition)
 {
-	m_Position.z -= 1.0f;
+	m_Position.z -= delta;
 	OnUpdate(glm::vec2(0));
 }
 

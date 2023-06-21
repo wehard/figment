@@ -11,6 +11,14 @@ enum class CameraType
     Perspective
 };
 
+enum class CameraDirection
+{
+    Forward,
+    Backward,
+    Left,
+    Right
+};
+
 class Camera
 {
 public:
@@ -31,6 +39,7 @@ public:
     virtual glm::vec3 ScreenToWorldSpace(glm::vec2 screenPosition) = 0;
 
     virtual void Zoom(float delta, glm::vec2 mousePosition) = 0;
+    virtual void Move(CameraDirection direction, float deltaTime) = 0;
 
     virtual void BeginPan(glm::vec2 mousePosition) = 0;
     virtual void EndPan() = 0;
