@@ -82,7 +82,8 @@ glm::vec3 OrthoCamera::ScreenToWorldSpace(glm::vec2 screenPosition)
 void OrthoCamera::BeginPan(glm::vec2 mousePosition)
 {
     m_IsPanning = true;
-    m_InitialMousePosition = ScreenToWorldSpace(mousePosition);
+    glm::vec3 world = ScreenToWorldSpace(mousePosition);
+    m_InitialMousePosition = glm::vec2(world.x, world.y);
 }
 
 void OrthoCamera::EndPan()
