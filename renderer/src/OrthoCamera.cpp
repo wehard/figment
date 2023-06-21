@@ -49,8 +49,8 @@ void OrthoCamera::OnUpdate(glm::vec2 mousePosition)
 {
     if (m_IsPanning)
     {
-        glm::vec2 mw = ScreenToWorldSpace(mousePosition);
-        glm::vec2 delta = (mw - m_InitialMousePosition);
+        glm::vec3 mw = ScreenToWorldSpace(mousePosition);
+        glm::vec2 delta = (glm::vec2(mw.x, mw.y) - m_InitialMousePosition);
 
         glm::vec3 newPosition;
         newPosition.x = m_Position.x - delta.x;
@@ -76,7 +76,7 @@ glm::vec3 OrthoCamera::ScreenToWorldSpace(glm::vec2 screenPosition)
     glm::mat4 InverseProjectionViewMatrix = glm::inverse(ProjectionViewMatrix);
     glm::vec4 worldPos = InverseProjectionViewMatrix * screenPos;
 
-    return glm::vec3(worldPos.x, worldPos.y, worldPos.z);
+    return glm::vec3(worldPos.x, worldPos.y, 0.0f);
 }
 
 void OrthoCamera::BeginPan(glm::vec2 mousePosition)

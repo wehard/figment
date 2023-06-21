@@ -72,8 +72,8 @@ ems: ${OBJS} ${WEB_DIR}
 $(OBJ_DIR)/%.o: %.cpp
 	@printf "Compiling %s -> %s\n" "$<" "$@"
 	@mkdir -p $(@D)
-	@$(CC) $(CFLAGS) $(INCL) -c $< -o $@ -O3
-
+	@$(CC) $(CFLAGS) $(INCL) -c $< -o $@
+	
 $(WEB_DIR):
 	@mkdir -p $@
 
