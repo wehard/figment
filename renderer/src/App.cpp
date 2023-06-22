@@ -165,8 +165,15 @@ void App::SetMousePosition(double x, double y)
     {
         return;
     }
-    this->m_MousePosition.x = x;
-    this->m_MousePosition.y = y;
+    m_MousePosition = glm::vec2(x, y);
+
+    if (m_FpsCamera)
+    {
+        glm::vec2 delta = m_MousePosition - m_PrevMousePosition;
+        m_Scene->GetCamera()->Rotate(delta.x, delta.y, true);
+    }
+
+    m_PrevMousePosition = m_MousePosition;
 }
 
 void App::HandleMouseScroll(double xOffset, double yOffset)
@@ -204,10 +211,6 @@ void App::Update()
         m_Scene->GetCamera()->Move(CameraDirection::Right, deltaTime);
     }
 
-    if (m_FpsCamera)
-    {
-    }
-
     GUIUpdate();
 
     glfwMakeContextCurrent((GLFWwindow *)m_Window->GetNative());
@@ -224,10 +227,6 @@ void App::GUIUpdate()
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
-
-    // int windowWidth = 0;
-    // int windowHeight = 0;
-    // glfwGetWindowSize((GLFWwindow *)m_Window->GetNative(), &windowWidth, &windowHeight);
 
     size_t cameraWindowWidth = 400;
     ImGui::SetNextWindowPos(ImVec2(m_Window->GetWidth() / 2 - cameraWindowWidth / 2, 0), ImGuiCond_Once);
@@ -264,6 +263,10 @@ void App::GUIUpdate()
     if (ImGui::SmallButton("Move Down"))
     {
         cameraPosition.y -= 0.1 * m_Scene->GetCamera()->GetZoom();
+        m_Scene->GetCamera()->SetPosition(cameraPosition);
+    }
+    if (ImGui::DragFloat3("Position", (float *)&cameraPosition.x, 0.1f, 0.0f, 0.0f, "%.2f"))
+    {
         m_Scene->GetCamera()->SetPosition(cameraPosition);
     }
     ImGui::End();

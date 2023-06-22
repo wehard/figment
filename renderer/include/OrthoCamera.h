@@ -23,6 +23,7 @@ public:
     void BeginPan(glm::vec2 mousePosition);
     void EndPan();
     void Move(CameraDirection direction, float deltaTime);
+    void Rotate(float xoffset, float yoffset, bool constrainPitch);
     void SetViewportSize(float width, float height);
 
 private:

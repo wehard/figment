@@ -6,7 +6,7 @@
 
 const float YAW = -90.0f;
 const float PITCH = 0.0f;
-const float SPEED = 15.0f;
+const float SPEED = 30.0f;
 const float SENSITIVITY = 0.1f;
 const float ZOOM = 45.0f;
 
@@ -16,7 +16,7 @@ private:
     float m_AspectRatio = 1.777;
     float m_Fov = 45.0;
     float m_NearClip = 0.1;
-    float m_FarClip = 100.0;
+    float m_FarClip = 1000.0;
     glm::mat4 m_ProjectionMatrix;
     glm::mat4 m_ViewMatrix;
     float m_ViewportWidth = 1280.0;
@@ -46,11 +46,11 @@ public:
     glm::mat4 GetViewMatrix();
     glm::mat4 GetProjectionMatrix();
     void Move(CameraDirection direction, float deltaTime);
-    void Rotate(float xoffset, float yoffset, bool constrainPitch = true);
     void Reset(glm::vec3 position, float yaw, float pitch);
     void BeginPan(glm::vec2 mousePosition);
     void EndPan();
     void Zoom(float delta, glm::vec2 mousePosition);
+    void Rotate(float xoffset, float yoffset, bool constrainPitch = true);
     void SetViewportSize(float width, float height);
 
     glm::vec3 GetPosition() { return m_Position; }

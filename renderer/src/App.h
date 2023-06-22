@@ -17,6 +17,7 @@ private:
   Scene *m_Scene;
 
   glm::vec2 m_MousePosition = glm::vec2(0, 0);
+  glm::vec2 m_PrevMousePosition = glm::vec2(0, 0);
   ImVec4 m_ClearColor = ImVec4(0.15, 0.15, 0.15, 1.00f);
 
   bool m_FpsCamera;

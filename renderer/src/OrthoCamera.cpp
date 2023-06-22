@@ -95,6 +95,10 @@ void OrthoCamera::Move(CameraDirection direction, float deltaTime)
 {
 }
 
+void OrthoCamera::Rotate(float xoffset, float yoffset, bool constrainPitch)
+{
+}
+
 void OrthoCamera::SetViewportSize(float width, float height)
 {
     m_ViewportWidth = width;

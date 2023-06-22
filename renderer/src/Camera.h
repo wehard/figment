@@ -42,6 +42,7 @@ public:
 
     virtual void Zoom(float delta, glm::vec2 mousePosition) = 0;
     virtual void Move(CameraDirection direction, float deltaTime) = 0;
+    virtual void Rotate(float xoffset, float yoffset, bool constrainPitch) = 0;
 
     virtual void BeginPan(glm::vec2 mousePosition) = 0;
     virtual void EndPan() = 0;
