@@ -10,6 +10,8 @@ public:
 
     virtual uint32_t GetWidth() const = 0;
     virtual uint32_t GetHeight() const = 0;
+    virtual uint32_t GetFramebufferWidth() const = 0;
+    virtual uint32_t GetFramebufferHeight() const = 0;
 
     virtual void *GetNative() = 0;
 

@@ -69,10 +69,20 @@ void OpenGLWindow::Resize(uint32_t width, uint32_t height)
 
 uint32_t OpenGLWindow::GetWidth() const
 {
-    return m_FramebufferWidth;
+    return m_Width;
 }
 
 uint32_t OpenGLWindow::GetHeight() const
+{
+    return m_Height;
+}
+
+uint32_t OpenGLWindow::GetFramebufferWidth() const
+{
+    return m_FramebufferWidth;
+}
+
+uint32_t OpenGLWindow::GetFramebufferHeight() const
 {
     return m_FramebufferHeight;
 }

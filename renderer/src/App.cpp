@@ -48,7 +48,7 @@ App::App(float width, float height)
     };
     glfwSetScrollCallback(glfwWindow, mouseScrollCallback);
 
-    m_Scene = new Scene(m_Window->GetWidth(), m_Window->GetHeight());
+    m_Scene = new Scene(m_Window->GetFramebufferWidth(), m_Window->GetFramebufferHeight());
     m_Scene->CreateEntity();
 
     while (!glfwWindowShouldClose(glfwWindow) && glfwGetKey(glfwWindow, GLFW_KEY_ESCAPE) != GLFW_PRESS)
