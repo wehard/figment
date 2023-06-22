@@ -99,7 +99,7 @@ void App::HandleKeyboardInput(int key, int scancode, int action, int mods)
     {
         Entity e = m_Scene->CreateEntity("New");
         auto &t = e.GetComponent<TransformComponent>();
-        glm::vec3 p = m_Scene->GetCamera()->ScreenToWorldSpace(m_MousePosition, glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
+        glm::vec3 p = m_Scene->GetCamera()->ScreenToWorldSpace(Input::GetMousePosition(), glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
         t.Position = p;
         auto &b = e.AddComponent<VerletBodyComponent>();
         b.m_PreviousPosition = t.Position;
@@ -147,7 +147,7 @@ void App::HandleMouseInput(int button, int action, int mods)
         }
         if (button == GLFW_MOUSE_BUTTON_MIDDLE)
         {
-            m_Scene->GetCamera()->BeginPan(m_MousePosition);
+            m_Scene->GetCamera()->BeginPan(Input::GetMousePosition());
         }
     }
     if (action == 0)
@@ -167,15 +167,15 @@ void App::SetMousePosition(double x, double y)
     {
         return;
     }
-    m_MousePosition = glm::vec2(x, y);
+    // m_MousePosition = glm::vec2(x, y);
 
     if (m_FpsCamera)
     {
-        glm::vec2 delta = m_MousePosition - m_PrevMousePosition;
-        m_Scene->GetCamera()->Rotate(delta.x, delta.y, true);
+        // glm::vec2 delta = m_MousePosition - Input::GetMousePosition();
+        // m_Scene->GetCamera()->Rotate(delta.x, delta.y, true);
     }
 
-    m_PrevMousePosition = m_MousePosition;
+    // m_PrevMousePosition = m_MousePosition;
 }
 
 void App::HandleMouseScroll(double xOffset, double yOffset)
@@ -187,7 +187,7 @@ void App::HandleMouseScroll(double xOffset, double yOffset)
         return;
     }
 
-    m_Scene->GetCamera()->Zoom(yOffset, m_MousePosition);
+    m_Scene->GetCamera()->Zoom(yOffset, Input::GetMousePosition());
 }
 
 void App::Update()
@@ -215,6 +215,15 @@ void App::Update()
         m_Scene->GetCamera()->Move(CameraDirection::Right, deltaTime);
     }
 
+    if (Input::GetKeyUp(GLFW_KEY_SPACE))
+    {
+        m_FpsCamera = !m_FpsCamera;
+        if (m_FpsCamera)
+            glfwSetInputMode((GLFWwindow *)m_Window->GetNative(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        else
+            glfwSetInputMode((GLFWwindow *)m_Window->GetNative(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
+
     if (Input::GetButtonDown(GLFW_MOUSE_BUTTON_LEFT))
     {
         SelectEntity({(uint32_t)m_Scene->m_HoveredId, m_Scene});
@@ -234,6 +243,12 @@ void App::Update()
     }
 
     m_Scene->GetCamera()->Zoom(Input::GetScrollDelta().y, Input::GetMousePosition());
+
+    if (m_FpsCamera)
+    {
+        glm::vec2 delta = Input::GetMouseDelta();
+        m_Scene->GetCamera()->Rotate(delta.x, delta.y, true);
+    }
 
     GUIUpdate();
 
@@ -296,9 +311,9 @@ void App::GUIUpdate()
     ImGui::End();
 
     const GLubyte *version = glGetString(GL_VERSION);
-
-    glm::vec2 ndc = glm::vec2((m_MousePosition.x / ((float)m_Window->GetWidth() * 0.5)) - 1.0, (m_MousePosition.y / ((float)m_Window->GetHeight() * 0.5)) - 1.0);
-    glm::vec2 mw = m_Scene->GetCamera()->ScreenToWorldSpace(m_MousePosition, glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
+    glm::vec2 mousePosition = Input::GetMousePosition();
+    glm::vec2 ndc = glm::vec2((mousePosition.x / ((float)m_Window->GetWidth() * 0.5)) - 1.0, (mousePosition.y / ((float)m_Window->GetHeight() * 0.5)) - 1.0);
+    glm::vec2 mw = m_Scene->GetCamera()->ScreenToWorldSpace(mousePosition, glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
 
     ImGui::SetNextWindowPos(ImVec2(m_Window->GetWidth() - 500, 0), ImGuiCond_Once);
     ImGui::SetNextWindowSize(ImVec2(500, 0), ImGuiCond_Once);
@@ -338,7 +353,7 @@ void App::GUIUpdate()
 
     if (ImGui::BeginListBox("Mouse"))
     {
-        ImGui::Text("Screen: %.2f %.2f", m_MousePosition.x, m_MousePosition.y);
+        ImGui::Text("Screen: %.2f %.2f", mousePosition.x, mousePosition.y);
         ImGui::Text("NDC: %.2f %.2f", ndc.x, ndc.y);
         ImGui::Text("World: %.2f %.2f", mw.x, mw.y);
         ImGui::EndListBox();
