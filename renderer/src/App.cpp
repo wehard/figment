@@ -1,6 +1,7 @@
 #include "App.h"
 #include "Scene.h"
 #include "Entity.h"
+#include "Input.h"
 
 #include <math.h>
 #include <fstream>
@@ -15,6 +16,7 @@ App::App(float width, float height)
 {
     m_Window = Window::Create("Figment C++", width, height);
     GLFWwindow *glfwWindow = (GLFWwindow *)m_Window->GetNative();
+    Input::Initialize(glfwWindow);
     // m_GLCtx = new GLContext("Figment C++", width, height);
     m_GUICtx = new GUIContext();
 
@@ -22,31 +24,31 @@ App::App(float width, float height)
 
     glfwSetWindowUserPointer(glfwWindow, this);
 
-    auto keyCallback = [](GLFWwindow *w, int key, int scancode, int action, int mods)
-    {
-        static_cast<App *>(glfwGetWindowUserPointer(w))->HandleKeyboardInput(key, scancode, action, mods);
-    };
+    // auto keyCallback = [](GLFWwindow *w, int key, int scancode, int action, int mods)
+    // {
+    //     static_cast<App *>(glfwGetWindowUserPointer(w))->HandleKeyboardInput(key, scancode, action, mods);
+    // };
 
-    glfwSetKeyCallback(glfwWindow, keyCallback);
+    // glfwSetKeyCallback(glfwWindow, keyCallback);
 
-    auto mouseButtonCallback = [](GLFWwindow *w, int button, int action, int mods)
-    {
-        static_cast<App *>(glfwGetWindowUserPointer(w))->HandleMouseInput(button, action, mods);
-    };
+    // auto mouseButtonCallback = [](GLFWwindow *w, int button, int action, int mods)
+    // {
+    //     static_cast<App *>(glfwGetWindowUserPointer(w))->HandleMouseInput(button, action, mods);
+    // };
 
-    glfwSetMouseButtonCallback(glfwWindow, mouseButtonCallback);
+    // glfwSetMouseButtonCallback(glfwWindow, mouseButtonCallback);
 
-    auto mouseCursorCallback = [](GLFWwindow *w, double x, double y)
-    {
-        static_cast<App *>(glfwGetWindowUserPointer(w))->SetMousePosition(x, y);
-    };
-    glfwSetCursorPosCallback(glfwWindow, mouseCursorCallback);
+    // auto mouseCursorCallback = [](GLFWwindow *w, double x, double y)
+    // {
+    //     static_cast<App *>(glfwGetWindowUserPointer(w))->SetMousePosition(x, y);
+    // };
+    // glfwSetCursorPosCallback(glfwWindow, mouseCursorCallback);
 
-    auto mouseScrollCallback = [](GLFWwindow *w, double xOffset, double yOffset)
-    {
-        static_cast<App *>(glfwGetWindowUserPointer(w))->HandleMouseScroll(xOffset, yOffset);
-    };
-    glfwSetScrollCallback(glfwWindow, mouseScrollCallback);
+    // auto mouseScrollCallback = [](GLFWwindow *w, double xOffset, double yOffset)
+    // {
+    //     static_cast<App *>(glfwGetWindowUserPointer(w))->HandleMouseScroll(xOffset, yOffset);
+    // };
+    // glfwSetScrollCallback(glfwWindow, mouseScrollCallback);
 
     m_Scene = new Scene(m_Window->GetFramebufferWidth(), m_Window->GetFramebufferHeight());
     m_Scene->CreateEntity();
@@ -78,12 +80,12 @@ void App::InsertCube()
 void App::HandleKeyboardInput(int key, int scancode, int action, int mods)
 {
 
-    ImGuiIO &io = ImGui::GetIO();
-    if (io.WantCaptureKeyboard)
-    {
-        ImGui_ImplGlfw_KeyCallback((GLFWwindow *)m_Window->GetNative(), key, scancode, action, mods);
-        return;
-    }
+    // ImGuiIO &io = ImGui::GetIO();
+    // if (io.WantCaptureKeyboard)
+    // {
+    //     ImGui_ImplGlfw_KeyCallback((GLFWwindow *)m_Window->GetNative(), key, scancode, action, mods);
+    //     return;
+    // }
 
     if (key == GLFW_KEY_1 && action == GLFW_PRESS)
     {
@@ -194,19 +196,21 @@ void App::Update()
     double deltaTime = m_CurrentTime - m_LastTime;
     m_LastTime = m_CurrentTime;
 
-    if (glfwGetKey((GLFWwindow *)m_Window->GetNative(), GLFW_KEY_W))
+    Input::Update();
+
+    if (Input::GetKey(GLFW_KEY_W))
     {
         m_Scene->GetCamera()->Move(CameraDirection::Forward, deltaTime);
     }
-    if (glfwGetKey((GLFWwindow *)m_Window->GetNative(), GLFW_KEY_S))
+    if (Input::GetKey(GLFW_KEY_S))
     {
         m_Scene->GetCamera()->Move(CameraDirection::Backward, deltaTime);
     }
-    if (glfwGetKey((GLFWwindow *)m_Window->GetNative(), GLFW_KEY_A))
+    if (Input::GetKey(GLFW_KEY_A))
     {
         m_Scene->GetCamera()->Move(CameraDirection::Left, deltaTime);
     }
-    if (glfwGetKey((GLFWwindow *)m_Window->GetNative(), GLFW_KEY_D))
+    if (Input::GetKey(GLFW_KEY_D))
     {
         m_Scene->GetCamera()->Move(CameraDirection::Right, deltaTime);
     }
@@ -218,8 +222,8 @@ void App::Update()
 
     m_GUICtx->Render();
 
-    glfwSwapBuffers((GLFWwindow *)m_Window->GetNative());
     glfwPollEvents();
+    glfwSwapBuffers((GLFWwindow *)m_Window->GetNative());
 }
 
 void App::GUIUpdate()
