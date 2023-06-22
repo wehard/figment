@@ -4,27 +4,38 @@
 GLFWwindow *Input::m_Window = nullptr;
 std::unordered_map<int, bool> Input::m_KeyState;
 std::unordered_map<int, bool> Input::m_PrevKeyState;
-std::unordered_map<int, bool> Input::m_MouseButtonState;
+std::unordered_map<int, bool> Input::m_ButtonState;
+std::unordered_map<int, bool> Input::m_PrevButtonState;
 glm::vec2 Input::m_MousePosition;
+glm::vec2 Input::m_PrevMousePosition;
 glm::vec2 Input::m_MouseScroll;
+glm::vec2 Input::m_PrevMouseScroll;
 
 void Input::Initialize(GLFWwindow *window)
 {
     Input::m_Window = window;
-    // glfwSetKeyCallback(window, KeyCallback);
-    // glfwSetMouseButtonCallback(window, MouseButtonCallback);
-    // glfwSetCursorPosCallback(window, CursorPosCallback);
-    // glfwSetScrollCallback(window, ScrollCallback);
+    glfwSetScrollCallback(window, ScrollCallback);
 }
 
 void Input::Update()
 {
     m_PrevKeyState = m_KeyState;
+    m_PrevButtonState = m_ButtonState;
+    m_PrevMousePosition = m_MousePosition;
 
     for (auto &key : m_KeyState)
     {
         key.second = glfwGetKey(Input::m_Window, key.first) == GLFW_PRESS;
     }
+
+    for (auto &button : m_ButtonState)
+    {
+        button.second = glfwGetMouseButton(Input::m_Window, button.first) == GLFW_PRESS;
+    }
+
+    double x, y;
+    glfwGetCursorPos(Input::m_Window, &x, &y);
+    m_MousePosition = glm::vec2(x, y);
 }
 
 bool Input::GetKey(int key)
@@ -42,9 +53,19 @@ bool Input::GetKeyUp(int key)
     return !m_KeyState[key] && m_PrevKeyState[key];
 }
 
-bool Input::IsButtonDown(int button)
+bool Input::GetButton(int button)
 {
-    return m_MouseButtonState[button];
+    return m_ButtonState[button];
+}
+
+bool Input::GetButtonDown(int button)
+{
+    return m_ButtonState[button] && !m_PrevButtonState[button];
+}
+
+bool Input::GetButtonUp(int button)
+{
+    return !m_ButtonState[button] && m_PrevButtonState[button];
 }
 
 glm::vec2 Input::GetMousePosition()
@@ -52,38 +73,21 @@ glm::vec2 Input::GetMousePosition()
     return m_MousePosition;
 }
 
+glm::vec2 Input::GetMouseDelta()
+{
+    return glm::vec2(m_MousePosition.x - m_PrevMousePosition.x, m_MousePosition.y - m_PrevMousePosition.x);
+}
+
 glm::vec2 Input::GetMouseScroll()
 {
     return m_MouseScroll;
 }
 
-void Input::KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
+glm::vec2 Input::GetScrollDelta()
 {
-    if (action == GLFW_PRESS)
-    {
-        m_KeyState[key] = true;
-    }
-    else if (action == GLFW_RELEASE)
-    {
-        m_KeyState[key] = false;
-    }
-}
-
-void Input::MouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
-{
-    if (action == GLFW_PRESS)
-    {
-        m_MouseButtonState[button] = true;
-    }
-    else if (action == GLFW_RELEASE)
-    {
-        m_MouseButtonState[button] = false;
-    }
-}
-
-void Input::CursorPosCallback(GLFWwindow *w, double x, double y)
-{
-    m_MousePosition = glm::vec2(x, y);
+    auto scrollDelta = m_MouseScroll;
+    m_MouseScroll = glm::vec2(0);
+    return scrollDelta;
 }
 
 void Input::ScrollCallback(GLFWwindow *w, double xOffset, double yOffset)

@@ -12,20 +12,23 @@ public:
     static bool GetKey(int key);
     static bool GetKeyDown(int key);
     static bool GetKeyUp(int key);
-    static bool IsButtonDown(int button);
+    static bool GetButton(int button);
+    static bool GetButtonDown(int button);
+    static bool GetButtonUp(int button);
     static glm::vec2 GetMousePosition();
+    static glm::vec2 GetMouseDelta();
     static glm::vec2 GetMouseScroll();
+    static glm::vec2 GetScrollDelta();
 
 private:
     static GLFWwindow *m_Window;
     static std::unordered_map<int, bool> m_KeyState;
     static std::unordered_map<int, bool> m_PrevKeyState;
-    static std::unordered_map<int, bool> m_MouseButtonState;
+    static std::unordered_map<int, bool> m_ButtonState;
+    static std::unordered_map<int, bool> m_PrevButtonState;
     static glm::vec2 m_MousePosition;
+    static glm::vec2 m_PrevMousePosition;
     static glm::vec2 m_MouseScroll;
-
-    static void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
-    static void MouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
-    static void CursorPosCallback(GLFWwindow *w, double x, double y);
+    static glm::vec2 m_PrevMouseScroll;
     static void ScrollCallback(GLFWwindow *w, double xOffset, double yOffset);
 };

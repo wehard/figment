@@ -215,10 +215,30 @@ void App::Update()
         m_Scene->GetCamera()->Move(CameraDirection::Right, deltaTime);
     }
 
+    if (Input::GetButtonDown(GLFW_MOUSE_BUTTON_LEFT))
+    {
+        SelectEntity({(uint32_t)m_Scene->m_HoveredId, m_Scene});
+    }
+
+    if (Input::GetButtonDown(GLFW_MOUSE_BUTTON_RIGHT))
+    {
+        if (m_Scene->m_HoveredId > -1)
+        {
+            Entity hoveredEntity = {(uint32_t)m_Scene->m_HoveredId, m_Scene};
+            if (m_SelectedEntity == hoveredEntity)
+            {
+                SelectEntity({});
+            }
+            m_Scene->DestroyEntity(hoveredEntity);
+        }
+    }
+
+    m_Scene->GetCamera()->Zoom(Input::GetScrollDelta().y, Input::GetMousePosition());
+
     GUIUpdate();
 
     glfwMakeContextCurrent((GLFWwindow *)m_Window->GetNative());
-    m_Scene->Update(deltaTime, m_MousePosition);
+    m_Scene->Update(deltaTime, Input::GetMousePosition());
 
     m_GUICtx->Render();
 
