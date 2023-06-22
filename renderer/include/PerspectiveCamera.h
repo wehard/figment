@@ -13,19 +13,24 @@ const float ZOOM = 45.0f;
 class PerspectiveCamera : public Camera
 {
 private:
-    float fov;
-    glm::mat4x4 projection_matrix;
-    glm::vec3 initPosition;
+    float m_AspectRatio = 1.777;
+    float m_Fov = 45.0;
+    float m_NearClip = 0.1;
+    float m_FarClip = 100.0;
+    glm::mat4 m_ProjectionMatrix;
+    glm::mat4 m_ViewMatrix;
+    float m_ViewportWidth = 1280.0;
+    float m_ViewportHeight = 720.0;
 
 public:
     glm::vec3 m_Position;
-    glm::vec3 forward;
-    glm::vec3 up;
-    glm::vec3 right;
-    glm::vec3 worldUp;
+    glm::vec3 m_Forward;
+    glm::vec3 m_Up;
+    glm::vec3 m_Right;
+    glm::vec3 m_WorldUp;
     // euler Angles
-    float yaw;
-    float pitch;
+    float m_Yaw;
+    float m_Pitch;
     // camera options
     float movementSpeed;
     float mouseSensitivity;
@@ -33,6 +38,10 @@ public:
 
     PerspectiveCamera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH);
     ~PerspectiveCamera();
+
+    void UpdateProjectionMatrix();
+    void UpdateViewMatrix();
+
     void OnUpdate(glm::vec2 mp);
     glm::mat4 GetViewMatrix();
     glm::mat4 GetProjectionMatrix();
@@ -42,12 +51,13 @@ public:
     void BeginPan(glm::vec2 mousePosition);
     void EndPan();
     void Zoom(float delta, glm::vec2 mousePosition);
+    void SetViewportSize(float width, float height);
 
     glm::vec3 GetPosition() { return m_Position; }
     void SetPosition(glm::vec3 position);
     float GetZoom() { return m_Zoom; }
     void SetZoom(float amount);
     float GetAspectRatio() { return 1.777; };
-    glm::vec3 ScreenToWorldSpace(glm::vec2 screenPosition);
+    glm::vec3 ScreenToWorldSpace(glm::vec2 screenPosition, glm::vec2 viewportSize);
     void OnResize(float width, float height);
 };

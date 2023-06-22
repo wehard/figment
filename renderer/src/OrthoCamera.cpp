@@ -49,7 +49,7 @@ void OrthoCamera::OnUpdate(glm::vec2 mousePosition)
 {
     if (m_IsPanning)
     {
-        glm::vec3 mw = ScreenToWorldSpace(mousePosition);
+        glm::vec3 mw = ScreenToWorldSpace(mousePosition, glm::vec2(m_ViewportWidth, m_ViewportHeight));
         glm::vec2 delta = (glm::vec2(mw.x, mw.y) - m_InitialMousePosition);
 
         glm::vec3 newPosition;
@@ -66,10 +66,10 @@ void OrthoCamera::SetPosition(glm::vec3 position)
     UpdateViewMatrix();
 }
 
-glm::vec3 OrthoCamera::ScreenToWorldSpace(glm::vec2 screenPosition)
+glm::vec3 OrthoCamera::ScreenToWorldSpace(glm::vec2 screenPosition, glm::vec2 viewportSize)
 {
-    double x = 2.0 * screenPosition.x / m_ViewportWidth - 1;
-    double y = 2.0 * screenPosition.y / m_ViewportHeight - 1;
+    double x = 2.0 * screenPosition.x / viewportSize.x - 1;
+    double y = 2.0 * screenPosition.y / viewportSize.y - 1;
 
     glm::vec4 screenPos = glm::vec4(x, -y, -1.0f, 1.0f);
     glm::mat4 ProjectionViewMatrix = GetProjectionMatrix() * GetViewMatrix();
@@ -82,7 +82,7 @@ glm::vec3 OrthoCamera::ScreenToWorldSpace(glm::vec2 screenPosition)
 void OrthoCamera::BeginPan(glm::vec2 mousePosition)
 {
     m_IsPanning = true;
-    glm::vec3 world = ScreenToWorldSpace(mousePosition);
+    glm::vec3 world = ScreenToWorldSpace(mousePosition, glm::vec2(m_ViewportWidth, m_ViewportHeight));
     m_InitialMousePosition = glm::vec2(world.x, world.y);
 }
 
@@ -93,6 +93,13 @@ void OrthoCamera::EndPan()
 
 void OrthoCamera::Move(CameraDirection direction, float deltaTime)
 {
+}
+
+void OrthoCamera::SetViewportSize(float width, float height)
+{
+    m_ViewportWidth = width;
+    m_ViewportHeight = height;
+    UpdateViewMatrix();
 }
 
 void OrthoCamera::SetZoom(float amount)

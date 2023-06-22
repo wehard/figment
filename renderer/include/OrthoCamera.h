@@ -18,11 +18,12 @@ public:
     glm::mat4 GetProjectionMatrix() { return m_ProjectionMatrix; }
     glm::mat4 GetViewMatrix() { return m_ViewMatrix; }
     float GetAspectRatio() { return m_AspectRatio; };
-    glm::vec3 ScreenToWorldSpace(glm::vec2 screenPosition);
+    glm::vec3 ScreenToWorldSpace(glm::vec2 screenPosition, glm::vec2 viewportSize);
     void Zoom(float delta, glm::vec2 mousePosition);
     void BeginPan(glm::vec2 mousePosition);
     void EndPan();
     void Move(CameraDirection direction, float deltaTime);
+    void SetViewportSize(float width, float height);
 
 private:
     glm::mat4 m_ProjectionMatrix;

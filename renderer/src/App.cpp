@@ -97,7 +97,7 @@ void App::HandleKeyboardInput(int key, int scancode, int action, int mods)
     {
         Entity e = m_Scene->CreateEntity("New");
         auto &t = e.GetComponent<TransformComponent>();
-        glm::vec3 p = m_Scene->GetCamera()->ScreenToWorldSpace(m_MousePosition);
+        glm::vec3 p = m_Scene->GetCamera()->ScreenToWorldSpace(m_MousePosition, glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
         t.Position = p;
         auto &b = e.AddComponent<VerletBodyComponent>();
         b.m_PreviousPosition = t.Position;
@@ -225,12 +225,12 @@ void App::GUIUpdate()
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    int windowWidth = 0;
-    int windowHeight = 0;
-    glfwGetWindowSize((GLFWwindow *)m_Window->GetNative(), &windowWidth, &windowHeight);
+    // int windowWidth = 0;
+    // int windowHeight = 0;
+    // glfwGetWindowSize((GLFWwindow *)m_Window->GetNative(), &windowWidth, &windowHeight);
 
     size_t cameraWindowWidth = 400;
-    ImGui::SetNextWindowPos(ImVec2(windowWidth / 2 - cameraWindowWidth / 2, 0), ImGuiCond_Once);
+    ImGui::SetNextWindowPos(ImVec2(m_Window->GetWidth() / 2 - cameraWindowWidth / 2, 0), ImGuiCond_Once);
     ImGui::SetNextWindowSize(ImVec2(cameraWindowWidth, 0), ImGuiCond_Once);
     ImGui::Begin("Camera");
     glm::vec3 cameraPosition = m_Scene->GetCamera()->GetPosition();
@@ -270,19 +270,42 @@ void App::GUIUpdate()
 
     const GLubyte *version = glGetString(GL_VERSION);
 
-    glm::vec2 ndc = glm::vec2((m_MousePosition.x / ((float)windowWidth * 0.5)) - 1.0, (m_MousePosition.y / ((float)windowHeight * 0.5)) - 1.0);
-    glm::vec2 mw = m_Scene->GetCamera()->ScreenToWorldSpace(m_MousePosition);
+    glm::vec2 ndc = glm::vec2((m_MousePosition.x / ((float)m_Window->GetWidth() * 0.5)) - 1.0, (m_MousePosition.y / ((float)m_Window->GetHeight() * 0.5)) - 1.0);
+    glm::vec2 mw = m_Scene->GetCamera()->ScreenToWorldSpace(m_MousePosition, glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
 
-    ImGui::SetNextWindowPos(ImVec2(windowWidth - 500, 0), ImGuiCond_Once);
+    ImGui::SetNextWindowPos(ImVec2(m_Window->GetWidth() - 500, 0), ImGuiCond_Once);
     ImGui::SetNextWindowSize(ImVec2(500, 0), ImGuiCond_Once);
-    ImGui::Begin("Debug");
-    ImGui::Text("GL version: %s", version);
-    ImGui::Text("GLSL version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
-    ImGui::Text("GL Vendor: %s", glGetString(GL_VENDOR));
-    ImGui::Text("GL Renderer: %s", glGetString(GL_RENDERER));
-    ImGui::Separator();
+    ImGui::Begin("Info");
+    ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+    if (ImGui::TreeNode("GL"))
+    {
+        ImGui::Text("GL version: %s", version);
+        ImGui::Text("GLSL version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
+        ImGui::Text("GL Vendor: %s", glGetString(GL_VENDOR));
+        ImGui::Text("GL Renderer: %s", glGetString(GL_RENDERER));
+        ImGui::TreePop();
+    }
 
-    ImGui::Text("Window size %d %d", windowWidth, windowHeight);
+    ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+    if (ImGui::TreeNode("Window"))
+    {
+        if (ImGui::BeginTable("My Table", 2))
+        {
+            ImGui::TableNextRow();
+            ImGui::TableSetColumnIndex(0);
+            ImGui::Text("Viewport");
+            ImGui::TableSetColumnIndex(1);
+            ImGui::Text("%dx%d", m_Window->GetWidth(), m_Window->GetHeight());
+            ImGui::TableNextRow();
+            ImGui::TableSetColumnIndex(0);
+            ImGui::Text("Framebuffer");
+            ImGui::TableSetColumnIndex(1);
+            ImGui::Text("%dx%d", m_Window->GetFramebufferWidth(), m_Window->GetFramebufferHeight());
+            ImGui::EndTable();
+        }
+
+        ImGui::TreePop();
+    }
 
     ImGui::ColorEdit4("clear color", (float *)&m_Scene->m_ClearColor.x);
 
