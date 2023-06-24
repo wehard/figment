@@ -353,7 +353,8 @@ void App::GUIUpdate()
 
     if (ImGui::BeginListBox("Mouse"))
     {
-        ImGui::Text("Screen: %.2f %.2f", mousePosition.x, mousePosition.y);
+        ImGui::Text("Position: %.2f %.2f", mousePosition.x, mousePosition.y);
+        ImGui::Text("Delta: %.2f %.2f", Input::GetMouseDelta().x, Input::GetMouseDelta().y);
         ImGui::Text("NDC: %.2f %.2f", ndc.x, ndc.y);
         ImGui::Text("World: %.2f %.2f", mw.x, mw.y);
         ImGui::EndListBox();

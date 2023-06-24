@@ -30,5 +30,7 @@ private:
     static glm::vec2 m_PrevMousePosition;
     static glm::vec2 m_MouseScroll;
     static glm::vec2 m_PrevMouseScroll;
+    static glm::vec2 m_MouseDelta;
     static void ScrollCallback(GLFWwindow *w, double xOffset, double yOffset);
+    static void MouseCallback(GLFWwindow *window, double x, double y);
 };

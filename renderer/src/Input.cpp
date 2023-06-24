@@ -10,11 +10,13 @@ glm::vec2 Input::m_MousePosition;
 glm::vec2 Input::m_PrevMousePosition;
 glm::vec2 Input::m_MouseScroll;
 glm::vec2 Input::m_PrevMouseScroll;
+glm::vec2 Input::m_MouseDelta;
 
 void Input::Initialize(GLFWwindow *window)
 {
     Input::m_Window = window;
     glfwSetScrollCallback(window, ScrollCallback);
+    // glfwSetCursorPosCallback(window, MouseCallback);
 }
 
 void Input::Update()
@@ -35,7 +37,14 @@ void Input::Update()
 
     double x, y;
     glfwGetCursorPos(Input::m_Window, &x, &y);
+    if (m_PrevMousePosition.x == 0.0 && m_PrevMousePosition.y == 0.0)
+    {
+        m_PrevMousePosition = glm::vec2(x, y);
+    }
+
+    m_MouseDelta = glm::vec2(x - m_PrevMousePosition.x, y - m_PrevMousePosition.y);
     m_MousePosition = glm::vec2(x, y);
+    m_PrevMousePosition = m_MousePosition;
 }
 
 bool Input::GetKey(int key)
@@ -75,7 +84,7 @@ glm::vec2 Input::GetMousePosition()
 
 glm::vec2 Input::GetMouseDelta()
 {
-    return glm::vec2(m_MousePosition.x - m_PrevMousePosition.x, m_MousePosition.y - m_PrevMousePosition.x);
+    return m_MouseDelta;
 }
 
 glm::vec2 Input::GetMouseScroll()
@@ -93,4 +102,16 @@ glm::vec2 Input::GetScrollDelta()
 void Input::ScrollCallback(GLFWwindow *w, double xOffset, double yOffset)
 {
     m_MouseScroll = glm::vec2(xOffset, yOffset);
+}
+
+void Input::MouseCallback(GLFWwindow *window, double x, double y)
+{
+    if (m_PrevMousePosition.x == 0.0 && m_PrevMousePosition.y == 0.0)
+    {
+        m_PrevMousePosition = glm::vec2(x, y);
+    }
+
+    m_MouseDelta = glm::vec2(x - m_PrevMousePosition.x, y - m_PrevMousePosition.y);
+    m_MousePosition = glm::vec2(x, y);
+    m_PrevMousePosition = m_MousePosition;
 }
