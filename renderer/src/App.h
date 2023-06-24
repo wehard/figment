@@ -41,4 +41,5 @@ public:
   void UpdateShader(const char *vertSource, const char *fragSource);
 
   void SelectEntity(Entity entity);
+  void DeleteEntity(Entity entity);
 };

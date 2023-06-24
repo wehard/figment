@@ -104,6 +104,10 @@ void App::HandleKeyboardInput(float deltaTime)
         b.m_PreviousPosition.x -= 0.5;
         b.m_PreviousPosition.y += 0.1;
     }
+    if (m_SelectedEntity && (Input::GetKeyDown(GLFW_KEY_DELETE) || Input::GetKeyDown(GLFW_KEY_BACKSPACE)))
+    {
+        DeleteEntity(m_SelectedEntity);
+    }
 }
 
 void App::HandleMouseInput()
@@ -117,19 +121,6 @@ void App::HandleMouseInput()
     if (Input::GetButtonDown(GLFW_MOUSE_BUTTON_LEFT))
     {
         SelectEntity({(uint32_t)m_Scene->m_HoveredId, m_Scene});
-    }
-
-    if (Input::GetButtonDown(GLFW_MOUSE_BUTTON_RIGHT))
-    {
-        if (m_Scene->m_HoveredId > -1)
-        {
-            Entity hoveredEntity = {(uint32_t)m_Scene->m_HoveredId, m_Scene};
-            if (m_SelectedEntity == hoveredEntity)
-            {
-                SelectEntity({});
-            }
-            m_Scene->DestroyEntity(hoveredEntity);
-        }
     }
 
     m_Scene->GetCamera()->Zoom(Input::GetScrollDelta().y, Input::GetMousePosition());
@@ -160,7 +151,6 @@ void App::Update()
     Input::Update();
 
     HandleKeyboardInput(deltaTime);
-
     HandleMouseInput();
 
     GUIUpdate();
@@ -341,4 +331,10 @@ void App::UpdateShader(const char *vertSource, const char *fragSource)
 void App::SelectEntity(Entity entity)
 {
     m_SelectedEntity = entity;
+}
+
+void App::DeleteEntity(Entity entity)
+{
+    SelectEntity({});
+    m_Scene->DestroyEntity(entity);
 }

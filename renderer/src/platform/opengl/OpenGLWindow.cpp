@@ -36,9 +36,6 @@ OpenGLWindow::OpenGLWindow(const std::string &title, const uint32_t width, const
     m_GfxContext = GfxContext::Create(m_Window);
     m_GfxContext->Init();
 
-    glfwSwapInterval(0);
-
-    // glfwShowWindow(m_Window);
     int w, h;
     glfwGetWindowSize(m_Window, &w, &h);
     std::cout << "GLFW window created: " << w << " x " << h << std::endl;
