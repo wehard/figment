@@ -16,8 +16,6 @@ private:
   GUIContext *m_GUICtx;
   Scene *m_Scene;
 
-  // glm::vec2 m_MousePosition = glm::vec2(0, 0);
-  // glm::vec2 m_PrevMousePosition = glm::vec2(0, 0);
   ImVec4 m_ClearColor = ImVec4(0.15, 0.15, 0.15, 1.00f);
 
   bool m_FpsCamera;
@@ -26,6 +24,8 @@ private:
   double m_LastTime = 0;
 
   Entity m_SelectedEntity = {};
+  void HandleKeyboardInput(float deltaTime);
+  void HandleMouseInput();
 
 public:
   App(float width, float height);
@@ -34,10 +34,6 @@ public:
   void InsertPlane();
   void InsertCircle();
   void InsertCube();
-  void HandleKeyboardInput(int key, int scancode, int action, int mods);
-  void HandleMouseInput(int button, int action, int mods);
-  void HandleMouseScroll(double xOffset, double yOffset);
-  void SetMousePosition(double x, double y);
   void Update();
   void GUIUpdate();
 

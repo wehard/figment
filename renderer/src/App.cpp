@@ -17,43 +17,16 @@ App::App(float width, float height)
     m_Window = Window::Create("Figment C++", width, height);
     GLFWwindow *glfwWindow = (GLFWwindow *)m_Window->GetNative();
     Input::Initialize(glfwWindow);
-    // m_GLCtx = new GLContext("Figment C++", width, height);
     m_GUICtx = new GUIContext();
 
     m_GUICtx->Init(glfwWindow, "#version 330 core");
 
     glfwSetWindowUserPointer(glfwWindow, this);
 
-    // auto keyCallback = [](GLFWwindow *w, int key, int scancode, int action, int mods)
-    // {
-    //     static_cast<App *>(glfwGetWindowUserPointer(w))->HandleKeyboardInput(key, scancode, action, mods);
-    // };
-
-    // glfwSetKeyCallback(glfwWindow, keyCallback);
-
-    // auto mouseButtonCallback = [](GLFWwindow *w, int button, int action, int mods)
-    // {
-    //     static_cast<App *>(glfwGetWindowUserPointer(w))->HandleMouseInput(button, action, mods);
-    // };
-
-    // glfwSetMouseButtonCallback(glfwWindow, mouseButtonCallback);
-
-    // auto mouseCursorCallback = [](GLFWwindow *w, double x, double y)
-    // {
-    //     static_cast<App *>(glfwGetWindowUserPointer(w))->SetMousePosition(x, y);
-    // };
-    // glfwSetCursorPosCallback(glfwWindow, mouseCursorCallback);
-
-    // auto mouseScrollCallback = [](GLFWwindow *w, double xOffset, double yOffset)
-    // {
-    //     static_cast<App *>(glfwGetWindowUserPointer(w))->HandleMouseScroll(xOffset, yOffset);
-    // };
-    // glfwSetScrollCallback(glfwWindow, mouseScrollCallback);
-
     m_Scene = new Scene(m_Window->GetFramebufferWidth(), m_Window->GetFramebufferHeight());
     m_Scene->CreateEntity();
 
-    while (!glfwWindowShouldClose(glfwWindow) && glfwGetKey(glfwWindow, GLFW_KEY_ESCAPE) != GLFW_PRESS)
+    while (!glfwWindowShouldClose(glfwWindow) && !Input::GetKeyDown(GLFW_KEY_ESCAPE))
     {
         Update();
     }
@@ -77,126 +50,14 @@ void App::InsertCube()
 {
 }
 
-void App::HandleKeyboardInput(int key, int scancode, int action, int mods)
+void App::HandleKeyboardInput(float deltaTime)
 {
-
-    // ImGuiIO &io = ImGui::GetIO();
-    // if (io.WantCaptureKeyboard)
-    // {
-    //     ImGui_ImplGlfw_KeyCallback((GLFWwindow *)m_Window->GetNative(), key, scancode, action, mods);
-    //     return;
-    // }
-
-    if (key == GLFW_KEY_1 && action == GLFW_PRESS)
-    {
-        InsertPlane();
-    }
-    if (key == GLFW_KEY_2 && action == GLFW_PRESS)
-    {
-        InsertCircle();
-    }
-    if (key == GLFW_KEY_I)
-    {
-        Entity e = m_Scene->CreateEntity("New");
-        auto &t = e.GetComponent<TransformComponent>();
-        glm::vec3 p = m_Scene->GetCamera()->ScreenToWorldSpace(Input::GetMousePosition(), glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
-        t.Position = p;
-        auto &b = e.AddComponent<VerletBodyComponent>();
-        b.m_PreviousPosition = t.Position;
-        b.m_PreviousPosition.x -= 0.5;
-        b.m_PreviousPosition.y += 0.1;
-    }
-
-    if (key == GLFW_KEY_SPACE && action == GLFW_RELEASE)
-    {
-        m_FpsCamera = !m_FpsCamera;
-        if (m_FpsCamera)
-            glfwSetInputMode((GLFWwindow *)m_Window->GetNative(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        else
-            glfwSetInputMode((GLFWwindow *)m_Window->GetNative(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    }
-}
-
-void App::HandleMouseInput(int button, int action, int mods)
-{
-    ImGui_ImplGlfw_MouseButtonCallback((GLFWwindow *)m_Window->GetNative(), button, action, mods);
 
     ImGuiIO &io = ImGui::GetIO();
-    if (io.WantCaptureMouse)
+    if (io.WantCaptureKeyboard)
     {
         return;
     }
-
-    if (action == 1)
-    {
-        if (button == GLFW_MOUSE_BUTTON_LEFT)
-        {
-            SelectEntity({(uint32_t)m_Scene->m_HoveredId, m_Scene});
-        }
-        if (button == GLFW_MOUSE_BUTTON_RIGHT)
-        {
-            if (m_Scene->m_HoveredId > -1)
-            {
-                Entity hoveredEntity = {(uint32_t)m_Scene->m_HoveredId, m_Scene};
-                if (m_SelectedEntity == hoveredEntity)
-                {
-                    SelectEntity({});
-                }
-                m_Scene->DestroyEntity(hoveredEntity);
-            }
-        }
-        if (button == GLFW_MOUSE_BUTTON_MIDDLE)
-        {
-            m_Scene->GetCamera()->BeginPan(Input::GetMousePosition());
-        }
-    }
-    if (action == 0)
-    {
-        if (button == GLFW_MOUSE_BUTTON_MIDDLE)
-        {
-            m_Scene->GetCamera()->EndPan();
-        }
-    }
-}
-
-void App::SetMousePosition(double x, double y)
-{
-    ImGui_ImplGlfw_CursorPosCallback((GLFWwindow *)m_Window->GetNative(), x, y);
-    ImGuiIO &io = ImGui::GetIO();
-    if (io.WantCaptureMouse)
-    {
-        return;
-    }
-    // m_MousePosition = glm::vec2(x, y);
-
-    if (m_FpsCamera)
-    {
-        // glm::vec2 delta = m_MousePosition - Input::GetMousePosition();
-        // m_Scene->GetCamera()->Rotate(delta.x, delta.y, true);
-    }
-
-    // m_PrevMousePosition = m_MousePosition;
-}
-
-void App::HandleMouseScroll(double xOffset, double yOffset)
-{
-    ImGui_ImplGlfw_ScrollCallback((GLFWwindow *)m_Window->GetNative(), xOffset, yOffset);
-    ImGuiIO &io = ImGui::GetIO();
-    if (io.WantCaptureMouse)
-    {
-        return;
-    }
-
-    m_Scene->GetCamera()->Zoom(yOffset, Input::GetMousePosition());
-}
-
-void App::Update()
-{
-    m_CurrentTime = glfwGetTime();
-    double deltaTime = m_CurrentTime - m_LastTime;
-    m_LastTime = m_CurrentTime;
-
-    Input::Update();
 
     if (Input::GetKey(GLFW_KEY_W))
     {
@@ -224,6 +85,35 @@ void App::Update()
             glfwSetInputMode((GLFWwindow *)m_Window->GetNative(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     }
 
+    if (Input::GetKeyDown(GLFW_KEY_1))
+    {
+        InsertPlane();
+    }
+    if (Input::GetKeyDown(GLFW_KEY_2))
+    {
+        InsertCircle();
+    }
+    if (Input::GetKeyDown(GLFW_KEY_I))
+    {
+        Entity e = m_Scene->CreateEntity("New");
+        auto &t = e.GetComponent<TransformComponent>();
+        glm::vec3 p = m_Scene->GetCamera()->ScreenToWorldSpace(Input::GetMousePosition(), glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
+        t.Position = p;
+        auto &b = e.AddComponent<VerletBodyComponent>();
+        b.m_PreviousPosition = t.Position;
+        b.m_PreviousPosition.x -= 0.5;
+        b.m_PreviousPosition.y += 0.1;
+    }
+}
+
+void App::HandleMouseInput()
+{
+    ImGuiIO &io = ImGui::GetIO();
+    if (io.WantCaptureMouse)
+    {
+        return;
+    }
+
     if (Input::GetButtonDown(GLFW_MOUSE_BUTTON_LEFT))
     {
         SelectEntity({(uint32_t)m_Scene->m_HoveredId, m_Scene});
@@ -249,6 +139,29 @@ void App::Update()
         glm::vec2 delta = Input::GetMouseDelta();
         m_Scene->GetCamera()->Rotate(delta.x, delta.y, true);
     }
+
+    if (Input::GetButtonDown(GLFW_MOUSE_BUTTON_MIDDLE))
+    {
+        m_Scene->GetCamera()->BeginPan(Input::GetMousePosition());
+    }
+
+    if (Input::GetButtonUp(GLFW_MOUSE_BUTTON_MIDDLE))
+    {
+        m_Scene->GetCamera()->EndPan();
+    }
+}
+
+void App::Update()
+{
+    m_CurrentTime = glfwGetTime();
+    double deltaTime = m_CurrentTime - m_LastTime;
+    m_LastTime = m_CurrentTime;
+
+    Input::Update();
+
+    HandleKeyboardInput(deltaTime);
+
+    HandleMouseInput();
 
     GUIUpdate();
 
