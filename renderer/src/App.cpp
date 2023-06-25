@@ -131,12 +131,12 @@ void App::HandleMouseInput()
         m_Scene->GetCamera()->Rotate(delta.x, delta.y, true);
     }
 
-    if (Input::GetButtonDown(GLFW_MOUSE_BUTTON_MIDDLE))
+    if (Input::GetButtonDown(GLFW_MOUSE_BUTTON_LEFT) && Input::GetKey(GLFW_KEY_LEFT_ALT))
     {
         m_Scene->GetCamera()->BeginPan(Input::GetMousePosition());
     }
 
-    if (Input::GetButtonUp(GLFW_MOUSE_BUTTON_MIDDLE))
+    if (Input::GetButtonUp(GLFW_MOUSE_BUTTON_LEFT))
     {
         m_Scene->GetCamera()->EndPan();
     }
