@@ -40,7 +40,7 @@ BIN := $(BIN_DIR)/myprogram
 
 CFLAGS = -g -std=c++17 #-Wall -Wextra -Werror
 
-INCL = -I include -I src -I lib/imgui/include -I lib/glm -I lib -I lib/entt -I src/scene -I src/physics -I src/platform/opengl -I /opt/homebrew/include
+INCL = -I src -I lib/imgui/include -I lib/glm -I lib -I lib/entt -I src/scene -I src/physics -I src/platform/opengl -I /opt/homebrew/include
 
 LDFLAGS = -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo -L /opt/homebrew/lib -lglfw -L /opt/homebrew/lib -lGLEW
 LDFLAGS += -lm
