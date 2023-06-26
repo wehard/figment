@@ -19,7 +19,7 @@ static void SetTextureData(GLuint textureId, int32_t width, int32_t height, void
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 }
 
-OpenGLFramebuffer::OpenGLFramebuffer(const FramebufferDesc &desc)
+OpenGLFramebuffer::OpenGLFramebuffer(uint32_t width, uint32_t height) : m_Width(width), m_Height(height)
 {
     FramebufferTextureDesc t;
     t.m_InternalFormat = GL_RGBA;
@@ -61,13 +61,13 @@ void OpenGLFramebuffer::Recreate()
 
     for (size_t i = 0; i < m_ColorAttachments.size(); i++)
     {
-        m_ColorAttachments[i] = CreateTexture(m_Desc.m_Width, m_Desc.m_Height, m_ColorAttachmentDescs[i].m_InternalFormat, m_ColorAttachmentDescs[i].m_Format, m_ColorAttachmentDescs[i].m_Type);
+        m_ColorAttachments[i] = CreateTexture(m_Width, m_Height, m_ColorAttachmentDescs[i].m_InternalFormat, m_ColorAttachmentDescs[i].m_Format, m_ColorAttachmentDescs[i].m_Type);
     }
 
     for (size_t i = 0; i < m_ColorAttachments.size(); i++)
     {
         glBindTexture(GL_TEXTURE_2D, m_ColorAttachments[i]);
-        glTexImage2D(GL_TEXTURE_2D, 0, m_ColorAttachmentDescs[i].m_InternalFormat, m_Desc.m_Width, m_Desc.m_Height, 0, m_ColorAttachmentDescs[i].m_Format, m_ColorAttachmentDescs[i].m_Type, NULL);
+        glTexImage2D(GL_TEXTURE_2D, 0, m_ColorAttachmentDescs[i].m_InternalFormat, m_Width, m_Height, 0, m_ColorAttachmentDescs[i].m_Format, m_ColorAttachmentDescs[i].m_Type, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
@@ -81,7 +81,7 @@ void OpenGLFramebuffer::Recreate()
         glGenTextures(1, &m_DepthAttachment);
         glBindTexture(GL_TEXTURE_2D, m_DepthAttachment);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, m_DepthAttachmentDesc.m_InternalFormat, m_Desc.m_Width, m_Desc.m_Height, 0, m_DepthAttachmentDesc.m_Format, m_DepthAttachmentDesc.m_Type, NULL);
+        glTexImage2D(GL_TEXTURE_2D, 0, m_DepthAttachmentDesc.m_InternalFormat, m_Width, m_Height, 0, m_DepthAttachmentDesc.m_Format, m_DepthAttachmentDesc.m_Type, NULL);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -106,7 +106,7 @@ void OpenGLFramebuffer::Recreate()
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         std::cout << "Framebuffer not complete!" << std::endl;
     else
-        std::cout << "OpenGL framebuffer created: " << m_Desc.m_Width << " x " << m_Desc.m_Height << std::endl;
+        std::cout << "OpenGL framebuffer created: " << m_Width << " x " << m_Height << std::endl;
 
     Unbind();
 }
@@ -121,7 +121,7 @@ void OpenGLFramebuffer::Unbind()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void OpenGLFramebuffer::ClearAttachment(GLuint index, glm::vec4 clearColor, int clearId)
+void OpenGLFramebuffer::ClearAttachment(uint32_t index, glm::vec4 clearColor, int clearId)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, m_FboID);
     static const GLenum draw_buffers[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
@@ -134,9 +134,14 @@ void OpenGLFramebuffer::ClearAttachment(GLuint index, glm::vec4 clearColor, int 
 
 void OpenGLFramebuffer::Resize(uint32_t width, uint32_t height)
 {
-    m_Desc.m_Width = width;
-    m_Desc.m_Height = height;
+    m_Width = width;
+    m_Height = height;
     Recreate();
+}
+
+uint32_t OpenGLFramebuffer::GetAttachmentId(uint32_t index)
+{
+    return m_ColorAttachments[index];
 }
 
 int OpenGLFramebuffer::GetPixel(uint32_t attachmentIndex, int x, int y)

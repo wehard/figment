@@ -1,6 +1,7 @@
 #pragma once
 
-#include "GL/glew.h"
+#include "Framebuffer.h"
+#include <GL/glew.h>
 #include <vector>
 #include <glm/vec4.hpp>
 
@@ -25,24 +26,22 @@ enum class TextureFormat
 
 };
 
-class OpenGLFramebuffer
+class OpenGLFramebuffer : public Framebuffer
 {
 public:
-    OpenGLFramebuffer(const FramebufferDesc &desc);
+    OpenGLFramebuffer(uint32_t width, uint32_t height);
     ~OpenGLFramebuffer();
     void Recreate();
     void Bind();
     void Unbind();
-    void ClearAttachment(GLuint index, glm::vec4 clearColor, int clearId);
+    void ClearAttachment(uint32_t index, glm::vec4 clearColor, int clearId);
     void Resize(uint32_t width, uint32_t height);
-    GLuint GetColorAttachmentId(uint32_t index = 0) const
-    {
-        return m_ColorAttachments[index];
-    }
+    uint32_t GetAttachmentId(uint32_t index = 0);
     int GetPixel(uint32_t attachmentIndex, int x, int y);
 
 private:
-    FramebufferDesc m_Desc;
+    uint32_t m_Width;
+    uint32_t m_Height;
     GLuint m_FboID;
     GLuint rbo_id;
 

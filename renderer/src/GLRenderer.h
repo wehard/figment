@@ -24,7 +24,7 @@ private:
 	uint32_t m_Width;
 	uint32_t m_Height;
 
-	Framebuffer *m_Framebuffer;
+	std::unique_ptr<Framebuffer> m_Framebuffer;
 
 public:
 	GLRenderer(uint32_t width, uint32_t height);
@@ -35,5 +35,5 @@ public:
 	void DrawQuad(glm::mat4 transform, glm::vec4 color, int id);
 	void DrawTexturedQuad(glm::mat4 transform, uint32_t textureId, Shader &shader);
 	void OnResize(uint32_t width, uint32_t height);
-	Framebuffer *GetFramebuffer() { return m_Framebuffer; }
+	std::unique_ptr<Framebuffer> &GetFramebuffer() { return m_Framebuffer; }
 };

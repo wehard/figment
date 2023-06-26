@@ -1,5 +1,6 @@
 #include "GLRenderer.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include <GL/glew.h>
 
 #include <fstream>
 #include <sstream>
@@ -23,10 +24,7 @@ GLRenderer::GLRenderer(uint32_t width, uint32_t height) : m_Width(width), m_Heig
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 
-	FramebufferDesc desc;
-	desc.m_Width = width;
-	desc.m_Height = height;
-	m_Framebuffer = new Framebuffer(desc);
+	m_Framebuffer = Framebuffer::Create(width, height);
 
 	m_QuadShader = Shader::Create("res/shaders/basic.vert", "res/shaders/basic.frag");
 	m_CircleShader = Shader::Create("res/shaders/circle.vert", "res/shaders/circle.frag");
@@ -35,7 +33,6 @@ GLRenderer::GLRenderer(uint32_t width, uint32_t height) : m_Width(width), m_Heig
 
 GLRenderer::~GLRenderer()
 {
-	delete m_Framebuffer;
 }
 
 void GLRenderer::Begin(std::shared_ptr<Camera> camera, glm::vec4 clearColor)
@@ -50,7 +47,7 @@ void GLRenderer::Begin(std::shared_ptr<Camera> camera, glm::vec4 clearColor)
 void GLRenderer::End()
 {
 	m_Framebuffer->Unbind();
-	DrawTexturedQuad(glm::identity<glm::mat4>(), m_Framebuffer->GetColorAttachmentId(0), *m_FramebufferShader);
+	DrawTexturedQuad(glm::identity<glm::mat4>(), m_Framebuffer->GetAttachmentId(0), *m_FramebufferShader);
 }
 
 void GLRenderer::DrawCircle(glm::mat4 transform, glm::vec4 color, int id)
