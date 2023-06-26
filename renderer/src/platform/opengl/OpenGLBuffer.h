@@ -9,12 +9,15 @@ class OpenGLVertexBuffer : public VertexBuffer
 {
 private:
     uint32_t m_Id;
+    BufferLayout m_Layout;
 
 public:
     OpenGLVertexBuffer(std::vector<float> vertices);
     ~OpenGLVertexBuffer();
     void Bind();
     void Unbind();
+    void SetLayout(BufferLayout layout);
+    BufferLayout GetLayout();
 };
 
 OpenGLVertexBuffer::OpenGLVertexBuffer(std::vector<float> vertices)
@@ -37,6 +40,16 @@ void OpenGLVertexBuffer::Bind()
 void OpenGLVertexBuffer::Unbind()
 {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void OpenGLVertexBuffer::SetLayout(BufferLayout layout)
+{
+    m_Layout = layout;
+}
+
+inline BufferLayout OpenGLVertexBuffer::GetLayout()
+{
+    return m_Layout;
 }
 
 class OpenGLIndexBuffer : public IndexBuffer
