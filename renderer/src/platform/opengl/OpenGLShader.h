@@ -25,13 +25,13 @@ private:
 public:
     OpenGLShader(const std::string &vertPath, const std::string &fragPath);
     ~OpenGLShader();
-    void bind();
-    void unbind();
-    void setInt(std::string name, int i);
-    void setFloat(std::string name, float f);
-    void setVec2(std::string name, glm::vec2 v);
-    void setVec3(std::string name, glm::vec3 v);
-    void setVec4(std::string name, glm::vec4 v);
-    void setMat4(std::string name, glm::mat4x4 m);
+    void Bind();
+    void Unbind();
+    void SetInt(std::string name, int i);
+    void SetFloat(std::string name, float f);
+    void SetVec2(std::string name, glm::vec2 v);
+    void SetVec3(std::string name, glm::vec3 v);
+    void SetVec4(std::string name, glm::vec4 v);
+    void SetMat4(std::string name, glm::mat4x4 m);
     bool IsValid() { return m_IsValid; }
 };

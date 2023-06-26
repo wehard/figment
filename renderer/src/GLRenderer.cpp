@@ -52,12 +52,12 @@ void GLRenderer::End()
 
 void GLRenderer::DrawCircle(glm::mat4 transform, glm::vec4 color, int id)
 {
-	m_CircleShader->bind();
-	m_CircleShader->setVec4("obj_color", color);
-	m_CircleShader->setMat4("proj_matrix", m_Camera->GetProjectionMatrix());
-	m_CircleShader->setMat4("view_matrix", m_Camera->GetViewMatrix());
-	m_CircleShader->setMat4("model_matrix", transform);
-	m_CircleShader->setInt("obj_id", id);
+	m_CircleShader->Bind();
+	m_CircleShader->SetVec4("obj_color", color);
+	m_CircleShader->SetMat4("proj_matrix", m_Camera->GetProjectionMatrix());
+	m_CircleShader->SetMat4("view_matrix", m_Camera->GetViewMatrix());
+	m_CircleShader->SetMat4("model_matrix", transform);
+	m_CircleShader->SetInt("obj_id", id);
 
 	glBindVertexArray(m_QuadVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, m_QuadVBO);
@@ -66,12 +66,12 @@ void GLRenderer::DrawCircle(glm::mat4 transform, glm::vec4 color, int id)
 
 void GLRenderer::DrawQuad(glm::mat4 transform, glm::vec4 color, int id)
 {
-	m_QuadShader->bind();
-	m_QuadShader->setVec4("obj_color", color);
-	m_QuadShader->setMat4("proj_matrix", m_Camera->GetProjectionMatrix());
-	m_QuadShader->setMat4("view_matrix", m_Camera->GetViewMatrix());
-	m_QuadShader->setMat4("model_matrix", transform);
-	m_QuadShader->setInt("obj_id", id);
+	m_QuadShader->Bind();
+	m_QuadShader->SetVec4("obj_color", color);
+	m_QuadShader->SetMat4("proj_matrix", m_Camera->GetProjectionMatrix());
+	m_QuadShader->SetMat4("view_matrix", m_Camera->GetViewMatrix());
+	m_QuadShader->SetMat4("model_matrix", transform);
+	m_QuadShader->SetInt("obj_id", id);
 
 	glBindVertexArray(m_QuadVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, m_QuadVBO);
@@ -80,8 +80,8 @@ void GLRenderer::DrawQuad(glm::mat4 transform, glm::vec4 color, int id)
 
 void GLRenderer::DrawTexturedQuad(glm::mat4 transform, uint32_t textureId, Shader &shader)
 {
-	shader.bind();
-	shader.setMat4("model_matrix", transform);
+	shader.Bind();
+	shader.SetMat4("model_matrix", transform);
 	glBindVertexArray(m_QuadVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, m_QuadVBO);
 	glBindTexture(GL_TEXTURE_2D, textureId);

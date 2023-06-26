@@ -23,47 +23,47 @@ OpenGLShader::~OpenGLShader()
     glDeleteProgram(m_ID);
 }
 
-void OpenGLShader::bind()
+void OpenGLShader::Bind()
 {
     glUseProgram(m_ID);
 }
 
-void OpenGLShader::unbind()
+void OpenGLShader::Unbind()
 {
     glUseProgram(0);
 }
 
-void OpenGLShader::setInt(std::string name, int i)
+void OpenGLShader::SetInt(std::string name, int i)
 {
     GLuint location = glGetUniformLocation(m_ID, name.c_str());
     glUniform1i(location, i);
 }
 
-void OpenGLShader::setFloat(std::string name, float f)
+void OpenGLShader::SetFloat(std::string name, float f)
 {
     GLuint location = glGetUniformLocation(m_ID, name.c_str());
     glUniform1f(location, f);
 }
 
-void OpenGLShader::setVec2(std::string name, glm::vec2 v)
+void OpenGLShader::SetVec2(std::string name, glm::vec2 v)
 {
     GLuint location = glGetUniformLocation(m_ID, name.c_str());
     glUniform2f(location, v[0], v[1]);
 }
 
-void OpenGLShader::setVec3(std::string name, glm::vec3 v)
+void OpenGLShader::SetVec3(std::string name, glm::vec3 v)
 {
     GLuint location = glGetUniformLocation(m_ID, name.c_str());
     glUniform3f(location, v[0], v[1], v[2]);
 }
 
-void OpenGLShader::setVec4(std::string name, glm::vec4 v)
+void OpenGLShader::SetVec4(std::string name, glm::vec4 v)
 {
     GLuint location = glGetUniformLocation(m_ID, name.c_str());
     glUniform4f(location, v[0], v[1], v[2], v[3]);
 }
 
-void OpenGLShader::setMat4(std::string name, glm::mat4x4 m)
+void OpenGLShader::SetMat4(std::string name, glm::mat4x4 m)
 {
     GLuint location = glGetUniformLocation(m_ID, name.c_str());
     glUniformMatrix4fv(location, 1, GL_FALSE, (GLfloat *)&m[0]);
