@@ -164,6 +164,31 @@ void App::Update()
     glfwSwapBuffers((GLFWwindow *)m_Window->GetNative());
 }
 
+static void DrawVec3(const char *name, glm::vec3 *value, bool *syncValues)
+{
+    glm::vec3 tempValue = *value;
+    ImGui::DragFloat3(name, &tempValue[0], 0.1f, 0.0f, 0.0f, "%.2f");
+    ImGui::SameLine();
+    ImGui::Checkbox("Sync", syncValues);
+
+    if (*syncValues)
+    {
+        for (size_t i = 0; i < 3; i++)
+        {
+            float f = value[0][i];
+            if (tempValue[i] != value[0][i])
+            {
+                *value = glm::vec3(tempValue[i]);
+                break;
+            }
+        }
+    }
+    else
+    {
+        *value = tempValue;
+    }
+}
+
 void App::GUIUpdate()
 {
     ImGui_ImplOpenGL3_NewFrame();
@@ -306,7 +331,11 @@ void App::GUIUpdate()
         auto &transform = m_SelectedEntity.GetComponent<TransformComponent>();
         ImGui::DragFloat3("Position", (float *)&transform.Position.x, 0.1f, 0.0f, 0.0f, "%.2f");
         ImGui::DragFloat3("Rotation", (float *)&transform.Rotation.x, 0.1f, 0.0f, 0.0f, "%.2f");
-        ImGui::DragFloat3("Scale", (float *)&transform.Scale.x, 0.1f, 0.0f, 0.0f, "%.2f");
+
+        // ImGui::DragFloat3("Scale", (float *)&transform.Scale.x, 0.1f, 0.0f, 0.0f, "%.2f");
+        static bool syncScale = true;
+        DrawVec3("Scale", &transform.Scale, &syncScale);
+
         if (m_SelectedEntity.HasComponent<VerletBodyComponent>())
         {
             auto &body = m_SelectedEntity.GetComponent<VerletBodyComponent>();
