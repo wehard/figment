@@ -24,6 +24,10 @@ OpenGLWindow::OpenGLWindow(const std::string &title, const uint32_t width, const
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     glfwWindowHint(GLFW_SAMPLES, 4);
 
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE);
+#endif
+
     m_Window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
 
     if (!m_Window)

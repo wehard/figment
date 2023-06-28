@@ -23,7 +23,7 @@ App::App(float width, float height)
 
     glfwSetWindowUserPointer(glfwWindow, this);
 
-    m_Scene = new Scene(m_Window->GetFramebufferWidth(), m_Window->GetFramebufferHeight());
+    m_Scene = new Scene(m_Window->GetWidth(), m_Window->GetHeight());
     m_Scene->CreateEntity();
 
     while (!glfwWindowShouldClose(glfwWindow) && !Input::GetKeyDown(GLFW_KEY_ESCAPE))
