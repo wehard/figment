@@ -21,12 +21,10 @@ App::App(float width, float height)
 
     m_GUICtx->Init(glfwWindow, "#version 330 core");
 
-    glfwSetWindowUserPointer(glfwWindow, this);
-
     m_Scene = new Scene(m_Window->GetWidth(), m_Window->GetHeight());
     m_Scene->CreateEntity();
 
-    while (!glfwWindowShouldClose(glfwWindow) && !Input::GetKeyDown(GLFW_KEY_ESCAPE))
+    while (!m_Window->ShouldClose() && !Input::GetKeyDown(GLFW_KEY_ESCAPE))
     {
         Update();
     }

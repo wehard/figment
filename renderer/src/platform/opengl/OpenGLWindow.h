@@ -12,6 +12,7 @@ public:
     OpenGLWindow(const std::string &title, const uint32_t width, const uint32_t height);
     ~OpenGLWindow() override;
     void Resize(uint32_t width, uint32_t height);
+    bool ShouldClose() override;
     uint32_t GetWidth() const override;
     uint32_t GetHeight() const override;
     uint32_t GetFramebufferWidth() const override;

@@ -68,6 +68,11 @@ void OpenGLWindow::Resize(uint32_t width, uint32_t height)
     m_FramebufferHeight = (uint32_t)fh;
 }
 
+bool OpenGLWindow::ShouldClose()
+{
+    return glfwWindowShouldClose(m_Window);
+}
+
 uint32_t OpenGLWindow::GetWidth() const
 {
     return m_Width;
