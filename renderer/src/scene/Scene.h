@@ -35,7 +35,7 @@ public:
     std::vector<Entity> GetEntities();
     Entity GetHoveredEntity();
 
-    void Update(float deltaTime, glm::vec2 mousePosition);
+    void Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportSize);
     std::shared_ptr<Camera> GetCamera();
     void OnResize(uint32_t width, uint32_t height);
 

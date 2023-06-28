@@ -57,7 +57,7 @@ Entity Scene::GetHoveredEntity()
     return {};
 }
 
-void Scene::Update(float deltaTime, glm::vec2 mousePosition)
+void Scene::Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportSize)
 {
     m_Camera->OnUpdate(mousePosition);
     m_Renderer->Begin(m_Camera, m_ClearColor);
@@ -76,7 +76,7 @@ void Scene::Update(float deltaTime, glm::vec2 mousePosition)
         m_Renderer->DrawCircle(entity.GetComponent<TransformComponent>().GetTransform(), glm::vec4(0.8, 1.0, 0.2, 0.5), (int)e);
     }
 
-    glm::vec2 normalized = glm::vec2(mousePosition.x / 1280.0, mousePosition.y / 720.0);
+    glm::vec2 normalized = glm::vec2(mousePosition.x / viewportSize.x, mousePosition.y / viewportSize.y);
 
     m_HoveredId = m_Renderer->GetFramebuffer()->GetPixel(1, (uint32_t)(normalized.x * m_Width), m_Height - (uint32_t)(normalized.y * m_Height));
     m_Renderer->End();

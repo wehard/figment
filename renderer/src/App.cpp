@@ -156,7 +156,7 @@ void App::Update()
     GUIUpdate();
 
     glfwMakeContextCurrent((GLFWwindow *)m_Window->GetNative());
-    m_Scene->Update(deltaTime, Input::GetMousePosition());
+    m_Scene->Update(deltaTime, Input::GetMousePosition(), glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
 
     m_GUICtx->Render();
 
