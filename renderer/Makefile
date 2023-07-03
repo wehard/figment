@@ -41,9 +41,13 @@ BIN := $(BIN_DIR)/myprogram
 CFLAGS = -g -std=c++17 #-Wall -Wextra -Werror
 
 INCL = -I src -I lib/imgui/include -I lib/glm -I lib -I lib/entt -I src/scene -I src/physics -I src/platform/opengl -I /opt/homebrew/include
+INCL += -I /usr/local/share/dotnet/packs/Microsoft.NETCore.App.Host.osx-arm64/7.0.0/runtimes/osx-arm64/native
+INCL += -I src/scripting
 
 LDFLAGS = -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo -L /opt/homebrew/lib -lglfw -L /opt/homebrew/lib -lGLEW
 LDFLAGS += -lm
+LDFLAGS += -L /usr/local/share/dotnet/packs/Microsoft.NETCore.App.Host.osx-arm64/7.0.0/runtimes/osx-arm64/native -lnethost
+LDFLAGS += -rpath /usr/local/share/dotnet/packs/Microsoft.NETCore.App.Host.osx-arm64/7.0.0/runtimes/osx-arm64/native
 
 # ("EMS" options gets added to both CPPFLAGS and LDFLAGS, whereas some options are for linker only)
 EMS = -s USE_GLFW=3
