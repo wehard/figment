@@ -25,11 +25,11 @@ App::App(float width, float height)
     m_Scene = new Scene(m_Window->GetWidth(), m_Window->GetHeight());
     m_Scene->CreateEntity();
 
-    // Figment::ScriptingEngine::Init();
-    while (!m_Window->ShouldClose() && !Input::GetKeyDown(GLFW_KEY_ESCAPE))
-    {
-        Update();
-    }
+    Figment::ScriptingEngine::Init();
+    // while (!m_Window->ShouldClose() && !Input::GetKeyDown(GLFW_KEY_ESCAPE))
+    // {
+    //     Update();
+    // }
 }
 
 App::~App()

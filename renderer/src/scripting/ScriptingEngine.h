@@ -1,11 +1,16 @@
 #pragma once
 
-#include <nethost.h>
 #include <hostfxr.h>
-#include <coreclr_delegates.h>
 
 namespace Figment
 {
+    struct HostFXRFunctions
+    {
+        hostfxr_initialize_for_runtime_config_fn InitFunction;
+        hostfxr_get_runtime_delegate_fn GetDelegateFunction;
+        hostfxr_close_fn CloseFunction;
+    };
+
     class ScriptingEngine
     {
     public:
