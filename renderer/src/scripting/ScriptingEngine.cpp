@@ -51,6 +51,22 @@ namespace Figment
         return functions;
     }
 
+    // static void LoadAssemblyAndFunctionsTest(HostFXRFunctions hostFunctions, hostfxr_handle ctx)
+    // {
+    //     // Load assembly
+    //     void *loadAssembly = nullptr;
+    //     int res = hostFunctions.GetDelegateFunction(ctx, hdt_load_in_memory_assembly, (void **)&loadAssembly);
+    //     ASSERT(res == 0, "Failed to get delegate for hdt_load_in_memory_assembly!");
+
+    //     get_function_pointer_fn getFunctionPointer = nullptr;
+    //     res = hostFunctions.GetDelegateFunction(ctx, hdt_get_function_pointer, (void **)getFunctionPointer);
+    //     ASSERT(res == 0, "Failed to get delegate hdt_get_function_pointer!");
+
+    //     custom_entry_point_fn OnUpdate = nullptr;
+    //     res = getFunctionPointer(typeName, methodName, delegateTypeName, nullptr, nullptr, (void **)&OnUpdate);
+    //     ASSERT(res == 0, "Failed to get function pointer!");
+    // }
+
     void ScriptingEngine::Init()
     {
 
