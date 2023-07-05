@@ -2,7 +2,7 @@
 #include "Scene.h"
 #include "Entity.h"
 #include "Input.h"
-#include "ScriptingEngine.h"
+#include "ScriptEngine.h"
 
 #include <math.h>
 #include <fstream>
@@ -25,7 +25,8 @@ App::App(float width, float height)
     m_Scene = new Scene(m_Window->GetWidth(), m_Window->GetHeight());
     m_Scene->CreateEntity();
 
-    Figment::ScriptingEngine::Init();
+    auto scriptEngine = ScriptEngine::Create();
+    scriptEngine->Init();
     // while (!m_Window->ShouldClose() && !Input::GetKeyDown(GLFW_KEY_ESCAPE))
     // {
     //     Update();

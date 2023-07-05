@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cstdlib>
 
-#define ASSERT(condition, message)                                             \
+#define FIGMENT_ASSERT(condition, message)                                     \
     do                                                                         \
     {                                                                          \
         if (!(condition))                                                      \

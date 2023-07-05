@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ScriptEngine.h"
 #include <hostfxr.h>
 
 namespace Figment
@@ -11,13 +12,13 @@ namespace Figment
         hostfxr_close_fn CloseFunction;
     };
 
-    class ScriptingEngine
+    class CoreCLRScriptEngine : public ScriptEngine
     {
     public:
-        ScriptingEngine() = delete;
-        ~ScriptingEngine() = delete;
-        static void Init();
-        static void Shutdown();
+        CoreCLRScriptEngine() = default;
+        ~CoreCLRScriptEngine() = default;
+        void Init();
+        void Shutdown();
 
     private:
     };
