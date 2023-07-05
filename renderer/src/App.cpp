@@ -27,10 +27,10 @@ App::App(float width, float height)
 
     auto scriptEngine = ScriptEngine::Create();
     scriptEngine->Init();
-    // while (!m_Window->ShouldClose() && !Input::GetKeyDown(GLFW_KEY_ESCAPE))
-    // {
-    //     Update();
-    // }
+    while (!m_Window->ShouldClose() && !Input::GetKeyDown(GLFW_KEY_ESCAPE))
+    {
+        Update();
+    }
 }
 
 App::~App()
