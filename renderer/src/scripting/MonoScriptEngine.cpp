@@ -48,11 +48,19 @@ static void PrintAssemblyTypes(MonoAssembly *assembly)
     }
 }
 
+static MonoClass *GetManagedClass(MonoAssembly *assembly, const char *namespaceName, const char *className)
+{
+    MonoImage *image = mono_assembly_get_image(assembly);
+    MonoClass *managedClass = mono_class_from_name(image, namespaceName, className);
+    FIGMENT_ASSERT(managedClass != nullptr, "Error getting managed class!");
+    return managedClass;
+}
+
 void MonoScriptEngine::Init()
 {
-    mono_set_assemblies_path("lib/mono");
+    mono_set_assemblies_path("mono/lib");
 
-    m_RootDomain = mono_jit_init("MyScriptRuntime");
+    m_RootDomain = mono_jit_init("FigmentRuntime");
     FIGMENT_ASSERT(m_RootDomain != nullptr, "Failed to init mono root domain!");
 
     m_AppDomain = mono_domain_create_appdomain("MyAppDomain", nullptr);
@@ -61,8 +69,19 @@ void MonoScriptEngine::Init()
     mono_domain_set(m_AppDomain, true);
 
     m_Assembly = LoadCSharpAssembly("scripting-core/FigmentScriptingCore.dll");
-
     PrintAssemblyTypes(m_Assembly);
+
+    MonoClass *managedClass = GetManagedClass(m_Assembly, "FigmentScriptingCore", "Component");
+    MonoObject *managedClassInstance = mono_object_new(m_AppDomain, managedClass);
+    FIGMENT_ASSERT(managedClassInstance != nullptr, "Error instantiating managed class!");
+    mono_runtime_object_init(managedClassInstance);
+
+    MonoMethod *method = mono_class_get_method_from_name(managedClass, "OnUpdate", 0);
+    FIGMENT_ASSERT(method != nullptr, "Error getting method!");
+
+    MonoObject *exception = nullptr;
+    mono_runtime_invoke(method, managedClassInstance, nullptr, &exception);
+    FIGMENT_ASSERT(exception == nullptr, "Error invoking method!");
 }
 
 void MonoScriptEngine::Shutdown()
