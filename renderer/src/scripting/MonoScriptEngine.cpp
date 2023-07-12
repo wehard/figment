@@ -2,8 +2,6 @@
 #include "FigmentAssert.h"
 #include <fstream>
 
-#include "mono/metadata/mono-config.h"
-
 static char *ReadBytes(const std::string &filepath, uint32_t *outSize)
 {
     std::ifstream stream(filepath, std::ios::binary | std::ios::ate);
@@ -48,6 +46,7 @@ static void PrintAssemblyTypes(MonoAssembly *assembly)
 
         printf("%s.%s\n", nameSpace, name);
     }
+    // mono_image_close(image);
 }
 
 static MonoClass *GetManagedClass(MonoAssembly *assembly, const char *namespaceName, const char *className)
@@ -56,6 +55,7 @@ static MonoClass *GetManagedClass(MonoAssembly *assembly, const char *namespaceN
     FIGMENT_ASSERT(image != nullptr, "Error getting assembly  image!");
     MonoClass *managedClass = mono_class_from_name(image, namespaceName, className);
     FIGMENT_ASSERT(managedClass != nullptr, "Error getting managed class!");
+    // mono_image_close(image);
     return managedClass;
 }
 
@@ -73,7 +73,9 @@ void MonoScriptEngine::Init()
     m_Assembly = LoadCSharpAssembly("script-core/FigmentScriptCore.dll");
     PrintAssemblyTypes(m_Assembly);
 
+
     MonoClass *managedClass = GetManagedClass(m_Assembly, "FigmentScriptCore", "Component");
+
     MonoObject *managedClassInstance = mono_object_new(m_AppDomain, managedClass);
     FIGMENT_ASSERT(managedClassInstance != nullptr, "Error instantiating managed class!");
     mono_runtime_object_init(managedClassInstance);
@@ -83,6 +85,10 @@ void MonoScriptEngine::Init()
 
     MonoObject *exception = nullptr;
     mono_runtime_invoke(method, managedClassInstance, nullptr, &exception);
+    if (exception)
+    {
+        mono_print_unhandled_exception(exception);
+    }
     FIGMENT_ASSERT(exception == nullptr, "Error invoking method!");
 }
 
