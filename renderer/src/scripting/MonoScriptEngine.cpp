@@ -2,6 +2,8 @@
 #include "FigmentAssert.h"
 #include <fstream>
 
+#include "mono/metadata/mono-config.h"
+
 static char *ReadBytes(const std::string &filepath, uint32_t *outSize)
 {
     std::ifstream stream(filepath, std::ios::binary | std::ios::ate);
@@ -51,6 +53,7 @@ static void PrintAssemblyTypes(MonoAssembly *assembly)
 static MonoClass *GetManagedClass(MonoAssembly *assembly, const char *namespaceName, const char *className)
 {
     MonoImage *image = mono_assembly_get_image(assembly);
+    FIGMENT_ASSERT(image != nullptr, "Error getting assembly  image!");
     MonoClass *managedClass = mono_class_from_name(image, namespaceName, className);
     FIGMENT_ASSERT(managedClass != nullptr, "Error getting managed class!");
     return managedClass;
@@ -58,8 +61,7 @@ static MonoClass *GetManagedClass(MonoAssembly *assembly, const char *namespaceN
 
 void MonoScriptEngine::Init()
 {
-    mono_set_assemblies_path("mono/lib");
-
+    mono_set_assemblies_path("./mono/lib");
     m_RootDomain = mono_jit_init("FigmentRuntime");
     FIGMENT_ASSERT(m_RootDomain != nullptr, "Failed to init mono root domain!");
 
@@ -68,10 +70,10 @@ void MonoScriptEngine::Init()
 
     mono_domain_set(m_AppDomain, true);
 
-    m_Assembly = LoadCSharpAssembly("scripting-core/FigmentScriptingCore.dll");
+    m_Assembly = LoadCSharpAssembly("script-core/FigmentScriptCore.dll");
     PrintAssemblyTypes(m_Assembly);
 
-    MonoClass *managedClass = GetManagedClass(m_Assembly, "FigmentScriptingCore", "Component");
+    MonoClass *managedClass = GetManagedClass(m_Assembly, "FigmentScriptCore", "Component");
     MonoObject *managedClassInstance = mono_object_new(m_AppDomain, managedClass);
     FIGMENT_ASSERT(managedClassInstance != nullptr, "Error instantiating managed class!");
     mono_runtime_object_init(managedClassInstance);
