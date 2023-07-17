@@ -16,6 +16,7 @@ private:
     MonoDomain *m_RootDomain;
     MonoDomain *m_AppDomain;
     MonoAssembly *m_Assembly;
+    MonoImage *m_AssemblyImage;
 
-    MonoAssembly *LoadCSharpAssembly(const std::string &assemblyPath);
+    bool LoadCSharpAssembly(const std::string &assemblyPath);
 };

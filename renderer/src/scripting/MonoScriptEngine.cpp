@@ -30,9 +30,8 @@ static char *ReadBytes(const std::string &filepath, uint32_t *outSize)
     return buffer;
 }
 
-static void PrintAssemblyTypes(MonoAssembly *assembly)
+static void PrintAssemblyTypes(MonoAssembly *assembly, MonoImage *image)
 {
-    MonoImage *image = mono_assembly_get_image(assembly);
     const MonoTableInfo *typeDefinitionsTable = mono_image_get_table_info(image, MONO_TABLE_TYPEDEF);
     int32_t numTypes = mono_table_info_get_rows(typeDefinitionsTable);
 
@@ -46,16 +45,12 @@ static void PrintAssemblyTypes(MonoAssembly *assembly)
 
         printf("%s.%s\n", nameSpace, name);
     }
-    // mono_image_close(image);
 }
 
-static MonoClass *GetManagedClass(MonoAssembly *assembly, const char *namespaceName, const char *className)
+static MonoClass *GetManagedClass(MonoImage *image, char *namespaceName, char *className)
 {
-    MonoImage *image = mono_assembly_get_image(assembly);
-    FIGMENT_ASSERT(image != nullptr, "Error getting assembly  image!");
     MonoClass *managedClass = mono_class_from_name(image, namespaceName, className);
     FIGMENT_ASSERT(managedClass != nullptr, "Error getting managed class!");
-    // mono_image_close(image);
     return managedClass;
 }
 
@@ -70,11 +65,10 @@ void MonoScriptEngine::Init()
 
     mono_domain_set(m_AppDomain, true);
 
-    m_Assembly = LoadCSharpAssembly("script-core/FigmentScriptCore.dll");
-    PrintAssemblyTypes(m_Assembly);
+    LoadCSharpAssembly("script-core/FigmentScriptCore.dll");
+    PrintAssemblyTypes(m_Assembly, m_AssemblyImage);
 
-
-    MonoClass *managedClass = GetManagedClass(m_Assembly, "FigmentScriptCore", "Component");
+    MonoClass *managedClass = GetManagedClass(m_AssemblyImage, "FigmentScriptCore", "Component");
 
     MonoObject *managedClassInstance = mono_object_new(m_AppDomain, managedClass);
     FIGMENT_ASSERT(managedClassInstance != nullptr, "Error instantiating managed class!");
@@ -97,7 +91,7 @@ void MonoScriptEngine::Shutdown()
     mono_jit_cleanup(m_RootDomain);
 }
 
-MonoAssembly *MonoScriptEngine::LoadCSharpAssembly(const std::string &assemblyPath)
+bool MonoScriptEngine::LoadCSharpAssembly(const std::string &assemblyPath)
 {
     uint32_t fileSize = 0;
     char *fileData = ReadBytes(assemblyPath, &fileSize);
@@ -110,14 +104,16 @@ MonoAssembly *MonoScriptEngine::LoadCSharpAssembly(const std::string &assemblyPa
     {
         const char *errorMessage = mono_image_strerror(status);
         // Log some error message using the errorMessage data
-        return nullptr;
+        return false;
     }
 
-    MonoAssembly *assembly = mono_assembly_load_from_full(image, assemblyPath.c_str(), &status, 0);
+    m_Assembly = mono_assembly_load_from_full(image, assemblyPath.c_str(), &status, 0);
+    m_AssemblyImage = mono_assembly_get_image(m_Assembly);
+
     mono_image_close(image);
 
     // Don't forget to free the file data
     delete[] fileData;
 
-    return assembly;
+    return true;
 }
