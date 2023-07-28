@@ -47,7 +47,7 @@ static void PrintAssemblyTypes(MonoAssembly *assembly, MonoImage *image)
     }
 }
 
-static MonoClass *GetManagedClass(MonoImage *image, char *namespaceName, char *className)
+static MonoClass *GetManagedClass(MonoImage *image, const char *namespaceName, const char *className)
 {
     MonoClass *managedClass = mono_class_from_name(image, namespaceName, className);
     FIGMENT_ASSERT(managedClass != nullptr, "Error getting managed class!");
@@ -60,7 +60,9 @@ void MonoScriptEngine::Init()
     m_RootDomain = mono_jit_init("FigmentRuntime");
     FIGMENT_ASSERT(m_RootDomain != nullptr, "Failed to init mono root domain!");
 
-    m_AppDomain = mono_domain_create_appdomain("MyAppDomain", nullptr);
+    std::string nameAppDomain = "MyAppDomain";
+
+    m_AppDomain = mono_domain_create_appdomain((char*)nameAppDomain.c_str(), nullptr);
     FIGMENT_ASSERT(m_AppDomain != nullptr, "Failed to init mono app domain!");
 
     mono_domain_set(m_AppDomain, true);
