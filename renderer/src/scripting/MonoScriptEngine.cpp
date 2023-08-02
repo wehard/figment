@@ -2,6 +2,8 @@
 #include "FigmentAssert.h"
 #include <fstream>
 
+#include "mono/metadata/mono-config.h"
+
 static char *ReadBytes(const std::string &filepath, uint32_t *outSize)
 {
     std::ifstream stream(filepath, std::ios::binary | std::ios::ate);
@@ -56,7 +58,9 @@ static MonoClass *GetManagedClass(MonoImage *image, const char *namespaceName, c
 
 void MonoScriptEngine::Init()
 {
+    mono_set_rootdir();
     mono_set_assemblies_path("./mono/lib");
+    mono_config_parse("./mono/etc/mono/config");
     m_RootDomain = mono_jit_init("FigmentRuntime");
     FIGMENT_ASSERT(m_RootDomain != nullptr, "Failed to init mono root domain!");
 
