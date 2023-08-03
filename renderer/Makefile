@@ -87,7 +87,9 @@ $(WEB_DIR):
 	@mkdir -p $@
 
 scripting:
-	dotnet build ./script-core/src/ScriptCore.csproj --framework netstandard2.0 --configuration Release --output ./script-core --verbosity normal
+	@cd script-core/src && dotnet build
+	@cp script-core/src/bin/Debug/netstandard2.0/ScriptCore.dll script-core/ScriptCore.dll
+#dotnet build ./script-core/src/ScriptCore.csproj --framework netstandard2.0 --configuration Release --output ./script-core --verbosity normal
 
 debug:
 	$(CC) -g $(CFLAGS) $(INCL) $(SRCS) $(LDFLAGS) -o $(NAME)

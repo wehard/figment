@@ -6,7 +6,7 @@ namespace Figment
     {
         public Component()
         {
-            Console.WriteLine("Component::Component");
+            Console.WriteLine("Hello, World!");
         }
 
         public static void Print()
@@ -18,5 +18,10 @@ namespace Figment
         {
             Console.WriteLine("Component.OnUpdate");
         }
+    }
+
+    public class Transform : Component
+    {
+
     }
 }
