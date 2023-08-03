@@ -5,11 +5,21 @@ namespace Figment
 {
     public class Entity
     {
-        private List<Component> m_Components = new List<Component>();
+        private readonly List<Component> m_Components = new List<Component>();
 
         public Entity()
         {
             Console.WriteLine("Entity::Entity");
+            AddComponent<Component>();
+            AddComponent<Transform>();
+        }
+
+        public void OnUpdate()
+        {
+            foreach (var c in m_Components)
+            {
+                c.OnUpdate();
+            }
         }
 
         public T AddComponent<T>() where T : Component, new()
@@ -21,11 +31,11 @@ namespace Figment
 
         public T GetComponent<T>() where T : Component
         {
-            Type componentType = typeof(T);
+            var componentType = typeof(T);
 
             foreach (var component in m_Components)
             {
-                if (componentType.IsAssignableFrom(component.GetType()))
+                if (componentType.IsInstanceOfType(component))
                 {
                     return (T)component;
                 }

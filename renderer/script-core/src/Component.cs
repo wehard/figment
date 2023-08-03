@@ -14,7 +14,7 @@ namespace Figment
             Console.WriteLine("Called from C#");
         }
 
-        public void OnUpdate()
+        public virtual void OnUpdate()
         {
             Console.WriteLine("Component.OnUpdate");
         }
@@ -22,6 +22,9 @@ namespace Figment
 
     public class Transform : Component
     {
-
+        public override void OnUpdate()
+        {
+            Console.WriteLine("Transform.OnUpdate");
+        }
     }
 }

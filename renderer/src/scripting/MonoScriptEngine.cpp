@@ -74,7 +74,7 @@ void MonoScriptEngine::Init()
     LoadCSharpAssembly("script-core/ScriptCore.dll");
     PrintAssemblyTypes(m_Assembly, m_AssemblyImage);
 
-    MonoClass *managedClass = GetManagedClass(m_AssemblyImage, "Figment", "Component");
+    MonoClass *managedClass = GetManagedClass(m_AssemblyImage, "Figment", "Entity");
 
     MonoObject *managedClassInstance = mono_object_new(m_AppDomain, managedClass);
     FIGMENT_ASSERT(managedClassInstance != nullptr, "Error instantiating managed class!");
