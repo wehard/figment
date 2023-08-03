@@ -62,6 +62,7 @@ EMS_INCL = ${INCL}
 EMS_LDFLAGS = -s WASM=1 -s USE_WEBGL2=1 -s ALLOW_MEMORY_GROWTH=1 -s NO_EXIT_RUNTIME=0 -s ASSERTIONS=1 ${EMS}
 
 UNAME_S := $(shell uname -s)
+UNAME_P := $(shell uname -p)
 
 #CC = em++
 CC = clang++
@@ -84,6 +85,9 @@ $(OBJ_DIR)/%.o: %.cpp
 	
 $(WEB_DIR):
 	@mkdir -p $@
+
+scripting:
+	dotnet build ./script-core/src/ScriptCore.csproj --framework netstandard2.0 --configuration Release --output ./script-core --verbosity normal
 
 debug:
 	$(CC) -g $(CFLAGS) $(INCL) $(SRCS) $(LDFLAGS) -o $(NAME)

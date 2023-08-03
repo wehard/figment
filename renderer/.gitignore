@@ -7,3 +7,5 @@ figment
 web
 build
 .DS_Store
+obj
+bin
