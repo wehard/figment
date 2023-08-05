@@ -7,8 +7,6 @@ namespace Figment
     {
         public ulong Id { get; } = 0;
         private readonly List<Component> m_Components = new List<Component>();
-
-        
         
         public Entity()
         {

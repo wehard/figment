@@ -7,12 +7,11 @@
 class MonoScriptEngine : public ScriptEngine
 {
 public:
-    static Scene *m_Scene;
     MonoScriptEngine() = default;
     ~MonoScriptEngine() = default;
     void Init();
     void Shutdown();
-    static Scene *GetSceneContext();
+    void OnUpdate(float timeStep);
 
 private:
     MonoDomain *m_RootDomain;

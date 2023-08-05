@@ -73,7 +73,7 @@ namespace Figment
         void *lib = loadHostFXR();
 
         HostFXRFunctions hostFunctions = GetHostFxrFunctions(lib);
-        const char_t *runtimeConfigPath = "scripting-core/FigmentScriptingCore.runtimeconfig.json";
+        const char_t *runtimeConfigPath = "script-core/ScriptCore.runtimeconfig.json";
 
         hostfxr_handle ctx = nullptr;
         int res = hostFunctions.InitFunction(runtimeConfigPath, nullptr, &ctx);
@@ -84,9 +84,9 @@ namespace Figment
         res = hostFunctions.GetDelegateFunction(ctx, hdt_load_assembly_and_get_function_pointer, (void **)&loadAssemblyGetFunctionPointer);
         FIGMENT_ASSERT(res == 0, "Failed to get delegate!");
 
-        const char_t *assemblyPath = "scripting-core/FigmentScriptingCore.dll";
-        const char_t *typeName = "FigmentScriptingCore.Component, FigmentScriptingCore";
-        const char_t *methodName = "OnUpdate";
+        const char_t *assemblyPath = "script-core/ScriptCore.dll";
+        const char_t *typeName = "Figment.CoreCLR, Figment";
+        const char_t *methodName = "Test";
         const char_t *delegateTypeName = "System.Action";
 
         typedef void(CORECLR_DELEGATE_CALLTYPE * custom_entry_point_fn)();

@@ -59,20 +59,20 @@ static MonoClass *GetManagedClass(MonoImage *image, const char *namespaceName, c
 
 static void Transform_GetPosition(uint32_t entityID, glm::vec3 *position)
 {
-    Scene *scene = MonoScriptEngine::GetSceneContext();
+    Scene *scene = ScriptEngine::GetSceneContext();
     FIGMENT_ASSERT(scene != nullptr, "Failed to get scene!");
     Entity entity = scene->GetEntityById(entityID);
 
     *position = entity.GetComponent<TransformComponent>().Position;
 }
 
-static void Transform_SetPosition(uint32_t entityID, glm::vec3* position)
+static void Transform_SetPosition(uint32_t entityID, glm::vec3 *position)
 {
-	Scene *scene = MonoScriptEngine::GetSceneContext();
-	FIGMENT_ASSERT(scene != nullptr, "Failed to get scene!");
-	Entity entity = scene->GetEntityById(entityID);
+    Scene *scene = ScriptEngine::GetSceneContext();
+    FIGMENT_ASSERT(scene != nullptr, "Failed to get scene!");
+    Entity entity = scene->GetEntityById(entityID);
 
-	entity.GetComponent<TransformComponent>().Position = *position;
+    entity.GetComponent<TransformComponent>().Position = *position;
 }
 
 void MonoScriptEngine::Init()
@@ -90,12 +90,22 @@ void MonoScriptEngine::Init()
 
     mono_domain_set(m_AppDomain, true);
 
-    mono_add_internal_call("Figment.NativeFunctions::Transform_GetPosition", (void*)Transform_GetPosition);
-    mono_add_internal_call("Figment.NativeFunctions::Transform_SetPosition", (void*)Transform_SetPosition);
+    mono_add_internal_call("Figment.NativeFunctions::Transform_GetPosition", (void *)Transform_GetPosition);
+    mono_add_internal_call("Figment.NativeFunctions::Transform_SetPosition", (void *)Transform_SetPosition);
 
     LoadCSharpAssembly("script-core/ScriptCore.dll");
     PrintAssemblyTypes(m_Assembly, m_AssemblyImage);
 
+    OnUpdate(0.0);
+}
+
+void MonoScriptEngine::Shutdown()
+{
+    mono_jit_cleanup(m_RootDomain);
+}
+
+void MonoScriptEngine::OnUpdate(float timeStep)
+{
     MonoClass *managedClass = GetManagedClass(m_AssemblyImage, "Figment", "Entity");
 
     MonoObject *managedClassInstance = mono_object_new(m_AppDomain, managedClass);
@@ -105,8 +115,6 @@ void MonoScriptEngine::Init()
     MonoMethod *method = mono_class_get_method_from_name(managedClass, "OnUpdate", 0);
     FIGMENT_ASSERT(method != nullptr, "Error getting method!");
 
-
-
     MonoObject *exception = nullptr;
     mono_runtime_invoke(method, managedClassInstance, nullptr, &exception);
     if (exception)
@@ -114,18 +122,6 @@ void MonoScriptEngine::Init()
         mono_print_unhandled_exception(exception);
     }
     FIGMENT_ASSERT(exception == nullptr, "Error invoking method!");
-}
-
-void MonoScriptEngine::Shutdown()
-{
-    mono_jit_cleanup(m_RootDomain);
-}
-
-Scene *MonoScriptEngine::m_Scene = nullptr;
-
-Scene *MonoScriptEngine::GetSceneContext()
-{
-    return m_Scene;
 }
 
 bool MonoScriptEngine::LoadCSharpAssembly(const std::string &assemblyPath)

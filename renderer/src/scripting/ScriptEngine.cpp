@@ -10,17 +10,23 @@ std::unique_ptr<ScriptEngine> ScriptEngine::Create(ScriptEngineType scriptEngine
     {
     case ScriptEngineType::Mono:
     {
-        auto mono = std::make_unique<MonoScriptEngine>();
-        mono->m_Scene = scene;
-        return mono;
+        scriptEngine = std::make_unique<MonoScriptEngine>();
         break;
     }
     case ScriptEngineType::CoreCLR:
-        return std::make_unique<Figment::CoreCLRScriptEngine>();
+        scriptEngine = std::make_unique<Figment::CoreCLRScriptEngine>();
         break;
     default:
-        return std::make_unique<MonoScriptEngine>();
-
+        scriptEngine = std::make_unique<MonoScriptEngine>();
         break;
     }
+    scriptEngine->m_Scene = scene;
+    return scriptEngine;
+}
+
+Scene *ScriptEngine::m_Scene = nullptr;
+
+Scene *ScriptEngine::GetSceneContext()
+{
+    return m_Scene;
 }

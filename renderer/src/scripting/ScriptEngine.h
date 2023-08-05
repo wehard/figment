@@ -16,6 +16,9 @@ public:
     virtual ~ScriptEngine() = default;
     virtual void Init() = 0;
     virtual void Shutdown() = 0;
+    virtual void OnUpdate(float timeStep) = 0;
 
     static std::unique_ptr<ScriptEngine> Create(ScriptEngineType scriptEngineType, Scene *scene);
+    static Scene *m_Scene;
+    static Scene *GetSceneContext();
 };
