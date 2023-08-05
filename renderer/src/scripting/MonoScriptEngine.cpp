@@ -77,6 +77,7 @@ static void Transform_SetPosition(uint32_t entityID, glm::vec3 *position)
 
 void MonoScriptEngine::Init()
 {
+    ScriptEngine::s_Instance = this;
     mono_set_rootdir();
     mono_set_assemblies_path("./mono/lib");
     mono_config_parse("./mono/etc/mono/config");
@@ -96,7 +97,7 @@ void MonoScriptEngine::Init()
     LoadCSharpAssembly("script-core/ScriptCore.dll");
     PrintAssemblyTypes(m_Assembly, m_AssemblyImage);
 
-    OnUpdate(0.0);
+    OnUpdate(0.000123);
 }
 
 void MonoScriptEngine::Shutdown()
@@ -112,11 +113,12 @@ void MonoScriptEngine::OnUpdate(float timeStep)
     FIGMENT_ASSERT(managedClassInstance != nullptr, "Error instantiating managed class!");
     mono_runtime_object_init(managedClassInstance);
 
-    MonoMethod *method = mono_class_get_method_from_name(managedClass, "OnUpdate", 0);
+    MonoMethod *method = mono_class_get_method_from_name(managedClass, "OnUpdate", 1);
     FIGMENT_ASSERT(method != nullptr, "Error getting method!");
 
     MonoObject *exception = nullptr;
-    mono_runtime_invoke(method, managedClassInstance, nullptr, &exception);
+    void* param = &timeStep;
+    mono_runtime_invoke(method, managedClassInstance, &param, &exception);
     if (exception)
     {
         mono_print_unhandled_exception(exception);

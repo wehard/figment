@@ -19,6 +19,7 @@ namespace Figment
         ~CoreCLRScriptEngine() = default;
         void Init();
         void Shutdown();
+        void OnUpdate(float timeStep);
 
     private:
     };

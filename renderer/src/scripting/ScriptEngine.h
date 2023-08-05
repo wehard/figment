@@ -19,6 +19,7 @@ public:
     virtual void OnUpdate(float timeStep) = 0;
 
     static std::unique_ptr<ScriptEngine> Create(ScriptEngineType scriptEngineType, Scene *scene);
+    static ScriptEngine *s_Instance;
     static Scene *m_Scene;
     static Scene *GetSceneContext();
 };

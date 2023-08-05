@@ -13,7 +13,6 @@ namespace Figment
             Console.WriteLine("Entity::Entity");
             AddComponent<Info>();
             var t = AddComponent<Transform>();
-            t.Position = new Vec3(10, 0, 0);
         }
 
         public Entity(ulong id)
@@ -21,11 +20,11 @@ namespace Figment
             Id = id;
         }
 
-        public void OnUpdate()
+        public void OnUpdate(float timeStep)
         {
             foreach (var c in m_Components)
             {
-                c.OnUpdate();
+                c.OnUpdate(timeStep);
             }
         }
 

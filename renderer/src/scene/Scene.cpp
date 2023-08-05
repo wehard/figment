@@ -1,5 +1,6 @@
 #include "Scene.h"
 #include "Entity.h"
+#include "ScriptEngine.h"
 
 Scene::Scene() {}
 
@@ -78,10 +79,13 @@ void Scene::Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportS
     for (auto e : view)
     {
         Entity entity = {e, this};
+
+
         if (entity.HasComponent<VerletBodyComponent>())
             m_VerletPhysics.Update(entity, GetEntities(), deltaTime);
         m_Renderer->DrawCircle(entity.GetComponent<TransformComponent>().GetTransform(), glm::vec4(0.8, 1.0, 0.2, 0.5), (int)e);
     }
+    ScriptEngine::s_Instance->OnUpdate(deltaTime);
 
     glm::vec2 normalized = glm::vec2(mousePosition.x / viewportSize.x, mousePosition.y / viewportSize.y);
 

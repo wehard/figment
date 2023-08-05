@@ -5,7 +5,7 @@ namespace Figment
     public interface IComponent
     {
         void OnStart();
-        void OnUpdate();
+        void OnUpdate(float timeStep);
     }
     
     public abstract class Component : IComponent
@@ -23,7 +23,7 @@ namespace Figment
         }
 
         public virtual void OnStart() {}
-        public virtual void OnUpdate() {}
+        public virtual void OnUpdate(float timeStep) {}
     }
 
     public class Info : Component
@@ -40,11 +40,9 @@ namespace Figment
                 NativeFunctions.Transform_GetPosition(Entity.Id, out var position);
                 return position;
             }
-            set
-            {
-                NativeFunctions.Transform_SetPosition(Entity.Id, ref value);
-            }
+            set => NativeFunctions.Transform_SetPosition(Entity.Id, ref value);
         }
+        
         public Vec3 Rotation;
         public Vec3 Scale;
         
@@ -53,9 +51,9 @@ namespace Figment
             Console.WriteLine("Transform.OnStart");
         }
 
-        public override void OnUpdate()
+        public override void OnUpdate(float timeStep)
         {
-            Console.WriteLine($"Transform.OnUpdate, {ToString()}");
+            Console.WriteLine($"Transform.OnUpdate({timeStep}), {ToString()}");
         }
 
         public override string ToString()

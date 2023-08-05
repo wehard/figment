@@ -106,4 +106,7 @@ namespace Figment
     void CoreCLRScriptEngine::Shutdown()
     {
     }
+    void CoreCLRScriptEngine::OnUpdate(float timeStep)
+    {
+    }
 }

@@ -24,6 +24,8 @@ std::unique_ptr<ScriptEngine> ScriptEngine::Create(ScriptEngineType scriptEngine
     return scriptEngine;
 }
 
+ScriptEngine *ScriptEngine::s_Instance = nullptr;
+
 Scene *ScriptEngine::m_Scene = nullptr;
 
 Scene *ScriptEngine::GetSceneContext()
