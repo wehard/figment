@@ -10,7 +10,6 @@ namespace Figment
         public Entity()
         {
             Console.WriteLine("Entity::Entity");
-            AddComponent<Component>();
             AddComponent<Transform>();
         }
 
