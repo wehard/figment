@@ -5,12 +5,22 @@ namespace Figment
 {
     public class Entity
     {
+        public ulong Id { get; } = 0;
         private readonly List<Component> m_Components = new List<Component>();
 
+        
+        
         public Entity()
         {
             Console.WriteLine("Entity::Entity");
-            AddComponent<Transform>();
+            AddComponent<Info>();
+            var t = AddComponent<Transform>();
+            t.Position = new Vec3(10, 0, 0);
+        }
+
+        public Entity(ulong id)
+        {
+            Id = id;
         }
 
         public void OnUpdate()
@@ -23,7 +33,7 @@ namespace Figment
 
         public T AddComponent<T>() where T : Component, new()
         {
-            var component = new T();
+            var component = new T() {Entity = this};
             m_Components.Add(component);
             return component;
         }

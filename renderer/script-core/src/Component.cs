@@ -10,6 +10,8 @@ namespace Figment
     
     public abstract class Component : IComponent
     {
+        public Entity Entity { get; internal set; }
+        
         protected Component()
         {
             Console.WriteLine("Component constructor called.");
@@ -24,9 +26,25 @@ namespace Figment
         public virtual void OnUpdate() {}
     }
 
+    public class Info : Component
+    {
+        public string Name { get; }
+    }
+
     public class Transform : Component
     {
-        public Vec3 Position;
+        public Vec3 Position
+        {
+            get
+            {
+                NativeFunctions.Transform_GetPosition(Entity.Id, out var position);
+                return position;
+            }
+            set
+            {
+                NativeFunctions.Transform_SetPosition(Entity.Id, ref value);
+            }
+        }
         public Vec3 Rotation;
         public Vec3 Scale;
         

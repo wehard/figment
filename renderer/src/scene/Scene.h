@@ -9,6 +9,7 @@
 #include <vector>
 
 class Entity;
+
 class Scene
 {
 private:
@@ -33,6 +34,7 @@ public:
     Entity CreateEntity(uint32_t id);
     void DestroyEntity(Entity entity);
     std::vector<Entity> GetEntities();
+    Entity GetEntityById(uint32_t id);
     Entity GetHoveredEntity();
 
     void Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportSize);

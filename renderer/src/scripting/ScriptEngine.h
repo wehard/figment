@@ -2,6 +2,8 @@
 
 #include <memory>
 
+class Scene;
+
 enum class ScriptEngineType
 {
     Mono,
@@ -15,5 +17,5 @@ public:
     virtual void Init() = 0;
     virtual void Shutdown() = 0;
 
-    static std::unique_ptr<ScriptEngine> Create(ScriptEngineType scriptEngineType);
+    static std::unique_ptr<ScriptEngine> Create(ScriptEngineType scriptEngineType, Scene *scene);
 };

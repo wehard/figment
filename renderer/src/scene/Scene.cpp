@@ -50,6 +50,13 @@ std::vector<Entity> Scene::GetEntities()
     return entities;
 }
 
+Entity Scene::GetEntityById(uint32_t id)
+{
+    if (m_Registry.valid((entt::entity)id))
+        return {(entt::entity)id, this};
+    return {};
+}
+
 Entity Scene::GetHoveredEntity()
 {
     if (m_Registry.valid((entt::entity)m_HoveredId))
