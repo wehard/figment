@@ -1,15 +1,3 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    Makefile                                           :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: wkorande <willehard@gmail.com>             +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2020/06/01 15:48:04 by rjaakonm          #+#    #+#              #
-#    Updated: 2022/06/20 17:18:34 by wkorande         ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
-
 NAME = figment
 
 SRCDIR = src
@@ -89,7 +77,6 @@ $(WEB_DIR):
 scripting:
 	@cd script-core/src && dotnet build
 	@cp script-core/src/bin/Debug/netstandard2.0/ScriptCore.dll script-core/ScriptCore.dll
-#dotnet build ./script-core/src/ScriptCore.csproj --framework netstandard2.0 --configuration Release --output ./script-core --verbosity normal
 
 debug:
 	$(CC) -g $(CFLAGS) $(INCL) $(SRCS) $(LDFLAGS) -o $(NAME)
