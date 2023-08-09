@@ -37,7 +37,7 @@ all: $(NAME)
 
 $(NAME): ${OBJS} ${WEB_DIR}
 	@printf "Building WASM %s\n" "$(NAME)"
-	@$(CC) $(EMS_CFLAGS) $(INCL) $(OBJS) $(LDFLAGS) -o $(WEB_EXE) -O3 --shell-file index.html --preload-file ${ASSET_DIR}@
+	@$(CC) $(EMS_CFLAGS) $(INCL) $(OBJS) $(LDFLAGS) -o $(WEB_EXE) -O3 --shell-file index.html --preload-file ${ASSET_DIR}@/res
 	@mv ${WEB_DIR}/index.data ../app/public/index.data
 	@printf "done.\n"
 

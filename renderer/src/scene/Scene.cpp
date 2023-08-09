@@ -90,7 +90,7 @@ void Scene::Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportS
     }
 
 #ifndef __EMSCRIPTEN__
-    ScriptEngine::s_Instance->OnUpdate(deltaTime);
+    // ScriptEngine::s_Instance->OnUpdate(deltaTime);
 #endif
 
     glm::vec2 normalized = glm::vec2(mousePosition.x / viewportSize.x, mousePosition.y / viewportSize.y);

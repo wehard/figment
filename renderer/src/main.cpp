@@ -92,12 +92,14 @@ static void main_loop(void *arg)
 
 int main(int argc, char **argv)
 {
-	// int width = atoi(argv[1]);
-	// int height = atoi(argv[2]);
-
-	// printf("%s:%d Initial canvas size %d x %d\n", __FILE__, __LINE__, width, height);
-
+#ifdef __EMSCRIPTEN__
+	int width = atoi(argv[1]);
+	int height = atoi(argv[2]);
+	printf("%s:%d Initial canvas size %d x %d\n", __FILE__, __LINE__, width, height);
+	app = new App(width, height);
+#else
 	app = new App(1280, 720);
+#endif
 
 #ifdef __EMSCRIPTEN__
 	emscripten_set_main_loop_arg(main_loop, app, 0, true);

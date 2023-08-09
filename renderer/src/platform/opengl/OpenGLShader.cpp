@@ -7,10 +7,25 @@
 #include <vector>
 #include <map>
 
+static std::string modifyShaderVersion(std::string shaderSource)
+{
+    size_t versionPos = shaderSource.find("#version 330 core");
+    if (versionPos != std::string::npos) {
+        shaderSource.replace(versionPos, 17, "#version 300 es  ");
+    }
+    return shaderSource;
+}
+
 OpenGLShader::OpenGLShader(const std::string &vertPath, const std::string &fragPath)
 {
     std::string vertSource = Utils::LoadFile(vertPath.c_str());
     std::string fragSource = Utils::LoadFile(fragPath.c_str());
+
+#ifdef __EMSCRIPTEN__
+   vertSource = modifyShaderVersion(vertSource);
+   fragSource = modifyShaderVersion(fragSource);
+#endif
+
     this->m_VertID = compileShader(vertSource, GL_VERTEX_SHADER);
     this->m_FragID = compileShader(fragSource, GL_FRAGMENT_SHADER);
     this->m_ID = createProgram(this->m_VertID, this->m_FragID);

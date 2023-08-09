@@ -21,7 +21,13 @@ App::App(float width, float height)
     Input::Initialize(glfwWindow);
     m_GUICtx = new GUIContext();
 
-    m_GUICtx->Init(glfwWindow, "#version 330 core");
+#ifdef __EMSCRIPTEN__
+    const char *glslVersion = "#version 300 es";
+#else
+    const char *glslVersion = "#version 330 core";
+#endif
+
+    m_GUICtx->Init(glfwWindow, glslVersion);
 
     m_Scene = new Scene(m_Window->GetWidth(), m_Window->GetHeight());
     m_Scene->CreateEntity();
