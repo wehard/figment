@@ -100,8 +100,14 @@ void Scene::Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportS
 #endif
 
     glm::vec2 normalized = glm::vec2(mousePosition.x / viewportSize.x, mousePosition.y / viewportSize.y);
-
-    m_HoveredId = m_Renderer->GetFramebuffer()->GetPixel(1, (uint32_t)(normalized.x * m_Width), m_Height - (uint32_t)(normalized.y * m_Height));
+    if (normalized.x < -1.0 || normalized.x > 1.0 || normalized.y < -1.0 || normalized.y > 1.0)
+    {
+        m_HoveredId = -1;
+    }
+    else
+    {
+        m_HoveredId = m_Renderer->GetFramebuffer()->GetPixel(1, (uint32_t)(normalized.x * m_Width), m_Height - (uint32_t)(normalized.y * m_Height));
+    }
     m_Renderer->End();
 }
 

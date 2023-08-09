@@ -26,7 +26,7 @@ private:
 
 public:
     glm::vec4 m_ClearColor;
-    int m_HoveredId;
+    int m_HoveredId = -1;
     Scene();
     Scene(uint32_t width, uint32_t height);
     ~Scene();
