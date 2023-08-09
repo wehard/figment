@@ -3,6 +3,7 @@ precision mediump float;
 
 uniform vec4 obj_color;
 uniform int obj_id;
+uniform int hovered_id;
 in vec4 o_col;
 in vec3 v_pos;
 
@@ -34,7 +35,15 @@ void main()
 	if (inside == 0.0)
 		discard;
 
-  color = vec4(random_color(float(obj_id + 42)), 1.0);
+  if (obj_id == hovered_id)
+  {
+    color = vec4(1.0, 1.0, 1.0, 1.0);
+  }
+  else
+  {
+    color = obj_color; //vec4(random_color(float(obj_id + 42)), 1.0);
+  }
+
   color.a = inside;
   id = obj_id;
 }

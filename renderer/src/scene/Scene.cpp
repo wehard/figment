@@ -20,6 +20,11 @@ Scene::~Scene()
 {
 }
 
+static glm::vec4 GetRandomColor()
+{
+    return glm::vec4((float)rand() / RAND_MAX, (float)rand() / RAND_MAX, (float)rand() / RAND_MAX, 1.0);
+}
+
 Entity Scene::CreateEntity(const std::string &name)
 {
     Entity entity = {m_Registry.create(), this};
@@ -27,6 +32,7 @@ Entity Scene::CreateEntity(const std::string &name)
     auto &info = entity.AddComponent<InfoComponent>();
     info.m_Name = name.empty() ? "Unnamed" : name;
     entity.AddComponent<TransformComponent>();
+    entity.AddComponent<ColorComponent>(GetRandomColor());
     return entity;
 }
 
@@ -86,7 +92,7 @@ void Scene::Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportS
 
         if (entity.HasComponent<VerletBodyComponent>())
             m_VerletPhysics.Update(entity, GetEntities(), deltaTime);
-        m_Renderer->DrawCircle(entity.GetComponent<TransformComponent>().GetTransform(), glm::vec4(0.8, 1.0, 0.2, 0.5), (int)e);
+        m_Renderer->DrawCircle(entity.GetComponent<TransformComponent>().GetTransform(), entity.GetComponent<ColorComponent>().m_Color, (int)e, m_HoveredId);
     }
 
 #ifndef __EMSCRIPTEN__

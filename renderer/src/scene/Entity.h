@@ -55,6 +55,14 @@ struct VerletBodyComponent
     glm::vec3 m_Velocity = glm::vec3(0.0, 0.0, 0.0);
 };
 
+struct ColorComponent
+{
+    glm::vec4 m_Color = glm::vec4(1.0);
+
+    ColorComponent() = default;
+    ColorComponent(glm::vec4 color) : m_Color(color) {}
+};
+
 class Entity
 {
 private:

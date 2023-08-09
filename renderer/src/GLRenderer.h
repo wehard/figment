@@ -31,7 +31,7 @@ public:
 	~GLRenderer();
 	void Begin(std::shared_ptr<Camera> camera, glm::vec4 clearColor);
 	void End();
-	void DrawCircle(glm::mat4 transform, glm::vec4 color, int id);
+	void DrawCircle(glm::mat4 transform, glm::vec4 color, int id, int hoveredId);
 	void DrawQuad(glm::mat4 transform, glm::vec4 color, int id);
 	void DrawTexturedQuad(glm::mat4 transform, uint32_t textureId, Shader &shader);
 	void OnResize(uint32_t width, uint32_t height);

@@ -50,7 +50,7 @@ void GLRenderer::End()
 	DrawTexturedQuad(glm::identity<glm::mat4>(), m_Framebuffer->GetAttachmentId(0), *m_FramebufferShader);
 }
 
-void GLRenderer::DrawCircle(glm::mat4 transform, glm::vec4 color, int id)
+void GLRenderer::DrawCircle(glm::mat4 transform, glm::vec4 color, int id, int hoveredId)
 {
 	m_CircleShader->Bind();
 	m_CircleShader->SetVec4("obj_color", color);
@@ -58,6 +58,7 @@ void GLRenderer::DrawCircle(glm::mat4 transform, glm::vec4 color, int id)
 	m_CircleShader->SetMat4("view_matrix", m_Camera->GetViewMatrix());
 	m_CircleShader->SetMat4("model_matrix", transform);
 	m_CircleShader->SetInt("obj_id", id);
+	m_CircleShader->SetInt("hovered_id", hoveredId);
 
 	glBindVertexArray(m_QuadVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, m_QuadVBO);
