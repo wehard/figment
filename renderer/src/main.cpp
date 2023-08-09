@@ -5,6 +5,7 @@
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
+#include <GL/glew.h>
 #endif
 
 #include "App.h"
@@ -20,12 +21,12 @@
 #include <stdlib.h>
 #include <string>
 
-// glm::vec2 mousePosition = glm::vec2(0.0);
-// glm::vec2 prevMousePosition = glm::vec2(640, 360);
 
 App *app;
 
 #ifdef __EMSCRIPTEN__
+glm::vec2 mousePosition = glm::vec2(0.0);
+glm::vec2 prevMousePosition = glm::vec2(640, 360);
 extern "C"
 {
 	EMSCRIPTEN_KEEPALIVE void onMouseMove(float x, float y)
@@ -71,12 +72,14 @@ extern "C"
 
 	EMSCRIPTEN_KEEPALIVE const char *getDefaultVertShaderSource()
 	{
-		return Utils::LoadFile("shaders/circle.vert").c_str();
+		// return Utils::LoadFile("shaders/circle.vert").c_str();
+		return "";
 	}
 
 	EMSCRIPTEN_KEEPALIVE const char *getDefaultFragShaderSource()
 	{
-		return Utils::LoadFile("shaders/circle.frag").c_str();
+		// return Utils::LoadFile("shaders/circle.frag").c_str();
+		return "";
 	}
 }
 #endif

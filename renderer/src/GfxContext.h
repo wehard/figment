@@ -1,5 +1,5 @@
 #pragma once
-
+#define GL_GLEXT_PROTOTYPES 1
 #include <memory>
 
 class GfxContext

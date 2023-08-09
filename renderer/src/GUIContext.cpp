@@ -20,7 +20,11 @@ void GUIContext::Init(GLFWwindow *window, const char *glslVersion)
 	ImGui::StyleColorsDark();
 
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
+#ifdef __EMSCRIPTEN
+	ImGui_ImplOpenGL3_Init("#version 300 es");
+#else
 	ImGui_ImplOpenGL3_Init(glslVersion);
+#endif
 }
 
 void GUIContext::Render()
