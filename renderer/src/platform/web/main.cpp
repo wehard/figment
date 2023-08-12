@@ -1,19 +1,14 @@
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
 #include <stdio.h>
 
-#ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #include <GL/glew.h>
-#endif
 
-#include "App.h"
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/euler_angles.hpp>
-#include <glm/vec3.hpp>
+#include "glm.hpp"
+#include "gtc/matrix_transform.hpp"
+#include "gtx/euler_angles.hpp"
+#include "vec3.hpp"
+#include "../../App.h"
+#include "../../../lib/glm/vec2.hpp"
 
 #include <math.h>
 #include <fstream>
@@ -24,7 +19,6 @@
 
 App *app;
 
-#ifdef __EMSCRIPTEN__
 glm::vec2 mousePosition = glm::vec2(0.0);
 glm::vec2 prevMousePosition = glm::vec2(640, 360);
 extern "C"
@@ -82,7 +76,6 @@ extern "C"
 		return "";
 	}
 }
-#endif
 
 static void main_loop(void *arg)
 {
@@ -92,16 +85,10 @@ static void main_loop(void *arg)
 
 int main(int argc, char **argv)
 {
-#ifdef __EMSCRIPTEN__
-	int width = atoi(argv[1]);
-	int height = atoi(argv[2]);
-	printf("%s:%d Initial canvas size %d x %d\n", __FILE__, __LINE__, width, height);
+	float width = strtof(argv[1], nullptr);
+	float height = strtof(argv[2], nullptr);
+	printf("%s:%d Initial canvas size %f x %f\n", __FILE__, __LINE__, width, height);
 	app = new App(width, height);
-#else
-	app = new App(1280, 720);
-#endif
 
-#ifdef __EMSCRIPTEN__
 	emscripten_set_main_loop_arg(main_loop, app, 0, true);
-#endif
 }

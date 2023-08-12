@@ -4,7 +4,7 @@ SRCDIR = src
 IMGUIDIR = lib/imgui
 
 # Define the directories where source files are located
-SRC_DIRS := $(shell find src lib/imgui -type d)
+SRC_DIRS := $(shell find src lib/imgui -type d | grep -v "src/platform/web")
 
 # Define the directory where object files will be placed
 OBJ_DIR := build/objs
@@ -20,7 +20,6 @@ CFLAGS = -g -std=c++17 #-Wall -Wextra -Werror
 INCL = -I src -I lib/imgui/include -I lib/glm -I lib -I lib/entt -I src/scene -I src/physics -I src/platform/opengl -I /opt/homebrew/include
 INCL += -I /usr/local/share/dotnet/packs/Microsoft.NETCore.App.Host.osx-arm64/7.0.8/runtimes/osx-arm64/native
 INCL += -I src/scripting
-
 INCL += -I lib/mono/include
 
 LDFLAGS = -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo -L /opt/homebrew/lib -lglfw -L /opt/homebrew/lib -lGLEW

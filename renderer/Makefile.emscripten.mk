@@ -7,20 +7,13 @@ WEB_DIR = ../app/src/renderer
 WEB_EXE = $(WEB_DIR)/index.html
 ASSET_DIR = res
 
-SRC_DIRS = 	src\
-			src/renderer\
-			src/platform\
-			src/platform/opengl\
-			src/physics\
-			src/scene\
-			lib/imgui\
-			lib/imgui/include
+SRC_DIRS := $(shell find src lib/imgui -type d | grep -v -E "src/platform/macos|src/scripting")
 
 OBJ_DIR := build/objs
 
 SRCS := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.cpp))
 
-INCL = -I src -I lib/imgui/include -I lib/glm -I lib -I lib/entt -I src/scene -I src/physics -I src/platform/opengl
+INCL = -I src -I lib/imgui/include -I lib/glm -I lib -I lib/entt -I src/scene -I src/physics -I src/platform/opengl -I /Users/willehard/dev/emsdk/upstream/emscripten
 
 OBJS := $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(SRCS))
 
