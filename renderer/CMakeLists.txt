@@ -48,8 +48,8 @@ list(REMOVE_ITEM SRC_FILES ${EXCLUDED_SRC_FILES})
 
 target_sources(figment PRIVATE ${SRC_FILES})
 
-find_package(glfw3 REQUIRED)
-find_package(GLEW REQUIRED)
+#find_package(glfw3 REQUIRED)
+#find_package(GLEW REQUIRED)
 
 target_link_libraries(figment
         "-framework OpenGL"
@@ -90,7 +90,7 @@ add_dependencies(figment build_scriptcore)
 #        COMMAND source ~/dev/emsdk/emsdk_env.sh
 #)
 #
-#add_dependencies(figment_wasm setup_emscripten_env)
+##add_dependencies(figment_wasm setup_emscripten_env)
 #
 #target_include_directories(figment_wasm
 #        PRIVATE
@@ -102,7 +102,6 @@ add_dependencies(figment build_scriptcore)
 #        lib/glm
 #        lib/entt
 #        lib/imgui/include
-#        /Users/willehard/dev/emsdk/upstream/include
 #)
 #
 #file(GLOB_RECURSE SRC_FILES
@@ -112,33 +111,31 @@ add_dependencies(figment build_scriptcore)
 #
 #file(GLOB_RECURSE EXCLUDED_SRC_FILES
 #        "src/platform/macos/*.cpp"
-#        "src/scripting"
+#        "src/scripting/*.cpp"
 #)
 #
 #list(REMOVE_ITEM SRC_FILES ${EXCLUDED_SRC_FILES})
 #
 #target_sources(figment_wasm PRIVATE ${SRC_FILES})
 #
-#set_target_properties(figment_wasm
-#        PROPERTIES
-#        LINK_FLAGS
-#        "-s USE_GLFW=3"
-#        "-s DISABLE_EXCEPTION_CATCHING=0"
-#        "-sEXPORTED_FUNCTIONS=_onMouseMove,_insertObject,_onCanvasResize,_main"
-#        "-s EXPORTED_RUNTIME_METHODS='[\"cwrap\", \"allocate\", \"intArrayFromString\", \"ALLOC_NORMAL\", \"UTF8ToString\"]'"
-#        "-s WASM=1"
-#        "-s USE_WEBGL2=1"
-#        "-sALLOW_MEMORY_GROWTH=1"
-#        "-sNO_EXIT_RUNTIME=0"
-#        "-sASSERTIONS=1"
-#        "-lGLEW"
-#        "-lglfw"
+## Configure the Emscripten options
+#set(EMS_OPTIONS
+#        -s USE_GLFW=3
+#        -s DISABLE_EXCEPTION_CATCHING=0
+#        -s EXPORTED_FUNCTIONS=_onMouseMove,_insertObject,_onCanvasResize,_main
+#        -s EXPORTED_RUNTIME_METHODS='[\"cwrap\", \"allocate\", \"intArrayFromString\", \"ALLOC_NORMAL\", \"UTF8ToString\"]'
+#        -s MODULARIZE=1
+#        -s EXPORT_ES6=1
+#        -s WASM=1
+#        -s USE_WEBGL2=1
+#        -s ALLOW_MEMORY_GROWTH=1
+#        -s NO_EXIT_RUNTIME=0
+#        -s ASSERTIONS=1en
+#
 #)
 #
-#target_compile_options(figment_wasm
-#        PRIVATE
-#        "-std=c++17"
-#        "-DIMGUI_DISABLE_FILE_FUNCTIONS"
-#        "-sMODULARIZE=1"
-#        "-sEXPORT_ES6=1"
+#set_target_properties(figment_wasm PROPERTIES LINK_FLAGS "${EMS_OPTIONS}")
+#target_link_libraries(figment_wasm PRIVATE
+#        -lGLEW
+#        -lglfw
 #)
