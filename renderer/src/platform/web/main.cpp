@@ -7,13 +7,13 @@
 #include "gtc/matrix_transform.hpp"
 #include "gtx/euler_angles.hpp"
 #include "vec3.hpp"
-#include "../../App.h"
-#include "../../../lib/glm/vec2.hpp"
+#include "App.h"
+#include "glm/vec2.hpp"
 
-#include <math.h>
+#include <cmath>
 #include <fstream>
 #include <sstream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 
 
