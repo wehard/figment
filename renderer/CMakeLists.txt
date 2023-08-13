@@ -2,9 +2,10 @@ cmake_minimum_required(VERSION 3.12)
 project(figment)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 
-include_directories(
+add_executable(figment "")
+
+target_include_directories(figment PRIVATE
         src
         lib/imgui/include
         lib/glm
@@ -18,22 +19,29 @@ include_directories(
         /usr/local/share/dotnet/packs/Microsoft.NETCore.App.Host.osx-arm64/7.0.8/runtimes/osx-arm64/native
         /opt/homebrew/include
 )
-
-link_directories(
+target_link_directories(figment PRIVATE
         /opt/homebrew/lib
         /usr/local/share/dotnet/packs/Microsoft.NETCore.App.Host.osx-arm64/7.0.8/runtimes/osx-arm64/native
         /opt/homebrew/opt/zlib/lib
         lib/mono/lib
 )
 
-add_executable(figment "")
 
 # Add the GL_SILENCE_DEPRECATION preprocessor definition to the target
 target_compile_definitions(figment PRIVATE GL_SILENCE_DEPRECATION)
 
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/res DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/mono DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/script-core DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+#add_custom_command(
+#        TARGET figment
+#        POST_BUILD
+#        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/res ${CMAKE_BINARY_DIR}/res
+#        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/mono ${CMAKE_BINARY_DIR}/mono
+#        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/script-core ${CMAKE_BINARY_DIR}/script-core
+#)
+
+        file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/res DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+        file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/mono DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+        file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/script-core DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 
 file(GLOB_RECURSE SRC_FILES
         "src/*.cpp"
@@ -84,13 +92,17 @@ add_custom_command(TARGET build_scriptcore POST_BUILD
 add_dependencies(figment build_scriptcore)
 
 ### Figment WASM
+
+
 add_executable(figment_wasm "")
+
+target_compile_definitions(figment_wasm PRIVATE GL_SILENCE_DEPRECATION)
 
 add_custom_target(setup_emscripten_env
         COMMAND source ~/dev/emsdk/emsdk_env.sh
 )
 
-#add_dependencies(figment_wasm setup_emscripten_env)
+add_dependencies(figment_wasm setup_emscripten_env)
 
 target_include_directories(figment_wasm
         PRIVATE
@@ -102,6 +114,7 @@ target_include_directories(figment_wasm
         lib/glm
         lib/entt
         lib/imgui/include
+#        cache/sysroot/include
 )
 
 file(GLOB_RECURSE SRC_FILES
@@ -118,24 +131,20 @@ list(REMOVE_ITEM SRC_FILES ${EXCLUDED_SRC_FILES})
 
 target_sources(figment_wasm PRIVATE ${SRC_FILES})
 
-# Configure the Emscripten options
-set(EMS_OPTIONS
-        -s USE_GLFW=3
-        -s DISABLE_EXCEPTION_CATCHING=0
-        -s EXPORTED_FUNCTIONS=_onMouseMove,_insertObject,_onCanvasResize,_main
-        -s EXPORTED_RUNTIME_METHODS='[\"cwrap\", \"allocate\", \"intArrayFromString\", \"ALLOC_NORMAL\", \"UTF8ToString\"]'
-        -s MODULARIZE=1
-        -s EXPORT_ES6=1
-        -s WASM=1
-        -s USE_WEBGL2=1
-        -s ALLOW_MEMORY_GROWTH=1
-        -s NO_EXIT_RUNTIME=0
-        -s ASSERTIONS=1en
-
-)
-
-set_target_properties(figment_wasm PROPERTIES LINK_FLAGS "${EMS_OPTIONS}")
-target_link_libraries(figment_wasm PRIVATE
-        -lGLEW
-        -lglfw
-)
+set_target_properties(figment_wasm PROPERTIES LINK_FLAGS "\
+        -s USE_GLFW=3\
+        -s DISABLE_EXCEPTION_CATCHING=0\
+        -s EXPORTED_FUNCTIONS=_onMouseMove,_insertObject,_onCanvasResize,_main\
+        -s EXPORTED_RUNTIME_METHODS='[\"cwrap\", \"allocate\", \"intArrayFromString\", \"ALLOC_NORMAL\", \"UTF8ToString\"]'\
+        -s MODULARIZE=1\
+        -s EXPORT_ES6=1\
+        -s WASM=1\
+        -s USE_WEBGL2=1\
+        -s ALLOW_MEMORY_GROWTH=1\
+        -s NO_EXIT_RUNTIME=0\
+        -s ASSERTIONS=1\
+        --shell-file ${CMAKE_CURRENT_SOURCE_DIR}/index.html\
+        --preload-file res@/res\
+        -lGLEW\
+        -lglfw\
+")

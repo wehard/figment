@@ -10,3 +10,4 @@ build
 obj
 bin
 cmake-build-debug
+cmake-build-emscripten
