@@ -84,58 +84,58 @@ add_custom_command(TARGET build_scriptcore POST_BUILD
 add_dependencies(figment build_scriptcore)
 
 ### Figment WASM
-#add_executable(figment_wasm "")
-#
-#add_custom_target(setup_emscripten_env
-#        COMMAND source ~/dev/emsdk/emsdk_env.sh
-#)
-#
-##add_dependencies(figment_wasm setup_emscripten_env)
-#
-#target_include_directories(figment_wasm
-#        PRIVATE
-#        src
-#        src/scene
-#        src/physics
-#        src/platform/opengl
-#        lib
-#        lib/glm
-#        lib/entt
-#        lib/imgui/include
-#)
-#
-#file(GLOB_RECURSE SRC_FILES
-#        "src/*.cpp"
-#        "lib/imgui/*.cpp"
-#)
-#
-#file(GLOB_RECURSE EXCLUDED_SRC_FILES
-#        "src/platform/macos/*.cpp"
-#        "src/scripting/*.cpp"
-#)
-#
-#list(REMOVE_ITEM SRC_FILES ${EXCLUDED_SRC_FILES})
-#
-#target_sources(figment_wasm PRIVATE ${SRC_FILES})
-#
-## Configure the Emscripten options
-#set(EMS_OPTIONS
-#        -s USE_GLFW=3
-#        -s DISABLE_EXCEPTION_CATCHING=0
-#        -s EXPORTED_FUNCTIONS=_onMouseMove,_insertObject,_onCanvasResize,_main
-#        -s EXPORTED_RUNTIME_METHODS='[\"cwrap\", \"allocate\", \"intArrayFromString\", \"ALLOC_NORMAL\", \"UTF8ToString\"]'
-#        -s MODULARIZE=1
-#        -s EXPORT_ES6=1
-#        -s WASM=1
-#        -s USE_WEBGL2=1
-#        -s ALLOW_MEMORY_GROWTH=1
-#        -s NO_EXIT_RUNTIME=0
-#        -s ASSERTIONS=1en
-#
-#)
-#
-#set_target_properties(figment_wasm PROPERTIES LINK_FLAGS "${EMS_OPTIONS}")
-#target_link_libraries(figment_wasm PRIVATE
-#        -lGLEW
-#        -lglfw
-#)
+add_executable(figment_wasm "")
+
+add_custom_target(setup_emscripten_env
+        COMMAND source ~/dev/emsdk/emsdk_env.sh
+)
+
+#add_dependencies(figment_wasm setup_emscripten_env)
+
+target_include_directories(figment_wasm
+        PRIVATE
+        src
+        src/scene
+        src/physics
+        src/platform/opengl
+        lib
+        lib/glm
+        lib/entt
+        lib/imgui/include
+)
+
+file(GLOB_RECURSE SRC_FILES
+        "src/*.cpp"
+        "lib/imgui/*.cpp"
+)
+
+file(GLOB_RECURSE EXCLUDED_SRC_FILES
+        "src/platform/macos/*.cpp"
+        "src/scripting/*.cpp"
+)
+
+list(REMOVE_ITEM SRC_FILES ${EXCLUDED_SRC_FILES})
+
+target_sources(figment_wasm PRIVATE ${SRC_FILES})
+
+# Configure the Emscripten options
+set(EMS_OPTIONS
+        -s USE_GLFW=3
+        -s DISABLE_EXCEPTION_CATCHING=0
+        -s EXPORTED_FUNCTIONS=_onMouseMove,_insertObject,_onCanvasResize,_main
+        -s EXPORTED_RUNTIME_METHODS='[\"cwrap\", \"allocate\", \"intArrayFromString\", \"ALLOC_NORMAL\", \"UTF8ToString\"]'
+        -s MODULARIZE=1
+        -s EXPORT_ES6=1
+        -s WASM=1
+        -s USE_WEBGL2=1
+        -s ALLOW_MEMORY_GROWTH=1
+        -s NO_EXIT_RUNTIME=0
+        -s ASSERTIONS=1en
+
+)
+
+set_target_properties(figment_wasm PROPERTIES LINK_FLAGS "${EMS_OPTIONS}")
+target_link_libraries(figment_wasm PRIVATE
+        -lGLEW
+        -lglfw
+)
