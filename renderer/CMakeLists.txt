@@ -28,6 +28,9 @@ link_directories(
 
 add_executable(figment "")
 
+# Add the GL_SILENCE_DEPRECATION preprocessor definition to the target
+target_compile_definitions(figment PRIVATE GL_SILENCE_DEPRECATION)
+
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/res DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/mono DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/script-core DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
@@ -62,13 +65,23 @@ target_link_libraries(figment
         -lmonosgen-2.0
 )
 
-add_custom_command(TARGET figment POST_BUILD
-        COMMAND cd ${CMAKE_CURRENT_SOURCE_DIR}/script-core/src && dotnet build
+# Add a custom target to build the .NET project
+add_custom_target(build_scriptcore
+        COMMAND dotnet build > /dev/null
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/script-core/src
+        COMMENT "Building ScriptCore"
+)
+
+# Copy the compiled DLL after building the .NET project
+add_custom_command(TARGET build_scriptcore POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         ${CMAKE_CURRENT_SOURCE_DIR}/script-core/src/bin/Debug/netstandard2.0/ScriptCore.dll
         ${CMAKE_CURRENT_SOURCE_DIR}/script-core/ScriptCore.dll
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
+
+# Link the custom target to the main executable
+add_dependencies(figment build_scriptcore)
 
 ### Figment WASM
 #add_executable(figment_wasm "")
