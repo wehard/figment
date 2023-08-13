@@ -313,7 +313,7 @@ void App::GUIUpdate()
         ImGui::PushID(id.ID);
         char buf[128];
         memset(buf, 0, sizeof(buf));
-        sprintf(buf, "%-20s (%llu)", info.m_Name.c_str(), id.ID);
+        snprintf(buf, sizeof(buf), "%-20s (%llu)", info.m_Name.c_str(), id.ID);
         if (ImGui::Selectable(buf))
         {
             SelectEntity(entity);
@@ -332,7 +332,7 @@ void App::GUIUpdate()
 
         char buf[128];
         memset(buf, 0, sizeof(buf));
-        sprintf(buf, "%s", info.m_Name.c_str());
+        snprintf(buf, sizeof(buf), "%s", info.m_Name.c_str());
         if (ImGui::InputText("##Name", buf, sizeof(buf)))
         {
             info.m_Name = std::string(buf);
