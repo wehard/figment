@@ -32,8 +32,10 @@ void main()
   float inside = smoothstep(0.0, edge_smooth, distance);
   inside *= smoothstep(width + edge_smooth, width, distance);
 
-	if (inside == 0.0)
-		discard;
+  if (inside == 0.0)
+  {
+    discard;
+  }
 
   if (obj_id == hovered_id)
   {
@@ -41,7 +43,7 @@ void main()
   }
   else
   {
-    color = obj_color; //vec4(random_color(float(obj_id + 42)), 1.0);
+    color = vec4(random_color(float(obj_id + 42)), 1.0);
   }
 
   color.a = inside;

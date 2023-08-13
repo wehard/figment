@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import loadRenderer from './renderer/index.js';
+import loadRenderer from './renderer/figment_wasm.js';
 
 export type CanvasContext = {
   onCanvasResize: (w: number, h: number) => void;

@@ -22,7 +22,7 @@ Scene::~Scene()
 
 static glm::vec4 GetRandomColor()
 {
-    return glm::vec4((float)rand() / RAND_MAX, (float)rand() / RAND_MAX, (float)rand() / RAND_MAX, 1.0);
+    return glm::vec4((float)rand() / (float)RAND_MAX, (float)rand() / (float)RAND_MAX, (float)rand() / (float)RAND_MAX, 1.0);
 }
 
 Entity Scene::CreateEntity(const std::string &name)
