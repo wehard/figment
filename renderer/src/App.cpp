@@ -14,9 +14,15 @@
 #include <glm/vec4.hpp>
 #include <GLFW/glfw3.h>
 
+#define BIND(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
+
 App::App(float width, float height)
 {
     m_Window = Window::Create("Figment C++", width, height);
+    m_Window->SetResizeEventCallback([this](uint32_t width, uint32_t height) {
+        OnResize(width, height);
+    });
+    
     GLFWwindow *glfwWindow = (GLFWwindow *)m_Window->GetNative();
     Input::Initialize(glfwWindow);
     m_GUICtx = new GUIContext();
@@ -357,7 +363,7 @@ void App::GUIUpdate()
     ImGui::End();
 }
 
-void App::OnResize(float width, float height)
+void App::OnResize(uint32_t width, uint32_t height)
 {
     m_Scene->OnResize(width, height);
 }

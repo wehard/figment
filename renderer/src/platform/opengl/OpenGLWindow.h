@@ -17,6 +17,7 @@ public:
     uint32_t GetHeight() const override;
     uint32_t GetFramebufferWidth() const override;
     uint32_t GetFramebufferHeight() const override;
+    void SetResizeEventCallback(ResizeEventCallbackFn callback) override;
     void *GetNative() override { return m_Window; };
 
 private:

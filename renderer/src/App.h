@@ -37,7 +37,7 @@ public:
   void Update();
   void GUIUpdate();
 
-  void OnResize(float width, float height);
+  void OnResize(uint32_t width, uint32_t height);
   void UpdateShader(const char *vertSource, const char *fragSource);
 
   void SelectEntity(Entity entity);

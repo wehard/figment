@@ -1,21 +1,12 @@
 #include <stdio.h>
 
-#include <emscripten.h>
-#include <GL/glew.h>
-
-#include "glm.hpp"
-#include "gtc/matrix_transform.hpp"
-#include "gtx/euler_angles.hpp"
-#include "vec3.hpp"
 #include "App.h"
 #include "glm/vec2.hpp"
 
-#include <cmath>
-#include <fstream>
-#include <sstream>
+#include <emscripten.h>
+#include <GL/glew.h>
 #include <cstdlib>
 #include <string>
-
 
 App *app;
 
@@ -51,8 +42,9 @@ extern "C"
 
 	EMSCRIPTEN_KEEPALIVE void onCanvasResize(float width, float height)
 	{
-		glViewport(0, 0, width, height);
-		app->OnResize(width, height);
+		glViewport(0, 0, (GLint)width, (GLint)height);
+		app->OnResize((uint32_t)width, (uint32_t)height);
+        printf("Resize canvas\n");
 	}
 
 	EMSCRIPTEN_KEEPALIVE void setInputEnabled(int enabled)

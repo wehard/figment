@@ -6,15 +6,28 @@ static void glfwErrorHandler(int error, const char *message)
     std::cout << "Glfw error: " << error << ": " << message << std::endl;
 }
 
+static void glfwWindowSizeCallback(GLFWwindow* window, int width, int height)
+{
+    auto *openGlWindow = (OpenGLWindow*)glfwGetWindowUserPointer(window);
+    openGlWindow->Resize(width, height);
+}
+
+static void glfwFramebufferSizeCallback(GLFWwindow* window, int width, int height)
+{
+    auto *openGlWindow = (OpenGLWindow*)glfwGetWindowUserPointer(window);
+    openGlWindow->Resize(width, height);
+}
+
 OpenGLWindow::OpenGLWindow(const std::string &title, const uint32_t width, const uint32_t height) : m_Title(title), m_Width(width), m_Height(height)
 {
-    glfwSetErrorCallback(glfwErrorHandler);
 
     if (!glfwInit())
     {
         std::cout << "GLFW init failed!" << std::endl;
         return;
     }
+
+    glfwSetErrorCallback(glfwErrorHandler);
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
@@ -49,6 +62,11 @@ OpenGLWindow::OpenGLWindow(const std::string &title, const uint32_t width, const
     std::cout << "GLFW framebuffer size: " << fw << " x " << fh << std::endl;
     m_FramebufferWidth = (uint32_t)fw;
     m_FramebufferHeight = (uint32_t)fh;
+
+//    glfwSetWindowSizeCallback(m_Window, glfwWindowSizeCallback);
+    glfwSetFramebufferSizeCallback(m_Window, glfwFramebufferSizeCallback);
+
+    glfwSetWindowUserPointer(m_Window, this);
 }
 
 OpenGLWindow::~OpenGLWindow()
@@ -60,12 +78,16 @@ void OpenGLWindow::Resize(uint32_t width, uint32_t height)
 {
     m_Width = width;
     m_Height = height;
-    glfwSetWindowSize(m_Window, width, height);
+//    glfwSetWindowSize(m_Window, width, height);
+    if (ResizeEventCallback != nullptr)
+    {
+        ResizeEventCallback(width, height);
+    }
 
-    int fw, fh;
-    glfwGetFramebufferSize(m_Window, &fw, &fh);
-    m_FramebufferWidth = (uint32_t)fw;
-    m_FramebufferHeight = (uint32_t)fh;
+//    int fw, fh;
+//    glfwGetFramebufferSize(m_Window, &fw, &fh);
+//    m_FramebufferWidth = (uint32_t)fw;
+//    m_FramebufferHeight = (uint32_t)fh;
 }
 
 bool OpenGLWindow::ShouldClose()
@@ -91,4 +113,8 @@ uint32_t OpenGLWindow::GetFramebufferWidth() const
 uint32_t OpenGLWindow::GetFramebufferHeight() const
 {
     return m_FramebufferHeight;
+}
+
+void OpenGLWindow::SetResizeEventCallback(ResizeEventCallbackFn callback) {
+    ResizeEventCallback = callback;
 }

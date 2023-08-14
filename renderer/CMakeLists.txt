@@ -150,7 +150,7 @@ set_target_properties(figment_wasm PROPERTIES LINK_FLAGS "\
 ")
 
 add_custom_command(TARGET figment_wasm POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/figment_wasm.wasm ${CMAKE_CURRENT_SOURCE_DIR}/../app/src/renderer/figment_wasm.wasm
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/figment_wasm.js ${CMAKE_CURRENT_SOURCE_DIR}/../app/src/renderer/figment_wasm.js
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/figment_wasm.data ${CMAKE_CURRENT_SOURCE_DIR}/../app/public/figment_wasm.data
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/figment_wasm.wasm ${CMAKE_CURRENT_SOURCE_DIR}/../app/src/renderer/figment_wasm.wasm
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/figment_wasm.js ${CMAKE_CURRENT_SOURCE_DIR}/../app/src/renderer/figment_wasm.js
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/figment_wasm.data ${CMAKE_CURRENT_SOURCE_DIR}/../app/public/figment_wasm.data
 )
