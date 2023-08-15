@@ -49,7 +49,6 @@ public:
     void EndPan();
     void Zoom(float delta, glm::vec2 mousePosition);
     void Rotate(float xoffset, float yoffset, bool constrainPitch = true);
-    void SetViewportSize(float width, float height);
 
     glm::vec3 GetPosition() { return m_Position; }
     void SetPosition(glm::vec3 position);

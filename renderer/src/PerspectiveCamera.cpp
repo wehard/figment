@@ -94,13 +94,6 @@ void PerspectiveCamera::Zoom(float delta, glm::vec2 mousePosition)
 	UpdateProjectionMatrix();
 }
 
-void PerspectiveCamera::SetViewportSize(float width, float height)
-{
-	m_AspectRatio = width / height;
-	UpdateViewMatrix();
-	UpdateProjectionMatrix();
-}
-
 void PerspectiveCamera::SetPosition(glm::vec3 position)
 {
 	m_Position = position;
