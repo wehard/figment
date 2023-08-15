@@ -35,7 +35,7 @@ public:
     void Bind();
     void Unbind();
     void ClearAttachment(uint32_t index, glm::vec4 clearColor, int clearId);
-    void Resize(uint32_t width, uint32_t height);
+    void Resize(uint32_t width, uint32_t height) override;
     uint32_t GetAttachmentId(uint32_t index = 0);
     int GetPixel(uint32_t attachmentIndex, int x, int y);
 
