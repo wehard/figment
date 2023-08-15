@@ -19,10 +19,10 @@
 App::App(float width, float height)
 {
     m_Window = Window::Create("Figment C++", width, height);
-    m_Window->SetResizeEventCallback([this](uint32_t width, uint32_t height) {
-        OnResize(width, height);
+    m_Window->SetResizeEventCallback([this](WindowResizeEventData data) {
+        OnResize(data.FramebufferWidth, data.FramebufferHeight);
     });
-    
+
     GLFWwindow *glfwWindow = (GLFWwindow *)m_Window->GetNative();
     Input::Initialize(glfwWindow);
     m_GUICtx = new GUIContext();
@@ -35,7 +35,7 @@ App::App(float width, float height)
 
     m_GUICtx->Init(glfwWindow, glslVersion);
 
-    m_Scene = new Scene(m_Window->GetWidth(), m_Window->GetHeight());
+    m_Scene = new Scene(m_Window->GetFramebufferWidth(), m_Window->GetFramebufferHeight());
     m_Scene->CreateEntity();
 
 #ifndef __EMSCRIPTEN__

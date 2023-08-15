@@ -2,9 +2,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <stdio.h>
 
-PerspectiveCamera::PerspectiveCamera(glm::vec3 position, glm::vec3 up, float yaw, float pitch) : m_Position(position), m_Up(up), m_WorldUp(up), m_Yaw(yaw), m_Pitch(pitch), m_Forward(glm::vec3(0.0f, 0.0f, -1.0f)), movementSpeed(SPEED), mouseSensitivity(SENSITIVITY), m_Zoom(ZOOM)
+PerspectiveCamera::PerspectiveCamera(float aspectRatio, glm::vec3 position, glm::vec3 up, float yaw, float pitch) : m_AspectRatio(aspectRatio), m_Position(position), m_Up(up), m_WorldUp(up), m_Yaw(yaw), m_Pitch(pitch), m_Forward(glm::vec3(0.0f, 0.0f, -1.0f)), movementSpeed(SPEED), mouseSensitivity(SENSITIVITY), m_Zoom(ZOOM)
 {
-	this->m_ProjectionMatrix = glm::perspective(glm::radians(m_Fov), m_AspectRatio, m_NearClip, m_FarClip);
 	UpdateViewMatrix();
 	UpdateProjectionMatrix();
 }
@@ -13,7 +12,6 @@ PerspectiveCamera::~PerspectiveCamera() {}
 
 void PerspectiveCamera::UpdateProjectionMatrix()
 {
-	m_AspectRatio = m_ViewportWidth / m_ViewportHeight;
 	m_ProjectionMatrix = glm::perspective(glm::radians(m_Fov), m_AspectRatio, m_NearClip, m_FarClip);
 }
 
@@ -98,8 +96,7 @@ void PerspectiveCamera::Zoom(float delta, glm::vec2 mousePosition)
 
 void PerspectiveCamera::SetViewportSize(float width, float height)
 {
-	m_ViewportWidth = width;
-	m_ViewportHeight = height;
+	m_AspectRatio = width / height;
 	UpdateViewMatrix();
 	UpdateProjectionMatrix();
 }
@@ -163,8 +160,7 @@ glm::vec3 PerspectiveCamera::ScreenToWorldSpace(glm::vec2 screenPosition, glm::v
 
 void PerspectiveCamera::OnResize(float width, float height)
 {
-	m_ViewportWidth = width;
-	m_ViewportHeight = height;
+	m_AspectRatio = width / height;
 	UpdateViewMatrix();
 	UpdateProjectionMatrix();
 }

@@ -5,24 +5,20 @@
 #include "ScriptEngine.h"
 #endif
 
-Scene::Scene() {}
+Scene::Scene() = default;
 
-Scene::Scene(uint32_t width, uint32_t height) : m_Width(width), m_Height(height)
+Scene::Scene(uint32_t width, uint32_t height) : m_Width(width), m_Height(height), m_ClearColor(glm::vec4(0.1, 0.1, 0.1, 1.0))
 {
     m_Renderer = new GLRenderer(width, height);
-    m_Camera = Camera::CreatePerspectiveCamera();
-    // m_Camera->SetZoom(30.0);
+    m_Camera = Camera::CreatePerspectiveCamera((float)width / (float)height);
     m_Camera->SetPosition(glm::vec3(0.0, 0.0, 60.0));
-    m_ClearColor = glm::vec4(0.1, 0.1, 0.1, 1.0);
 }
 
-Scene::~Scene()
-{
-}
+Scene::~Scene() = default;
 
 static glm::vec4 GetRandomColor()
 {
-    return glm::vec4((float)rand() / (float)RAND_MAX, (float)rand() / (float)RAND_MAX, (float)rand() / (float)RAND_MAX, 1.0);
+    return {(float)rand() / (float)RAND_MAX, (float)rand() / (float)RAND_MAX, (float)rand() / (float)RAND_MAX, 1.0};
 }
 
 Entity Scene::CreateEntity(const std::string &name)
@@ -120,6 +116,6 @@ void Scene::OnResize(uint32_t width, uint32_t height)
 {
     m_Width = width;
     m_Height = height;
-//    m_Camera->OnResize((float)width, (float)height);
-//    m_Renderer->OnResize(width, height);
+    m_Camera->OnResize((float)width, (float)height);
+    m_Renderer->OnResize(width, height);
 }

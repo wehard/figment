@@ -3,10 +3,18 @@
 #include <memory>
 #include <string>
 
+struct WindowResizeEventData
+{
+    int Width;
+    int Height;
+    int FramebufferWidth;
+    int FramebufferHeight;
+};
+
 class Window
 {
 public:
-    using ResizeEventCallbackFn = std::function<void(uint32_t, uint32_t)>;
+    using ResizeEventCallbackFn = std::function<void(WindowResizeEventData)>;
     virtual ~Window() = default;
 
     virtual bool ShouldClose() = 0;

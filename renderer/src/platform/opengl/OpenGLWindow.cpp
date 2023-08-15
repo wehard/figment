@@ -9,13 +9,21 @@ static void glfwErrorHandler(int error, const char *message)
 static void glfwWindowSizeCallback(GLFWwindow* window, int width, int height)
 {
     auto *openGlWindow = (OpenGLWindow*)glfwGetWindowUserPointer(window);
-    openGlWindow->Resize(width, height);
+    openGlWindow->Resize({
+        .Width = width,
+        .Height = height,
+        .FramebufferWidth = static_cast<int>(openGlWindow->GetFramebufferWidth()),
+        .FramebufferHeight = static_cast<int>(openGlWindow->GetFramebufferHeight())});
 }
 
-static void glfwFramebufferSizeCallback(GLFWwindow* window, int width, int height)
+static void glfwFramebufferSizeCallback(GLFWwindow *window, int width, int height)
 {
-    auto *openGlWindow = (OpenGLWindow*)glfwGetWindowUserPointer(window);
-    openGlWindow->Resize(width, height);
+    auto *openGlWindow = (OpenGLWindow *) glfwGetWindowUserPointer(window);
+    openGlWindow->Resize({
+        .Width = static_cast<int>(openGlWindow->GetWidth()),
+        .Height = static_cast<int>(openGlWindow->GetHeight()),
+        .FramebufferWidth = width,
+        .FramebufferHeight = height});
 }
 
 OpenGLWindow::OpenGLWindow(const std::string &title, const uint32_t width, const uint32_t height) : m_Title(title), m_Width(width), m_Height(height)
@@ -38,7 +46,7 @@ OpenGLWindow::OpenGLWindow(const std::string &title, const uint32_t width, const
     glfwWindowHint(GLFW_SAMPLES, 4);
 
 #ifdef __APPLE__
-    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE);
+    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
 #endif
 
     m_Window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
@@ -63,10 +71,11 @@ OpenGLWindow::OpenGLWindow(const std::string &title, const uint32_t width, const
     m_FramebufferWidth = (uint32_t)fw;
     m_FramebufferHeight = (uint32_t)fh;
 
-//    glfwSetWindowSizeCallback(m_Window, glfwWindowSizeCallback);
+    glfwSetWindowSizeCallback(m_Window, glfwWindowSizeCallback);
     glfwSetFramebufferSizeCallback(m_Window, glfwFramebufferSizeCallback);
 
     glfwSetWindowUserPointer(m_Window, this);
+
 }
 
 OpenGLWindow::~OpenGLWindow()
@@ -74,20 +83,18 @@ OpenGLWindow::~OpenGLWindow()
     glfwDestroyWindow(m_Window);
 }
 
-void OpenGLWindow::Resize(uint32_t width, uint32_t height)
+void OpenGLWindow::Resize(WindowResizeEventData resizeData)
 {
-    m_Width = width;
-    m_Height = height;
-//    glfwSetWindowSize(m_Window, width, height);
+    glViewport(0, 0, resizeData.FramebufferWidth, resizeData.FramebufferHeight);
+    m_Width = resizeData.Width;
+    m_Height = resizeData.Height;
+    m_FramebufferWidth = resizeData.FramebufferWidth;
+    m_FramebufferHeight = resizeData.FramebufferHeight;
+
     if (ResizeEventCallback != nullptr)
     {
-        ResizeEventCallback(width, height);
+        ResizeEventCallback(resizeData);
     }
-
-//    int fw, fh;
-//    glfwGetFramebufferSize(m_Window, &fw, &fh);
-//    m_FramebufferWidth = (uint32_t)fw;
-//    m_FramebufferHeight = (uint32_t)fh;
 }
 
 bool OpenGLWindow::ShouldClose()
