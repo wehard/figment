@@ -20,7 +20,7 @@ void CameraController::Update(float deltaTime)
         ProcessMouseMovement();
     ProcessMouseScroll();
 
-    m_Camera->OnUpdate(glm::vec2(0));
+    m_Camera->Update();
 }
 
 void CameraController::ProcessKeyboard(float deltaTime)

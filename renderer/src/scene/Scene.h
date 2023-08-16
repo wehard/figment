@@ -3,7 +3,7 @@
 #include "GLRenderer.h"
 #include "CameraController.h"
 #include "Camera.h"
-#include "OrthoCamera.h"
+#include "OrthographicCamera.h"
 #include "VerletPhysics.h"
 
 #include "entt.hpp"

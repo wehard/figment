@@ -1,5 +1,5 @@
 #include "Camera.h"
-#include "OrthoCamera.h"
+#include "OrthographicCamera.h"
 #include "PerspectiveCamera.h"
 
 std::shared_ptr<Camera> Camera::Create(CameraType cameraType)
@@ -21,7 +21,7 @@ std::shared_ptr<Camera> Camera::Create(CameraType cameraType)
 
 std::shared_ptr<Camera> Camera::CreateOrthoCamera(float width, float height)
 {
-    return std::make_shared<OrthoCamera>(width, height);
+    return std::make_shared<OrthographicCamera>(width, height);
 }
 
 std::shared_ptr<Camera> Camera::CreatePerspectiveCamera(float aspectRatio)

@@ -12,7 +12,7 @@ Scene::Scene(uint32_t width, uint32_t height) : m_Width(width), m_Height(height)
     m_Renderer = new GLRenderer(width, height);
     m_Camera = std::make_shared<PerspectiveCamera>((float)width / (float)height);
     m_CameraController = std::make_shared<CameraController>(m_Camera);
-    m_CameraController->GetCamera()->SetPosition(glm::vec3(0.0, 0.0, 60.0));
+//    m_CameraController->GetCamera()->SetPosition(glm::vec3(0.0, 0.0, 60.0));
 }
 
 Scene::~Scene() = default;
@@ -117,6 +117,6 @@ void Scene::OnResize(uint32_t width, uint32_t height)
 {
     m_Width = width;
     m_Height = height;
-    m_Camera->OnResize((float)width, (float)height);
+    m_Camera->Resize((float)width, (float)height);
     m_Renderer->OnResize(width, height);
 }

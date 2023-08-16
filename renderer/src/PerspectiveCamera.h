@@ -26,35 +26,23 @@ public:
     glm::vec3 m_Up;
     glm::vec3 m_Right;
     glm::vec3 m_WorldUp;
-    // euler Angles
+
     float m_Yaw;
     float m_Pitch;
-    // camera options
-    float movementSpeed;
-    float mouseSensitivity;
-    float m_Zoom;
 
     PerspectiveCamera(float aspectRatio, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH);
-    ~PerspectiveCamera();
+    ~PerspectiveCamera() override;
+
+    void Update() override;
+    void Resize(float width, float height) override;
+    glm::mat4 GetViewMatrix() override { return m_ViewMatrix; };
+    glm::mat4 GetProjectionMatrix() override { return m_ProjectionMatrix; }
+    glm::vec3 GetPosition() override { return m_Position; }
+    float GetAspectRatio() override { return m_AspectRatio; };
 
     void UpdateProjectionMatrix();
     void UpdateViewMatrix();
 
-    void OnUpdate(glm::vec2 mp);
-    glm::mat4 GetViewMatrix();
-    glm::mat4 GetProjectionMatrix();
-    void Move(CameraDirection direction, float deltaTime);
-    void Reset(glm::vec3 position, float yaw, float pitch);
-    void BeginPan(glm::vec2 mousePosition);
-    void EndPan();
-    void Zoom(float delta, glm::vec2 mousePosition);
-    void Rotate(float xoffset, float yoffset, bool constrainPitch = true);
 
-    glm::vec3 GetPosition() { return m_Position; }
-    void SetPosition(glm::vec3 position);
-    float GetZoom() { return m_Zoom; }
-    void SetZoom(float amount);
-    float GetAspectRatio() { return m_AspectRatio; };
-    glm::vec3 ScreenToWorldSpace(glm::vec2 screenPosition, glm::vec2 viewportSize);
-    void OnResize(float width, float height);
+    glm::vec3 ScreenToWorldSpace(glm::vec2 screenPosition, glm::vec2 viewportSize) override;
 };

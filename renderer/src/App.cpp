@@ -87,7 +87,7 @@ void App::HandleKeyboardInput(float deltaTime)
     {
         Entity e = m_Scene->CreateEntity("New");
         auto &t = e.GetComponent<TransformComponent>();
-        glm::vec3 p = m_Scene->GetCameraController()->GetCamera()->ScreenToWorldSpace(Input::GetMousePosition(), glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
+        glm::vec3 p = m_Scene->GetCameraController()->GetCamera()->ScreenToWorldSpace(Input::GetMousePosition(), glm::vec2(m_Window->GetFramebufferWidth(), m_Window->GetFramebufferHeight()));
         t.Position = p;
         auto &b = e.AddComponent<VerletBodyComponent>();
         b.m_PreviousPosition = t.Position;
@@ -174,40 +174,15 @@ void App::GUIUpdate()
     ImGui::Begin("Camera");
     glm::vec3 cameraPosition = camera->GetPosition();
     ImGui::Text("Position x %f, y %f, z %f", cameraPosition.x, cameraPosition.y, cameraPosition.z);
-    ImGui::Text("Zoom: %f", camera->GetZoom());
+//    ImGui::Text("Zoom: %f", camera->GetZoom());
     ImGui::Text("Aspect: %f", camera->GetAspectRatio());
     ImGui::Spacing();
     if (ImGui::SmallButton("Reset"))
     {
-        camera->SetPosition(glm::vec3(0.0));
-        camera->SetZoom(1.0);
     }
-    if (ImGui::SmallButton("Move Left"))
-    {
-        cameraPosition.x -= 0.1 * camera->GetZoom();
-        camera->SetPosition(cameraPosition);
-    }
-    ImGui::SameLine();
-    if (ImGui::SmallButton("Move Right"))
-    {
-        cameraPosition.x += 0.1 * camera->GetZoom();
-        camera->SetPosition(cameraPosition);
-    }
-    ImGui::SameLine();
-    if (ImGui::SmallButton("Move Up"))
-    {
-        cameraPosition.y += 0.1 * camera->GetZoom();
-        camera->SetPosition(cameraPosition);
-    }
-    ImGui::SameLine();
-    if (ImGui::SmallButton("Move Down"))
-    {
-        cameraPosition.y -= 0.1 * camera->GetZoom();
-        camera->SetPosition(cameraPosition);
-    }
+
     if (ImGui::DragFloat3("Position", (float *)&cameraPosition.x, 0.1f, 0.0f, 0.0f, "%.2f"))
     {
-        camera->SetPosition(cameraPosition);
     }
     ImGui::End();
 
