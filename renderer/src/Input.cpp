@@ -115,3 +115,13 @@ void Input::MouseCallback(GLFWwindow *window, double x, double y)
     m_MousePosition = glm::vec2(x, y);
     m_PrevMousePosition = m_MousePosition;
 }
+
+void Input::HideCursor()
+{
+    glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+}
+
+void Input::ShowCursor()
+{
+    glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+}

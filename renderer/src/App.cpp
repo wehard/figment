@@ -75,32 +75,6 @@ void App::HandleKeyboardInput(float deltaTime)
         return;
     }
 
-//    if (Input::GetKey(GLFW_KEY_W))
-//    {
-//        m_Scene->GetCamera()->Move(CameraDirection::Forward, deltaTime);
-//    }
-//    if (Input::GetKey(GLFW_KEY_S))
-//    {
-//        m_Scene->GetCamera()->Move(CameraDirection::Backward, deltaTime);
-//    }
-//    if (Input::GetKey(GLFW_KEY_A))
-//    {
-//        m_Scene->GetCamera()->Move(CameraDirection::Left, deltaTime);
-//    }
-//    if (Input::GetKey(GLFW_KEY_D))
-//    {
-//        m_Scene->GetCamera()->Move(CameraDirection::Right, deltaTime);
-//    }
-
-//    if (Input::GetKeyUp(GLFW_KEY_SPACE))
-//    {
-////        m_FpsCamera = m_Scene->GetCameraController()->;
-//        if (m_FpsCamera)
-//            glfwSetInputMode((GLFWwindow *)m_Window->GetNative(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-//        else
-//            glfwSetInputMode((GLFWwindow *)m_Window->GetNative(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-//    }
-
     if (Input::GetKeyDown(GLFW_KEY_1))
     {
         InsertPlane();
@@ -138,24 +112,6 @@ void App::HandleMouseInput()
     {
         SelectEntity({(uint32_t)m_Scene->m_HoveredId, m_Scene});
     }
-
-//    m_Scene->GetCamera()->Zoom(Input::GetScrollDelta().y, Input::GetMousePosition());
-
-//    if (m_FpsCamera)
-//    {
-//        glm::vec2 delta = Input::GetMouseDelta();
-//        m_Scene->GetCamera()->Rotate(delta.x, delta.y, true);
-//    }
-//
-//    if (Input::GetButtonDown(GLFW_MOUSE_BUTTON_LEFT) && Input::GetKey(GLFW_KEY_LEFT_ALT))
-//    {
-//        m_Scene->GetCamera()->BeginPan(Input::GetMousePosition());
-//    }
-//
-//    if (Input::GetButtonUp(GLFW_MOUSE_BUTTON_LEFT))
-//    {
-//        m_Scene->GetCamera()->EndPan();
-//    }
 }
 
 void App::Update()

@@ -3,7 +3,7 @@
 
 int main()
 {
-	App *app = new App(1000, 1000);
+	App *app = new App(1280, 720);
     delete app;
     return 0;
 }

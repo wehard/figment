@@ -20,6 +20,9 @@ public:
     static glm::vec2 GetMouseScroll();
     static glm::vec2 GetScrollDelta();
 
+    static void HideCursor();
+    static void ShowCursor();
+
 private:
     static GLFWwindow *m_Window;
     static std::unordered_map<int, bool> m_KeyState;

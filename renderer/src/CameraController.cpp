@@ -13,7 +13,7 @@ void CameraController::Update(float deltaTime)
     if (Input::GetKeyUp(GLFW_KEY_SPACE))
     {
         m_FpsCamera = !m_FpsCamera;
-        // TODO: Hide cursor
+        m_FpsCamera ? Input::HideCursor() : Input::ShowCursor();
     }
     ProcessKeyboard(deltaTime);
     if (m_FpsCamera)
