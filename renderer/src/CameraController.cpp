@@ -3,7 +3,7 @@
 #include "Input.h"
 
 CameraController::CameraController(std::shared_ptr<PerspectiveCamera> camera)
-    : m_Camera(camera), m_MovementSpeed(2.5), m_RotationSpeed(0.1), m_FpsCamera(false)
+    : m_Camera(camera), m_MovementSpeed(60.0), m_RotationSpeed(0.1), m_FpsCamera(false)
 {
 
 }

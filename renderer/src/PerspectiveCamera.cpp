@@ -39,33 +39,12 @@ glm::mat4 PerspectiveCamera::GetProjectionMatrix()
 
 void PerspectiveCamera::Move(CameraDirection direction, float deltaTime)
 {
-	float velocity = movementSpeed * deltaTime;
-	if (direction == CameraDirection::Forward)
-		m_Position += m_Forward * velocity;
-	if (direction == CameraDirection::Backward)
-		m_Position -= m_Forward * velocity;
-	if (direction == CameraDirection::Left)
-		m_Position -= m_Right * velocity;
-	if (direction == CameraDirection::Right)
-		m_Position += m_Right * velocity;
+
 }
 
 void PerspectiveCamera::Rotate(float xoffset, float yoffset, bool constrainPitch)
 {
-	xoffset *= mouseSensitivity;
-	yoffset *= mouseSensitivity;
 
-	m_Yaw += xoffset;
-	m_Pitch -= yoffset;
-
-	if (constrainPitch)
-	{
-		if (m_Pitch > 89.0f)
-			m_Pitch = 89.0f;
-		if (m_Pitch < -89.0f)
-			m_Pitch = -89.0f;
-	}
-	OnUpdate(glm::vec2(0));
 }
 
 void PerspectiveCamera::OnUpdate(glm::vec2 mp)
@@ -87,25 +66,20 @@ void PerspectiveCamera::Reset(glm::vec3 position, float yaw, float pitch)
 void PerspectiveCamera::BeginPan(glm::vec2 mousePosition) {}
 void PerspectiveCamera::EndPan() {}
 
-void PerspectiveCamera::Zoom(float delta, glm::vec2 mousePosition)
-{
-	m_Position.z -= delta;
-	UpdateViewMatrix();
-	UpdateProjectionMatrix();
-}
+void PerspectiveCamera::Zoom(float delta, glm::vec2 mousePosition) { }
 
 void PerspectiveCamera::SetPosition(glm::vec3 position)
 {
-	m_Position = position;
-	UpdateViewMatrix();
-	UpdateProjectionMatrix();
+//	m_Position = position;
+//	UpdateViewMatrix();
+//	UpdateProjectionMatrix();
 }
 
 void PerspectiveCamera::SetZoom(float amount)
 {
-	m_Zoom = amount;
-	UpdateViewMatrix();
-	UpdateProjectionMatrix();
+//	m_Zoom = amount;
+//	UpdateViewMatrix();
+//	UpdateProjectionMatrix();
 }
 
 static glm::vec3 intersect(glm::vec3 planeP, glm::vec3 planeN, glm::vec3 rayP, glm::vec3 rayD)
