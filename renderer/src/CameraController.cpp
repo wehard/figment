@@ -19,6 +19,8 @@ void CameraController::Update(float deltaTime)
     if (m_FpsCamera)
         ProcessMouseMovement();
     ProcessMouseScroll();
+
+    m_Camera->OnUpdate(glm::vec2(0));
 }
 
 void CameraController::ProcessKeyboard(float deltaTime)

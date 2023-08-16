@@ -23,7 +23,7 @@ App::App(float width, float height)
         OnResize(data.FramebufferWidth, data.FramebufferHeight);
     });
 
-    GLFWwindow *glfwWindow = (GLFWwindow *)m_Window->GetNative();
+    auto *glfwWindow = (GLFWwindow *)m_Window->GetNative();
     Input::Initialize(glfwWindow);
     m_GUICtx = new GUIContext();
 
@@ -75,31 +75,31 @@ void App::HandleKeyboardInput(float deltaTime)
         return;
     }
 
-    if (Input::GetKey(GLFW_KEY_W))
-    {
-        m_Scene->GetCamera()->Move(CameraDirection::Forward, deltaTime);
-    }
-    if (Input::GetKey(GLFW_KEY_S))
-    {
-        m_Scene->GetCamera()->Move(CameraDirection::Backward, deltaTime);
-    }
-    if (Input::GetKey(GLFW_KEY_A))
-    {
-        m_Scene->GetCamera()->Move(CameraDirection::Left, deltaTime);
-    }
-    if (Input::GetKey(GLFW_KEY_D))
-    {
-        m_Scene->GetCamera()->Move(CameraDirection::Right, deltaTime);
-    }
+//    if (Input::GetKey(GLFW_KEY_W))
+//    {
+//        m_Scene->GetCamera()->Move(CameraDirection::Forward, deltaTime);
+//    }
+//    if (Input::GetKey(GLFW_KEY_S))
+//    {
+//        m_Scene->GetCamera()->Move(CameraDirection::Backward, deltaTime);
+//    }
+//    if (Input::GetKey(GLFW_KEY_A))
+//    {
+//        m_Scene->GetCamera()->Move(CameraDirection::Left, deltaTime);
+//    }
+//    if (Input::GetKey(GLFW_KEY_D))
+//    {
+//        m_Scene->GetCamera()->Move(CameraDirection::Right, deltaTime);
+//    }
 
-    if (Input::GetKeyUp(GLFW_KEY_SPACE))
-    {
-        m_FpsCamera = !m_FpsCamera;
-        if (m_FpsCamera)
-            glfwSetInputMode((GLFWwindow *)m_Window->GetNative(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        else
-            glfwSetInputMode((GLFWwindow *)m_Window->GetNative(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    }
+//    if (Input::GetKeyUp(GLFW_KEY_SPACE))
+//    {
+////        m_FpsCamera = m_Scene->GetCameraController()->;
+//        if (m_FpsCamera)
+//            glfwSetInputMode((GLFWwindow *)m_Window->GetNative(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+//        else
+//            glfwSetInputMode((GLFWwindow *)m_Window->GetNative(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+//    }
 
     if (Input::GetKeyDown(GLFW_KEY_1))
     {
@@ -113,7 +113,7 @@ void App::HandleKeyboardInput(float deltaTime)
     {
         Entity e = m_Scene->CreateEntity("New");
         auto &t = e.GetComponent<TransformComponent>();
-        glm::vec3 p = m_Scene->GetCamera()->ScreenToWorldSpace(Input::GetMousePosition(), glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
+        glm::vec3 p = m_Scene->GetCameraController()->GetCamera()->ScreenToWorldSpace(Input::GetMousePosition(), glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
         t.Position = p;
         auto &b = e.AddComponent<VerletBodyComponent>();
         b.m_PreviousPosition = t.Position;
@@ -139,23 +139,23 @@ void App::HandleMouseInput()
         SelectEntity({(uint32_t)m_Scene->m_HoveredId, m_Scene});
     }
 
-    m_Scene->GetCamera()->Zoom(Input::GetScrollDelta().y, Input::GetMousePosition());
+//    m_Scene->GetCamera()->Zoom(Input::GetScrollDelta().y, Input::GetMousePosition());
 
-    if (m_FpsCamera)
-    {
-        glm::vec2 delta = Input::GetMouseDelta();
-        m_Scene->GetCamera()->Rotate(delta.x, delta.y, true);
-    }
-
-    if (Input::GetButtonDown(GLFW_MOUSE_BUTTON_LEFT) && Input::GetKey(GLFW_KEY_LEFT_ALT))
-    {
-        m_Scene->GetCamera()->BeginPan(Input::GetMousePosition());
-    }
-
-    if (Input::GetButtonUp(GLFW_MOUSE_BUTTON_LEFT))
-    {
-        m_Scene->GetCamera()->EndPan();
-    }
+//    if (m_FpsCamera)
+//    {
+//        glm::vec2 delta = Input::GetMouseDelta();
+//        m_Scene->GetCamera()->Rotate(delta.x, delta.y, true);
+//    }
+//
+//    if (Input::GetButtonDown(GLFW_MOUSE_BUTTON_LEFT) && Input::GetKey(GLFW_KEY_LEFT_ALT))
+//    {
+//        m_Scene->GetCamera()->BeginPan(Input::GetMousePosition());
+//    }
+//
+//    if (Input::GetButtonUp(GLFW_MOUSE_BUTTON_LEFT))
+//    {
+//        m_Scene->GetCamera()->EndPan();
+//    }
 }
 
 void App::Update()
@@ -211,53 +211,54 @@ void App::GUIUpdate()
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
+    auto camera = m_Scene->GetCameraController()->GetCamera();
     size_t cameraWindowWidth = 400;
     ImGui::SetNextWindowPos(ImVec2(m_Window->GetWidth() / 2 - cameraWindowWidth / 2, 0), ImGuiCond_Once);
     ImGui::SetNextWindowSize(ImVec2(cameraWindowWidth, 0), ImGuiCond_Once);
     ImGui::Begin("Camera");
-    glm::vec3 cameraPosition = m_Scene->GetCamera()->GetPosition();
+    glm::vec3 cameraPosition = camera->GetPosition();
     ImGui::Text("Position x %f, y %f, z %f", cameraPosition.x, cameraPosition.y, cameraPosition.z);
-    ImGui::Text("Zoom: %f", m_Scene->GetCamera()->GetZoom());
-    ImGui::Text("Aspect: %f", m_Scene->GetCamera()->GetAspectRatio());
+    ImGui::Text("Zoom: %f", camera->GetZoom());
+    ImGui::Text("Aspect: %f", camera->GetAspectRatio());
     ImGui::Spacing();
     if (ImGui::SmallButton("Reset"))
     {
-        m_Scene->GetCamera()->SetPosition(glm::vec3(0.0));
-        m_Scene->GetCamera()->SetZoom(1.0);
+        camera->SetPosition(glm::vec3(0.0));
+        camera->SetZoom(1.0);
     }
     if (ImGui::SmallButton("Move Left"))
     {
-        cameraPosition.x -= 0.1 * m_Scene->GetCamera()->GetZoom();
-        m_Scene->GetCamera()->SetPosition(cameraPosition);
+        cameraPosition.x -= 0.1 * camera->GetZoom();
+        camera->SetPosition(cameraPosition);
     }
     ImGui::SameLine();
     if (ImGui::SmallButton("Move Right"))
     {
-        cameraPosition.x += 0.1 * m_Scene->GetCamera()->GetZoom();
-        m_Scene->GetCamera()->SetPosition(cameraPosition);
+        cameraPosition.x += 0.1 * camera->GetZoom();
+        camera->SetPosition(cameraPosition);
     }
     ImGui::SameLine();
     if (ImGui::SmallButton("Move Up"))
     {
-        cameraPosition.y += 0.1 * m_Scene->GetCamera()->GetZoom();
-        m_Scene->GetCamera()->SetPosition(cameraPosition);
+        cameraPosition.y += 0.1 * camera->GetZoom();
+        camera->SetPosition(cameraPosition);
     }
     ImGui::SameLine();
     if (ImGui::SmallButton("Move Down"))
     {
-        cameraPosition.y -= 0.1 * m_Scene->GetCamera()->GetZoom();
-        m_Scene->GetCamera()->SetPosition(cameraPosition);
+        cameraPosition.y -= 0.1 * camera->GetZoom();
+        camera->SetPosition(cameraPosition);
     }
     if (ImGui::DragFloat3("Position", (float *)&cameraPosition.x, 0.1f, 0.0f, 0.0f, "%.2f"))
     {
-        m_Scene->GetCamera()->SetPosition(cameraPosition);
+        camera->SetPosition(cameraPosition);
     }
     ImGui::End();
 
     const GLubyte *version = glGetString(GL_VERSION);
     glm::vec2 mousePosition = Input::GetMousePosition();
     glm::vec2 ndc = glm::vec2((mousePosition.x / ((float)m_Window->GetWidth() * 0.5)) - 1.0, (mousePosition.y / ((float)m_Window->GetHeight() * 0.5)) - 1.0);
-    glm::vec2 mw = m_Scene->GetCamera()->ScreenToWorldSpace(mousePosition, glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
+    glm::vec2 mw = camera->ScreenToWorldSpace(mousePosition, glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
 
     ImGui::SetNextWindowPos(ImVec2(m_Window->GetWidth() - 500, 0), ImGuiCond_Once);
     ImGui::SetNextWindowSize(ImVec2(500, 0), ImGuiCond_Once);

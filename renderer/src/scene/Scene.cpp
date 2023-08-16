@@ -10,8 +10,9 @@ Scene::Scene() = default;
 Scene::Scene(uint32_t width, uint32_t height) : m_Width(width), m_Height(height), m_ClearColor(glm::vec4(0.1, 0.1, 0.1, 1.0))
 {
     m_Renderer = new GLRenderer(width, height);
-    m_Camera = Camera::CreatePerspectiveCamera((float)width / (float)height);
-    m_Camera->SetPosition(glm::vec3(0.0, 0.0, 60.0));
+    m_Camera = std::make_shared<PerspectiveCamera>((float)width / (float)height);
+    m_CameraController = std::make_shared<CameraController>(m_Camera);
+    m_CameraController->GetCamera()->SetPosition(glm::vec3(0.0, 0.0, 60.0));
 }
 
 Scene::~Scene() = default;
@@ -72,7 +73,7 @@ Entity Scene::GetHoveredEntity()
 
 void Scene::Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportSize)
 {
-    m_Camera->OnUpdate(mousePosition);
+    m_CameraController->Update(deltaTime);
     m_Renderer->Begin(m_Camera, m_ClearColor);
 
     auto t = TransformComponent();
@@ -107,9 +108,9 @@ void Scene::Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportS
     m_Renderer->End();
 }
 
-std::shared_ptr<Camera> Scene::GetCamera()
+std::shared_ptr<CameraController> Scene::GetCameraController()
 {
-    return m_Camera;
+    return m_CameraController;
 }
 
 void Scene::OnResize(uint32_t width, uint32_t height)
