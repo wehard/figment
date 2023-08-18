@@ -110,6 +110,7 @@ target_include_directories(figment_wasm
         src/scene
         src/physics
         src/platform/opengl
+        src/platform/web
         lib
         lib/glm
         lib/entt
