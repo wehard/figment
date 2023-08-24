@@ -1,6 +1,10 @@
 #include "Core.h"
 #include "Shader.h"
+#ifdef FIGMENT_MACOS
 #include "OpenGLShader.h"
+#elif defined(FIGMENT_WEB)
+#include "WebGPUShader.h"
+#endif
 #include <sstream>
 #include <vector>
 

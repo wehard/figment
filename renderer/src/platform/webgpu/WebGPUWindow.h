@@ -6,11 +6,11 @@
 #include <GLFW/glfw3.h>
 #include <cstdint>
 
-class WebWindow : public Window
+class WebGPUWindow : public Window
 {
 public:
-    WebWindow(const std::string &title, const uint32_t width, const uint32_t height);
-    ~WebWindow() override;
+    WebGPUWindow(const std::string &title, const uint32_t width, const uint32_t height);
+    ~WebGPUWindow() override;
     void Resize(WindowResizeEventData resizeData);
     bool ShouldClose() override;
     uint32_t GetWidth() const override;

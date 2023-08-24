@@ -49,7 +49,7 @@ file(GLOB_RECURSE SRC_FILES
 )
 
 file(GLOB_RECURSE EXCLUDED_SRC_FILES
-        "src/platform/web/*.cpp"
+        "src/platform/webgpu/*.cpp"
 )
 
 list(REMOVE_ITEM SRC_FILES ${EXCLUDED_SRC_FILES})
@@ -110,12 +110,11 @@ target_include_directories(figment_wasm
         src/scene
         src/physics
         src/platform/opengl
-        src/platform/web
+        src/platform/webgpu/
         lib
         lib/glm
         lib/entt
         lib/imgui/include
-#        cache/sysroot/include
 )
 
 file(GLOB_RECURSE SRC_FILES
@@ -140,7 +139,7 @@ set_target_properties(figment_wasm PROPERTIES LINK_FLAGS "\
         -s MODULARIZE=1\
         -s EXPORT_ES6=1\
         -s WASM=1\
-        -s USE_WEBGL2=1\
+        -s USE_WEBGPU=1\
         -s ALLOW_MEMORY_GROWTH=1\
         -s NO_EXIT_RUNTIME=0\
         -s ASSERTIONS=1\
