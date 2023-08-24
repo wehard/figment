@@ -50,6 +50,7 @@ file(GLOB_RECURSE SRC_FILES
 
 file(GLOB_RECURSE EXCLUDED_SRC_FILES
         "src/platform/webgpu/*.cpp"
+        "lib/imgui/imgui_impl_wgpu.cpp"
 )
 
 list(REMOVE_ITEM SRC_FILES ${EXCLUDED_SRC_FILES})
