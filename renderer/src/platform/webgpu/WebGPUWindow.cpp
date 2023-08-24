@@ -54,6 +54,8 @@ WebGPUWindow::WebGPUWindow(const std::string &title, const uint32_t width, const
         exit(EXIT_FAILURE);
     }
 
+    printf("Initialized WebGPU window (%dx%d)\n", width, height);
+
     m_GfxContext = GfxContext::Create(m_Window);
     m_GfxContext->Init();
 
@@ -73,7 +75,6 @@ WebGPUWindow::WebGPUWindow(const std::string &title, const uint32_t width, const
 //    glfwSetFramebufferSizeCallback(m_Window, glfwFramebufferSizeCallback);
 //
 //    glfwSetWindowUserPointer(m_Window, this);
-
 }
 
 WebGPUWindow::~WebGPUWindow()

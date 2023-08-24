@@ -4,6 +4,8 @@
 #include <webgpu/webgpu.h>
 #include <webgpu/webgpu_cpp.h>
 
+#include <cstdio>
+
 void WebGPUContext::Init()
 {
     m_WebGPUDevice = emscripten_webgpu_get_device();
@@ -18,6 +20,7 @@ void WebGPUContext::Init()
     wgpu::Instance instance = wgpuCreateInstance(&instance_desc);
 
     m_WebGPUSurface = instance.CreateSurface(&surface_desc).Release();
+    printf("Initialized WebGPU context\n");
 }
 
 void WebGPUContext::SwapBuffers()

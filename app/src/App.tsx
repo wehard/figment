@@ -90,25 +90,25 @@ const debounce = (func: () => void, ms: number) => {
 function App() {
   const renderDivRef = useRef<HTMLDivElement>(null);
   const [canvasContext, setCanvasContext] = useState<CanvasContext>();
-  const [showEditor, setShowEditor] = useState<boolean>(true);
+  const [showEditor, setShowEditor] = useState<boolean>(false);
   const [vertShaderSource, setVertShaderSource] = useState<string>();
   const [fragShaderSource, setFragShaderSource] = useState<string>();
 
-  useEffect(() => {
-    const debounceHandleResize = debounce(() => {
-      if (renderDivRef.current)
-        canvasContext?.onCanvasResize(
-          renderDivRef.current.clientWidth,
-          renderDivRef.current.clientHeight
-        );
-    }, 10);
+  // useEffect(() => {
+  //   const debounceHandleResize = debounce(() => {
+  //     if (renderDivRef.current)
+  //       canvasContext?.onCanvasResize(
+  //         renderDivRef.current.clientWidth,
+  //         renderDivRef.current.clientHeight
+  //       );
+  //   }, 10);
 
-    debounceHandleResize();
-    window.addEventListener('resize', debounceHandleResize);
-    return () => {
-      window.removeEventListener('resize', debounceHandleResize);
-    };
-  });
+  //   debounceHandleResize();
+  //   window.addEventListener('resize', debounceHandleResize);
+  //   return () => {
+  //     window.removeEventListener('resize', debounceHandleResize);
+  //   };
+  // });
 
   return (
     <div id='app' className='app h-screen w-screen overflow-x-hidden  bg-black'>

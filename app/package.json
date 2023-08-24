@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@monaco-editor/react": "^4.4.6",
+    "@webgpu/types": "^0.1.34",
     "monaco": "^1.201704190613.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"

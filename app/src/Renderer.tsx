@@ -17,6 +17,7 @@ type ModuleDesc = {
   arguments: string[];
   preRun: (() => void)[];
   doNotCaptureKeyboard: boolean;
+  preinitializedWebGPUDevice?: GPUDevice;
 };
 
 interface RendererProps {
@@ -30,6 +31,9 @@ const Renderer = (props: RendererProps) => {
   const canvas = useRef<HTMLCanvasElement>(null);
 
   const initialize = async (module: ModuleDesc) => {
+    const adapter = await navigator.gpu.requestAdapter();
+    const device = await adapter?.requestDevice();
+    module.preinitializedWebGPUDevice = device;
     const rendererContext = await loadRenderer(module);
     const ctx: CanvasContext = {
       onCanvasResize: rendererContext._onCanvasResize,
