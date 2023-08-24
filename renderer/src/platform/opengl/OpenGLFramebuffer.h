@@ -30,14 +30,14 @@ class OpenGLFramebuffer : public Framebuffer
 {
 public:
     OpenGLFramebuffer(uint32_t width, uint32_t height);
-    ~OpenGLFramebuffer();
+    ~OpenGLFramebuffer() override;
     void Recreate();
-    void Bind();
-    void Unbind();
-    void ClearAttachment(uint32_t index, glm::vec4 clearColor, int clearId);
+    void Bind() override;
+    void Unbind() override;
+    void ClearAttachment(uint32_t index, glm::vec4 clearColor, int clearId) override;
     void Resize(uint32_t width, uint32_t height) override;
-    uint32_t GetAttachmentId(uint32_t index = 0);
-    int GetPixel(uint32_t attachmentIndex, int x, int y);
+    uint32_t GetAttachmentId(uint32_t index) override;
+    int GetPixel(uint32_t attachmentIndex, int x, int y) override;
 
 private:
     uint32_t m_Width;
