@@ -6,6 +6,7 @@
 #include "GUIContext.h"
 #include "PerspectiveCamera.h"
 #include "Scene.h"
+#include "imgui.h"
 
 #include <memory>
 
@@ -13,7 +14,7 @@ class App
 {
 private:
   std::shared_ptr<Window> m_Window;
-  GUIContext *m_GUICtx;
+  std::unique_ptr<GUIContext> m_GUICtx;
   Scene *m_Scene;
 
   ImVec4 m_ClearColor = ImVec4(0.15, 0.15, 0.15, 1.00f);

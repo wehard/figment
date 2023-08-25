@@ -1,3 +1,4 @@
+#include "Core.h"
 #include "App.h"
 #include "Scene.h"
 #include "Entity.h"
@@ -5,16 +6,13 @@
 #ifndef __EMSCRIPTEN__
 #include "ScriptEngine.h"
 #endif
-#include <math.h>
-#include <fstream>
-#include <sstream>
-#include <stdlib.h>
+
 #include <string>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/vec4.hpp>
 #include <GLFW/glfw3.h>
 
-#define BIND(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
+#ifdef FIGMENT_WEB
+#include "imgui_impl_wgpu.h"
+#endif
 
 App::App(float width, float height)
 {
@@ -25,7 +23,7 @@ App::App(float width, float height)
 
     auto *glfwWindow = (GLFWwindow *)m_Window->GetNative();
     Input::Initialize(glfwWindow);
-    m_GUICtx = new GUIContext();
+    m_GUICtx = GUIContext::Create();
 
 #ifdef __EMSCRIPTEN__
     const char *glslVersion = "#version 300 es";
@@ -33,7 +31,7 @@ App::App(float width, float height)
     const char *glslVersion = "#version 330 core";
 #endif
 
-    m_GUICtx->Init(glfwWindow, glslVersion);
+    m_GUICtx->Init(m_Window, glslVersion);
 
     m_Scene = new Scene(m_Window->GetFramebufferWidth(), m_Window->GetFramebufferHeight());
     m_Scene->CreateEntity();
@@ -50,7 +48,7 @@ App::App(float width, float height)
 
 App::~App()
 {
-    delete m_GUICtx;
+    m_GUICtx->Shutdown();
     delete m_Scene;
 }
 
@@ -163,7 +161,11 @@ static void DrawVec3(const char *name, glm::vec3 *value, bool *syncValues)
 
 void App::GUIUpdate()
 {
+#ifdef FIGMENT_MACOS
     ImGui_ImplOpenGL3_NewFrame();
+#elif defined(FIGMENT_WEB)
+    ImGui_ImplWGPU_NewFrame();
+#endif
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 

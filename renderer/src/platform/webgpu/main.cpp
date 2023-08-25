@@ -73,6 +73,7 @@ static void main_loop(void *arg)
 {
 	App *app = (App *)arg;
 	app->Update();
+    printf("main::Update\n");
 }
 
 int main(int argc, char **argv)
@@ -82,5 +83,5 @@ int main(int argc, char **argv)
 	printf("%s:%d Initial canvas size %f x %f\n", __FILE__, __LINE__, width, height);
 	app = new App(width, height);
 
-	emscripten_set_main_loop_arg(main_loop, app, 0, true);
+	emscripten_set_main_loop_arg(main_loop, app, 0, false);
 }

@@ -1,22 +1,16 @@
 #pragma once
 
-#include "imgui.h"
+#include "Window.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-struct ApplicationInfo
-{
-};
-
 class GUIContext
 {
-private:
-	ImGuiContext *m_Context;
-
 public:
-	GUIContext();
-	void Init(GLFWwindow *window, const char *glslVersion);
-	void Render();
-	void Shutdown();
-	~GUIContext();
+    virtual void Init(std::shared_ptr<Window> window, const char *glslVersion) = 0;
+    virtual void Render() = 0;
+    virtual void Shutdown() = 0;
+    virtual ~GUIContext() = default;
+
+    static std::unique_ptr<GUIContext> Create();
 };

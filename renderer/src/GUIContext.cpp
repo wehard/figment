@@ -1,39 +1,16 @@
 #include "GUIContext.h"
-#include <string>
-#include <algorithm>
+#include "Core.h"
+#ifdef FIGMENT_MACOS
+#include "OpenGLGUIContext.h"
+#elif defined(FIGMENT_WEB)
+#include "WebGPUGUIContext.h"
+#endif
 
-GUIContext::GUIContext() {}
-
-void GUIContext::Init(GLFWwindow *window, const char *glslVersion)
+std::unique_ptr<GUIContext> GUIContext::Create()
 {
-	IMGUI_CHECKVERSION();
-	m_Context = ImGui::CreateContext();
-	ImGuiIO &io = ImGui::GetIO();
-	(void)io;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
-
-	// For an Emscripten build we are disabling file-system access, so let's not attempt to do a fopen() of the imgui.ini file.
-	// You may manually call LoadIniSettingsFromMemory() to load settings from your own storage.
-	io.IniFilename = NULL;
-
-	ImGui::StyleColorsDark();
-
-	ImGui_ImplGlfw_InitForOpenGL(window, true);
-	ImGui_ImplOpenGL3_Init(glslVersion);
+#ifdef FIGMENT_MACOS
+    return std::make_unique<OpenGLGUIContext>();
+#elif defined(FIGMENT_WEB)
+    return std::make_unique<WebGPUGUIContext>();
+#endif
 }
-
-void GUIContext::Render()
-{
-	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}
-
-void GUIContext::Shutdown()
-{
-	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplGlfw_Shutdown();
-	ImGui::DestroyContext(m_Context);
-}
-
-GUIContext::~GUIContext() {}

@@ -37,15 +37,15 @@ WebGPUWindow::WebGPUWindow(const std::string &title, const uint32_t width, const
     glfwSetErrorCallback(glfwErrorHandler);
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+//    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+//    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+//    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+//    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+//
+//    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+//    glfwWindowHint(GLFW_SAMPLES, 4);
 
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-    glfwWindowHint(GLFW_SAMPLES, 4);
-
-    m_Window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
+    m_Window = glfwCreateWindow(width, height, "Figment - WebGPU", nullptr, nullptr);
 
     if (!m_Window)
     {
@@ -56,7 +56,7 @@ WebGPUWindow::WebGPUWindow(const std::string &title, const uint32_t width, const
 
     printf("Initialized WebGPU window (%dx%d)\n", width, height);
 
-    m_GfxContext = GfxContext::Create(m_Window);
+    m_GfxContext = std::make_shared<WebGPUContext>();
     m_GfxContext->Init();
 
     glfwShowWindow(m_Window);
