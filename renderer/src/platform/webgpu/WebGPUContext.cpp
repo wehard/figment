@@ -4,7 +4,7 @@
 #include <webgpu/webgpu.h>
 #include <webgpu/webgpu_cpp.h>
 
-#include <cstdio>
+#include <stdio.h>
 
 static void PrintWebGPUError(WGPUErrorType error_type, const char* message, void*)
 {
@@ -28,6 +28,7 @@ void WebGPUContext::Init()
         printf("No device!\n");
         return;
     }
+    wgpuDeviceSetLabel(m_WebGPUDevice, "WebGPUDevice");
 
     wgpuDeviceSetUncapturedErrorCallback(m_WebGPUDevice, PrintWebGPUError, nullptr);
 
@@ -39,8 +40,16 @@ void WebGPUContext::Init()
 
     WGPUInstanceDescriptor instance_desc = {};
     wgpu::Instance instance = wgpuCreateInstance(&instance_desc);
+    if (!instance)
+    {
+        printf("No instance!\n");
+    }
 
     m_WebGPUSurface = instance.CreateSurface(&surface_desc).Release();
+    if (!m_WebGPUSurface)
+    {
+        printf("No surface!\n");
+    }
     printf("Initialized WebGPU context\n");
 }
 

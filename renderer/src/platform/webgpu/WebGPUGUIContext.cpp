@@ -46,7 +46,7 @@ void WebGPUGUIContext::Render()
     WGPURenderPassColorAttachment color_attachments = {};
     color_attachments.loadOp = WGPULoadOp_Clear;
     color_attachments.storeOp = WGPUStoreOp_Store;
-    color_attachments.clearValue = { 1.0, 1.0, 1.0, 1.0 };
+    color_attachments.clearValue = { 0.1, 0.1, 0.1, 1.0 };
     color_attachments.view = wgpuSwapChainGetCurrentTextureView(m_SwapChain);
     WGPURenderPassDescriptor render_pass_desc = {};
     render_pass_desc.colorAttachmentCount = 1;

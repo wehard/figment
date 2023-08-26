@@ -71,13 +71,15 @@ extern "C"
 
 static void main_loop(void *arg)
 {
-	App *app = (App *)arg;
-	app->Update();
-    printf("main::Update\n");
+    app->Update();
 }
 
 int main(int argc, char **argv)
 {
+    if (argc < 3)
+    {
+        printf("Not enough args!\n");
+    }
 	float width = strtof(argv[1], nullptr);
 	float height = strtof(argv[2], nullptr);
 	printf("%s:%d Initial canvas size %f x %f\n", __FILE__, __LINE__, width, height);

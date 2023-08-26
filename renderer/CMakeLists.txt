@@ -144,10 +144,11 @@ set_target_properties(figment_wasm PROPERTIES LINK_FLAGS "\
         -s ALLOW_MEMORY_GROWTH=1\
         -s NO_EXIT_RUNTIME=0\
         -s ASSERTIONS=1\
-        --shell-file ${CMAKE_CURRENT_SOURCE_DIR}/index.html\
+        -s USE_ES6_IMPORT_META=1\
         --preload-file res@/res\
         -lGLEW\
         -lglfw\
+        -gsource-map\
 ")
 
 add_custom_command(TARGET figment_wasm POST_BUILD

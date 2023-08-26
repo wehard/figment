@@ -32,8 +32,8 @@ const Renderer = (props: RendererProps) => {
 
   const initialize = async (module: ModuleDesc) => {
     const adapter = await navigator.gpu.requestAdapter();
-    const device = await adapter?.requestDevice();
-    module.preinitializedWebGPUDevice = device;
+    module.preinitializedWebGPUDevice = await adapter?.requestDevice();
+
     const rendererContext = await loadRenderer(module);
     const ctx: CanvasContext = {
       onCanvasResize: rendererContext._onCanvasResize,
@@ -59,18 +59,17 @@ const Renderer = (props: RendererProps) => {
       ),
     };
 
-    console.log(rendererContext);
-
     props.registerCallback(ctx);
     setContext(ctx);
   };
 
   useEffect(() => {
+   
     const module = {
       canvas: canvas.current,
       arguments: [props.initialWidth.toString(), props.initialHeight.toString()],
       doNotCaptureKeyboard: true,
-      preRun: [],
+      preRun: [() => {console.log("PRERUN")}]
     };
 
     initialize(module).catch(console.error);
