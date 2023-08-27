@@ -135,10 +135,6 @@ target_sources(figment_wasm PRIVATE ${SRC_FILES})
 set_target_properties(figment_wasm PROPERTIES LINK_FLAGS "\
         -s USE_GLFW=3\
         -s DISABLE_EXCEPTION_CATCHING=0\
-        -s EXPORTED_FUNCTIONS=_onMouseMove,_insertObject,_onCanvasResize,_main\
-        -s EXPORTED_RUNTIME_METHODS='[\"cwrap\", \"allocate\", \"intArrayFromString\", \"ALLOC_NORMAL\", \"UTF8ToString\"]'\
-        -s MODULARIZE=1\
-        -s EXPORT_ES6=1\
         -s WASM=1\
         -s USE_WEBGPU=1\
         -s ALLOW_MEMORY_GROWTH=1\

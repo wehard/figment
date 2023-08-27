@@ -114,9 +114,9 @@ void App::HandleMouseInput()
 
 void App::Update()
 {
-//    m_CurrentTime = glfwGetTime();
-//    double deltaTime = m_CurrentTime - m_LastTime;
-//    m_LastTime = m_CurrentTime;
+    m_CurrentTime = glfwGetTime();
+    double deltaTime = m_CurrentTime - m_LastTime;
+    m_LastTime = m_CurrentTime;
 
 //    Input::Update();
 //
