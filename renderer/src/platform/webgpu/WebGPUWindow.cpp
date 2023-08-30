@@ -61,20 +61,19 @@ WebGPUWindow::WebGPUWindow(const std::string &title, const uint32_t width, const
 
     glfwShowWindow(m_Window);
 
-//    int w, h;
-//    glfwGetWindowSize(m_Window, &w, &h);
-//    std::cout << "GLFW window created: " << w << " x " << h << std::endl;
-//
-//    int fw, fh;
-//    glfwGetFramebufferSize(m_Window, &fw, &fh);
-//    std::cout << "GLFW framebuffer size: " << fw << " x " << fh << std::endl;
-//    m_FramebufferWidth = (uint32_t)fw;
-//    m_FramebufferHeight = (uint32_t)fh;
-//
-//    glfwSetWindowSizeCallback(m_Window, glfwWindowSizeCallback);
-//    glfwSetFramebufferSizeCallback(m_Window, glfwFramebufferSizeCallback);
-//
-//    glfwSetWindowUserPointer(m_Window, this);
+    int w, h;
+    glfwGetWindowSize(m_Window, &w, &h);
+    std::cout << "GLFW window created: " << w << " x " << h << std::endl;
+
+    int fw, fh;
+    glfwGetFramebufferSize(m_Window, &fw, &fh);
+    std::cout << "GLFW framebuffer size: " << fw << " x " << fh << std::endl;
+    m_FramebufferWidth = (uint32_t)fw;
+    m_FramebufferHeight = (uint32_t)fh;
+
+    // glfwSetWindowSizeCallback(m_Window, glfwWindowSizeCallback);
+    //    glfwSetFramebufferSizeCallback(m_Window, glfwFramebufferSizeCallback);
+    //    glfwSetWindowUserPointer(m_Window, this);
 }
 
 WebGPUWindow::~WebGPUWindow()

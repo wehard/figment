@@ -22,15 +22,17 @@ void WebGPUGUIContext::Init(std::shared_ptr<Window> window, const char *glslVers
     auto webGpuWindow = std::dynamic_pointer_cast<WebGPUWindow>(window);
     m_GfxContext = webGpuWindow->GetContext().get();
 
+    WGPUTextureFormat textureFormat = WGPUTextureFormat_BGRA8Unorm;
+
     ImGui_ImplGlfw_InitForOther(glfwWindow, true);
-    ImGui_ImplWGPU_Init(m_GfxContext->GetDevice(), 3, WGPUTextureFormat_RGBA8Unorm, WGPUTextureFormat_Undefined);
+    ImGui_ImplWGPU_Init(m_GfxContext->GetDevice(), 3, textureFormat, WGPUTextureFormat_Undefined);
 
     //
 
     ImGui_ImplWGPU_InvalidateDeviceObjects();
     WGPUSwapChainDescriptor swap_chain_desc = {};
     swap_chain_desc.usage = WGPUTextureUsage_RenderAttachment;
-    swap_chain_desc.format = WGPUTextureFormat_RGBA8Unorm;
+    swap_chain_desc.format = textureFormat;
     swap_chain_desc.width = window->GetFramebufferWidth();
     swap_chain_desc.height = window->GetFramebufferHeight();
     swap_chain_desc.presentMode = WGPUPresentMode_Fifo;

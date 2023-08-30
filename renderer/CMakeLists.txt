@@ -145,7 +145,12 @@ set_target_properties(figment_wasm PROPERTIES LINK_FLAGS "\
         -lGLEW\
         -lglfw\
         -gsource-map\
+        --shell-file ${CMAKE_CURRENT_SOURCE_DIR}/index.html\
 ")
+
+add_custom_command(TARGET figment_wasm POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/index.html ${CMAKE_CURRENT_BINARY_DIR}/index.html
+)
 
 add_custom_command(TARGET figment_wasm POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/figment_wasm.wasm ${CMAKE_CURRENT_SOURCE_DIR}/../app/src/renderer/figment_wasm.wasm

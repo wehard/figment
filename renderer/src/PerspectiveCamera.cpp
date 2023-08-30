@@ -77,7 +77,7 @@ glm::vec3 PerspectiveCamera::ScreenToWorldSpace(glm::vec2 screenPosition, glm::v
 {
     glm::vec3 world;
 
-    auto pPos = glm::vec3(0.0);
+    auto pPos = m_Forward;// glm::vec3(0.0);
     auto pNormal = glm::normalize(m_Position - pPos);
 
     auto projectedMouse = ProjectMouse(screenPosition.x,
