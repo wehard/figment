@@ -5,6 +5,8 @@
 #include <webgpu/webgpu_cpp.h>
 
 #include <stdio.h>
+#include <vector>
+#include <iostream>
 
 static void PrintWebGPUError(WGPUErrorType error_type, const char* message, void*)
 {
@@ -29,6 +31,14 @@ void WebGPUContext::Init()
         return;
     }
     wgpuDeviceSetLabel(m_WebGPUDevice, "WebGPUDevice");
+    std::vector<WGPUFeatureName> features;
+    size_t count = wgpuDeviceEnumerateFeatures(m_WebGPUDevice, nullptr);
+    features.resize(count);
+    wgpuDeviceEnumerateFeatures(m_WebGPUDevice, features.data());
+    std::cout << "Device features:" << std::endl;
+    for (auto f : features) {
+        std::cout << " - " << f << std::endl;
+    }
 
     wgpuDeviceSetUncapturedErrorCallback(m_WebGPUDevice, PrintWebGPUError, nullptr);
 
