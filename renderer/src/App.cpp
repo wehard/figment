@@ -170,9 +170,6 @@ void App::GUIUpdate()
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    ImGui::Begin("Hello");
-    ImGui::Text("World!");
-    ImGui::End();
     auto camera = m_Scene->GetCameraController()->GetCamera();
     size_t cameraWindowWidth = 400;
     ImGui::SetNextWindowPos(ImVec2(m_Window->GetWidth() / 2 - cameraWindowWidth / 2, 0), ImGuiCond_Once);

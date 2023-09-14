@@ -30,17 +30,18 @@ target_link_directories(figment PRIVATE
 # Add the GL_SILENCE_DEPRECATION preprocessor definition to the target
 target_compile_definitions(figment PRIVATE GL_SILENCE_DEPRECATION)
 
-#add_custom_command(
-#        TARGET figment
-#        POST_BUILD
-#        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/res ${CMAKE_BINARY_DIR}/res
-#        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/mono ${CMAKE_BINARY_DIR}/mono
-#        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/script-core ${CMAKE_BINARY_DIR}/script-core
-#)
+add_custom_command(
+        TARGET figment
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/res ${CMAKE_BINARY_DIR}/res
+        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/mono ${CMAKE_BINARY_DIR}/mono
+        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/script-core ${CMAKE_BINARY_DIR}/script-core
+        COMMENT "Copied resources to ${CMAKE_BINARY_DIR}"
+)
 
-        file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/res DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-        file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/mono DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-        file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/script-core DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+#        file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/res DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+#        file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/mono DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+#        file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/script-core DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 
 file(GLOB_RECURSE SRC_FILES
@@ -144,16 +145,37 @@ set_target_properties(figment_wasm PROPERTIES LINK_FLAGS "\
         --preload-file res@/res\
         -lGLEW\
         -lglfw\
-        -gsource-map\
         --shell-file ${CMAKE_CURRENT_SOURCE_DIR}/index.html\
 ")
 
-add_custom_command(TARGET figment_wasm POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/index.html ${CMAKE_CURRENT_BINARY_DIR}/index.html
+add_custom_command(
+        TARGET figment_wasm
+        PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E rm ${CMAKE_BINARY_DIR}/figment_wasm.data
+        COMMAND ${CMAKE_COMMAND} -E rm ${CMAKE_BINARY_DIR}/figment_wasm.wasm
+        COMMAND ${CMAKE_COMMAND} -E rm ${CMAKE_BINARY_DIR}/figment_wasm.js
+        COMMENT "Removed ems files."
+)
+
+add_custom_command(
+        TARGET figment_wasm
+        PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/res ${CMAKE_BINARY_DIR}/res
+#        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/mono ${CMAKE_BINARY_DIR}/mono
+#        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/script-core ${CMAKE_BINARY_DIR}/script-core
+        COMMENT "Copied resources to ${CMAKE_BINARY_DIR}"
 )
 
 add_custom_command(TARGET figment_wasm POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/figment_wasm.wasm ${CMAKE_CURRENT_SOURCE_DIR}/../app/src/renderer/figment_wasm.wasm
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/figment_wasm.js ${CMAKE_CURRENT_SOURCE_DIR}/../app/src/renderer/figment_wasm.js
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/figment_wasm.data ${CMAKE_CURRENT_SOURCE_DIR}/../app/public/figment_wasm.data
+        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/index.html ${CMAKE_CURRENT_BINARY_DIR}/index.html
+        COMMENT "Copied shell file to: ${CMAKE_CURRENT_BINARY_DIR}"
 )
+
+add_custom_command(TARGET figment_wasm POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/figment_wasm.wasm ${CMAKE_CURRENT_SOURCE_DIR}/../app/src/renderer/figment_wasm.wasm
+        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/figment_wasm.js ${CMAKE_CURRENT_SOURCE_DIR}/../app/src/renderer/figment_wasm.js
+        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/figment_wasm.data ${CMAKE_CURRENT_SOURCE_DIR}/../app/public/figment_wasm.data
+        COMMENT "Copied build files to app."
+)
+
+
