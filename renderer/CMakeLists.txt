@@ -151,9 +151,9 @@ set_target_properties(figment_wasm PROPERTIES LINK_FLAGS "\
 add_custom_command(
         TARGET figment_wasm
         PRE_BUILD
-        COMMAND ${CMAKE_COMMAND} -E rm ${CMAKE_BINARY_DIR}/figment_wasm.data
-        COMMAND ${CMAKE_COMMAND} -E rm ${CMAKE_BINARY_DIR}/figment_wasm.wasm
-        COMMAND ${CMAKE_COMMAND} -E rm ${CMAKE_BINARY_DIR}/figment_wasm.js
+        COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_BINARY_DIR}/figment_wasm.data
+        COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_BINARY_DIR}/figment_wasm.wasm
+        COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_BINARY_DIR}/figment_wasm.js
         COMMENT "Removed ems files."
 )
 
