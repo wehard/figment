@@ -57,7 +57,7 @@ WebGPUWindow::WebGPUWindow(const std::string &title, const uint32_t width, const
     printf("Initialized WebGPU window (%dx%d)\n", width, height);
 
     m_GfxContext = std::make_shared<WebGPUContext>();
-    m_GfxContext->Init();
+    m_GfxContext->Init(m_Width, m_Height);
 
     glfwShowWindow(m_Window);
 

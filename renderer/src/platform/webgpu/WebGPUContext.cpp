@@ -24,6 +24,11 @@ static void PrintWebGPUError(WGPUErrorType error_type, const char* message, void
 
 void WebGPUContext::Init()
 {
+
+}
+
+void WebGPUContext::Init(uint32_t width, uint32_t height)
+{
     m_WebGPUDevice = emscripten_webgpu_get_device();
     if (!m_WebGPUDevice)
     {
@@ -61,9 +66,24 @@ void WebGPUContext::Init()
         printf("No surface!\n");
     }
     printf("Initialized WebGPU context\n");
+
+    m_SwapChainWidth = width;
+    m_SwapChainHeight = height;
+
+    m_TextureFormat = WGPUTextureFormat_BGRA8Unorm;
+
+    WGPUSwapChainDescriptor swapChainDesc = {};
+    swapChainDesc.usage = WGPUTextureUsage_RenderAttachment;
+    swapChainDesc.format = m_TextureFormat;
+    swapChainDesc.width =  m_SwapChainWidth;
+    swapChainDesc.height = m_SwapChainHeight;
+    swapChainDesc.presentMode = WGPUPresentMode_Fifo;
+    m_SwapChain = wgpuDeviceCreateSwapChain(m_WebGPUDevice, m_WebGPUSurface, &swapChainDesc);
+
 }
 
 void WebGPUContext::SwapBuffers()
 {
 
 }
+
