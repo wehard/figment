@@ -11,6 +11,7 @@ target_include_directories(figment PRIVATE
         lib/glm
         lib
         lib/entt
+        src/core
         src/scene
         src/physics
         src/platform/opengl
@@ -109,6 +110,7 @@ add_dependencies(figment_wasm setup_emscripten_env)
 target_include_directories(figment_wasm
         PRIVATE
         src
+        src/core
         src/scene
         src/physics
         src/platform/opengl
