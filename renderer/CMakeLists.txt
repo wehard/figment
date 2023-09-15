@@ -128,6 +128,7 @@ file(GLOB_RECURSE SRC_FILES
 
 file(GLOB_RECURSE EXCLUDED_SRC_FILES
         "src/platform/macos/*.cpp"
+        "src/platform/opengl/*.cpp"
         "src/scripting/*.cpp"
 )
 

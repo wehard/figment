@@ -1,4 +1,6 @@
 #include "WebGPURenderer.h"
+#include "WebGPUBuffer.h"
+#include <vector>
 
 const char* shaderSource = R"(
 @vertex
@@ -37,6 +39,9 @@ static WGPUShaderModule CreateShaderModule(WGPUDevice device)
 WebGPURenderer::WebGPURenderer(WebGPUContext& context) : m_Context(context)
 {
     m_ShaderModule = CreateShaderModule(context.GetDevice());
+
+    std::vector<int> data = {1, 2, 3, 4, 5};
+    WebGPUBuffer<int> buffer(context.GetDevice(), data);
 }
 
 WGPURenderPassEncoder WebGPURenderer::Begin()
