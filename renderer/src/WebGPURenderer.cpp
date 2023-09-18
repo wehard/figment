@@ -4,8 +4,8 @@
 
 const char* shaderSource = R"(
 @vertex
-fn vs_main(@location(0) in_vertex_position: vec2f) -> @builtin(position) vec4f {
-    return vec4f(in_vertex_position, 0.0, 1.0);
+fn vs_main(@location(0) in_vertex_position: vec3f) -> @builtin(position) vec4f {
+    return vec4f(in_vertex_position, 1.0);
 }
 
 @fragment
@@ -32,9 +32,13 @@ WebGPURenderer::WebGPURenderer(WebGPUContext& context) : m_Context(context)
 {
     m_ShaderModule = CreateShaderModule(context.GetDevice());
 
-    std::vector<float> data = {-0.5, -0.5,
-                               +0.5, -0.5,
-                               +0.0, +0.5};
+    std::vector<float> data = {-0.5, -0.5, 0.0,
+                               +0.5, -0.5, 0.0,
+                               -0.5, +0.5, 0.0,
+                               +0.5, -0.5, 0.0,
+                               -0.5, +0.5, 0.0,
+                               +0.5, +0.5, 0.0
+    };
     m_VertexBuffer = new WebGPUVertexBuffer(context.GetDevice(), data);
 }
 
@@ -84,12 +88,12 @@ void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color)
 
     WGPUVertexAttribute vertexAttrib = {};
     vertexAttrib.shaderLocation = 0;
-    vertexAttrib.format = WGPUVertexFormat_Float32x2;
+    vertexAttrib.format = WGPUVertexFormat_Float32x3;
     vertexAttrib.offset = 0;
 
     vertexBufferLayout.attributeCount = 1;
     vertexBufferLayout.attributes = &vertexAttrib;
-    vertexBufferLayout.arrayStride = 2 * sizeof(float);
+    vertexBufferLayout.arrayStride = 3 * sizeof(float);
     vertexBufferLayout.stepMode = WGPUVertexStepMode_Vertex;
 
     pipelineDesc.vertex.bufferCount = 1;
@@ -138,5 +142,5 @@ void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color)
 
     wgpuRenderPassEncoderSetVertexBuffer(m_RenderPass, 0, m_VertexBuffer->m_Buffer, 0, m_VertexBuffer->m_Size);
 
-    wgpuRenderPassEncoderDraw(m_RenderPass, 3, 1, 0, 0);
+    wgpuRenderPassEncoderDraw(m_RenderPass, m_VertexBuffer->m_VertexCount, 1, 0, 0);
 }

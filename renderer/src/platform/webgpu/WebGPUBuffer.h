@@ -37,13 +37,13 @@ private:
 class WebGPUVertexBuffer
 {
 public:
-    WebGPUVertexBuffer(WGPUDevice device, std::vector<float> vertices) : m_Size(vertices.size() * sizeof(float))
+    WebGPUVertexBuffer(WGPUDevice device, std::vector<float> vertices) : m_Size(vertices.size() * sizeof(float)), m_VertexCount(vertices.size() / 3)
     {
         WGPUBufferDescriptor bufferDesc = {};
         bufferDesc.nextInChain = nullptr;
         bufferDesc.label = "VertexBuffer";
         bufferDesc.usage = WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex;
-        bufferDesc.size = vertices.size() * sizeof(float);
+        bufferDesc.size = m_Size;
         bufferDesc.mappedAtCreation = false;
         m_Buffer = wgpuDeviceCreateBuffer(device, &bufferDesc);
 
@@ -53,4 +53,5 @@ public:
 
     WGPUBuffer m_Buffer;
     uint32_t m_Size;
+    uint32_t m_VertexCount;
 };
