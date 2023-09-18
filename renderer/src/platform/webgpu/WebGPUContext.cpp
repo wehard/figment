@@ -2,7 +2,7 @@
 
 #include <emscripten/html5_webgpu.h>
 #include <webgpu/webgpu.h>
-#include <webgpu/webgpu_cpp.h>
+// #include <webgpu/webgpu_cpp.h>
 
 #include <stdio.h>
 #include <vector>
@@ -30,6 +30,7 @@ void WebGPUContext::Init()
 void WebGPUContext::Init(uint32_t width, uint32_t height)
 {
     m_WebGPUDevice = emscripten_webgpu_get_device();
+
     if (!m_WebGPUDevice)
     {
         printf("No device!\n");
@@ -47,20 +48,21 @@ void WebGPUContext::Init(uint32_t width, uint32_t height)
 
     wgpuDeviceSetUncapturedErrorCallback(m_WebGPUDevice, PrintWebGPUError, nullptr);
 
-    wgpu::SurfaceDescriptorFromCanvasHTMLSelector html_surface_desc = {};
-    html_surface_desc.selector = "#canvas";
+    WGPUSurfaceDescriptorFromCanvasHTMLSelector htmlSurfaceDesc = {};
+    htmlSurfaceDesc.selector = "#canvas";
+    htmlSurfaceDesc.chain.sType =  WGPUSType_SurfaceDescriptorFromCanvasHTMLSelector;
 
-    wgpu::SurfaceDescriptor surface_desc = {};
-    surface_desc.nextInChain = &html_surface_desc;
+    WGPUSurfaceDescriptor surfaceDesc = {};
+    surfaceDesc.nextInChain = (WGPUChainedStruct*)&htmlSurfaceDesc;
 
     WGPUInstanceDescriptor instance_desc = {};
-    wgpu::Instance instance = wgpuCreateInstance(&instance_desc);
-    if (!instance)
+    m_Instance = wgpuCreateInstance(&instance_desc);
+    if (!m_Instance)
     {
-        printf("No instance!\n");
+        printf("Failed to create WebGPU instance!\n");
     }
 
-    m_WebGPUSurface = instance.CreateSurface(&surface_desc).Release();
+    m_WebGPUSurface = wgpuInstanceCreateSurface(m_Instance, &surfaceDesc);
     if (!m_WebGPUSurface)
     {
         printf("No surface!\n");
@@ -79,7 +81,6 @@ void WebGPUContext::Init(uint32_t width, uint32_t height)
     swapChainDesc.height = m_SwapChainHeight;
     swapChainDesc.presentMode = WGPUPresentMode_Fifo;
     m_SwapChain = wgpuDeviceCreateSwapChain(m_WebGPUDevice, m_WebGPUSurface, &swapChainDesc);
-
 }
 
 void WebGPUContext::SwapBuffers()

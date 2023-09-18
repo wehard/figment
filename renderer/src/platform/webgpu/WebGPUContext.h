@@ -1,7 +1,8 @@
 #pragma once
 
 #include "GfxContext.h"
-#include <webgpu/webgpu_cpp.h>
+// #include <webgpu/webgpu_cpp.h>
+#include <webgpu/webgpu.h>
 
 class WebGPUContext : public GfxContext
 {
@@ -21,5 +22,5 @@ private:
     WGPUDevice m_WebGPUDevice;
     WGPUSurface m_WebGPUSurface;
     WGPUSwapChain m_SwapChain;
-
+    WGPUInstance m_Instance;
 };
