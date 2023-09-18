@@ -41,7 +41,8 @@ WebGPURenderer::WebGPURenderer(WebGPUContext& context) : m_Context(context)
     m_ShaderModule = CreateShaderModule(context.GetDevice());
 
     std::vector<int> data = {1, 2, 3, 4};
-    WebGPUBuffer<int> *buffer = new WebGPUBuffer(context.GetDevice(), data);
+    auto *buffer = new WebGPUBuffer<int>(context.GetDevice(), data);
+
 }
 
 WGPURenderPassEncoder WebGPURenderer::Begin()
