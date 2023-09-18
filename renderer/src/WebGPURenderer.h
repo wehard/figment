@@ -1,6 +1,7 @@
 #pragma once
 
 #include "WebGPUContext.h"
+#include "WebGPUBuffer.h"
 #include "webgpu/webgpu.h"
 #include "glm/glm.hpp"
 
@@ -17,4 +18,5 @@ private:
     WGPUCommandEncoder m_CommandEncoder;
     WGPURenderPassEncoder m_RenderPass;
     WGPUShaderModule m_ShaderModule;
+    WebGPUVertexBuffer *m_VertexBuffer;
 };

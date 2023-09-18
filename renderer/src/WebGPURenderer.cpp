@@ -40,9 +40,10 @@ WebGPURenderer::WebGPURenderer(WebGPUContext& context) : m_Context(context)
 {
     m_ShaderModule = CreateShaderModule(context.GetDevice());
 
-    std::vector<int> data = {1, 2, 3, 4};
-    auto *buffer = new WebGPUBuffer<int>(context.GetDevice(), data);
-
+    std::vector<float> data = {-0.5, -0.5,
+                               +0.5, -0.5,
+                               +0.0, +0.5};
+    m_VertexBuffer = new WebGPUVertexBuffer(context.GetDevice(), data);
 }
 
 WGPURenderPassEncoder WebGPURenderer::Begin()
@@ -86,8 +87,21 @@ void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color)
 {
     WGPURenderPipelineDescriptor pipelineDesc = {};
     pipelineDesc.nextInChain = nullptr;
-    pipelineDesc.vertex.bufferCount = 0;
-    pipelineDesc.vertex.buffers = nullptr;
+
+    WGPUVertexBufferLayout vertexBufferLayout = {};
+
+    WGPUVertexAttribute vertexAttrib = {};
+    vertexAttrib.shaderLocation = 0;
+    vertexAttrib.format = WGPUVertexFormat_Float32x2;
+    vertexAttrib.offset = 0;
+
+    vertexBufferLayout.attributeCount = 1;
+    vertexBufferLayout.attributes = &vertexAttrib;
+    vertexBufferLayout.arrayStride = 2 * sizeof(float);
+    vertexBufferLayout.stepMode = WGPUVertexStepMode_Vertex;
+
+    pipelineDesc.vertex.bufferCount = 1;
+    pipelineDesc.vertex.buffers = &vertexBufferLayout;
 
     pipelineDesc.vertex.module = m_ShaderModule;
     pipelineDesc.vertex.entryPoint = "vs_main";
@@ -129,5 +143,8 @@ void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color)
     WGPURenderPipeline pipeline = wgpuDeviceCreateRenderPipeline(m_Context.GetDevice(), &pipelineDesc);
 
     wgpuRenderPassEncoderSetPipeline(m_RenderPass, pipeline);
+
+    wgpuRenderPassEncoderSetVertexBuffer(m_RenderPass, 0, m_VertexBuffer->m_Buffer, 0, m_VertexBuffer->m_Size);
+
     wgpuRenderPassEncoderDraw(m_RenderPass, 3, 1, 0, 0);
 }
