@@ -51,7 +51,69 @@ public:
         wgpuQueueWriteBuffer(queue, m_Buffer, 0, vertices.data(), m_Size);
     }
 
+    ~WebGPUVertexBuffer()
+    {
+        wgpuBufferRelease(m_Buffer);
+        wgpuBufferDestroy(m_Buffer);
+    }
+
     WGPUBuffer m_Buffer;
     uint32_t m_Size;
     uint32_t m_VertexCount;
+};
+
+class WebGPUIndexBuffer
+{
+public:
+    WebGPUIndexBuffer(WGPUDevice device, std::vector<uint32_t> indices) : m_Size(indices.size() * sizeof(uint32_t)), m_IndexCount(indices.size())
+    {
+        WGPUBufferDescriptor bufferDesc = {};
+        bufferDesc.nextInChain = nullptr;
+        bufferDesc.label = "IndexBuffer";
+        bufferDesc.usage = WGPUBufferUsage_CopyDst | WGPUBufferUsage_Index;
+        bufferDesc.size = m_Size;
+        bufferDesc.mappedAtCreation = false;
+        m_Buffer = wgpuDeviceCreateBuffer(device, &bufferDesc);
+
+        WGPUQueue queue = wgpuDeviceGetQueue(device);
+        wgpuQueueWriteBuffer(queue, m_Buffer, 0, indices.data(), m_Size);
+    }
+
+    ~WebGPUIndexBuffer()
+    {
+        wgpuBufferRelease(m_Buffer);
+        wgpuBufferDestroy(m_Buffer);
+    }
+
+    WGPUBuffer m_Buffer;
+    uint32_t m_Size;
+    uint32_t m_IndexCount;
+};
+
+template <typename T>
+class WebGPUUniformBuffer
+{
+public:
+    WebGPUUniformBuffer<T>(WGPUDevice device, T *data, uint32_t size) : m_Size(size)
+    {
+        WGPUBufferDescriptor bufferDesc = {};
+        bufferDesc.nextInChain = nullptr;
+        bufferDesc.label = "UniformBuffer";
+        bufferDesc.usage = WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform;
+        bufferDesc.size = m_Size;
+        bufferDesc.mappedAtCreation = false;
+        m_Buffer = wgpuDeviceCreateBuffer(device, &bufferDesc);
+
+        WGPUQueue queue = wgpuDeviceGetQueue(device);
+        wgpuQueueWriteBuffer(queue, m_Buffer, 0, (void*)data, m_Size);
+    }
+
+    ~WebGPUUniformBuffer<T>()
+    {
+        wgpuBufferRelease(m_Buffer);
+        wgpuBufferDestroy(m_Buffer);
+    }
+
+    WGPUBuffer m_Buffer;
+    uint32_t m_Size;
 };

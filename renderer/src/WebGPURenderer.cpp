@@ -1,11 +1,20 @@
 #include "WebGPURenderer.h"
 #include "WebGPUBuffer.h"
 #include <vector>
+#include <glm/gtc/matrix_transform.hpp>
 
 const char* shaderSource = R"(
+struct MVP {
+    model: mat4x4<f32>,
+    view: mat4x4<f32>,
+    proj: mat4x4<f32>
+};
+
+@binding(0) @group(0) var<uniform> mvp: MVP;
+
 @vertex
 fn vs_main(@location(0) in_vertex_position: vec3f) -> @builtin(position) vec4f {
-    return vec4f(in_vertex_position, 1.0);
+    return mvp.proj * mvp.view * mvp.model * vec4f(in_vertex_position, 1.0);
 }
 
 @fragment
@@ -40,6 +49,13 @@ WebGPURenderer::WebGPURenderer(WebGPUContext& context) : m_Context(context)
                                +0.5, +0.5, 0.0
     };
     m_VertexBuffer = new WebGPUVertexBuffer(context.GetDevice(), data);
+
+    MVP mvp = {};
+    mvp.model = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, 0.0));
+    mvp.view = glm::mat4(1.0);
+    mvp.proj = glm::mat4(1.0);
+
+    m_UniformBuffer = new WebGPUUniformBuffer<MVP>(m_Context.GetDevice(), &mvp, sizeof(mvp));
 }
 
 WGPURenderPassEncoder WebGPURenderer::Begin()
@@ -77,6 +93,30 @@ void WebGPURenderer::End()
     m_CommandEncoder = nullptr;
     wgpuRenderPassEncoderRelease(m_RenderPass);
     m_RenderPass = nullptr;
+}
+
+static WGPUBindGroupLayoutEntry GetDefaultWGPUBindGroupLayoutEntry()
+{
+    WGPUBindGroupLayoutEntry bindingLayout = {};
+
+    bindingLayout.buffer.nextInChain = nullptr;
+    bindingLayout.buffer.type = WGPUBufferBindingType_Undefined;
+    bindingLayout.buffer.hasDynamicOffset = false;
+
+    bindingLayout.sampler.nextInChain = nullptr;
+    bindingLayout.sampler.type = WGPUSamplerBindingType_Undefined;
+
+    bindingLayout.storageTexture.nextInChain = nullptr;
+    bindingLayout.storageTexture.access = WGPUStorageTextureAccess_Undefined;
+    bindingLayout.storageTexture.format = WGPUTextureFormat_Undefined;
+    bindingLayout.storageTexture.viewDimension = WGPUTextureViewDimension_Undefined;
+
+    bindingLayout.texture.nextInChain = nullptr;
+    bindingLayout.texture.multisampled = false;
+    bindingLayout.texture.sampleType = WGPUTextureSampleType_Undefined;
+    bindingLayout.texture.viewDimension = WGPUTextureViewDimension_Undefined;
+
+    return bindingLayout;
 }
 
 void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color)
@@ -134,13 +174,47 @@ void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color)
     pipelineDesc.multisample.mask = ~0u;
     pipelineDesc.multisample.alphaToCoverageEnabled = false;
 
-    pipelineDesc.layout = nullptr;
+    WGPUBindGroupLayoutEntry bindingLayout = GetDefaultWGPUBindGroupLayoutEntry();
+    bindingLayout.binding = 0;
+    bindingLayout.visibility = WGPUShaderStage_Vertex;
+    bindingLayout.buffer.type = WGPUBufferBindingType_Uniform;
+    bindingLayout.buffer.minBindingSize = m_UniformBuffer->m_Size;
+
+    WGPUBindGroupLayoutDescriptor bindGroupLayoutDesc = {};
+    bindGroupLayoutDesc.nextInChain = nullptr;
+    bindGroupLayoutDesc.entryCount = 1;
+    bindGroupLayoutDesc.entries = &bindingLayout;
+    WGPUBindGroupLayout bindGroupLayout = wgpuDeviceCreateBindGroupLayout(m_Context.GetDevice(), &bindGroupLayoutDesc);
+
+    WGPUPipelineLayoutDescriptor layoutDesc = {};
+    layoutDesc.nextInChain = nullptr;
+    layoutDesc.bindGroupLayoutCount = 1;
+    layoutDesc.bindGroupLayouts = &bindGroupLayout;
+    WGPUPipelineLayout layout = wgpuDeviceCreatePipelineLayout(m_Context.GetDevice(), &layoutDesc);
+
+    pipelineDesc.layout = layout;
+
+    WGPUBindGroupEntry binding = {};
+    binding.nextInChain = nullptr;
+    binding.binding = 0;
+    binding.buffer = m_UniformBuffer->m_Buffer;
+    binding.offset = 0;
+    binding.size = m_UniformBuffer->m_Size;
+
+    WGPUBindGroupDescriptor bindGroupDesc = {};
+    bindGroupDesc.nextInChain = nullptr;
+    bindGroupDesc.layout = bindGroupLayout;
+    bindGroupDesc.entryCount = bindGroupLayoutDesc.entryCount;
+    bindGroupDesc.entries = &binding;
+    WGPUBindGroup bindGroup = wgpuDeviceCreateBindGroup(m_Context.GetDevice(), &bindGroupDesc);
 
     WGPURenderPipeline pipeline = wgpuDeviceCreateRenderPipeline(m_Context.GetDevice(), &pipelineDesc);
 
     wgpuRenderPassEncoderSetPipeline(m_RenderPass, pipeline);
 
     wgpuRenderPassEncoderSetVertexBuffer(m_RenderPass, 0, m_VertexBuffer->m_Buffer, 0, m_VertexBuffer->m_Size);
+
+    wgpuRenderPassEncoderSetBindGroup(m_RenderPass, 0, bindGroup, 0, nullptr);
 
     wgpuRenderPassEncoderDraw(m_RenderPass, m_VertexBuffer->m_VertexCount, 1, 0, 0);
 }

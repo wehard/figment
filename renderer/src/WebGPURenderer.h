@@ -5,6 +5,13 @@
 #include "webgpu/webgpu.h"
 #include "glm/glm.hpp"
 
+struct MVP
+{
+    glm::mat4 model;
+    glm::mat4 view;
+    glm::mat4 proj;
+};
+
 class WebGPURenderer
 {
 public:
@@ -19,4 +26,5 @@ private:
     WGPURenderPassEncoder m_RenderPass;
     WGPUShaderModule m_ShaderModule;
     WebGPUVertexBuffer *m_VertexBuffer;
+    WebGPUUniformBuffer<MVP> *m_UniformBuffer;
 };
