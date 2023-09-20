@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GLRenderer.h"
+#include "WebGPURenderer.h"
 #include "CameraController.h"
 #include "Camera.h"
 #include "OrthographicCamera.h"
@@ -14,7 +14,6 @@ class Entity;
 class Scene
 {
 private:
-    GLRenderer *m_Renderer;
     std::shared_ptr<CameraController> m_CameraController;
     std::shared_ptr<PerspectiveCamera> m_Camera;
 
@@ -24,6 +23,7 @@ private:
     uint32_t m_Height;
 
     VerletPhysics m_VerletPhysics;
+    std::shared_ptr<WebGPUContext> m_GfxContext;
 
 public:
     glm::vec4 m_ClearColor;
@@ -38,9 +38,10 @@ public:
     Entity GetEntityById(uint32_t id);
     Entity GetHoveredEntity();
 
-    void Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportSize);
+    void Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportSize, WebGPURenderer &renderer);
     std::shared_ptr<CameraController> GetCameraController();
     void OnResize(uint32_t width, uint32_t height);
+
 
     friend class Entity;
 };

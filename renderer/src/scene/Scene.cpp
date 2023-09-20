@@ -12,6 +12,7 @@ Scene::Scene(uint32_t width, uint32_t height) : m_Width(width), m_Height(height)
 //    m_Renderer = new GLRenderer(width, height);
     m_Camera = std::make_shared<PerspectiveCamera>((float)width / (float)height);
     m_CameraController = std::make_shared<CameraController>(m_Camera);
+    m_Camera->m_Position.z = 2.0;
 }
 
 Scene::~Scene() = default;
@@ -70,25 +71,24 @@ Entity Scene::GetHoveredEntity()
     return {};
 }
 
-void Scene::Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportSize)
+void Scene::Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportSize, WebGPURenderer &renderer)
 {
     m_CameraController->Update(deltaTime);
-    m_Renderer->Begin(m_Camera, m_ClearColor);
+    // m_Renderer->Begin(*m_Camera);
 
     auto t = TransformComponent();
     t.Scale = glm::vec3(m_VerletPhysics.GetWidth() + 1, m_VerletPhysics.GetHeight() + 1, 1);
     t.Position = glm::vec3(0);
-    m_Renderer->DrawQuad(t.GetTransform(), glm::vec4(0.1, 0.3, 0.8, 0.2), -1);
+    renderer.DrawQuad(t.GetTransform(), glm::vec4(0.1, 0.3, 0.8, 0.2));
 
     auto view = m_Registry.view<TransformComponent>();
     for (auto e : view)
     {
         Entity entity = {e, this};
 
-
         if (entity.HasComponent<VerletBodyComponent>())
             m_VerletPhysics.Update(entity, GetEntities(), deltaTime);
-        m_Renderer->DrawCircle(entity.GetComponent<TransformComponent>().GetTransform(), entity.GetComponent<ColorComponent>().m_Color, (int)e, m_HoveredId);
+        renderer.DrawQuad(entity.GetComponent<TransformComponent>().GetTransform(), entity.GetComponent<ColorComponent>().m_Color);
     }
 
 #ifndef __EMSCRIPTEN__
@@ -102,9 +102,10 @@ void Scene::Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportS
     }
     else
     {
-        m_HoveredId = m_Renderer->GetFramebuffer()->GetPixel(1, (uint32_t)(normalized.x * m_Width), m_Height - (uint32_t)(normalized.y * m_Height));
+        m_HoveredId = -1;
+        // m_HoveredId = m_Renderer->GetFramebuffer()->GetPixel(1, (uint32_t)(normalized.x * m_Width), m_Height - (uint32_t)(normalized.y * m_Height));
     }
-    m_Renderer->End();
+    // m_Renderer->End();
 }
 
 std::shared_ptr<CameraController> Scene::GetCameraController()
@@ -117,5 +118,5 @@ void Scene::OnResize(uint32_t width, uint32_t height)
     m_Width = width;
     m_Height = height;
     m_Camera->Resize((float)width, (float)height);
-    m_Renderer->OnResize(width, height);
+    // m_Renderer->OnResize(width, height);
 }

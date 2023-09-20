@@ -12,6 +12,7 @@
 
 #ifdef FIGMENT_WEB
 #include "imgui_impl_wgpu.h"
+#include "WebGPUWindow.h"
 #endif
 
 App::App(float width, float height)
@@ -23,7 +24,7 @@ App::App(float width, float height)
 
     auto *glfwWindow = (GLFWwindow *)m_Window->GetNative();
     Input::Initialize(glfwWindow);
-    m_GUICtx = GUIContext::Create();
+    m_GUICtx = std::make_unique<WebGPUGUIContext>();
 
 #ifdef __EMSCRIPTEN__
     const char *glslVersion = "#version 300 es";
@@ -33,8 +34,12 @@ App::App(float width, float height)
 
     m_GUICtx->Init(m_Window, glslVersion);
 
+    auto webGpuWindow = std::dynamic_pointer_cast<WebGPUWindow>(m_Window);
+
     m_Scene = new Scene(m_Window->GetFramebufferWidth(), m_Window->GetFramebufferHeight());
     m_Scene->CreateEntity();
+
+    m_Renderer = std::make_unique<WebGPURenderer>(*webGpuWindow->GetContext());
 
 #ifndef __EMSCRIPTEN__
     auto scriptEngine = ScriptEngine::Create(ScriptEngineType::Mono, m_Scene);
@@ -125,11 +130,12 @@ void App::Update()
 
     GUIUpdate();
 
-    m_Scene->GetCameraController()->Update(deltaTime);
 //    glfwMakeContextCurrent((GLFWwindow *)m_Window->GetNative());
-//    m_Scene->Update(deltaTime, Input::GetMousePosition(), glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
-
-    m_GUICtx->Render();
+    auto pass = m_Renderer->Begin(*m_Scene->GetCameraController()->GetCamera());
+    m_Scene->Update(deltaTime, Input::GetMousePosition(), glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()), *m_Renderer);
+    m_GUICtx->Render(pass);
+    m_Renderer->End();
+    // m_GUICtx->Render();
 
 //    glfwPollEvents();
 //    glfwSwapBuffers((GLFWwindow *)m_Window->GetNative());

@@ -49,17 +49,19 @@ WebGPURenderer::WebGPURenderer(WebGPUContext& context) : m_Context(context)
                                +0.5, +0.5, 0.0
     };
     m_VertexBuffer = new WebGPUVertexBuffer(context.GetDevice(), data);
+}
+
+WGPURenderPassEncoder WebGPURenderer::Begin(Camera &camera)
+{
+    m_RenderPassData.ProjectionMatrix = camera.GetProjectionMatrix();
+    m_RenderPassData.ViewMatrix = camera.GetViewMatrix();
 
     MVP mvp = {};
     mvp.model = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, 0.0));
-    mvp.view = glm::mat4(1.0);
-    mvp.proj = glm::mat4(1.0);
-
+    mvp.view = m_RenderPassData.ViewMatrix;
+    mvp.proj = m_RenderPassData.ProjectionMatrix;
     m_UniformBuffer = new WebGPUUniformBuffer<MVP>(m_Context.GetDevice(), &mvp, sizeof(mvp));
-}
 
-WGPURenderPassEncoder WebGPURenderer::Begin()
-{
     auto device = m_Context.GetDevice();
 
     WGPUCommandEncoderDescriptor desc = {};

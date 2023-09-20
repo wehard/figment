@@ -29,17 +29,12 @@ void WebGPUGUIContext::Init(std::shared_ptr<Window> window, const char *glslVers
     ImGui_ImplWGPU_CreateDeviceObjects();
 
     printf("WebGPUGUIContext created\n");
-    m_Renderer = new WebGPURenderer(*m_GfxContext);
 }
 
-void WebGPUGUIContext::Render()
+void WebGPUGUIContext::Render(WGPURenderPassEncoder pass)
 {
     ImGui::Render();
-    auto pass = m_Renderer->Begin();
-    m_Renderer->DrawQuad({}, {});
     ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), pass);
-
-    m_Renderer->End();
 }
 
 void WebGPUGUIContext::Shutdown()
