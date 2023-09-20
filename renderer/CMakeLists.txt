@@ -96,10 +96,10 @@ add_dependencies(figment build_scriptcore)
 
 ### Figment WASM
 
-
 add_executable(figment_wasm "")
 
 target_compile_definitions(figment_wasm PRIVATE GL_SILENCE_DEPRECATION)
+target_compile_definitions(figment_wasm PRIVATE WEBGPU_BACKEND_EMSCRIPTEN)
 
 if (EMSCRIPTEN)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0")
@@ -157,14 +157,15 @@ set_target_properties(figment_wasm PROPERTIES LINK_FLAGS "\
         --shell-file ${CMAKE_CURRENT_SOURCE_DIR}/index.html\
 ")
 
-add_custom_command(
-        TARGET figment_wasm
-        PRE_BUILD
+add_custom_target(cleanup
         COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_BINARY_DIR}/figment_wasm.data
         COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_BINARY_DIR}/figment_wasm.wasm
         COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_BINARY_DIR}/figment_wasm.js
+        COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_BINARY_DIR}/index.html
         COMMENT "Removed ems files."
 )
+
+add_dependencies(figment_wasm cleanup)
 
 add_custom_command(
         TARGET figment_wasm

@@ -8,9 +8,9 @@
         body { margin: 0; background-color: black }
         .emscripten {
             position: absolute;
-            top: 0px;
-            left: 0px;
-            margin: 0px;
+            top: 0;
+            left: 0;
+            margin: 0;
             border: 0;
             width: 100%;
             height: 100%;
@@ -51,7 +51,7 @@
               return canvas;
           })(),
           setStatus: function(text) {
-              console.log("status: " + text);
+              console.log("Status: " + text);
           },
           monitorRunDependencies: function(left) {
               // no run dependencies to log
@@ -66,6 +66,7 @@
       {
           const adapter = await navigator.gpu.requestAdapter();
           const device = await adapter.requestDevice();
+          console.log("Pre-initialized WebGPUDevice: ", device);
           Module.preinitializedWebGPUDevice = device;
       }
 
