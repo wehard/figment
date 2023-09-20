@@ -42,6 +42,5 @@ public:
     std::shared_ptr<CameraController> GetCameraController();
     void OnResize(uint32_t width, uint32_t height);
 
-
     friend class Entity;
 };

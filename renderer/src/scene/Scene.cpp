@@ -7,9 +7,10 @@
 
 Scene::Scene() = default;
 
-Scene::Scene(uint32_t width, uint32_t height) : m_Width(width), m_Height(height), m_ClearColor(glm::vec4(0.1, 0.1, 0.1, 1.0))
+Scene::Scene(uint32_t width, uint32_t height)
+        :m_Width(width), m_Height(height), m_ClearColor(glm::vec4(0.1, 0.1, 0.1, 1.0))
 {
-    m_Camera = std::make_shared<PerspectiveCamera>((float)width / (float)height);
+    m_Camera = std::make_shared<PerspectiveCamera>((float) width / (float) height);
     m_CameraController = std::make_shared<CameraController>(m_Camera);
     m_Camera->m_Position.z = 30.0;
 }
@@ -18,7 +19,8 @@ Scene::~Scene() = default;
 
 static glm::vec4 GetRandomColor()
 {
-    return {(float)rand() / (float)RAND_MAX, (float)rand() / (float)RAND_MAX, (float)rand() / (float)RAND_MAX, 1.0};
+    return {(float) rand() / (float) RAND_MAX, (float) rand() / (float) RAND_MAX, (float) rand() / (float) RAND_MAX,
+            1.0};
 }
 
 Entity Scene::CreateEntity(const std::string &name)
@@ -34,7 +36,7 @@ Entity Scene::CreateEntity(const std::string &name)
 
 Entity Scene::CreateEntity(uint32_t id)
 {
-    return {m_Registry.create((entt::entity)id), this};
+    return {m_Registry.create((entt::entity) id), this};
 }
 
 void Scene::DestroyEntity(Entity entity)
@@ -58,15 +60,15 @@ std::vector<Entity> Scene::GetEntities()
 
 Entity Scene::GetEntityById(uint32_t id)
 {
-    if (m_Registry.valid((entt::entity)id))
-        return {(entt::entity)id, this};
+    if (m_Registry.valid((entt::entity) id))
+        return {(entt::entity) id, this};
     return {};
 }
 
 Entity Scene::GetHoveredEntity()
 {
-    if (m_Registry.valid((entt::entity)m_HoveredId))
-        return {(entt::entity)m_HoveredId, this};
+    if (m_Registry.valid((entt::entity) m_HoveredId))
+        return {(entt::entity) m_HoveredId, this};
     return {};
 }
 
@@ -87,7 +89,8 @@ void Scene::Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportS
 
         if (entity.HasComponent<VerletBodyComponent>())
             m_VerletPhysics.Update(entity, GetEntities(), deltaTime);
-        renderer.DrawQuad(entity.GetComponent<TransformComponent>().GetTransform(), entity.GetComponent<ColorComponent>().m_Color);
+        renderer.DrawQuad(entity.GetComponent<TransformComponent>().GetTransform(),
+                entity.GetComponent<ColorComponent>().m_Color);
     }
 
 #ifndef __EMSCRIPTEN__
@@ -116,6 +119,6 @@ void Scene::OnResize(uint32_t width, uint32_t height)
 {
     m_Width = width;
     m_Height = height;
-    m_Camera->Resize((float)width, (float)height);
+    m_Camera->Resize((float) width, (float) height);
     // m_Renderer->OnResize(width, height);
 }
