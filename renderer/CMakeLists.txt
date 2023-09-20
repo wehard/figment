@@ -101,6 +101,11 @@ add_executable(figment_wasm "")
 
 target_compile_definitions(figment_wasm PRIVATE GL_SILENCE_DEPRECATION)
 
+if (EMSCRIPTEN)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
+endif ()
+
 add_custom_target(setup_emscripten_env
         COMMAND source ~/dev/emsdk/emsdk_env.sh
 )
