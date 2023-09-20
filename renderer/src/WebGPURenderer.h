@@ -6,11 +6,12 @@
 #include "webgpu/webgpu.h"
 #include "glm/glm.hpp"
 
-struct MVP
+struct DrawData
 {
-    glm::mat4 model;
-    glm::mat4 view;
-    glm::mat4 proj;
+    glm::mat4 ModelMatrix;
+    glm::mat4 ViewMatrix;
+    glm::mat4 ProjectionMatrix;
+    glm::vec4 Color;
 };
 
 struct RenderPassData
@@ -33,6 +34,5 @@ private:
     WGPURenderPassEncoder m_RenderPass;
     WGPUShaderModule m_ShaderModule;
     WebGPUVertexBuffer *m_VertexBuffer;
-    WebGPUUniformBuffer<MVP> *m_UniformBuffer;
     RenderPassData m_RenderPassData;
 };

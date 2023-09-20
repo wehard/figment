@@ -9,10 +9,9 @@ Scene::Scene() = default;
 
 Scene::Scene(uint32_t width, uint32_t height) : m_Width(width), m_Height(height), m_ClearColor(glm::vec4(0.1, 0.1, 0.1, 1.0))
 {
-//    m_Renderer = new GLRenderer(width, height);
     m_Camera = std::make_shared<PerspectiveCamera>((float)width / (float)height);
     m_CameraController = std::make_shared<CameraController>(m_Camera);
-    m_Camera->m_Position.z = 2.0;
+    m_Camera->m_Position.z = 30.0;
 }
 
 Scene::~Scene() = default;

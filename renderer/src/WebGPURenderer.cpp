@@ -4,22 +4,23 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 const char* shaderSource = R"(
-struct MVP {
+struct DrawData {
     model: mat4x4<f32>,
     view: mat4x4<f32>,
-    proj: mat4x4<f32>
+    proj: mat4x4<f32>,
+    color: vec4f
 };
 
-@binding(0) @group(0) var<uniform> mvp: MVP;
+@binding(0) @group(0) var<uniform> drawData: DrawData;
 
 @vertex
 fn vs_main(@location(0) in_vertex_position: vec3f) -> @builtin(position) vec4f {
-    return mvp.proj * mvp.view * mvp.model * vec4f(in_vertex_position, 1.0);
+    return drawData.proj * drawData.view * drawData.model * vec4f(in_vertex_position, 1.0);
 }
 
 @fragment
 fn fs_main() -> @location(0) vec4f {
-    return vec4f(0.0, 0.4, 0.6, 1.0);
+    return drawData.color;
 }
 )";
 
@@ -55,12 +56,6 @@ WGPURenderPassEncoder WebGPURenderer::Begin(Camera &camera)
 {
     m_RenderPassData.ProjectionMatrix = camera.GetProjectionMatrix();
     m_RenderPassData.ViewMatrix = camera.GetViewMatrix();
-
-    MVP mvp = {};
-    mvp.model = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, 0.0));
-    mvp.view = m_RenderPassData.ViewMatrix;
-    mvp.proj = m_RenderPassData.ProjectionMatrix;
-    m_UniformBuffer = new WebGPUUniformBuffer<MVP>(m_Context.GetDevice(), &mvp, sizeof(mvp));
 
     auto device = m_Context.GetDevice();
 
@@ -123,6 +118,13 @@ static WGPUBindGroupLayoutEntry GetDefaultWGPUBindGroupLayoutEntry()
 
 void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color)
 {
+    DrawData drawData = {};
+    drawData.Color = color;
+    drawData.ModelMatrix = transform;
+    drawData.ViewMatrix = m_RenderPassData.ViewMatrix;
+    drawData.ProjectionMatrix = m_RenderPassData.ProjectionMatrix;
+    auto uniformDrawData = new WebGPUUniformBuffer<DrawData>(m_Context.GetDevice(), &drawData, sizeof(drawData));
+
     WGPURenderPipelineDescriptor pipelineDesc = {};
     pipelineDesc.nextInChain = nullptr;
 
@@ -178,9 +180,9 @@ void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color)
 
     WGPUBindGroupLayoutEntry bindingLayout = GetDefaultWGPUBindGroupLayoutEntry();
     bindingLayout.binding = 0;
-    bindingLayout.visibility = WGPUShaderStage_Vertex;
+    bindingLayout.visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
     bindingLayout.buffer.type = WGPUBufferBindingType_Uniform;
-    bindingLayout.buffer.minBindingSize = m_UniformBuffer->m_Size;
+    bindingLayout.buffer.minBindingSize = uniformDrawData->m_Size;
 
     WGPUBindGroupLayoutDescriptor bindGroupLayoutDesc = {};
     bindGroupLayoutDesc.nextInChain = nullptr;
@@ -199,9 +201,9 @@ void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color)
     WGPUBindGroupEntry binding = {};
     binding.nextInChain = nullptr;
     binding.binding = 0;
-    binding.buffer = m_UniformBuffer->m_Buffer;
+    binding.buffer = uniformDrawData->m_Buffer;
     binding.offset = 0;
-    binding.size = m_UniformBuffer->m_Size;
+    binding.size = uniformDrawData->m_Size;
 
     WGPUBindGroupDescriptor bindGroupDesc = {};
     bindGroupDesc.nextInChain = nullptr;

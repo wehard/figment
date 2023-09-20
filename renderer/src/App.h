@@ -35,9 +35,6 @@ public:
   App(float width, float height);
   ~App();
 
-  void InsertPlane();
-  void InsertCircle();
-  void InsertCube();
   void Update();
   void GUIUpdate();
 
