@@ -11,6 +11,7 @@ public:
     void SwapBuffers() override;
 
     void Init(uint32_t width, uint32_t height);
+    void CreateSwapChain(uint32_t width, uint32_t height);
     WGPUDevice GetDevice() { return m_WebGPUDevice; }
     WGPUSurface GetSurface() { return m_WebGPUSurface; }
     WGPUSwapChain GetSwapChain() { return m_SwapChain; }

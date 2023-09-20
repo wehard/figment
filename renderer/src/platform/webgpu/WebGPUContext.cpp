@@ -79,10 +79,20 @@ void WebGPUContext::Init(uint32_t width, uint32_t height)
     }
     printf("Initialized WebGPU context\n");
 
+    m_TextureFormat = WGPUTextureFormat_BGRA8Unorm;
+
+    CreateSwapChain(width, height);
+}
+
+void WebGPUContext::CreateSwapChain(uint32_t width, uint32_t height)
+{
     m_SwapChainWidth = width;
     m_SwapChainHeight = height;
 
-    m_TextureFormat = WGPUTextureFormat_BGRA8Unorm;
+    if (m_SwapChain != nullptr)
+    {
+        wgpuSwapChainRelease(m_SwapChain);
+    }
 
     WGPUSwapChainDescriptor swapChainDesc = {};
     swapChainDesc.usage = WGPUTextureUsage_RenderAttachment;
@@ -97,4 +107,3 @@ void WebGPUContext::SwapBuffers()
 {
 
 }
-

@@ -6,7 +6,6 @@
 #include <GLFW/glfw3.h>
 #include <cstdint>
 #include "webgpu/webgpu.h"
-#include "webgpu/webgpu_cpp.h"
 
 class WebGPUWindow : public Window
 {

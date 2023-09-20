@@ -1,5 +1,6 @@
 #include "WebGPUWindow.h"
 #include <iostream>
+#include <emscripten/html5.h>
 
 static void glfwErrorHandler(int error, const char *message)
 {
@@ -26,6 +27,18 @@ static void glfwFramebufferSizeCallback(GLFWwindow *window, int width, int heigh
         .Height = static_cast<int>(webGpuWindow->GetHeight()),
         .FramebufferWidth = width,
         .FramebufferHeight = height});
+}
+
+static EM_BOOL emscriptenResizeCallback(int eventType, const EmscriptenUiEvent *uiEvent, void *userData)
+{
+    printf("emscriptenResizeCallback\n");
+    auto *webGpuWindow = (WebGPUWindow *)userData;
+    webGpuWindow->Resize({
+            .Width = uiEvent->windowInnerWidth,
+            .Height = uiEvent->windowInnerHeight,
+            .FramebufferWidth = uiEvent->windowInnerWidth,
+            .FramebufferHeight = uiEvent->windowInnerHeight});
+    return EM_TRUE;
 }
 
 WebGPUWindow::WebGPUWindow(const std::string &title, const uint32_t width, const uint32_t height) : m_Title(title), m_Width(width), m_Height(height)
@@ -66,6 +79,7 @@ WebGPUWindow::WebGPUWindow(const std::string &title, const uint32_t width, const
     m_FramebufferWidth = (uint32_t)fw;
     m_FramebufferHeight = (uint32_t)fh;
 
+    emscripten_set_resize_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, this, true, emscriptenResizeCallback);
     // glfwSetWindowSizeCallback(m_Window, glfwWindowSizeCallback);
     glfwSetFramebufferSizeCallback(m_Window, glfwFramebufferSizeCallback);
     glfwSetWindowUserPointer(m_Window, this);
@@ -78,11 +92,13 @@ WebGPUWindow::~WebGPUWindow()
 
 void WebGPUWindow::Resize(WindowResizeEventData resizeData)
 {
-    glViewport(0, 0, resizeData.FramebufferWidth, resizeData.FramebufferHeight);
+    // glViewport(0, 0, resizeData.FramebufferWidth, resizeData.FramebufferHeight);
     m_Width = resizeData.Width;
     m_Height = resizeData.Height;
     m_FramebufferWidth = resizeData.FramebufferWidth;
     m_FramebufferHeight = resizeData.FramebufferHeight;
+
+    m_GfxContext->CreateSwapChain(resizeData.Width, resizeData.Height);
 
     if (ResizeEventCallback != nullptr)
     {
