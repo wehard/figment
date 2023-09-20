@@ -1,7 +1,6 @@
 #include "WebGPURenderer.h"
 #include "WebGPUBuffer.h"
 #include <vector>
-#include <glm/gtc/matrix_transform.hpp>
 
 const char* shaderSource = R"(
 struct DrawData {
@@ -38,7 +37,8 @@ static WGPUShaderModule CreateShaderModule(WGPUDevice device)
     return shaderModule;
 }
 
-WebGPURenderer::WebGPURenderer(WebGPUContext& context) : m_Context(context)
+WebGPURenderer::WebGPURenderer(WebGPUContext& context)
+        :m_Context(context)
 {
     m_ShaderModule = CreateShaderModule(context.GetDevice());
 
@@ -52,7 +52,7 @@ WebGPURenderer::WebGPURenderer(WebGPUContext& context) : m_Context(context)
     m_VertexBuffer = new WebGPUVertexBuffer(context.GetDevice(), data);
 }
 
-WGPURenderPassEncoder WebGPURenderer::Begin(Camera &camera)
+WGPURenderPassEncoder WebGPURenderer::Begin(Camera& camera)
 {
     m_RenderPassData.ProjectionMatrix = camera.GetProjectionMatrix();
     m_RenderPassData.ViewMatrix = camera.GetViewMatrix();
@@ -137,7 +137,7 @@ void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color)
 
     vertexBufferLayout.attributeCount = 1;
     vertexBufferLayout.attributes = &vertexAttrib;
-    vertexBufferLayout.arrayStride = 3 * sizeof(float);
+    vertexBufferLayout.arrayStride = 3*sizeof(float);
     vertexBufferLayout.stepMode = WGPUVertexStepMode_Vertex;
 
     pipelineDesc.vertex.bufferCount = 1;
