@@ -100,6 +100,7 @@ add_executable(figment_wasm "")
 
 target_compile_definitions(figment_wasm PRIVATE GL_SILENCE_DEPRECATION)
 target_compile_definitions(figment_wasm PRIVATE WEBGPU_BACKEND_EMSCRIPTEN)
+target_compile_options(figment_wasm PRIVATE -Wno-deprecated-literal-operator)
 
 if (EMSCRIPTEN)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0 -Wno-dangling-else")
