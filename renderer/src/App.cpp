@@ -76,8 +76,9 @@ void App::HandleKeyboardInput(float deltaTime)
         t.Position = p;
         auto& b = e.AddComponent<VerletBodyComponent>();
         b.m_PreviousPosition = t.Position;
-        b.m_PreviousPosition.x -= 0.5;
-        b.m_PreviousPosition.y += 0.1;
+        auto md = Input::GetMouseDelta() * 10.0f * deltaTime;
+        b.m_PreviousPosition.x -= md.x;
+        b.m_PreviousPosition.y += md.y;
     }
     if (m_SelectedEntity && (Input::GetKeyDown(GLFW_KEY_DELETE) || Input::GetKeyDown(GLFW_KEY_BACKSPACE)))
     {
