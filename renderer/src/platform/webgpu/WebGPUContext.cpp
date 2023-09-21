@@ -75,7 +75,7 @@ void WebGPUContext::Init(uint32_t width, uint32_t height)
     m_WebGPUSurface = wgpuInstanceCreateSurface(m_Instance, &surfaceDesc);
     if (!m_WebGPUSurface)
     {
-        printf("No surface!\n");
+        printf("Failed to create WebGPU surface!\n");
     }
     printf("Initialized WebGPU context\n");
 
@@ -101,6 +101,11 @@ void WebGPUContext::CreateSwapChain(uint32_t width, uint32_t height)
     swapChainDesc.height = m_SwapChainHeight;
     swapChainDesc.presentMode = WGPUPresentMode_Fifo;
     m_SwapChain = wgpuDeviceCreateSwapChain(m_WebGPUDevice, m_WebGPUSurface, &swapChainDesc);
+
+    if (!m_SwapChain)
+    {
+        printf("Failed to create WebGPU swap chain!\n");
+    }
 }
 
 void WebGPUContext::SwapBuffers()

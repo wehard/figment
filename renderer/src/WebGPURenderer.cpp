@@ -23,6 +23,21 @@ fn fs_main() -> @location(0) vec4f {
 }
 )";
 
+static std::string *loadShaderFile(const char *filename) {
+    FILE *file = fopen(filename, "rb");
+    if (!file) {
+        printf("Failed to open file: %s\n", filename);
+        return nullptr;
+    }
+    fseek(file, 0, SEEK_END);
+    size_t size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+    auto *result = new std::string(size, '\0');
+    fread(result->data(), 1, size, file);
+    fclose(file);
+    return result;
+}
+
 static WGPUShaderModule CreateShaderModule(WGPUDevice device)
 {
     WGPUShaderModuleWGSLDescriptor shaderCodeDesc = {};

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "GfxContext.h"
-// #include <webgpu/webgpu_cpp.h>
 #include <webgpu/webgpu.h>
 
 class WebGPUContext : public GfxContext
