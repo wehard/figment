@@ -2,27 +2,6 @@
 #include "WebGPUBuffer.h"
 #include <vector>
 
-const char* shaderSource = R"(
-struct DrawData {
-    model: mat4x4<f32>,
-    view: mat4x4<f32>,
-    proj: mat4x4<f32>,
-    color: vec4f
-};
-
-@binding(0) @group(0) var<uniform> drawData: DrawData;
-
-@vertex
-fn vs_main(@location(0) in_vertex_position: vec3f) -> @builtin(position) vec4f {
-    return drawData.proj * drawData.view * drawData.model * vec4f(in_vertex_position, 1.0);
-}
-
-@fragment
-fn fs_main() -> @location(0) vec4f {
-    return drawData.color;
-}
-)";
-
 static std::string *loadShaderFile(const char *filename) {
     FILE *file = fopen(filename, "rb");
     if (!file) {
@@ -38,12 +17,12 @@ static std::string *loadShaderFile(const char *filename) {
     return result;
 }
 
-static WGPUShaderModule CreateShaderModule(WGPUDevice device)
+static WGPUShaderModule CreateShaderModule(WGPUDevice device, const std::string &shaderSource)
 {
     WGPUShaderModuleWGSLDescriptor shaderCodeDesc = {};
     shaderCodeDesc.chain.next = nullptr;
     shaderCodeDesc.chain.sType = WGPUSType_ShaderModuleWGSLDescriptor;
-    shaderCodeDesc.code = shaderSource;
+    shaderCodeDesc.code = shaderSource.c_str();
 
     WGPUShaderModuleDescriptor shaderDesc = {};
     shaderDesc.nextInChain = &shaderCodeDesc.chain;
@@ -55,7 +34,7 @@ static WGPUShaderModule CreateShaderModule(WGPUDevice device)
 WebGPURenderer::WebGPURenderer(WebGPUContext& context)
         :m_Context(context)
 {
-    m_ShaderModule = CreateShaderModule(context.GetDevice());
+    m_ShaderModule = CreateShaderModule(context.GetDevice(), *loadShaderFile("res/shaders/wgsl/default.wgsl"));
 
     std::vector<float> data = {-0.5, -0.5, 0.0,
                                +0.5, -0.5, 0.0,
@@ -133,12 +112,12 @@ static WGPUBindGroupLayoutEntry GetDefaultWGPUBindGroupLayoutEntry()
 
 void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color)
 {
-    DrawData drawData = {};
-    drawData.Color = color;
-    drawData.ModelMatrix = transform;
-    drawData.ViewMatrix = m_RenderPassData.ViewMatrix;
-    drawData.ProjectionMatrix = m_RenderPassData.ProjectionMatrix;
-    auto uniformDrawData = new WebGPUUniformBuffer<DrawData>(m_Context.GetDevice(), &drawData, sizeof(drawData));
+    RenderData renderData = {};
+    renderData.Color = color;
+    renderData.ModelMatrix = transform;
+    renderData.ViewMatrix = m_RenderPassData.ViewMatrix;
+    renderData.ProjectionMatrix = m_RenderPassData.ProjectionMatrix;
+    auto uniformRenderData = new WebGPUUniformBuffer<RenderData>(m_Context.GetDevice(), &renderData, sizeof(renderData));
 
     WGPURenderPipelineDescriptor pipelineDesc = {};
     pipelineDesc.nextInChain = nullptr;
@@ -197,7 +176,7 @@ void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color)
     bindingLayout.binding = 0;
     bindingLayout.visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
     bindingLayout.buffer.type = WGPUBufferBindingType_Uniform;
-    bindingLayout.buffer.minBindingSize = uniformDrawData->m_Size;
+    bindingLayout.buffer.minBindingSize = uniformRenderData->m_Size;
 
     WGPUBindGroupLayoutDescriptor bindGroupLayoutDesc = {};
     bindGroupLayoutDesc.nextInChain = nullptr;
@@ -216,9 +195,9 @@ void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color)
     WGPUBindGroupEntry binding = {};
     binding.nextInChain = nullptr;
     binding.binding = 0;
-    binding.buffer = uniformDrawData->m_Buffer;
+    binding.buffer = uniformRenderData->m_Buffer;
     binding.offset = 0;
-    binding.size = uniformDrawData->m_Size;
+    binding.size = uniformRenderData->m_Size;
 
     WGPUBindGroupDescriptor bindGroupDesc = {};
     bindGroupDesc.nextInChain = nullptr;

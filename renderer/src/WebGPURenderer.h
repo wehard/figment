@@ -6,7 +6,7 @@
 #include "webgpu/webgpu.h"
 #include "glm/glm.hpp"
 
-struct DrawData
+struct RenderData
 {
     glm::mat4 ModelMatrix;
     glm::mat4 ViewMatrix;

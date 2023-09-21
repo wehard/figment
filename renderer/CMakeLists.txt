@@ -102,8 +102,8 @@ target_compile_definitions(figment_wasm PRIVATE GL_SILENCE_DEPRECATION)
 target_compile_definitions(figment_wasm PRIVATE WEBGPU_BACKEND_EMSCRIPTEN)
 
 if (EMSCRIPTEN)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0 -Wno-dangling-else")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -Wno-dangling-else")
 endif ()
 
 add_custom_target(setup_emscripten_env
