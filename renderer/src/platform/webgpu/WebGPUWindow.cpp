@@ -98,6 +98,8 @@ void WebGPUWindow::Resize(WindowResizeEventData resizeData)
     m_FramebufferWidth = resizeData.FramebufferWidth;
     m_FramebufferHeight = resizeData.FramebufferHeight;
 
+    glfwSetWindowSize(m_Window, (int)m_Width, (int)m_Height);
+
     m_GfxContext->CreateSwapChain(resizeData.Width, resizeData.Height);
 
     if (ResizeEventCallback != nullptr)
