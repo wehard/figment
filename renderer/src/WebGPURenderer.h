@@ -23,16 +23,16 @@ struct RenderPassData
 class WebGPURenderer
 {
 public:
-    explicit WebGPURenderer(WebGPUContext& context);
-    WGPURenderPassEncoder Begin(Camera& camera);
+    explicit WebGPURenderer(WebGPUContext &context);
+    WGPURenderPassEncoder Begin(Camera &camera);
     void End();
     void DrawQuad(glm::mat4 transform, glm::vec4 color);
 
 private:
-    WebGPUContext& m_Context;
+    WebGPUContext &m_Context;
     WGPUCommandEncoder m_CommandEncoder;
     WGPURenderPassEncoder m_RenderPass;
     WGPUShaderModule m_ShaderModule;
-    WebGPUVertexBuffer* m_VertexBuffer;
+    WebGPUVertexBuffer *m_VertexBuffer;
     RenderPassData m_RenderPassData;
 };

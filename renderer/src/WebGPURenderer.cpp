@@ -2,9 +2,11 @@
 #include "WebGPUBuffer.h"
 #include <vector>
 
-static std::string *loadShaderFile(const char *filename) {
+static std::string *loadShaderFile(const char *filename)
+{
     FILE *file = fopen(filename, "rb");
-    if (!file) {
+    if (!file)
+    {
         printf("Failed to open file: %s\n", filename);
         return nullptr;
     }
@@ -31,7 +33,7 @@ static WGPUShaderModule CreateShaderModule(WGPUDevice device, const std::string 
     return shaderModule;
 }
 
-WebGPURenderer::WebGPURenderer(WebGPUContext& context)
+WebGPURenderer::WebGPURenderer(WebGPUContext &context)
         :m_Context(context)
 {
     m_ShaderModule = CreateShaderModule(context.GetDevice(), *loadShaderFile("res/shaders/wgsl/default.wgsl"));
@@ -46,7 +48,7 @@ WebGPURenderer::WebGPURenderer(WebGPUContext& context)
     m_VertexBuffer = new WebGPUVertexBuffer(context.GetDevice(), data);
 }
 
-WGPURenderPassEncoder WebGPURenderer::Begin(Camera& camera)
+WGPURenderPassEncoder WebGPURenderer::Begin(Camera &camera)
 {
     m_RenderPassData.ProjectionMatrix = camera.GetProjectionMatrix();
     m_RenderPassData.ViewMatrix = camera.GetViewMatrix();
@@ -117,7 +119,8 @@ void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color)
     renderData.ModelMatrix = transform;
     renderData.ViewMatrix = m_RenderPassData.ViewMatrix;
     renderData.ProjectionMatrix = m_RenderPassData.ProjectionMatrix;
-    auto uniformRenderData = new WebGPUUniformBuffer<RenderData>(m_Context.GetDevice(), &renderData, sizeof(renderData));
+    auto uniformRenderData = new WebGPUUniformBuffer<RenderData>(m_Context.GetDevice(), &renderData,
+            sizeof(renderData));
 
     WGPURenderPipelineDescriptor pipelineDesc = {};
     pipelineDesc.nextInChain = nullptr;
@@ -131,7 +134,7 @@ void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color)
 
     vertexBufferLayout.attributeCount = 1;
     vertexBufferLayout.attributes = &vertexAttrib;
-    vertexBufferLayout.arrayStride = 3*sizeof(float);
+    vertexBufferLayout.arrayStride = 3 * sizeof(float);
     vertexBufferLayout.stepMode = WGPUVertexStepMode_Vertex;
 
     pipelineDesc.vertex.bufferCount = 1;
