@@ -7,12 +7,28 @@ WebGPUTexture::WebGPUTexture(WGPUDevice device, WGPUTextureFormat textureFormat,
     textureDescriptor.nextInChain = nullptr;
     textureDescriptor.dimension = WGPUTextureDimension_2D;
     textureDescriptor.format = textureFormat;
-    textureDescriptor.usage = WGPUTextureUsage_RenderAttachment;
+    textureDescriptor.usage = WGPUTextureUsage_RenderAttachment | WGPUTextureUsage_CopySrc;
     textureDescriptor.size = { m_Width, m_Height, 1 };
     textureDescriptor.sampleCount = 1;
     textureDescriptor.mipLevelCount = 1;
     m_Texture = wgpuDeviceCreateTexture(device, &textureDescriptor);
-    m_TextureView = wgpuTextureCreateView(m_Texture, nullptr);
+
+    WGPUTextureViewDescriptor textureViewDesc = {};
+    textureViewDesc.nextInChain = nullptr;
+    textureViewDesc.aspect = WGPUTextureAspect_All;
+    textureViewDesc.baseArrayLayer = 0;
+    textureViewDesc.arrayLayerCount = 1;
+    textureViewDesc.baseMipLevel = 0;
+    textureViewDesc.mipLevelCount = 1;
+    textureViewDesc.dimension = WGPUTextureViewDimension_2D;
+    textureViewDesc.format = textureDescriptor.format;
+
+    m_TextureView = wgpuTextureCreateView(m_Texture, &textureViewDesc);
+
+    WGPUSamplerDescriptor samplerDesc = {};
+    samplerDesc.nextInChain = nullptr;
+
+    m_Sampler = wgpuDeviceCreateSampler(device, &samplerDesc);
 }
 
 WebGPUTexture::~WebGPUTexture()
@@ -20,4 +36,9 @@ WebGPUTexture::~WebGPUTexture()
     wgpuTextureViewRelease(m_TextureView);
     wgpuTextureRelease(m_Texture);
     wgpuTextureDestroy(m_Texture);
+}
+
+uint32_t WebGPUTexture::GetPixel(int x, int y)
+{
+    return 0;
 }

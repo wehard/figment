@@ -28,6 +28,7 @@ public:
     WGPURenderPassEncoder Begin(Camera &camera);
     void End();
     void DrawQuad(glm::mat4 transform, glm::vec4 color);
+    uint32_t ReadPixel(int x, int y);
 
 private:
     WebGPUContext &m_Context;
@@ -37,4 +38,5 @@ private:
     WebGPUVertexBuffer *m_VertexBuffer;
     RenderPassData m_RenderPassData;
     WebGPUTexture *m_IdTexture;
+    WGPUBuffer m_PixelBuffer;
 };

@@ -14,6 +14,7 @@ public:
     uint32_t GetWidth() { return m_Width; }
     uint32_t GetHeight() { return m_Height; }
     WGPUTextureFormat GetTextureFormat() { return m_TextureFormat; }
+    uint32_t GetPixel(int x, int y);
 
 private:
     uint32_t m_Width;
@@ -21,4 +22,5 @@ private:
     WGPUTextureFormat m_TextureFormat;
     WGPUTexture m_Texture;
     WGPUTextureView m_TextureView;
+    WGPUSampler m_Sampler;
 };

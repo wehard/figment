@@ -49,6 +49,13 @@ WebGPURenderer::WebGPURenderer(WebGPUContext &context)
     m_VertexBuffer = new WebGPUVertexBuffer(context.GetDevice(), data);
 
     m_IdTexture = new WebGPUTexture(context.GetDevice(), WGPUTextureFormat_R32Uint, context.GetSwapChainWidth(), context.GetSwapChainHeight());
+
+    WGPUBufferDescriptor bufferDesc = {};
+    bufferDesc.nextInChain = nullptr;
+    bufferDesc.mappedAtCreation = false;
+    bufferDesc.usage = WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead;
+    bufferDesc.size = 2048 * 2048 * sizeof(uint32_t);
+    m_PixelBuffer = wgpuDeviceCreateBuffer(context.GetDevice(), &bufferDesc);
 }
 
 WGPURenderPassEncoder WebGPURenderer::Begin(Camera &camera)
@@ -85,6 +92,23 @@ WGPURenderPassEncoder WebGPURenderer::Begin(Camera &camera)
 void WebGPURenderer::End()
 {
     wgpuRenderPassEncoderEnd(m_RenderPass);
+
+    WGPUImageCopyTexture imageCopyTexture = {};
+    imageCopyTexture.nextInChain = nullptr;
+    imageCopyTexture.texture = m_IdTexture->GetTexture();
+
+    WGPUImageCopyBuffer imageCopyBuffer = {};
+    imageCopyBuffer.nextInChain = nullptr;
+    imageCopyBuffer.buffer = m_PixelBuffer;
+    imageCopyBuffer.layout.offset = 0;
+    imageCopyBuffer.layout.bytesPerRow =  2048 * sizeof(uint32_t);
+    imageCopyBuffer.layout.rowsPerImage = 2048;
+
+    WGPUExtent3D copySize = {};
+    copySize.width = m_IdTexture->GetWidth();
+    copySize.height = m_IdTexture->GetHeight();
+    copySize.depthOrArrayLayers = 1;
+    wgpuCommandEncoderCopyTextureToBuffer(m_CommandEncoder, &imageCopyTexture, &imageCopyBuffer, &copySize);
 
     WGPUCommandBufferDescriptor commandBufferDesc = {};
     WGPUCommandBuffer commandBuffer = wgpuCommandEncoderFinish(m_CommandEncoder, &commandBufferDesc);
@@ -235,4 +259,20 @@ void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color)
     wgpuRenderPassEncoderSetBindGroup(m_RenderPass, 0, bindGroup, 0, nullptr);
 
     wgpuRenderPassEncoderDraw(m_RenderPass, m_VertexBuffer->m_VertexCount, 1, 0, 0);
+}
+
+uint32_t WebGPURenderer::ReadPixel(int x, int y)
+{
+    wgpuBufferMapAsync(m_PixelBuffer, WGPUMapMode_Read, 0, 2048 * 2048 * sizeof(uint32_t), [](WGPUBufferMapAsyncStatus status, void *userdata)
+    {
+        if (status != WGPUBufferMapAsyncStatus_Success)
+        {
+            printf("Failed to map buffer\n");
+            return;
+        }
+        uint32_t *pixels = (uint32_t*)wgpuBufferGetMappedRange((WGPUBuffer)userdata, 0, 2048 * 2048 * sizeof(uint32_t));
+        printf("Pixel: %d\n", pixels[0]);
+        wgpuBufferUnmap((WGPUBuffer)userdata);
+    }, m_PixelBuffer);
+    return 0;
 }
