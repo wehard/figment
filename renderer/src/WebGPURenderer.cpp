@@ -1,5 +1,6 @@
 #include "WebGPURenderer.h"
 #include "WebGPUBuffer.h"
+#include "WebGPUTexture.h"
 #include <vector>
 
 static std::string *loadShaderFile(const char *filename)
@@ -46,6 +47,8 @@ WebGPURenderer::WebGPURenderer(WebGPUContext &context)
                                +0.5, +0.5, 0.0
     };
     m_VertexBuffer = new WebGPUVertexBuffer(context.GetDevice(), data);
+
+    m_IdTexture = new WebGPUTexture(context.GetDevice(), WGPUTextureFormat_R32Uint, 1700, 940);
 }
 
 WGPURenderPassEncoder WebGPURenderer::Begin(Camera &camera)
@@ -58,15 +61,21 @@ WGPURenderPassEncoder WebGPURenderer::Begin(Camera &camera)
     WGPUCommandEncoderDescriptor desc = {};
     m_CommandEncoder = wgpuDeviceCreateCommandEncoder(device, &desc);
 
-    WGPURenderPassColorAttachment colorAttachment = {};
-    colorAttachment.loadOp = WGPULoadOp_Clear;
-    colorAttachment.storeOp = WGPUStoreOp_Store;
-    colorAttachment.clearValue = {0.1, 0.1, 0.1, 1};
-    colorAttachment.view = wgpuSwapChainGetCurrentTextureView(m_Context.GetSwapChain());
+    WGPURenderPassColorAttachment colorAttachments[2] = {};
+
+    colorAttachments[0].loadOp = WGPULoadOp_Clear;
+    colorAttachments[0].storeOp = WGPUStoreOp_Store;
+    colorAttachments[0].clearValue = {0.1, 0.1, 0.1, 1};
+    colorAttachments[0].view = wgpuSwapChainGetCurrentTextureView(m_Context.GetSwapChain());
+
+    colorAttachments[1].loadOp = WGPULoadOp_Clear;
+    colorAttachments[1].storeOp = WGPUStoreOp_Store;
+    colorAttachments[1].clearValue = {0.0, 0.0, 0.0, 0.0};
+    colorAttachments[1].view = m_IdTexture->GetTextureView();
 
     WGPURenderPassDescriptor renderPassDesc = {};
     renderPassDesc.colorAttachmentCount = 1;
-    renderPassDesc.colorAttachments = &colorAttachment;
+    renderPassDesc.colorAttachments = colorAttachments;
     renderPassDesc.depthStencilAttachment = nullptr;
 
     m_RenderPass = wgpuCommandEncoderBeginRenderPass(m_CommandEncoder, &renderPassDesc);
@@ -155,10 +164,17 @@ void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color)
     blendState.color.dstFactor = WGPUBlendFactor_OneMinusSrcAlpha;
     blendState.color.operation = WGPUBlendOperation_Add;
 
-    WGPUColorTargetState colorTarget = {};
-    colorTarget.format = m_Context.GetTextureFormat();
-    colorTarget.blend = &blendState;
-    colorTarget.writeMask = WGPUColorWriteMask_All;
+    WGPUColorTargetState colorTargets[2] = {};
+
+    colorTargets[0].nextInChain = nullptr;
+    colorTargets[0].format = m_Context.GetTextureFormat();
+    colorTargets[0].blend = &blendState;
+    colorTargets[0].writeMask = WGPUColorWriteMask_All;
+
+    colorTargets[1].nextInChain = nullptr;
+    colorTargets[1].format = m_IdTexture->GetTextureFormat();
+    colorTargets[1].blend = nullptr;
+    colorTargets[1].writeMask = WGPUColorWriteMask_Red;
 
     WGPUFragmentState fragmentState = {};
     fragmentState.module = m_ShaderModule;
@@ -166,7 +182,7 @@ void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color)
     fragmentState.constantCount = 0;
     fragmentState.constants = nullptr;
     fragmentState.targetCount = 1;
-    fragmentState.targets = &colorTarget;
+    fragmentState.targets = colorTargets;
 
     pipelineDesc.fragment = &fragmentState;
     pipelineDesc.depthStencil = nullptr;
@@ -191,6 +207,7 @@ void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color)
     layoutDesc.nextInChain = nullptr;
     layoutDesc.bindGroupLayoutCount = 1;
     layoutDesc.bindGroupLayouts = &bindGroupLayout;
+
     WGPUPipelineLayout layout = wgpuDeviceCreatePipelineLayout(m_Context.GetDevice(), &layoutDesc);
 
     pipelineDesc.layout = layout;
