@@ -48,7 +48,7 @@ WebGPURenderer::WebGPURenderer(WebGPUContext &context)
     };
     m_VertexBuffer = new WebGPUVertexBuffer(context.GetDevice(), data);
 
-    m_IdTexture = new WebGPUTexture(context.GetDevice(), WGPUTextureFormat_R32Uint, 1700, 940);
+    m_IdTexture = new WebGPUTexture(context.GetDevice(), WGPUTextureFormat_R32Uint, context.GetSwapChainWidth(), context.GetSwapChainHeight());
 }
 
 WGPURenderPassEncoder WebGPURenderer::Begin(Camera &camera)

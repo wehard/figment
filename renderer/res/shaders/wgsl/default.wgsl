@@ -12,12 +12,12 @@ fn vs_main(@location(0) in_vertex_position: vec3f) -> @builtin(position) vec4f {
     return renderData.proj * renderData.view * renderData.model * vec4f(in_vertex_position, 1.0);
 }
 
-struct Output {
+struct FSOutput {
     @location(0) color: vec4f,
     @location(1) id: u32
 };
 
 @fragment
-fn fs_main() -> Output {
-    return Output(renderData.color, 42);
+fn fs_main() -> FSOutput {
+    return FSOutput(renderData.color, 42);
 }

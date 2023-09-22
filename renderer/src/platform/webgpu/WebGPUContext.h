@@ -15,6 +15,8 @@ public:
     WGPUSurface GetSurface() { return m_WebGPUSurface; }
     WGPUSwapChain GetSwapChain() { return m_SwapChain; }
     WGPUTextureFormat GetTextureFormat() { return m_TextureFormat; }
+    uint32_t GetSwapChainWidth() { return m_SwapChainWidth; }
+    uint32_t GetSwapChainHeight() { return m_SwapChainHeight; }
 private:
     uint32_t m_SwapChainWidth;
     uint32_t m_SwapChainHeight;
