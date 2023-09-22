@@ -20,7 +20,6 @@ static void glfwWindowSizeCallback(GLFWwindow* window, int width, int height)
 
 static void glfwFramebufferSizeCallback(GLFWwindow *window, int width, int height)
 {
-    printf("glfwFramebufferSizeCallback\n");
     auto *webGpuWindow = (WebGPUWindow *) glfwGetWindowUserPointer(window);
     webGpuWindow->Resize({
         .Width = static_cast<int>(webGpuWindow->GetWidth()),
@@ -31,7 +30,6 @@ static void glfwFramebufferSizeCallback(GLFWwindow *window, int width, int heigh
 
 static EM_BOOL emscriptenResizeCallback(int eventType, const EmscriptenUiEvent *uiEvent, void *userData)
 {
-    printf("emscriptenResizeCallback\n");
     auto *webGpuWindow = (WebGPUWindow *)userData;
     webGpuWindow->Resize({
             .Width = uiEvent->windowInnerWidth,

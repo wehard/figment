@@ -186,8 +186,8 @@ void App::GUIUpdate()
             (mousePosition.y/((float) m_Window->GetHeight()*0.5))-1.0);
     glm::vec2 mw = camera->ScreenToWorldSpace(mousePosition, glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
 
-    ImGui::SetNextWindowPos(ImVec2(m_Window->GetWidth()-500, 0), ImGuiCond_Once);
-    ImGui::SetNextWindowSize(ImVec2(500, 0), ImGuiCond_Once);
+    ImGui::SetNextWindowPos(ImVec2(m_Window->GetWidth()-500, 0), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(500, 0), ImGuiCond_Always);
     ImGui::Begin("Info");
 //    ImGui::SetNextItemOpen(true, ImGuiCond_Once);
 //    if (ImGui::TreeNode("GL"))
