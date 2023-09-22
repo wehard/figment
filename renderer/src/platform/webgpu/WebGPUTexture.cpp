@@ -7,7 +7,7 @@ WebGPUTexture::WebGPUTexture(WGPUDevice device, WGPUTextureFormat textureFormat,
     textureDescriptor.nextInChain = nullptr;
     textureDescriptor.dimension = WGPUTextureDimension_2D;
     textureDescriptor.format = textureFormat;
-    textureDescriptor.usage = WGPUTextureUsage_CopyDst | WGPUTextureUsage_RenderAttachment;
+    textureDescriptor.usage = WGPUTextureUsage_RenderAttachment;
     textureDescriptor.size = { m_Width, m_Height, 1 };
     textureDescriptor.sampleCount = 1;
     textureDescriptor.mipLevelCount = 1;

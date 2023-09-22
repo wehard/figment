@@ -28,7 +28,7 @@ private:
   double m_LastTime = 0;
 
   Entity m_SelectedEntity = {};
-  void HandleKeyboardInput(float deltaTime);
+  void HandleKeyboardInput();
   void HandleMouseInput();
 
 public:

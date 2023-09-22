@@ -74,7 +74,7 @@ WGPURenderPassEncoder WebGPURenderer::Begin(Camera &camera)
     colorAttachments[1].view = m_IdTexture->GetTextureView();
 
     WGPURenderPassDescriptor renderPassDesc = {};
-    renderPassDesc.colorAttachmentCount = 1;
+    renderPassDesc.colorAttachmentCount = 2;
     renderPassDesc.colorAttachments = colorAttachments;
     renderPassDesc.depthStencilAttachment = nullptr;
 
@@ -181,7 +181,7 @@ void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color)
     fragmentState.entryPoint = "fs_main";
     fragmentState.constantCount = 0;
     fragmentState.constants = nullptr;
-    fragmentState.targetCount = 1;
+    fragmentState.targetCount = 2;
     fragmentState.targets = colorTargets;
 
     pipelineDesc.fragment = &fragmentState;

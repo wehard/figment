@@ -8,7 +8,7 @@
 Scene::Scene() = default;
 
 Scene::Scene(uint32_t width, uint32_t height)
-        :m_Width(width), m_Height(height), m_ClearColor(glm::vec4(0.1, 0.1, 0.1, 1.0))
+        : m_Width(width), m_Height(height), m_ClearColor(glm::vec4(0.1, 0.1, 0.1, 1.0))
 {
     m_Camera = std::make_shared<PerspectiveCamera>((float) width / (float) height);
     m_CameraController = std::make_shared<CameraController>(m_Camera);
@@ -19,13 +19,13 @@ Scene::~Scene() = default;
 
 static glm::vec4 GetRandomColor()
 {
-    return {(float) rand() / (float) RAND_MAX, (float) rand() / (float) RAND_MAX, (float) rand() / (float) RAND_MAX,
-            1.0};
+    return { (float) rand() / (float) RAND_MAX, (float) rand() / (float) RAND_MAX, (float) rand() / (float) RAND_MAX,
+             1.0 };
 }
 
 Entity Scene::CreateEntity(const std::string &name)
 {
-    Entity entity = {m_Registry.create(), this};
+    Entity entity = { m_Registry.create(), this };
     entity.AddComponent<IDComponent>();
     auto &info = entity.AddComponent<InfoComponent>();
     info.m_Name = name.empty() ? "Unnamed" : name;
@@ -36,7 +36,7 @@ Entity Scene::CreateEntity(const std::string &name)
 
 Entity Scene::CreateEntity(uint32_t id)
 {
-    return {m_Registry.create((entt::entity) id), this};
+    return { m_Registry.create((entt::entity) id), this };
 }
 
 void Scene::DestroyEntity(Entity entity)
@@ -53,7 +53,7 @@ std::vector<Entity> Scene::GetEntities()
     std::vector<Entity> entities;
     for (auto e : view)
     {
-        entities.push_back({e, this});
+        entities.push_back({ e, this });
     }
     return entities;
 }
@@ -61,21 +61,20 @@ std::vector<Entity> Scene::GetEntities()
 Entity Scene::GetEntityById(uint32_t id)
 {
     if (m_Registry.valid((entt::entity) id))
-        return {(entt::entity) id, this};
+        return { (entt::entity) id, this };
     return {};
 }
 
 Entity Scene::GetHoveredEntity()
 {
     if (m_Registry.valid((entt::entity) m_HoveredId))
-        return {(entt::entity) m_HoveredId, this};
+        return { (entt::entity) m_HoveredId, this };
     return {};
 }
 
 void Scene::Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportSize, WebGPURenderer &renderer)
 {
     m_CameraController->Update(deltaTime);
-    // m_Renderer->Begin(*m_Camera);
 
     auto t = TransformComponent();
     t.Scale = glm::vec3(m_VerletPhysics.GetWidth() + 1, m_VerletPhysics.GetHeight() + 1, 1);
@@ -85,7 +84,7 @@ void Scene::Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportS
     auto view = m_Registry.view<TransformComponent>();
     for (auto e : view)
     {
-        Entity entity = {e, this};
+        Entity entity = { e, this };
 
         if (entity.HasComponent<VerletBodyComponent>())
             m_VerletPhysics.Update(entity, GetEntities(), deltaTime);
@@ -107,7 +106,6 @@ void Scene::Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportS
         m_HoveredId = -1;
         // m_HoveredId = m_Renderer->GetFramebuffer()->GetPixel(1, (uint32_t)(normalized.x * m_Width), m_Height - (uint32_t)(normalized.y * m_Height));
     }
-    // m_Renderer->End();
 }
 
 std::shared_ptr<CameraController> Scene::GetCameraController()

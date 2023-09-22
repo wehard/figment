@@ -23,12 +23,12 @@ App::App(float width, float height)
         OnResize(data.FramebufferWidth, data.FramebufferHeight);
     });
 
-    auto* glfwWindow = (GLFWwindow*) m_Window->GetNative();
+    auto *glfwWindow = (GLFWwindow *) m_Window->GetNative();
     Input::Initialize(glfwWindow);
     m_GUICtx = std::make_unique<WebGPUGUIContext>();
 
 #ifdef __EMSCRIPTEN__
-    const char* glslVersion = "#version 300 es";
+    const char *glslVersion = "#version 300 es";
 #else
     const char *glslVersion = "#version 330 core";
 #endif
@@ -58,10 +58,9 @@ App::~App()
     delete m_Scene;
 }
 
-void App::HandleKeyboardInput(float deltaTime)
+void App::HandleKeyboardInput()
 {
-
-    ImGuiIO& io = ImGui::GetIO();
+    ImGuiIO &io = ImGui::GetIO();
     if (io.WantCaptureKeyboard)
     {
         return;
@@ -70,13 +69,13 @@ void App::HandleKeyboardInput(float deltaTime)
     if (Input::GetKeyDown(GLFW_KEY_I))
     {
         Entity e = m_Scene->CreateEntity("New");
-        auto& t = e.GetComponent<TransformComponent>();
+        auto &t = e.GetComponent<TransformComponent>();
         glm::vec3 p = m_Scene->GetCameraController()->GetCamera()->ScreenToWorldSpace(Input::GetMousePosition(),
                 glm::vec2(m_Window->GetFramebufferWidth(), m_Window->GetFramebufferHeight()));
         t.Position = p;
-        auto& b = e.AddComponent<VerletBodyComponent>();
+        auto &b = e.AddComponent<VerletBodyComponent>();
         b.m_PreviousPosition = t.Position;
-        auto md = Input::GetMouseDelta() * 10.0f * deltaTime;
+        auto md = Input::GetMouseDelta() * 0.01f;
         b.m_PreviousPosition.x -= md.x;
         b.m_PreviousPosition.y += md.y;
     }
@@ -88,7 +87,7 @@ void App::HandleKeyboardInput(float deltaTime)
 
 void App::HandleMouseInput()
 {
-    ImGuiIO& io = ImGui::GetIO();
+    ImGuiIO &io = ImGui::GetIO();
     if (io.WantCaptureMouse)
     {
         return;
@@ -96,34 +95,33 @@ void App::HandleMouseInput()
 
     if (Input::GetButtonDown(GLFW_MOUSE_BUTTON_LEFT))
     {
-        SelectEntity({(uint32_t) m_Scene->m_HoveredId, m_Scene});
+        SelectEntity({ (uint32_t) m_Scene->m_HoveredId, m_Scene });
     }
 }
 
 void App::Update()
 {
     m_CurrentTime = glfwGetTime();
-    double deltaTime = m_CurrentTime-m_LastTime;
+    double deltaTime = m_CurrentTime - m_LastTime;
     m_LastTime = m_CurrentTime;
 
     Input::Update();
 
-    HandleKeyboardInput(deltaTime);
+    HandleKeyboardInput();
     HandleMouseInput();
 
-    GUIUpdate();
+    // GUIUpdate();
 
-    auto pass = m_Renderer->Begin(*m_Scene->GetCameraController()->GetCamera());
+    m_Renderer->Begin(*m_Scene->GetCameraController()->GetCamera());
     m_Scene->Update(deltaTime, Input::GetMousePosition(), glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()),
             *m_Renderer);
-    m_GUICtx->Render(pass);
+    // m_GUICtx->Render(pass);
     m_Renderer->End();
 
-//    glfwPollEvents();
-//    glfwSwapBuffers((GLFWwindow *)m_Window->GetNative());
+    glfwPollEvents();
 }
 
-static void DrawVec3(const char* name, glm::vec3* value, bool* syncValues)
+static void DrawVec3(const char *name, glm::vec3 *value, bool *syncValues)
 {
     glm::vec3 tempValue = *value;
     ImGui::DragFloat3(name, &tempValue[0], 0.1f, 0.0f, 0.0f, "%.2f");
@@ -132,10 +130,10 @@ static void DrawVec3(const char* name, glm::vec3* value, bool* syncValues)
 
     if (*syncValues)
     {
-        for (size_t i = 0; i<3; i++)
+        for (size_t i = 0; i < 3; i++)
         {
             float f = value[0][i];
-            if (tempValue[i]!=value[0][i])
+            if (tempValue[i] != value[0][i])
             {
                 *value = glm::vec3(tempValue[i]);
                 break;
@@ -160,7 +158,7 @@ void App::GUIUpdate()
 
     auto camera = m_Scene->GetCameraController()->GetCamera();
     size_t cameraWindowWidth = 400;
-    ImGui::SetNextWindowPos(ImVec2(m_Window->GetWidth()/2-cameraWindowWidth/2, 0), ImGuiCond_Once);
+    ImGui::SetNextWindowPos(ImVec2(m_Window->GetWidth() / 2 - cameraWindowWidth / 2, 0), ImGuiCond_Once);
     ImGui::SetNextWindowSize(ImVec2(cameraWindowWidth, 0), ImGuiCond_Once);
     ImGui::Begin("Camera");
     glm::vec3 cameraPosition = camera->GetPosition();
@@ -174,7 +172,7 @@ void App::GUIUpdate()
     {
     }
 
-    if (ImGui::DragFloat3("Position", (float*) &cameraPosition.x, 0.1f, 0.0f, 0.0f, "%.2f"))
+    if (ImGui::DragFloat3("Position", (float *) &cameraPosition.x, 0.1f, 0.0f, 0.0f, "%.2f"))
     {
         camera->m_Position = cameraPosition;
     }
@@ -182,11 +180,11 @@ void App::GUIUpdate()
 
 //    const GLubyte *version = glGetString(GL_VERSION);
     glm::vec2 mousePosition = Input::GetMousePosition();
-    glm::vec2 ndc = glm::vec2((mousePosition.x/((float) m_Window->GetWidth()*0.5))-1.0,
-            (mousePosition.y/((float) m_Window->GetHeight()*0.5))-1.0);
+    glm::vec2 ndc = glm::vec2((mousePosition.x / ((float) m_Window->GetWidth() * 0.5)) - 1.0,
+            (mousePosition.y / ((float) m_Window->GetHeight() * 0.5)) - 1.0);
     glm::vec2 mw = camera->ScreenToWorldSpace(mousePosition, glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
 
-    ImGui::SetNextWindowPos(ImVec2(m_Window->GetWidth()-500, 0), ImGuiCond_Always);
+    ImGui::SetNextWindowPos(ImVec2(m_Window->GetWidth() - 500, 0), ImGuiCond_Always);
     ImGui::SetNextWindowSize(ImVec2(500, 0), ImGuiCond_Always);
     ImGui::Begin("Info");
 //    ImGui::SetNextItemOpen(true, ImGuiCond_Once);
@@ -241,8 +239,8 @@ void App::GUIUpdate()
     ImGui::Begin("Entities");
     for (auto entity : m_Scene->GetEntities())
     {
-        auto& id = entity.GetComponent<IDComponent>();
-        auto& info = entity.GetComponent<InfoComponent>();
+        auto &id = entity.GetComponent<IDComponent>();
+        auto &info = entity.GetComponent<InfoComponent>();
         ImGui::PushID(id.ID);
         char buf[128];
         memset(buf, 0, sizeof(buf));
@@ -260,8 +258,8 @@ void App::GUIUpdate()
     ImGui::Begin("Inspector");
     if (m_SelectedEntity)
     {
-        auto& id = m_SelectedEntity.GetComponent<IDComponent>();
-        auto& info = m_SelectedEntity.GetComponent<InfoComponent>();
+        auto &id = m_SelectedEntity.GetComponent<IDComponent>();
+        auto &info = m_SelectedEntity.GetComponent<InfoComponent>();
 
         char buf[128];
         memset(buf, 0, sizeof(buf));
@@ -271,9 +269,9 @@ void App::GUIUpdate()
             info.m_Name = std::string(buf);
         }
 
-        auto& transform = m_SelectedEntity.GetComponent<TransformComponent>();
-        ImGui::DragFloat3("Position", (float*) &transform.Position.x, 0.1f, 0.0f, 0.0f, "%.2f");
-        ImGui::DragFloat3("Rotation", (float*) &transform.Rotation.x, 0.1f, 0.0f, 0.0f, "%.2f");
+        auto &transform = m_SelectedEntity.GetComponent<TransformComponent>();
+        ImGui::DragFloat3("Position", (float *) &transform.Position.x, 0.1f, 0.0f, 0.0f, "%.2f");
+        ImGui::DragFloat3("Rotation", (float *) &transform.Rotation.x, 0.1f, 0.0f, 0.0f, "%.2f");
 
         // ImGui::DragFloat3("Scale", (float *)&transform.Scale.x, 0.1f, 0.0f, 0.0f, "%.2f");
         static bool syncScale = true;
@@ -281,9 +279,9 @@ void App::GUIUpdate()
 
         if (m_SelectedEntity.HasComponent<VerletBodyComponent>())
         {
-            auto& body = m_SelectedEntity.GetComponent<VerletBodyComponent>();
+            auto &body = m_SelectedEntity.GetComponent<VerletBodyComponent>();
             ImGui::Text("Verlet Body");
-            ImGui::DragFloat3("Previous position", (float*) &body.m_PreviousPosition.x);
+            ImGui::DragFloat3("Previous position", (float *) &body.m_PreviousPosition.x);
             ImGui::Text("Velocity: x %f y %f z %f", body.m_Velocity.x, body.m_Velocity.y, body.m_Velocity.z);
         }
     }
@@ -296,7 +294,7 @@ void App::OnResize(uint32_t width, uint32_t height)
     Update(); // TODO: Figure out if there is a better way
 }
 
-void App::UpdateShader(const char* vertSource, const char* fragSource)
+void App::UpdateShader(const char *vertSource, const char *fragSource)
 {
     printf("App::UpdateShader -- Not implemented!\n");
 }
