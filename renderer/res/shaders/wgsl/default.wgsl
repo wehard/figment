@@ -2,7 +2,8 @@ struct RenderData {
     model: mat4x4<f32>,
     view: mat4x4<f32>,
     proj: mat4x4<f32>,
-    color: vec4f
+    color: vec4f,
+    id: u32
 };
 
 @binding(0) @group(0) var<uniform> renderData: RenderData;
@@ -21,6 +22,6 @@ struct FragmentOutput {
 fn fs_main() -> FragmentOutput {
         var output : FragmentOutput;
         output.color = renderData.color;
-        output.id = 69;
+        output.id = renderData.id;
         return output;
 }

@@ -3,6 +3,8 @@
 #include "WebGPUTexture.h"
 #include <vector>
 
+#define MEM_ALIGN(_SIZE,_ALIGN)        (((_SIZE) + ((_ALIGN) - 1)) & ~((_ALIGN) - 1))
+
 static std::string *loadShaderFile(const char *filename)
 {
     FILE *file = fopen(filename, "rb");
@@ -131,13 +133,14 @@ static WGPUBindGroupLayoutEntry GetDefaultWGPUBindGroupLayoutEntry()
     return bindingLayout;
 }
 
-void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color)
+void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color, uint32_t id)
 {
     RenderData renderData = {};
     renderData.Color = color;
     renderData.ModelMatrix = transform;
     renderData.ViewMatrix = m_RenderPassData.ViewMatrix;
     renderData.ProjectionMatrix = m_RenderPassData.ProjectionMatrix;
+    renderData.Id = id;
     auto uniformRenderData = new WebGPUUniformBuffer<RenderData>(m_Context.GetDevice(), &renderData,
             sizeof(renderData));
 

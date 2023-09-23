@@ -13,6 +13,8 @@ struct RenderData
     glm::mat4 ViewMatrix;
     glm::mat4 ProjectionMatrix;
     glm::vec4 Color;
+    uint32_t Id;
+    uint32_t _padding[3];
 };
 
 struct RenderPassData
@@ -27,7 +29,7 @@ public:
     explicit WebGPURenderer(WebGPUContext &context);
     WGPURenderPassEncoder Begin(Camera &camera);
     void End();
-    void DrawQuad(glm::mat4 transform, glm::vec4 color);
+    void DrawQuad(glm::mat4 transform, glm::vec4 color, uint32_t id);
     uint32_t ReadPixel(int x, int y);
 
 private:
