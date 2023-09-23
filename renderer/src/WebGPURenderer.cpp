@@ -184,7 +184,7 @@ void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color)
     colorTargets[1].nextInChain = nullptr;
     colorTargets[1].format = m_IdTexture->GetTextureFormat();
     colorTargets[1].blend = nullptr;
-    colorTargets[1].writeMask = WGPUColorWriteMask_None;
+    colorTargets[1].writeMask = WGPUColorWriteMask_All;
 
     WGPUFragmentState fragmentState = {};
     fragmentState.module = m_ShaderModule;
