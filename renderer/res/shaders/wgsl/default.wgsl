@@ -19,5 +19,8 @@ struct FSOutput {
 
 @fragment
 fn fs_main() -> FSOutput {
-    return FSOutput(renderData.color, 42);
+    var out : FSOutput;
+    out.color = renderData.color;
+    out.id = 42;
+    return out;
 }

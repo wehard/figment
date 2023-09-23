@@ -79,11 +79,12 @@ WGPURenderPassEncoder WebGPURenderer::Begin(Camera &camera)
 
     colorAttachments[1].loadOp = WGPULoadOp_Clear;
     colorAttachments[1].storeOp = WGPUStoreOp_Store;
-    colorAttachments[1].clearValue = { 1.0, 1.0, 1.0, 1.0 };
+    colorAttachments[1].clearValue = { 42.0, 0.0, 0.0, 0.0 };
     colorAttachments[1].view = m_IdTexture->GetTextureView();
+    colorAttachments[1].resolveTarget = nullptr;
 
     WGPURenderPassDescriptor renderPassDesc = {};
-    renderPassDesc.colorAttachmentCount = 1;
+    renderPassDesc.colorAttachmentCount = 2;
     renderPassDesc.colorAttachments = colorAttachments;
     renderPassDesc.depthStencilAttachment = nullptr;
 
@@ -183,14 +184,14 @@ void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color)
     colorTargets[1].nextInChain = nullptr;
     colorTargets[1].format = m_IdTexture->GetTextureFormat();
     colorTargets[1].blend = nullptr;
-    colorTargets[1].writeMask = WGPUColorWriteMask_Red;
+    colorTargets[1].writeMask = WGPUColorWriteMask_None;
 
     WGPUFragmentState fragmentState = {};
     fragmentState.module = m_ShaderModule;
     fragmentState.entryPoint = "fs_main";
     fragmentState.constantCount = 0;
     fragmentState.constants = nullptr;
-    fragmentState.targetCount = 1;
+    fragmentState.targetCount = 2;
     fragmentState.targets = colorTargets;
 
     pipelineDesc.fragment = &fragmentState;
@@ -255,6 +256,7 @@ uint32_t WebGPURenderer::ReadPixel(int x, int y)
 
     WGPUImageCopyTexture imageCopyTexture = {};
     imageCopyTexture.nextInChain = nullptr;
+    imageCopyTexture.origin = { 0, 0, 0 };
     imageCopyTexture.texture = m_IdTexture->GetTexture();
 
     WGPUImageCopyBuffer imageCopyBuffer = {};
@@ -274,35 +276,33 @@ uint32_t WebGPURenderer::ReadPixel(int x, int y)
     WGPUQueue queue = wgpuDeviceGetQueue(m_Context.GetDevice());
     wgpuQueueSubmit(queue, 1, &commandBuffer);
 
-    struct MapReadCallbackData
+    struct BufferMapReadCallbackData
     {
-        WGPUBuffer pixelBuffer;
+        WGPUBuffer buffer;
         uint32_t x;
         uint32_t y;
-        bool done;
     };
 
-    MapReadCallbackData callbackData = {};
-    callbackData.pixelBuffer = m_PixelBuffer;
-    callbackData.x = x;
-    callbackData.y = y;
-    callbackData.done = false;
+    auto *callbackData = new BufferMapReadCallbackData();
+    callbackData->buffer = m_PixelBuffer;
+    callbackData->x = x;
+    callbackData->y = y;
 
     wgpuBufferMapAsync(m_PixelBuffer, WGPUMapMode_Read, 0, 2048 * 2048 * sizeof(uint32_t),
             [](WGPUBufferMapAsyncStatus status, void *userData)
             {
+                auto *callbackData = (BufferMapReadCallbackData *)userData;
                 if (status != WGPUBufferMapAsyncStatus_Success)
                 {
                     printf("Buffer map failed with WGPUBufferMapAsyncStatus: %d\n", status);
                     return;
                 }
-                MapReadCallbackData callbackData = *(MapReadCallbackData *)userData;
-                uint32_t *pixels = (uint32_t *)wgpuBufferGetConstMappedRange(callbackData.pixelBuffer, 0,
+                auto *pixels = (uint32_t *)wgpuBufferGetConstMappedRange(callbackData->buffer, 0,
                         2048 * 2048 * sizeof(uint32_t));
-                printf("Pixel: %d\n", pixels[0]);
-                wgpuBufferUnmap(callbackData.pixelBuffer);
-                callbackData.done = true;
-            }, (void *)&callbackData);
+                printf("Pixel: %d\n", pixels[callbackData->y * 2048 + callbackData->x]);
+                wgpuBufferUnmap(callbackData->buffer);
+                delete callbackData;
+            }, (void *)callbackData);
 
     return 0;
 }
