@@ -302,7 +302,7 @@ uint32_t WebGPURenderer::ReadPixel(int x, int y)
                 }
                 auto *pixels = (uint32_t *)wgpuBufferGetConstMappedRange(callbackData->buffer, 0,
                         2048 * 2048 * sizeof(uint32_t));
-                printf("Pixel: %d\n", pixels[callbackData->y * 2048 + callbackData->x]);
+                printf("Pixel: %u\n", pixels[callbackData->y * 2048 + callbackData->x]);
                 wgpuBufferUnmap(callbackData->buffer);
                 delete callbackData;
             }, (void *)callbackData);

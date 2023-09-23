@@ -20,11 +20,11 @@ struct InfoComponent
 
 static std::random_device s_Device;
 static std::mt19937_64 s_Engine(s_Device());
-static std::uniform_int_distribution<uint64_t> s_UniformDist;
+static std::uniform_int_distribution<uint32_t> s_UniformDist;
 
 struct IDComponent
 {
-    uint64_t ID;
+    uint32_t ID;
     IDComponent() : ID(s_UniformDist(s_Engine)) {}
 };
 

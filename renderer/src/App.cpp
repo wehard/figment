@@ -245,7 +245,7 @@ void App::GUIUpdate()
         ImGui::PushID(id.ID);
         char buf[128];
         memset(buf, 0, sizeof(buf));
-        snprintf(buf, sizeof(buf), "%-20s (%llu)", info.m_Name.c_str(), id.ID);
+        snprintf(buf, sizeof(buf), "%-20s (%u)", info.m_Name.c_str(), id.ID);
         if (ImGui::Selectable(buf))
         {
             SelectEntity(entity);
