@@ -96,6 +96,7 @@ void WebGPUContext::CreateSwapChain(uint32_t width, uint32_t height)
 
     WGPUSwapChainDescriptor swapChainDesc = {};
     swapChainDesc.usage = WGPUTextureUsage_RenderAttachment;
+    swapChainDesc.label = "WebGPUContext::SwapChain";
     swapChainDesc.format = m_TextureFormat;
     swapChainDesc.width = m_SwapChainWidth;
     swapChainDesc.height = m_SwapChainHeight;

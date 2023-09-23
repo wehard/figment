@@ -5,6 +5,7 @@ WebGPUTexture::WebGPUTexture(WGPUDevice device, WGPUTextureFormat textureFormat,
 {
     WGPUTextureDescriptor textureDescriptor = {};
     textureDescriptor.nextInChain = nullptr;
+    textureDescriptor.label = "RenderTexture";
     textureDescriptor.dimension = WGPUTextureDimension_2D;
     textureDescriptor.format = textureFormat;
     textureDescriptor.usage = WGPUTextureUsage_RenderAttachment | WGPUTextureUsage_CopySrc;
@@ -17,6 +18,7 @@ WebGPUTexture::WebGPUTexture(WGPUDevice device, WGPUTextureFormat textureFormat,
 
     WGPUTextureViewDescriptor textureViewDesc = {};
     textureViewDesc.nextInChain = nullptr;
+    textureViewDesc.label = "RenderTextureView";
     textureViewDesc.aspect = WGPUTextureAspect_All;
     textureViewDesc.baseArrayLayer = 0;
     textureViewDesc.arrayLayerCount = 1;
@@ -34,6 +36,7 @@ WebGPUTexture::WebGPUTexture(WGPUDevice device, WGPUTextureFormat textureFormat,
 
 WebGPUTexture::~WebGPUTexture()
 {
+    wgpuSamplerRelease(m_Sampler);
     wgpuTextureViewRelease(m_TextureView);
     wgpuTextureRelease(m_Texture);
     wgpuTextureDestroy(m_Texture);
