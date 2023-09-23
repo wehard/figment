@@ -11,6 +11,8 @@ WebGPUTexture::WebGPUTexture(WGPUDevice device, WGPUTextureFormat textureFormat,
     textureDescriptor.size = { m_Width, m_Height, 1 };
     textureDescriptor.sampleCount = 1;
     textureDescriptor.mipLevelCount = 1;
+    textureDescriptor.viewFormatCount = 0;
+    textureDescriptor.viewFormats = nullptr;
     m_Texture = wgpuDeviceCreateTexture(device, &textureDescriptor);
 
     WGPUTextureViewDescriptor textureViewDesc = {};
@@ -22,7 +24,6 @@ WebGPUTexture::WebGPUTexture(WGPUDevice device, WGPUTextureFormat textureFormat,
     textureViewDesc.mipLevelCount = 1;
     textureViewDesc.dimension = WGPUTextureViewDimension_2D;
     textureViewDesc.format = textureDescriptor.format;
-
     m_TextureView = wgpuTextureCreateView(m_Texture, &textureViewDesc);
 
     WGPUSamplerDescriptor samplerDesc = {};
