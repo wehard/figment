@@ -81,7 +81,7 @@ WGPURenderPassEncoder WebGPURenderer::Begin(Camera &camera)
 
     colorAttachments[1].loadOp = WGPULoadOp_Clear;
     colorAttachments[1].storeOp = WGPUStoreOp_Store;
-    colorAttachments[1].clearValue = { 42.0, 0.0, 0.0, 0.0 };
+    colorAttachments[1].clearValue = { 0.0, 0.0, 0.0, 0.0 };
     colorAttachments[1].view = m_IdTexture->GetTextureView();
     colorAttachments[1].resolveTarget = nullptr;
 
@@ -302,7 +302,7 @@ uint32_t WebGPURenderer::ReadPixel(int x, int y)
                 }
                 auto *pixels = (uint32_t *)wgpuBufferGetConstMappedRange(callbackData->buffer, 0,
                         2048 * 2048 * sizeof(uint32_t));
-                printf("Pixel: %u\n", pixels[callbackData->y * 2048 + callbackData->x]);
+                printf("ID: %u\n", pixels[callbackData->y * 2048 + callbackData->x]);
                 wgpuBufferUnmap(callbackData->buffer);
                 delete callbackData;
             }, (void *)callbackData);

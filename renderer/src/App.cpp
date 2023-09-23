@@ -38,7 +38,9 @@ App::App(float width, float height)
     auto webGpuWindow = std::dynamic_pointer_cast<WebGPUWindow>(m_Window);
 
     m_Scene = new Scene(m_Window->GetFramebufferWidth(), m_Window->GetFramebufferHeight());
-    m_Scene->CreateEntity();
+    auto e = m_Scene->CreateEntity();
+    auto &t = e.GetComponent<TransformComponent>();
+    t.Scale = glm::vec3(5.0f);
 
     m_Renderer = std::make_unique<WebGPURenderer>(*webGpuWindow->GetContext());
 
@@ -95,7 +97,8 @@ void App::HandleMouseInput()
 
     if (Input::GetButtonDown(GLFW_MOUSE_BUTTON_LEFT))
     {
-        m_Renderer->ReadPixel(0, 0);
+        auto m = Input::GetMousePosition();
+        m_Renderer->ReadPixel(m.x, m.y);
         SelectEntity({ (uint32_t) m_Scene->m_HoveredId, m_Scene });
     }
 }
