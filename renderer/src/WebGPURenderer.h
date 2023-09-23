@@ -30,7 +30,7 @@ public:
     WGPURenderPassEncoder Begin(Camera &camera);
     void End();
     void DrawQuad(glm::mat4 transform, glm::vec4 color, uint32_t id);
-    uint32_t ReadPixel(int x, int y);
+    void ReadPixel(int x, int y, std::function<void(uint32_t)> callback);
 
 private:
     WebGPUContext &m_Context;

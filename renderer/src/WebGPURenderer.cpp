@@ -250,7 +250,9 @@ void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color, uint32_t id)
     wgpuRenderPassEncoderDraw(m_RenderPass, m_VertexBuffer->m_VertexCount, 1, 0, 0);
 }
 
-uint32_t WebGPURenderer::ReadPixel(int x, int y)
+#include <functional>
+
+void WebGPURenderer::ReadPixel(int x, int y, std::function<void(uint32_t)> callback)
 {
     WGPUCommandEncoderDescriptor commandEncoderDesc = {};
     commandEncoderDesc.nextInChain = nullptr;
@@ -284,12 +286,14 @@ uint32_t WebGPURenderer::ReadPixel(int x, int y)
         WGPUBuffer buffer;
         uint32_t x;
         uint32_t y;
+        std::function<void(uint32_t)> callback;
     };
 
     auto *callbackData = new BufferMapReadCallbackData();
     callbackData->buffer = m_PixelBuffer;
     callbackData->x = x;
     callbackData->y = y;
+    callbackData->callback = callback;
 
     wgpuBufferMapAsync(m_PixelBuffer, WGPUMapMode_Read, 0, 2048 * 2048 * sizeof(uint32_t),
             [](WGPUBufferMapAsyncStatus status, void *userData)
@@ -302,10 +306,9 @@ uint32_t WebGPURenderer::ReadPixel(int x, int y)
                 }
                 auto *pixels = (uint32_t *)wgpuBufferGetConstMappedRange(callbackData->buffer, 0,
                         2048 * 2048 * sizeof(uint32_t));
-                printf("ID: %u\n", pixels[callbackData->y * 2048 + callbackData->x]);
+                auto id = pixels[callbackData->y * 2048 + callbackData->x];
                 wgpuBufferUnmap(callbackData->buffer);
+                callbackData->callback(id);
                 delete callbackData;
             }, (void *)callbackData);
-
-    return 0;
 }

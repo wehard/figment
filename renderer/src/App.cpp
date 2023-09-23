@@ -98,8 +98,11 @@ void App::HandleMouseInput()
     if (Input::GetButtonDown(GLFW_MOUSE_BUTTON_LEFT))
     {
         auto m = Input::GetMousePosition();
-        m_Renderer->ReadPixel(m.x, m.y);
-        SelectEntity({ (uint32_t) m_Scene->m_HoveredId, m_Scene });
+        m_Renderer->ReadPixel(m.x, m.y, [this](uint32_t id)
+        {
+            SelectEntity({ id, m_Scene });
+            printf("Selected entity %u\n", id);
+        });
     }
 }
 
