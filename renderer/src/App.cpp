@@ -300,6 +300,7 @@ void App::GUIUpdate()
 void App::OnResize(uint32_t width, uint32_t height)
 {
     m_Scene->OnResize(width, height);
+    m_Renderer->OnResize(width, height);
     Update(); // TODO: Figure out if there is a better way
 }
 

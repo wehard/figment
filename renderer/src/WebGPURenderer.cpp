@@ -1,6 +1,7 @@
 #include "WebGPURenderer.h"
 #include "WebGPUBuffer.h"
 #include "WebGPUTexture.h"
+#include <utility>
 #include <vector>
 
 #define MEM_ALIGN(_SIZE,_ALIGN)        (((_SIZE) + ((_ALIGN) - 1)) & ~((_ALIGN) - 1))
@@ -250,10 +251,17 @@ void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color, uint32_t id)
     wgpuRenderPassEncoderDraw(m_RenderPass, m_VertexBuffer->m_VertexCount, 1, 0, 0);
 }
 
-#include <functional>
-
 void WebGPURenderer::ReadPixel(int x, int y, std::function<void(uint32_t)> callback)
 {
+    auto mapState = wgpuBufferGetMapState(m_PixelBuffer);
+    if (mapState == WGPUBufferMapState_Mapped)
+    {
+        printf("Buffer is already mapped\n");
+        return;
+    }
+
+    wgpuBufferUnmap(m_PixelBuffer);
+
     WGPUCommandEncoderDescriptor commandEncoderDesc = {};
     commandEncoderDesc.nextInChain = nullptr;
     commandEncoderDesc.label = "ReadPixelCommandEncoder";
@@ -283,9 +291,9 @@ void WebGPURenderer::ReadPixel(int x, int y, std::function<void(uint32_t)> callb
 
     struct BufferMapReadCallbackData
     {
-        WGPUBuffer buffer;
-        uint32_t x;
-        uint32_t y;
+        WGPUBuffer buffer = nullptr;
+        uint32_t x = 0;
+        uint32_t y = 0;
         std::function<void(uint32_t)> callback;
     };
 
@@ -293,7 +301,7 @@ void WebGPURenderer::ReadPixel(int x, int y, std::function<void(uint32_t)> callb
     callbackData->buffer = m_PixelBuffer;
     callbackData->x = x;
     callbackData->y = y;
-    callbackData->callback = callback;
+    callbackData->callback = std::move(callback);
 
     wgpuBufferMapAsync(m_PixelBuffer, WGPUMapMode_Read, 0, 2048 * 2048 * sizeof(uint32_t),
             [](WGPUBufferMapAsyncStatus status, void *userData)
@@ -311,4 +319,10 @@ void WebGPURenderer::ReadPixel(int x, int y, std::function<void(uint32_t)> callb
                 callbackData->callback(id);
                 delete callbackData;
             }, (void *)callbackData);
+}
+
+void WebGPURenderer::OnResize(uint32_t width, uint32_t height)
+{
+    delete m_IdTexture;
+    m_IdTexture = new WebGPUTexture(m_Context.GetDevice(), WGPUTextureFormat_R32Uint, width, height);
 }

@@ -31,6 +31,7 @@ public:
     void End();
     void DrawQuad(glm::mat4 transform, glm::vec4 color, uint32_t id);
     void ReadPixel(int x, int y, std::function<void(uint32_t)> callback);
+    void OnResize(uint32_t width, uint32_t height);
 
 private:
     WebGPUContext &m_Context;

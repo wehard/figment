@@ -27,22 +27,11 @@ WebGPUTexture::WebGPUTexture(WGPUDevice device, WGPUTextureFormat textureFormat,
     textureViewDesc.dimension = WGPUTextureViewDimension_2D;
     textureViewDesc.format = textureDescriptor.format;
     m_TextureView = wgpuTextureCreateView(m_Texture, &textureViewDesc);
-
-    WGPUSamplerDescriptor samplerDesc = {};
-    samplerDesc.nextInChain = nullptr;
-
-    m_Sampler = wgpuDeviceCreateSampler(device, &samplerDesc);
 }
 
 WebGPUTexture::~WebGPUTexture()
 {
-    wgpuSamplerRelease(m_Sampler);
     wgpuTextureViewRelease(m_TextureView);
-    wgpuTextureRelease(m_Texture);
     wgpuTextureDestroy(m_Texture);
-}
-
-uint32_t WebGPUTexture::GetPixel(int x, int y)
-{
-    return 0;
+    wgpuTextureRelease(m_Texture);
 }
