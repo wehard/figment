@@ -31,10 +31,37 @@ void WebGPUGUIContext::Init(std::shared_ptr<Window> window, const char *glslVers
     printf("WebGPUGUIContext created\n");
 }
 
-void WebGPUGUIContext::Render(WGPURenderPassEncoder pass)
+void WebGPUGUIContext::Render()
 {
+    WGPUCommandEncoderDescriptor desc = {};
+    auto commandEncoder = wgpuDeviceCreateCommandEncoder(m_GfxContext->GetDevice(), &desc);
+
+    WGPURenderPassColorAttachment colorAttachment = {};
+
+    colorAttachment.loadOp = WGPULoadOp_Load;
+    colorAttachment.storeOp = WGPUStoreOp_Store;
+    colorAttachment.clearValue = { 0.0, 0.0, 0.0, 0.0 };
+    colorAttachment.view = wgpuSwapChainGetCurrentTextureView(m_GfxContext->GetSwapChain());
+
+    WGPURenderPassDescriptor renderPassDesc = {};
+    renderPassDesc.colorAttachmentCount = 1;
+    renderPassDesc.colorAttachments = &colorAttachment;
+    renderPassDesc.depthStencilAttachment = nullptr;
+
+    auto renderPass = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDesc);
     ImGui::Render();
-    ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), pass);
+    ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), renderPass);
+
+    wgpuRenderPassEncoderEnd(renderPass);
+
+    WGPUCommandBufferDescriptor commandBufferDesc = {};
+    WGPUCommandBuffer commandBuffer = wgpuCommandEncoderFinish(commandEncoder, &commandBufferDesc);
+    WGPUQueue queue = wgpuDeviceGetQueue(m_GfxContext->GetDevice());
+    wgpuQueueSubmit(queue, 1, &commandBuffer);
+
+    wgpuCommandEncoderRelease(commandEncoder);
+    wgpuRenderPassEncoderRelease(renderPass);
+    wgpuCommandBufferRelease(commandBuffer);
 }
 
 void WebGPUGUIContext::Shutdown()

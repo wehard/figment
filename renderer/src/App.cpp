@@ -119,13 +119,14 @@ void App::Update()
     HandleKeyboardInput();
     HandleMouseInput();
 
-    // GUIUpdate();
 
     m_Renderer->Begin(*m_Scene->GetCameraController()->GetCamera());
     m_Scene->Update(deltaTime, Input::GetMousePosition(), glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()),
             *m_Renderer);
-    // m_GUICtx->Render(pass);
     m_Renderer->End();
+
+    GUIUpdate();
+    m_GUICtx->Render();
 
     glfwPollEvents();
 }
