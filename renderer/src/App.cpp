@@ -23,7 +23,7 @@ App::App(float width, float height)
         OnResize(data.FramebufferWidth, data.FramebufferHeight);
     });
 
-    auto *glfwWindow = (GLFWwindow *) m_Window->GetNative();
+    auto *glfwWindow = (GLFWwindow *)m_Window->GetNative();
     Input::Initialize(glfwWindow);
     m_GUICtx = std::make_unique<WebGPUGUIContext>();
 
@@ -97,12 +97,14 @@ void App::HandleMouseInput()
 
     if (Input::GetButtonDown(GLFW_MOUSE_BUTTON_LEFT))
     {
-        auto m = Input::GetMousePosition();
-        m_Renderer->ReadPixel(m.x, m.y, [this](uint32_t id)
+        if (m_Scene->m_HoveredId != 0)
         {
-            SelectEntity({ id, m_Scene });
-            printf("Selected entity %u\n", id);
-        });
+            SelectEntity({ (entt::entity)m_Scene->m_HoveredId, m_Scene });
+        }
+        else
+        {
+            SelectEntity({});
+        }
     }
 }
 
@@ -179,7 +181,7 @@ void App::GUIUpdate()
     {
     }
 
-    if (ImGui::DragFloat3("Position", (float *) &cameraPosition.x, 0.1f, 0.0f, 0.0f, "%.2f"))
+    if (ImGui::DragFloat3("Position", (float *)&cameraPosition.x, 0.1f, 0.0f, 0.0f, "%.2f"))
     {
         camera->m_Position = cameraPosition;
     }
@@ -187,8 +189,8 @@ void App::GUIUpdate()
 
 //    const GLubyte *version = glGetString(GL_VERSION);
     glm::vec2 mousePosition = Input::GetMousePosition();
-    glm::vec2 ndc = glm::vec2((mousePosition.x / ((float) m_Window->GetWidth() * 0.5)) - 1.0,
-            (mousePosition.y / ((float) m_Window->GetHeight() * 0.5)) - 1.0);
+    glm::vec2 ndc = glm::vec2((mousePosition.x / ((float)m_Window->GetWidth() * 0.5)) - 1.0,
+            (mousePosition.y / ((float)m_Window->GetHeight() * 0.5)) - 1.0);
     glm::vec2 mw = camera->ScreenToWorldSpace(mousePosition, glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
 
     ImGui::SetNextWindowPos(ImVec2(m_Window->GetWidth() - 500, 0), ImGuiCond_Always);
@@ -277,8 +279,8 @@ void App::GUIUpdate()
         }
 
         auto &transform = m_SelectedEntity.GetComponent<TransformComponent>();
-        ImGui::DragFloat3("Position", (float *) &transform.Position.x, 0.1f, 0.0f, 0.0f, "%.2f");
-        ImGui::DragFloat3("Rotation", (float *) &transform.Rotation.x, 0.1f, 0.0f, 0.0f, "%.2f");
+        ImGui::DragFloat3("Position", (float *)&transform.Position.x, 0.1f, 0.0f, 0.0f, "%.2f");
+        ImGui::DragFloat3("Rotation", (float *)&transform.Rotation.x, 0.1f, 0.0f, 0.0f, "%.2f");
 
         // ImGui::DragFloat3("Scale", (float *)&transform.Scale.x, 0.1f, 0.0f, 0.0f, "%.2f");
         static bool syncScale = true;
@@ -288,7 +290,7 @@ void App::GUIUpdate()
         {
             auto &body = m_SelectedEntity.GetComponent<VerletBodyComponent>();
             ImGui::Text("Verlet Body");
-            ImGui::DragFloat3("Previous position", (float *) &body.m_PreviousPosition.x);
+            ImGui::DragFloat3("Previous position", (float *)&body.m_PreviousPosition.x);
             ImGui::Text("Velocity: x %f y %f z %f", body.m_Velocity.x, body.m_Velocity.y, body.m_Velocity.z);
         }
     }
