@@ -27,7 +27,7 @@ private:
   double m_CurrentTime = 0;
   double m_LastTime = 0;
 
-  Entity m_SelectedEntity = {};
+  uint32_t m_SelectedEntityId = 0;
   void HandleKeyboardInput();
   void HandleMouseInput();
 

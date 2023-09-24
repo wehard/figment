@@ -67,9 +67,7 @@ Entity Scene::GetEntityById(uint32_t id)
 
 Entity Scene::GetHoveredEntity()
 {
-    if (m_Registry.valid((entt::entity)m_HoveredId))
-        return { (entt::entity)m_HoveredId, this };
-    return {};
+    return GetEntityById(m_HoveredId);
 }
 
 void Scene::Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportSize, WebGPURenderer &renderer)

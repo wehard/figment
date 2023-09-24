@@ -81,9 +81,9 @@ void App::HandleKeyboardInput()
         b.m_PreviousPosition.x -= md.x;
         b.m_PreviousPosition.y += md.y;
     }
-    if (m_SelectedEntity && (Input::GetKeyDown(GLFW_KEY_DELETE) || Input::GetKeyDown(GLFW_KEY_BACKSPACE)))
+    if (m_SelectedEntityId && (Input::GetKeyDown(GLFW_KEY_DELETE) || Input::GetKeyDown(GLFW_KEY_BACKSPACE)))
     {
-        DeleteEntity(m_SelectedEntity);
+        DeleteEntity({ m_SelectedEntityId, m_Scene });
     }
 }
 
@@ -99,11 +99,11 @@ void App::HandleMouseInput()
     {
         if (m_Scene->m_HoveredId != 0)
         {
-            SelectEntity({ (entt::entity)m_Scene->m_HoveredId, m_Scene });
+            m_SelectedEntityId = m_Scene->m_HoveredId;
         }
         else
         {
-            SelectEntity({});
+            m_SelectedEntityId = 0;
         }
     }
 }
@@ -238,7 +238,8 @@ void App::GUIUpdate()
         ImGui::Text("World: %.2f %.2f", mw.x, mw.y);
         ImGui::EndListBox();
     }
-    ImGui::Text("Hovered entt: %d", m_Scene->m_HoveredId);
+    ImGui::Text("Entity: %u", m_Scene->m_HoveredId);
+    ImGui::Text("Selected: %u", m_SelectedEntityId);
 
     ImGui::End();
 
@@ -266,10 +267,12 @@ void App::GUIUpdate()
     ImGui::SetNextWindowPos(ImVec2(0, 300), ImGuiCond_Once);
     ImGui::SetNextWindowSize(ImVec2(300, 500), ImGuiCond_Once);
     ImGui::Begin("Inspector");
-    if (m_SelectedEntity)
+    if (m_SelectedEntityId != 0)
     {
-        auto &id = m_SelectedEntity.GetComponent<IDComponent>();
-        auto &info = m_SelectedEntity.GetComponent<InfoComponent>();
+        auto selectedEntity = m_Scene->GetEntityById(m_SelectedEntityId);
+
+        auto &id = selectedEntity.GetComponent<IDComponent>();
+        auto &info = selectedEntity.GetComponent<InfoComponent>();
 
         char buf[128];
         memset(buf, 0, sizeof(buf));
@@ -279,7 +282,7 @@ void App::GUIUpdate()
             info.m_Name = std::string(buf);
         }
 
-        auto &transform = m_SelectedEntity.GetComponent<TransformComponent>();
+        auto &transform = selectedEntity.GetComponent<TransformComponent>();
         ImGui::DragFloat3("Position", (float *)&transform.Position.x, 0.1f, 0.0f, 0.0f, "%.2f");
         ImGui::DragFloat3("Rotation", (float *)&transform.Rotation.x, 0.1f, 0.0f, 0.0f, "%.2f");
 
@@ -287,9 +290,9 @@ void App::GUIUpdate()
         static bool syncScale = true;
         DrawVec3("Scale", &transform.Scale, &syncScale);
 
-        if (m_SelectedEntity.HasComponent<VerletBodyComponent>())
+        if (selectedEntity.HasComponent<VerletBodyComponent>())
         {
-            auto &body = m_SelectedEntity.GetComponent<VerletBodyComponent>();
+            auto &body = selectedEntity.GetComponent<VerletBodyComponent>();
             ImGui::Text("Verlet Body");
             ImGui::DragFloat3("Previous position", (float *)&body.m_PreviousPosition.x);
             ImGui::Text("Velocity: x %f y %f z %f", body.m_Velocity.x, body.m_Velocity.y, body.m_Velocity.z);
@@ -312,7 +315,7 @@ void App::UpdateShader(const char *vertSource, const char *fragSource)
 
 void App::SelectEntity(Entity entity)
 {
-    m_SelectedEntity = entity;
+    m_SelectedEntityId = entity.GetComponent<IDComponent>().ID;
 }
 
 void App::DeleteEntity(Entity entity)
