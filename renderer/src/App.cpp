@@ -38,7 +38,7 @@ App::App(float width, float height)
     auto webGpuWindow = std::dynamic_pointer_cast<WebGPUWindow>(m_Window);
 
     m_Scene = new Scene(m_Window->GetFramebufferWidth(), m_Window->GetFramebufferHeight());
-    auto e = m_Scene->CreateEntity();
+    auto e = m_Scene->CreateEntity("Test");
     auto &t = e.GetComponent<TransformComponent>();
     t.Scale = glm::vec3(5.0f);
 
@@ -81,9 +81,9 @@ void App::HandleKeyboardInput()
         b.m_PreviousPosition.x -= md.x;
         b.m_PreviousPosition.y += md.y;
     }
-    if (m_SelectedEntityId && (Input::GetKeyDown(GLFW_KEY_DELETE) || Input::GetKeyDown(GLFW_KEY_BACKSPACE)))
+    if (m_SelectedEntity && (Input::GetKeyDown(GLFW_KEY_DELETE) || Input::GetKeyDown(GLFW_KEY_BACKSPACE)))
     {
-        DeleteEntity({ m_SelectedEntityId, m_Scene });
+        DeleteEntity(m_SelectedEntity);
     }
 }
 
@@ -97,14 +97,7 @@ void App::HandleMouseInput()
 
     if (Input::GetButtonDown(GLFW_MOUSE_BUTTON_LEFT))
     {
-        if (m_Scene->m_HoveredId != 0)
-        {
-            m_SelectedEntityId = m_Scene->m_HoveredId;
-        }
-        else
-        {
-            m_SelectedEntityId = 0;
-        }
+        SelectEntity(m_Scene->GetHoveredEntity());
     }
 }
 
@@ -118,7 +111,6 @@ void App::Update()
 
     HandleKeyboardInput();
     HandleMouseInput();
-
 
     m_Renderer->Begin(*m_Scene->GetCameraController()->GetCamera());
     m_Scene->Update(deltaTime, Input::GetMousePosition(), glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()),
@@ -154,6 +146,69 @@ static void DrawVec3(const char *name, glm::vec3 *value, bool *syncValues)
     {
         *value = tempValue;
     }
+}
+
+static void DrawEntitiesPanel(const std::vector<Entity>& entities, const std::function<void(Entity)>& selectEntity = nullptr)
+{
+    ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Once);
+    ImGui::SetNextWindowSize(ImVec2(300, 200), ImGuiCond_Once);
+    ImGui::Begin("Entities");
+    for (auto entity : entities)
+    {
+        auto &info = entity.GetComponent<InfoComponent>();
+        ImGui::PushID((int)entity);
+        char buf[128];
+        memset(buf, 0, sizeof(buf));
+        snprintf(buf, sizeof(buf), "%-20s (%u)", info.m_Name.c_str(), (uint32_t)entity);
+        if (ImGui::Selectable(buf))
+        {
+            selectEntity(entity);
+        }
+        ImGui::PopID();
+    }
+    ImGui::End();
+}
+
+static void DrawInspectorPanel(Entity entity)
+{
+    ImGui::SetNextWindowPos(ImVec2(0, 300), ImGuiCond_Once);
+    ImGui::SetNextWindowSize(ImVec2(300, 500), ImGuiCond_Once);
+    ImGui::Begin("Inspector");
+
+    if (!entity)
+    {
+        ImGui::Text("No entity selected");
+        ImGui::End();
+        return;
+    }
+
+    auto &id = entity.GetComponent<IDComponent>();
+    auto &info = entity.GetComponent<InfoComponent>();
+
+    char buf[128];
+    memset(buf, 0, sizeof(buf));
+    snprintf(buf, sizeof(buf), "%s", info.m_Name.c_str());
+    if (ImGui::InputText("##Name", buf, sizeof(buf)))
+    {
+        info.m_Name = std::string(buf);
+    }
+
+    auto &transform = entity.GetComponent<TransformComponent>();
+    ImGui::DragFloat3("Position", (float *)&transform.Position.x, 0.1f, 0.0f, 0.0f, "%.2f");
+    ImGui::DragFloat3("Rotation", (float *)&transform.Rotation.x, 0.1f, 0.0f, 0.0f, "%.2f");
+
+    // ImGui::DragFloat3("Scale", (float *)&transform.Scale.x, 0.1f, 0.0f, 0.0f, "%.2f");
+    static bool syncScale = true;
+    DrawVec3("Scale", &transform.Scale, &syncScale);
+
+    if (entity.HasComponent<VerletBodyComponent>())
+    {
+        auto &body = entity.GetComponent<VerletBodyComponent>();
+        ImGui::Text("Verlet Body");
+        ImGui::DragFloat3("Previous position", (float *)&body.m_PreviousPosition.x);
+        ImGui::Text("Velocity: x %f y %f z %f", body.m_Velocity.x, body.m_Velocity.y, body.m_Velocity.z);
+    }
+    ImGui::End();
 }
 
 void App::GUIUpdate()
@@ -239,66 +294,14 @@ void App::GUIUpdate()
         ImGui::EndListBox();
     }
     ImGui::Text("Entity: %u", m_Scene->m_HoveredId);
-    ImGui::Text("Selected: %u", m_SelectedEntityId);
-
+    ImGui::Text("Selected: %u", m_SelectedEntity ? m_SelectedEntity.GetComponent<IDComponent>().ID : 0);
     ImGui::End();
 
-//    auto entities = m_Scene->GetEntities();
-
-    ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Once);
-    ImGui::SetNextWindowSize(ImVec2(300, 200), ImGuiCond_Once);
-    ImGui::Begin("Entities");
-    for (auto entity : m_Scene->GetEntities())
+    DrawEntitiesPanel(m_Scene->GetEntities(), [this](Entity entity)
     {
-        auto &id = entity.GetComponent<IDComponent>();
-        auto &info = entity.GetComponent<InfoComponent>();
-        ImGui::PushID(id.ID);
-        char buf[128];
-        memset(buf, 0, sizeof(buf));
-        snprintf(buf, sizeof(buf), "%-20s (%u)", info.m_Name.c_str(), id.ID);
-        if (ImGui::Selectable(buf))
-        {
-            SelectEntity(entity);
-        }
-        ImGui::PopID();
-    }
-    ImGui::End();
-
-    ImGui::SetNextWindowPos(ImVec2(0, 300), ImGuiCond_Once);
-    ImGui::SetNextWindowSize(ImVec2(300, 500), ImGuiCond_Once);
-    ImGui::Begin("Inspector");
-    if (m_SelectedEntityId != 0)
-    {
-        auto selectedEntity = m_Scene->GetEntityById(m_SelectedEntityId);
-
-        auto &id = selectedEntity.GetComponent<IDComponent>();
-        auto &info = selectedEntity.GetComponent<InfoComponent>();
-
-        char buf[128];
-        memset(buf, 0, sizeof(buf));
-        snprintf(buf, sizeof(buf), "%s", info.m_Name.c_str());
-        if (ImGui::InputText("##Name", buf, sizeof(buf)))
-        {
-            info.m_Name = std::string(buf);
-        }
-
-        auto &transform = selectedEntity.GetComponent<TransformComponent>();
-        ImGui::DragFloat3("Position", (float *)&transform.Position.x, 0.1f, 0.0f, 0.0f, "%.2f");
-        ImGui::DragFloat3("Rotation", (float *)&transform.Rotation.x, 0.1f, 0.0f, 0.0f, "%.2f");
-
-        // ImGui::DragFloat3("Scale", (float *)&transform.Scale.x, 0.1f, 0.0f, 0.0f, "%.2f");
-        static bool syncScale = true;
-        DrawVec3("Scale", &transform.Scale, &syncScale);
-
-        if (selectedEntity.HasComponent<VerletBodyComponent>())
-        {
-            auto &body = selectedEntity.GetComponent<VerletBodyComponent>();
-            ImGui::Text("Verlet Body");
-            ImGui::DragFloat3("Previous position", (float *)&body.m_PreviousPosition.x);
-            ImGui::Text("Velocity: x %f y %f z %f", body.m_Velocity.x, body.m_Velocity.y, body.m_Velocity.z);
-        }
-    }
-    ImGui::End();
+        SelectEntity(entity);
+    });
+    DrawInspectorPanel(m_SelectedEntity);
 }
 
 void App::OnResize(uint32_t width, uint32_t height)
@@ -315,7 +318,8 @@ void App::UpdateShader(const char *vertSource, const char *fragSource)
 
 void App::SelectEntity(Entity entity)
 {
-    m_SelectedEntityId = entity.GetComponent<IDComponent>().ID;
+    printf("App::SelectEntity -- %u\n", (uint32_t)entity);
+    m_SelectedEntity = entity;
 }
 
 void App::DeleteEntity(Entity entity)
