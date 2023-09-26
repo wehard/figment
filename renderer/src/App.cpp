@@ -294,7 +294,7 @@ void App::GUIUpdate()
         ImGui::Text("World: %.2f %.2f", mw.x, mw.y);
         ImGui::EndListBox();
     }
-    ImGui::Text("Entity: %u", m_Scene->m_HoveredId);
+    ImGui::Text("Entity: %d", m_Scene->m_HoveredId);
     ImGui::Text("Selected: %u", (uint32_t)m_SelectedEntity);
     ImGui::End();
 

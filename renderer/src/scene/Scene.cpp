@@ -77,7 +77,7 @@ void Scene::Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportS
     auto t = TransformComponent();
     t.Scale = glm::vec3(m_VerletPhysics.GetWidth() + 1, m_VerletPhysics.GetHeight() + 1, 1);
     t.Position = glm::vec3(0);
-    renderer.DrawQuad(t.GetTransform(), glm::vec4(0.1, 0.3, 0.8, 0.2), 0);
+    renderer.DrawQuad(t.GetTransform(), glm::vec4(0.1, 0.3, 0.8, 0.2), -1);
 
     auto view = m_Registry.view<TransformComponent>();
     for (auto e : view)
@@ -86,9 +86,9 @@ void Scene::Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportS
 
         if (entity.HasComponent<VerletBodyComponent>())
             m_VerletPhysics.Update(entity, GetEntities(), deltaTime);
-        auto color = (uint32_t)e == m_HoveredId ? glm::vec4(1.0, 1.0, 1.0, 1.0) : entity.GetComponent<ColorComponent>().m_Color;
+        auto color = entity.GetHandle() == m_HoveredId ? glm::vec4(1.0, 1.0, 1.0, 1.0) : entity.GetComponent<ColorComponent>().m_Color;
         renderer.DrawQuad(entity.GetComponent<TransformComponent>().GetTransform(),
-                color, (uint32_t)e);
+                color, entity.GetHandle());
     }
 
 #ifndef __EMSCRIPTEN__

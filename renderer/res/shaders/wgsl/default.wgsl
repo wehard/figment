@@ -3,7 +3,7 @@ struct RenderData {
     view: mat4x4<f32>,
     proj: mat4x4<f32>,
     color: vec4f,
-    id: u32
+    id: i32
 };
 
 @binding(0) @group(0) var<uniform> renderData: RenderData;
@@ -15,7 +15,7 @@ fn vs_main(@location(0) in_vertex_position: vec3f) -> @builtin(position) vec4f {
 
 struct FragmentOutput {
     @location(0) color: vec4<f32>,
-    @location(1) id: u32
+    @location(1) id: i32
 };
 
 @fragment

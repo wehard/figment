@@ -29,8 +29,8 @@ public:
     explicit WebGPURenderer(WebGPUContext &context);
     WGPURenderPassEncoder Begin(Camera &camera);
     void End();
-    void DrawQuad(glm::mat4 transform, glm::vec4 color, uint32_t id);
-    void ReadPixel(int x, int y, std::function<void(uint32_t)> callback);
+    void DrawQuad(glm::mat4 transform, glm::vec4 color, int32_t id);
+    void ReadPixel(int x, int y, std::function<void(int32_t)> callback);
     void OnResize(uint32_t width, uint32_t height);
 
 private:

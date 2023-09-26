@@ -51,7 +51,7 @@ WebGPURenderer::WebGPURenderer(WebGPUContext &context)
     };
     m_VertexBuffer = new WebGPUVertexBuffer(context.GetDevice(), data);
 
-    m_IdTexture = new WebGPUTexture(context.GetDevice(), WGPUTextureFormat_R32Uint, context.GetSwapChainWidth(),
+    m_IdTexture = new WebGPUTexture(context.GetDevice(), WGPUTextureFormat_R32Sint, context.GetSwapChainWidth(),
             context.GetSwapChainHeight());
 
     WGPUBufferDescriptor pixelBufferDesc = {};
@@ -59,7 +59,7 @@ WebGPURenderer::WebGPURenderer(WebGPUContext &context)
     pixelBufferDesc.label = "PixelBuffer";
     pixelBufferDesc.mappedAtCreation = false;
     pixelBufferDesc.usage = WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead;
-    pixelBufferDesc.size = 2048 * 2048 * sizeof(uint32_t);
+    pixelBufferDesc.size = 2048 * 2048 * sizeof(int32_t);
     m_PixelBuffer = wgpuDeviceCreateBuffer(context.GetDevice(), &pixelBufferDesc);
 }
 
@@ -82,7 +82,7 @@ WGPURenderPassEncoder WebGPURenderer::Begin(Camera &camera)
 
     colorAttachments[1].loadOp = WGPULoadOp_Clear;
     colorAttachments[1].storeOp = WGPUStoreOp_Store;
-    colorAttachments[1].clearValue = { 0.0, 0.0, 0.0, 0.0 };
+    colorAttachments[1].clearValue = { -1.0, -1.0, -1.0, -1.0 };
     colorAttachments[1].view = m_IdTexture->GetTextureView();
     colorAttachments[1].resolveTarget = nullptr;
 
@@ -134,7 +134,7 @@ static WGPUBindGroupLayoutEntry GetDefaultWGPUBindGroupLayoutEntry()
     return bindingLayout;
 }
 
-void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color, uint32_t id)
+void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color, int32_t id)
 {
     RenderData renderData = {};
     renderData.Color = color;
@@ -251,7 +251,7 @@ void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color, uint32_t id)
     wgpuRenderPassEncoderDraw(m_RenderPass, m_VertexBuffer->m_VertexCount, 1, 0, 0);
 }
 
-void WebGPURenderer::ReadPixel(int x, int y, std::function<void(uint32_t)> callback)
+void WebGPURenderer::ReadPixel(int x, int y, std::function<void(int32_t)> callback)
 {
     auto mapState = wgpuBufferGetMapState(m_PixelBuffer);
     if (mapState == WGPUBufferMapState_Mapped)
@@ -276,7 +276,7 @@ void WebGPURenderer::ReadPixel(int x, int y, std::function<void(uint32_t)> callb
     imageCopyBuffer.nextInChain = nullptr;
     imageCopyBuffer.buffer = m_PixelBuffer;
     imageCopyBuffer.layout.offset = 0;
-    imageCopyBuffer.layout.bytesPerRow = 2048 * sizeof(uint32_t);
+    imageCopyBuffer.layout.bytesPerRow = 2048 * sizeof(int32_t);
     imageCopyBuffer.layout.rowsPerImage = 2048;
 
     WGPUExtent3D copySize = {};
@@ -294,7 +294,7 @@ void WebGPURenderer::ReadPixel(int x, int y, std::function<void(uint32_t)> callb
         WGPUBuffer buffer = nullptr;
         uint32_t x = 0;
         uint32_t y = 0;
-        std::function<void(uint32_t)> callback;
+        std::function<void(int32_t)> callback;
     };
 
     auto *callbackData = new BufferMapReadCallbackData();
@@ -303,7 +303,7 @@ void WebGPURenderer::ReadPixel(int x, int y, std::function<void(uint32_t)> callb
     callbackData->y = y;
     callbackData->callback = std::move(callback);
 
-    wgpuBufferMapAsync(m_PixelBuffer, WGPUMapMode_Read, 0, 2048 * 2048 * sizeof(uint32_t),
+    wgpuBufferMapAsync(m_PixelBuffer, WGPUMapMode_Read, 0, 2048 * 2048 * sizeof(int32_t),
             [](WGPUBufferMapAsyncStatus status, void *userData)
             {
                 auto *callbackData = (BufferMapReadCallbackData *)userData;
@@ -312,8 +312,8 @@ void WebGPURenderer::ReadPixel(int x, int y, std::function<void(uint32_t)> callb
                     printf("Buffer map failed with WGPUBufferMapAsyncStatus: %d\n", status);
                     return;
                 }
-                auto *pixels = (uint32_t *)wgpuBufferGetConstMappedRange(callbackData->buffer, 0,
-                        2048 * 2048 * sizeof(uint32_t));
+                auto *pixels = (int32_t *)wgpuBufferGetConstMappedRange(callbackData->buffer, 0,
+                        2048 * 2048 * sizeof(int32_t));
                 auto id = pixels[callbackData->y * 2048 + callbackData->x];
                 wgpuBufferUnmap(callbackData->buffer);
                 callbackData->callback(id);
@@ -324,5 +324,5 @@ void WebGPURenderer::ReadPixel(int x, int y, std::function<void(uint32_t)> callb
 void WebGPURenderer::OnResize(uint32_t width, uint32_t height)
 {
     delete m_IdTexture;
-    m_IdTexture = new WebGPUTexture(m_Context.GetDevice(), WGPUTextureFormat_R32Uint, width, height);
+    m_IdTexture = new WebGPUTexture(m_Context.GetDevice(), WGPUTextureFormat_R32Sint, width, height);
 }
