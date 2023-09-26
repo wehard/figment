@@ -18,16 +18,6 @@ struct InfoComponent
     InfoComponent(const std::string &name) : m_Name(name) {}
 };
 
-static std::random_device s_Device;
-static std::mt19937_64 s_Engine(s_Device());
-static std::uniform_int_distribution<uint32_t> s_UniformDist;
-
-struct IDComponent
-{
-    uint32_t ID;
-    IDComponent() : ID(s_UniformDist(s_Engine)) {}
-};
-
 struct TransformComponent
 {
     glm::vec3 Position = {0.0f, 0.0f, 0.0f};
@@ -96,6 +86,11 @@ public:
     bool HasComponent()
     {
         return m_Scene->m_Registry.any_of<T>(m_Handle);
+    }
+
+    uint32_t GetHandle()
+    {
+        return (uint32_t)m_Handle;
     }
 
     bool operator==(const Entity &other) const

@@ -26,7 +26,6 @@ static glm::vec4 GetRandomColor()
 Entity Scene::CreateEntity(const std::string &name)
 {
     Entity entity = { m_Registry.create(), this };
-    entity.AddComponent<IDComponent>();
     auto &info = entity.AddComponent<InfoComponent>();
     info.m_Name = name.empty() ? "Unnamed" : name;
     entity.AddComponent<TransformComponent>();
@@ -87,10 +86,9 @@ void Scene::Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportS
 
         if (entity.HasComponent<VerletBodyComponent>())
             m_VerletPhysics.Update(entity, GetEntities(), deltaTime);
-        auto id = entity.GetComponent<IDComponent>().ID;
-        auto color = id == m_HoveredId ? glm::vec4(1.0, 1.0, 1.0, 1.0) : entity.GetComponent<ColorComponent>().m_Color;
+        auto color = (uint32_t)e == m_HoveredId ? glm::vec4(1.0, 1.0, 1.0, 1.0) : entity.GetComponent<ColorComponent>().m_Color;
         renderer.DrawQuad(entity.GetComponent<TransformComponent>().GetTransform(),
-                color, id);
+                color, (uint32_t)e);
     }
 
 #ifndef __EMSCRIPTEN__

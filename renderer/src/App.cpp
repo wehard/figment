@@ -153,18 +153,20 @@ static void DrawEntitiesPanel(const std::vector<Entity>& entities, const std::fu
     ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Once);
     ImGui::SetNextWindowSize(ImVec2(300, 200), ImGuiCond_Once);
     ImGui::Begin("Entities");
+    int i = 0;
     for (auto entity : entities)
     {
+        ImGui::PushID(i);
         auto &info = entity.GetComponent<InfoComponent>();
-        ImGui::PushID((int)entity);
         char buf[128];
         memset(buf, 0, sizeof(buf));
-        snprintf(buf, sizeof(buf), "%-20s (%u)", info.m_Name.c_str(), (uint32_t)entity);
+        snprintf(buf, sizeof(buf), "%-20s (%u)", info.m_Name.c_str(), entity.GetHandle());
         if (ImGui::Selectable(buf))
         {
             selectEntity(entity);
         }
         ImGui::PopID();
+        i++;
     }
     ImGui::End();
 }
@@ -182,7 +184,6 @@ static void DrawInspectorPanel(Entity entity)
         return;
     }
 
-    auto &id = entity.GetComponent<IDComponent>();
     auto &info = entity.GetComponent<InfoComponent>();
 
     char buf[128];
@@ -294,7 +295,7 @@ void App::GUIUpdate()
         ImGui::EndListBox();
     }
     ImGui::Text("Entity: %u", m_Scene->m_HoveredId);
-    ImGui::Text("Selected: %u", m_SelectedEntity ? m_SelectedEntity.GetComponent<IDComponent>().ID : 0);
+    ImGui::Text("Selected: %u", (uint32_t)m_SelectedEntity);
     ImGui::End();
 
     DrawEntitiesPanel(m_Scene->GetEntities(), [this](Entity entity)
