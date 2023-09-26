@@ -107,10 +107,13 @@ void App::Update()
     double deltaTime = m_CurrentTime - m_LastTime;
     m_LastTime = m_CurrentTime;
 
-    Input::Update();
-
-    HandleKeyboardInput();
-    HandleMouseInput();
+    ImGuiIO &io = ImGui::GetIO();
+    if (!io.WantCaptureKeyboard || !io.WantCaptureMouse)
+    {
+        Input::Update();
+        HandleKeyboardInput();
+        HandleMouseInput();
+    }
 
     m_Renderer->Begin(*m_Scene->GetCameraController()->GetCamera());
     m_Scene->Update(deltaTime, Input::GetMousePosition(), glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()),
