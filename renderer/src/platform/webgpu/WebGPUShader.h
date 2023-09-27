@@ -1,18 +1,16 @@
 #pragma once
-#include "Shader.h"
 
-class WebGPUShader : public Shader
+#include "webgpu/webgpu.h"
+#include <string>
+
+class WebGPUShader
 {
 public:
-    WebGPUShader(const std::string &vertPath, const std::string &fragPath);
+    WebGPUShader(WGPUDevice device, const std::string &shaderSource, const char *label = "Shader Module");
+    ~WebGPUShader();
 
-    void Bind() override;
-    void Unbind() override;
-    void SetInt(std::string name, int i) override;
-    void SetFloat(std::string name, float f) override;
-    void SetVec2(std::string name, glm::vec2 v) override;
-    void SetVec3(std::string name, glm::vec3 v) override;
-    void SetVec4(std::string name, glm::vec4 v) override;
-    void SetMat4(std::string name, glm::mat4x4 m) override;
+    WGPUShaderModule GetShaderModule() { return m_ShaderModule; }
+private:
+    WGPUShaderModule m_ShaderModule;
 };
 

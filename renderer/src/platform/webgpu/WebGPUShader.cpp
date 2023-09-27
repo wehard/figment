@@ -1,40 +1,21 @@
 #include "WebGPUShader.h"
 
-WebGPUShader::WebGPUShader(const std::string &vertPath, const std::string &fragPath)
+WebGPUShader::WebGPUShader(WGPUDevice device, const std::string &shaderSource, const char *label)
 {
+    WGPUShaderModuleWGSLDescriptor shaderCodeDesc = {};
+    shaderCodeDesc.chain.next = nullptr;
+    shaderCodeDesc.chain.sType = WGPUSType_ShaderModuleWGSLDescriptor;
+    shaderCodeDesc.code = shaderSource.c_str();
 
+    WGPUShaderModuleDescriptor shaderDesc = {};
+    shaderDesc.nextInChain = &shaderCodeDesc.chain;
+
+    m_ShaderModule = wgpuDeviceCreateShaderModule(device, &shaderDesc);
+
+    wgpuShaderModuleSetLabel(m_ShaderModule, label);
 }
 
-void WebGPUShader::Bind()
+WebGPUShader::~WebGPUShader()
 {
-
-}
-
-void WebGPUShader::Unbind()
-{
-
-}
-void WebGPUShader::SetInt(std::string name, int i)
-{
-
-}
-void WebGPUShader::SetFloat(std::string name, float f)
-{
-
-}
-void WebGPUShader::SetVec2(std::string name, glm::vec2 v)
-{
-
-}
-void WebGPUShader::SetVec3(std::string name, glm::vec3 v)
-{
-
-}
-void WebGPUShader::SetVec4(std::string name, glm::vec4 v)
-{
-
-}
-void WebGPUShader::SetMat4(std::string name, glm::mat4x4 m)
-{
-
+    wgpuShaderModuleRelease(m_ShaderModule);
 }
