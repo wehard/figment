@@ -3,6 +3,7 @@
 #include "WebGPUContext.h"
 #include "WebGPUBuffer.h"
 #include "WebGPUTexture.h"
+#include "WebGPUShader.h"
 #include "Camera.h"
 #include "webgpu/webgpu.h"
 #include "glm/glm.hpp"
@@ -35,11 +36,11 @@ public:
 
 private:
     WebGPUContext &m_Context;
-    WGPUCommandEncoder m_CommandEncoder;
-    WGPURenderPassEncoder m_RenderPass;
-    WGPUShaderModule m_ShaderModule;
+    WGPUCommandEncoder m_CommandEncoder = {};
+    WGPURenderPassEncoder m_RenderPass = {};
     WebGPUVertexBuffer *m_VertexBuffer;
-    RenderPassData m_RenderPassData;
+    RenderPassData m_RenderPassData = {};
     WebGPUTexture *m_IdTexture;
     WGPUBuffer m_PixelBuffer;
+    WebGPUShader *m_Shader;
 };

@@ -1,10 +1,11 @@
 #include "WebGPURenderer.h"
 #include "WebGPUBuffer.h"
 #include "WebGPUTexture.h"
+#include "WebGPUShader.h"
 #include <utility>
 #include <vector>
 
-#define MEM_ALIGN(_SIZE,_ALIGN)        (((_SIZE) + ((_ALIGN) - 1)) & ~((_ALIGN) - 1))
+#define MEM_ALIGN(_SIZE, _ALIGN)        (((_SIZE) + ((_ALIGN) - 1)) & ~((_ALIGN) - 1))
 
 static std::string *loadShaderFile(const char *filename)
 {
@@ -40,7 +41,7 @@ static WGPUShaderModule CreateShaderModule(WGPUDevice device, const std::string 
 WebGPURenderer::WebGPURenderer(WebGPUContext &context)
         : m_Context(context)
 {
-    m_ShaderModule = CreateShaderModule(context.GetDevice(), *loadShaderFile("res/shaders/wgsl/default.wgsl"));
+    m_Shader = new WebGPUShader(context.GetDevice(), *loadShaderFile("res/shaders/wgsl/default.wgsl"));
 
     std::vector<float> data = { -0.5, -0.5, 0.0,
                                 +0.5, -0.5, 0.0,
@@ -61,6 +62,7 @@ WebGPURenderer::WebGPURenderer(WebGPUContext &context)
     pixelBufferDesc.usage = WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead;
     pixelBufferDesc.size = 2048 * 2048 * sizeof(int32_t);
     m_PixelBuffer = wgpuDeviceCreateBuffer(context.GetDevice(), &pixelBufferDesc);
+
 }
 
 WGPURenderPassEncoder WebGPURenderer::Begin(Camera &camera)
@@ -163,7 +165,7 @@ void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color, int32_t id)
     pipelineDesc.vertex.bufferCount = 1;
     pipelineDesc.vertex.buffers = &vertexBufferLayout;
 
-    pipelineDesc.vertex.module = m_ShaderModule;
+    pipelineDesc.vertex.module = m_Shader->GetShaderModule();
     pipelineDesc.vertex.entryPoint = "vs_main";
     pipelineDesc.vertex.constantCount = 0;
     pipelineDesc.vertex.constants = nullptr;
@@ -191,7 +193,7 @@ void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color, int32_t id)
     colorTargets[1].writeMask = WGPUColorWriteMask_All;
 
     WGPUFragmentState fragmentState = {};
-    fragmentState.module = m_ShaderModule;
+    fragmentState.module = m_Shader->GetShaderModule();
     fragmentState.entryPoint = "fs_main";
     fragmentState.constantCount = 0;
     fragmentState.constants = nullptr;
