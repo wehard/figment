@@ -2,46 +2,16 @@
 #include "WebGPUBuffer.h"
 #include "WebGPUTexture.h"
 #include "WebGPUShader.h"
+#include "Utils.h"
 #include <utility>
 #include <vector>
 
 #define MEM_ALIGN(_SIZE, _ALIGN)        (((_SIZE) + ((_ALIGN) - 1)) & ~((_ALIGN) - 1))
 
-static std::string *loadShaderFile(const char *filename)
-{
-    FILE *file = fopen(filename, "rb");
-    if (!file)
-    {
-        printf("Failed to open file: %s\n", filename);
-        return nullptr;
-    }
-    fseek(file, 0, SEEK_END);
-    size_t size = ftell(file);
-    fseek(file, 0, SEEK_SET);
-    auto *result = new std::string(size, '\0');
-    fread(result->data(), 1, size, file);
-    fclose(file);
-    return result;
-}
-
-static WGPUShaderModule CreateShaderModule(WGPUDevice device, const std::string &shaderSource)
-{
-    WGPUShaderModuleWGSLDescriptor shaderCodeDesc = {};
-    shaderCodeDesc.chain.next = nullptr;
-    shaderCodeDesc.chain.sType = WGPUSType_ShaderModuleWGSLDescriptor;
-    shaderCodeDesc.code = shaderSource.c_str();
-
-    WGPUShaderModuleDescriptor shaderDesc = {};
-    shaderDesc.nextInChain = &shaderCodeDesc.chain;
-
-    WGPUShaderModule shaderModule = wgpuDeviceCreateShaderModule(device, &shaderDesc);
-    return shaderModule;
-}
-
 WebGPURenderer::WebGPURenderer(WebGPUContext &context)
         : m_Context(context)
 {
-    m_Shader = new WebGPUShader(context.GetDevice(), *loadShaderFile("res/shaders/wgsl/default.wgsl"));
+    m_Shader = new WebGPUShader(context.GetDevice(), *Utils::LoadFile2("res/shaders/wgsl/default.wgsl"));
 
     std::vector<float> data = { -0.5, -0.5, 0.0,
                                 +0.5, -0.5, 0.0,
@@ -62,7 +32,6 @@ WebGPURenderer::WebGPURenderer(WebGPUContext &context)
     pixelBufferDesc.usage = WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead;
     pixelBufferDesc.size = 2048 * 2048 * sizeof(int32_t);
     m_PixelBuffer = wgpuDeviceCreateBuffer(context.GetDevice(), &pixelBufferDesc);
-
 }
 
 WGPURenderPassEncoder WebGPURenderer::Begin(Camera &camera)
