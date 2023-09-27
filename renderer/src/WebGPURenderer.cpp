@@ -32,6 +32,9 @@ WebGPURenderer::WebGPURenderer(WebGPUContext &context)
     pixelBufferDesc.usage = WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead;
     pixelBufferDesc.size = 2048 * 2048 * sizeof(int32_t);
     m_PixelBuffer = wgpuDeviceCreateBuffer(context.GetDevice(), &pixelBufferDesc);
+
+    m_DepthTexture = WebGPUTexture::CreateDepthTexture(context.GetDevice(), WGPUTextureFormat_Depth24Plus,
+            context.GetSwapChainWidth(), context.GetSwapChainHeight());
 }
 
 WGPURenderPassEncoder WebGPURenderer::Begin(Camera &camera)
@@ -57,10 +60,21 @@ WGPURenderPassEncoder WebGPURenderer::Begin(Camera &camera)
     colorAttachments[1].view = m_IdTexture->GetTextureView();
     colorAttachments[1].resolveTarget = nullptr;
 
+    WGPURenderPassDepthStencilAttachment depthStencilAttachment = {};
+    depthStencilAttachment.view = m_DepthTexture->GetTextureView();
+    depthStencilAttachment.depthClearValue = 1.0f;
+    depthStencilAttachment.depthLoadOp = WGPULoadOp_Clear;
+    depthStencilAttachment.depthStoreOp = WGPUStoreOp_Store;
+    depthStencilAttachment.depthReadOnly = false;
+    depthStencilAttachment.stencilClearValue = 0;
+    depthStencilAttachment.stencilLoadOp = WGPULoadOp_Undefined;
+    depthStencilAttachment.stencilStoreOp = WGPUStoreOp_Undefined;
+    depthStencilAttachment.stencilReadOnly = true;
+
     WGPURenderPassDescriptor renderPassDesc = {};
     renderPassDesc.colorAttachmentCount = 2;
     renderPassDesc.colorAttachments = colorAttachments;
-    renderPassDesc.depthStencilAttachment = nullptr;
+    renderPassDesc.depthStencilAttachment = &depthStencilAttachment;
 
     m_RenderPass = wgpuCommandEncoderBeginRenderPass(m_CommandEncoder, &renderPassDesc);
     return m_RenderPass;
@@ -103,6 +117,33 @@ static WGPUBindGroupLayoutEntry GetDefaultWGPUBindGroupLayoutEntry()
     bindingLayout.texture.viewDimension = WGPUTextureViewDimension_Undefined;
 
     return bindingLayout;
+}
+
+static WGPUDepthStencilState GetDefaultDepthStencilState()
+{
+    WGPUDepthStencilState depthStencilState = {};
+    depthStencilState.nextInChain = nullptr;
+    depthStencilState.format = WGPUTextureFormat_Undefined;
+    depthStencilState.depthWriteEnabled = false;
+    depthStencilState.depthCompare = WGPUCompareFunction_Always;
+    depthStencilState.stencilReadMask = 0xFFFFFFFF;
+    depthStencilState.stencilWriteMask = 0xFFFFFFFF;
+    depthStencilState.depthBias = 0;
+    depthStencilState.depthBiasSlopeScale = 0.0;
+    depthStencilState.depthBiasClamp = 0.0;
+    depthStencilState.stencilFront = {
+            .compare = WGPUCompareFunction_Always,
+            .failOp = WGPUStencilOperation_Keep,
+            .depthFailOp = WGPUStencilOperation_Keep,
+            .passOp = WGPUStencilOperation_Keep,
+    };
+    depthStencilState.stencilBack = {
+            .compare = WGPUCompareFunction_Always,
+            .failOp = WGPUStencilOperation_Keep,
+            .depthFailOp = WGPUStencilOperation_Keep,
+            .passOp = WGPUStencilOperation_Keep,
+    };
+    return depthStencilState;
 }
 
 void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color, int32_t id)
@@ -170,7 +211,13 @@ void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color, int32_t id)
     fragmentState.targets = colorTargets;
 
     pipelineDesc.fragment = &fragmentState;
-    pipelineDesc.depthStencil = nullptr;
+    auto depthStencilState = GetDefaultDepthStencilState();
+    depthStencilState.depthCompare = WGPUCompareFunction_Less;
+    depthStencilState.depthWriteEnabled = true;
+    depthStencilState.format = m_DepthTexture->GetTextureFormat();
+    depthStencilState.stencilReadMask = 0;
+    depthStencilState.stencilWriteMask = 0;
+    pipelineDesc.depthStencil = &depthStencilState;
 
     pipelineDesc.multisample.count = 1;
     pipelineDesc.multisample.mask = ~0u;

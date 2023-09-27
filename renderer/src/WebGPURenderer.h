@@ -43,4 +43,5 @@ private:
     WebGPUTexture *m_IdTexture;
     WGPUBuffer m_PixelBuffer;
     WebGPUShader *m_Shader;
+    WebGPUTexture *m_DepthTexture;
 };

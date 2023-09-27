@@ -14,7 +14,7 @@ public:
     uint32_t GetWidth() { return m_Width; }
     uint32_t GetHeight() { return m_Height; }
     WGPUTextureFormat GetTextureFormat() { return m_TextureFormat; }
-
+    static WebGPUTexture *CreateDepthTexture(WGPUDevice device, WGPUTextureFormat depthTextureFormat, uint32_t width, uint32_t height);
 private:
     uint32_t m_Width;
     uint32_t m_Height;
