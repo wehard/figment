@@ -9,7 +9,7 @@ static void glfwErrorHandler(int error, const char *message)
 
 static void glfwWindowSizeCallback(GLFWwindow* window, int width, int height)
 {
-    std::cout << "WebGPUWindow resize" << std::endl;
+    printf("glfwWindowSizeCallback: %d x %d\n", width, height);
     auto *webGpuWindow = (WebGPUWindow*)glfwGetWindowUserPointer(window);
     webGpuWindow->Resize({
         .Width = width,
@@ -20,6 +20,7 @@ static void glfwWindowSizeCallback(GLFWwindow* window, int width, int height)
 
 static void glfwFramebufferSizeCallback(GLFWwindow *window, int width, int height)
 {
+    printf("glfwFramebufferSizeCallback: %d x %d\n", width, height);
     auto *webGpuWindow = (WebGPUWindow *) glfwGetWindowUserPointer(window);
     webGpuWindow->Resize({
         .Width = static_cast<int>(webGpuWindow->GetWidth()),

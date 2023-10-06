@@ -342,5 +342,8 @@ void WebGPURenderer::ReadPixel(int x, int y, std::function<void(int32_t)> callba
 void WebGPURenderer::OnResize(uint32_t width, uint32_t height)
 {
     delete m_IdTexture;
+    delete m_DepthTexture;
     m_IdTexture = new WebGPUTexture(m_Context.GetDevice(), WGPUTextureFormat_R32Sint, width, height);
+    m_DepthTexture = WebGPUTexture::CreateDepthTexture(m_Context.GetDevice(), WGPUTextureFormat_Depth24Plus,
+            width, height);
 }

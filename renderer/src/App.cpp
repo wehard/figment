@@ -73,7 +73,7 @@ void App::HandleKeyboardInput()
         Entity e = m_Scene->CreateEntity("New");
         auto &t = e.GetComponent<TransformComponent>();
         glm::vec3 p = m_Scene->GetCameraController()->GetCamera()->ScreenToWorldSpace(Input::GetMousePosition(),
-                glm::vec2(m_Window->GetFramebufferWidth(), m_Window->GetFramebufferHeight()));
+                glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
         t.Position = p;
         auto &b = e.AddComponent<VerletBodyComponent>();
         b.m_PreviousPosition = t.Position;
@@ -251,7 +251,7 @@ void App::GUIUpdate()
     glm::vec2 mousePosition = Input::GetMousePosition();
     glm::vec2 ndc = glm::vec2((mousePosition.x / ((float)m_Window->GetWidth() * 0.5)) - 1.0,
             (mousePosition.y / ((float)m_Window->GetHeight() * 0.5)) - 1.0);
-    glm::vec2 mw = camera->ScreenToWorldSpace(mousePosition, glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
+    glm::vec3 mw = camera->ScreenToWorldSpace(mousePosition, glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
 
     ImGui::SetNextWindowPos(ImVec2(m_Window->GetWidth() - 500, 0), ImGuiCond_Always);
     ImGui::SetNextWindowSize(ImVec2(500, 0), ImGuiCond_Always);
@@ -294,7 +294,7 @@ void App::GUIUpdate()
         ImGui::Text("Position: %.2f %.2f", mousePosition.x, mousePosition.y);
         ImGui::Text("Delta: %.2f %.2f", Input::GetMouseDelta().x, Input::GetMouseDelta().y);
         ImGui::Text("NDC: %.2f %.2f", ndc.x, ndc.y);
-        ImGui::Text("World: %.2f %.2f", mw.x, mw.y);
+        ImGui::Text("World: %.2f %.2f %.2f", mw.x, mw.y, mw.z);
         ImGui::EndListBox();
     }
     ImGui::Text("Entity: %d", m_Scene->m_HoveredId);
@@ -322,7 +322,7 @@ void App::UpdateShader(const char *vertSource, const char *fragSource)
 
 void App::SelectEntity(Entity entity)
 {
-    printf("App::SelectEntity -- %u\n", (uint32_t)entity);
+    printf("App::SelectEntity -- %u\n", entity.GetHandle());
     m_SelectedEntity = entity;
 }
 
