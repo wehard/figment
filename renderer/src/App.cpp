@@ -40,7 +40,11 @@ App::App(float width, float height)
     m_Scene = new Scene(m_Window->GetFramebufferWidth(), m_Window->GetFramebufferHeight());
     auto e = m_Scene->CreateEntity("Test");
     auto &t = e.GetComponent<TransformComponent>();
-    t.Scale = glm::vec3(5.0f);
+    t.Position = glm::vec3(0.0f, 0.0f, 1.0f);
+    t.Scale = glm::vec3(22.0f);
+
+    auto &c = e.GetComponent<ColorComponent>();
+    c.m_Color = glm::vec4(1.0f, 0.0f, 0.0f, 0.5f);
 
     m_Renderer = std::make_unique<WebGPURenderer>(*webGpuWindow->GetContext());
 
