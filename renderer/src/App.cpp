@@ -38,24 +38,23 @@ App::App(float width, float height)
     auto webGpuWindow = std::dynamic_pointer_cast<WebGPUWindow>(m_Window);
 
     m_Scene = new Scene(m_Window->GetFramebufferWidth(), m_Window->GetFramebufferHeight());
-    auto e = m_Scene->CreateEntity("Test");
-    auto &t = e.GetComponent<TransformComponent>();
-    t.Position = glm::vec3(0.0f, 0.0f, 1.0f);
-    t.Scale = glm::vec3(22.0f);
 
-    auto &c = e.GetComponent<ColorComponent>();
-    c.m_Color = glm::vec4(1.0f, 0.0f, 0.0f, 0.5f);
+    auto front = m_Scene->CreateEntity("Front");
+    auto &transformFront = front.GetComponent<TransformComponent>();
+    transformFront.Position = glm::vec3(10.0f, 0.0f, 10.0f);
+    transformFront.Scale = glm::vec3(20.0f);
+
+    auto middle = m_Scene->CreateEntity("Middle");
+    auto &transformMiddle = middle.GetComponent<TransformComponent>();
+    transformMiddle.Position = glm::vec3(0.0f, 0.0f, 0.0f);
+    transformMiddle.Scale = glm::vec3(20.0f);
+
+    auto back = m_Scene->CreateEntity("Back");
+    auto &transformBack = back.GetComponent<TransformComponent>();
+    transformBack.Position = glm::vec3(-10.0f, 0.0f, -10.0f);
+    transformBack.Scale = glm::vec3(20.0f);
 
     m_Renderer = std::make_unique<WebGPURenderer>(*webGpuWindow->GetContext());
-
-#ifndef __EMSCRIPTEN__
-    auto scriptEngine = ScriptEngine::Create(ScriptEngineType::Mono, m_Scene);
-    scriptEngine->Init();
-    while (!m_Window->ShouldClose() && !Input::GetKeyDown(GLFW_KEY_ESCAPE))
-    {
-        Update();
-    }
-#endif
 }
 
 App::~App()

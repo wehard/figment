@@ -12,7 +12,7 @@ Scene::Scene(uint32_t width, uint32_t height)
 {
     m_Camera = std::make_shared<PerspectiveCamera>((float)width / (float)height);
     m_CameraController = std::make_shared<CameraController>(m_Camera);
-    m_Camera->m_Position.z = 30.0;
+    m_Camera->m_Position.z = 60.0;
 }
 
 Scene::~Scene() = default;
@@ -29,7 +29,9 @@ Entity Scene::CreateEntity(const std::string &name)
     auto &info = entity.AddComponent<InfoComponent>();
     info.m_Name = name.empty() ? "Unnamed" : name;
     entity.AddComponent<TransformComponent>();
-    entity.AddComponent<ColorComponent>(GetRandomColor());
+    auto color = GetRandomColor();
+    color.a = 0.5f;
+    entity.AddComponent<ColorComponent>(color);
     return entity;
 }
 
@@ -74,27 +76,6 @@ void Scene::Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportS
 {
     m_CameraController->Update(deltaTime);
 
-    auto t = TransformComponent();
-    t.Scale = glm::vec3(m_VerletPhysics.GetWidth() + 1, m_VerletPhysics.GetHeight() + 1, 1);
-    t.Position = glm::vec3(0);
-    renderer.DrawQuad(t.GetTransform(), glm::vec4(0.1, 0.3, 0.8, 0.5), -1);
-
-    auto view = m_Registry.view<TransformComponent>();
-    for (auto e : view)
-    {
-        Entity entity = { e, this };
-
-        if (entity.HasComponent<VerletBodyComponent>())
-            m_VerletPhysics.Update(entity, GetEntities(), deltaTime);
-        auto color = entity.GetHandle() == m_HoveredId ? glm::vec4(1.0, 1.0, 1.0, 1.0) : entity.GetComponent<ColorComponent>().m_Color;
-        renderer.DrawQuad(entity.GetComponent<TransformComponent>().GetTransform(),
-                color, entity.GetHandle());
-    }
-
-#ifndef __EMSCRIPTEN__
-    // ScriptEngine::s_Instance->OnUpdate(deltaTime);
-#endif
-
     glm::vec2 normalized = glm::vec2(mousePosition.x / viewportSize.x, mousePosition.y / viewportSize.y);
     if (normalized.x < -1.0 || normalized.x > 1.0 || normalized.y < -1.0 || normalized.y > 1.0)
     {
@@ -106,6 +87,18 @@ void Scene::Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportS
         {
             m_HoveredId = id;
         });
+    }
+
+    auto view = m_Registry.view<TransformComponent>();
+    for (auto e : view)
+    {
+        Entity entity = { e, this };
+
+        if (entity.HasComponent<VerletBodyComponent>())
+            m_VerletPhysics.Update(entity, GetEntities(), deltaTime);
+        auto color = entity.GetHandle() == m_HoveredId ? glm::vec4(1.0, 1.0, 1.0, 1.0) : entity.GetComponent<ColorComponent>().m_Color;
+        renderer.DrawQuad(entity.GetComponent<TransformComponent>().GetTransform(),
+                color, entity.GetHandle());
     }
 }
 
