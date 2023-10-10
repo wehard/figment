@@ -204,9 +204,11 @@ static void DrawInspectorPanel(Entity entity)
     ImGui::DragFloat3("Position", (float *)&transform.Position.x, 0.1f, 0.0f, 0.0f, "%.2f");
     ImGui::DragFloat3("Rotation", (float *)&transform.Rotation.x, 0.1f, 0.0f, 0.0f, "%.2f");
 
-    // ImGui::DragFloat3("Scale", (float *)&transform.Scale.x, 0.1f, 0.0f, 0.0f, "%.2f");
     static bool syncScale = true;
     DrawVec3("Scale", &transform.Scale, &syncScale);
+
+    ImGui::Separator();
+    ImGui::ColorEdit4("Color", (float *)&entity.GetComponent<ColorComponent>().m_Color.x);
 
     if (entity.HasComponent<VerletBodyComponent>())
     {
