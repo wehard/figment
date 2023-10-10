@@ -8,6 +8,7 @@ public:
     ~CameraController() = default;
 
     void Update(float deltaTime);
+    bool IsFpsCamera() const { return m_FpsCamera; };
 
     std::shared_ptr<PerspectiveCamera> GetCamera();
 private:

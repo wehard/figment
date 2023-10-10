@@ -77,9 +77,9 @@ void Scene::Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportS
     m_CameraController->Update(deltaTime);
 
     glm::vec2 normalized = glm::vec2(mousePosition.x / viewportSize.x, mousePosition.y / viewportSize.y);
-    if (normalized.x < -1.0 || normalized.x > 1.0 || normalized.y < -1.0 || normalized.y > 1.0)
+    if (m_CameraController->IsFpsCamera() || normalized.x < -1.0 || normalized.x > 1.0 || normalized.y < -1.0 || normalized.y > 1.0)
     {
-        m_HoveredId = 0;
+        m_HoveredId = -1;
     }
     else
     {
