@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Scene.h"
+#include "UUID.h"
 #include "glm/glm.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/euler_angles.hpp>
@@ -8,6 +9,15 @@
 #include "entt.hpp"
 #include <string>
 #include <random>
+
+struct IdComponent
+{
+    Figment::UUID UUID;
+
+    IdComponent() = default;
+    IdComponent(const IdComponent &) = default;
+    explicit IdComponent(Figment::UUID uuid) : UUID(uuid) {}
+};
 
 struct InfoComponent
 {

@@ -32,7 +32,6 @@ public:
     Scene(uint32_t width, uint32_t height);
     ~Scene();
     Entity CreateEntity(const std::string &name = std::string());
-    Entity CreateEntity(uint32_t id);
     void DestroyEntity(Entity entity);
     std::vector<Entity> GetEntities();
     Entity GetEntityById(uint32_t id);

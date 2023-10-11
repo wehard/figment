@@ -28,16 +28,15 @@ Entity Scene::CreateEntity(const std::string &name)
     Entity entity = { m_Registry.create(), this };
     auto &info = entity.AddComponent<InfoComponent>();
     info.m_Name = name.empty() ? "Unnamed" : name;
+
+    auto &id = entity.AddComponent<IdComponent>();
+    printf("Created entity with uuid %llu\n", (uint64_t)id.UUID);
+
     entity.AddComponent<TransformComponent>();
     auto color = GetRandomColor();
     color.a = 0.5f;
     entity.AddComponent<ColorComponent>(color);
     return entity;
-}
-
-Entity Scene::CreateEntity(uint32_t id)
-{
-    return { m_Registry.create((entt::entity)id), this };
 }
 
 void Scene::DestroyEntity(Entity entity)
@@ -54,7 +53,7 @@ std::vector<Entity> Scene::GetEntities()
     std::vector<Entity> entities;
     for (auto e : view)
     {
-        entities.push_back({ e, this });
+        entities.emplace_back( e, this );
     }
     return entities;
 }
