@@ -166,10 +166,14 @@ static void DrawEntitiesPanel(const std::vector<Entity>& entities, const std::fu
         auto &info = entity.GetComponent<InfoComponent>();
         char buf[128];
         memset(buf, 0, sizeof(buf));
-        snprintf(buf, sizeof(buf), "%-20s (%u)", info.m_Name.c_str(), entity.GetHandle());
+        snprintf(buf, sizeof(buf), "%-20s", info.m_Name.c_str());
         if (ImGui::Selectable(buf))
         {
             selectEntity(entity);
+        }
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+        {
+            ImGui::SetTooltip("Entity UUID: %llu\nEntt handle: %d", (uint64_t)entity.GetComponent<IdComponent>().UUID, entity.GetHandle());
         }
         ImGui::PopID();
         i++;
