@@ -240,15 +240,13 @@ void App::GUIUpdate()
     ImGui::SetNextWindowSize(ImVec2(cameraWindowWidth, 0), ImGuiCond_Once);
     ImGui::Begin("Camera");
     glm::vec3 cameraPosition = camera->GetPosition();
-    ImGui::Text("Position x %f, y %f, z %f", cameraPosition.x, cameraPosition.y, cameraPosition.z);
-    ImGui::Text("Forward x %f, y %f, z %f", camera->m_Forward.x, camera->m_Forward.y, camera->m_Forward.z);
-    ImGui::Text("Yaw: %f Pitch: %f", camera->m_Yaw, camera->m_Pitch);
-//    ImGui::Text("Zoom: %f", camera->GetZoom());
-    ImGui::Text("Aspect: %f", camera->GetAspectRatio());
-    ImGui::Spacing();
-    if (ImGui::SmallButton("Reset"))
-    {
-    }
+    ImGui::Text("%-12s %f %f %f", "Position", cameraPosition.x, cameraPosition.y, cameraPosition.z);
+    ImGui::Text("%-12s %f %f %f", "Forward", camera->m_Forward.x, camera->m_Forward.y, camera->m_Forward.z);
+    ImGui::Text("%-12s %f", "Yaw", camera->m_Yaw);
+    ImGui::Text("%-12s %f", "Pitch", camera->m_Pitch);
+    ImGui::Text("%-12s %f", "Aspect", camera->GetAspectRatio());
+
+    ImGui::Separator();
 
     if (ImGui::DragFloat3("Position", (float *)&cameraPosition.x, 0.1f, 0.0f, 0.0f, "%.2f"))
     {
@@ -256,25 +254,14 @@ void App::GUIUpdate()
     }
     ImGui::End();
 
-//    const GLubyte *version = glGetString(GL_VERSION);
     glm::vec2 mousePosition = Input::GetMousePosition();
     glm::vec2 ndc = glm::vec2((mousePosition.x / ((float)m_Window->GetWidth() * 0.5)) - 1.0,
             (mousePosition.y / ((float)m_Window->GetHeight() * 0.5)) - 1.0);
     glm::vec3 mw = camera->ScreenToWorldSpace(mousePosition, glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
 
-    ImGui::SetNextWindowPos(ImVec2(m_Window->GetWidth() - 500, 0), ImGuiCond_Always);
-    ImGui::SetNextWindowSize(ImVec2(500, 0), ImGuiCond_Always);
+    ImGui::SetNextWindowPos(ImVec2(m_Window->GetWidth() - 400, 0), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(400, 0), ImGuiCond_Always);
     ImGui::Begin("Info");
-//    ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-//    if (ImGui::TreeNode("GL"))
-//    {
-//        ImGui::Text("GL version: %s", version);
-//        ImGui::Text("GLSL version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
-//        ImGui::Text("GL Vendor: %s", glGetString(GL_VENDOR));
-//        ImGui::Text("GL Renderer: %s", glGetString(GL_RENDERER));
-//        ImGui::TreePop();
-//    }
-
     ImGui::SetNextItemOpen(true, ImGuiCond_Once);
     if (ImGui::TreeNode("Window"))
     {
@@ -296,8 +283,6 @@ void App::GUIUpdate()
         ImGui::TreePop();
     }
 
-//    ImGui::ColorEdit4("clear color", (float *)&m_Scene->m_ClearColor.x);
-//
     if (ImGui::BeginListBox("Mouse"))
     {
         ImGui::Text("Position: %.2f %.2f", mousePosition.x, mousePosition.y);
