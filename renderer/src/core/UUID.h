@@ -1,20 +1,32 @@
 #pragma once
 
 #include <cstdint>
+#include <unordered_map>
 
 namespace Figment
 {
+    class UUID
+    {
+    public:
+        UUID();
+        explicit UUID(uint64_t uuid);
 
-class UUID
+        explicit operator uint64_t() const
+        { return m_UUID; }
+
+    private:
+        uint64_t m_UUID;
+    };
+}
+
+namespace std
 {
-public:
-    UUID();
-    explicit UUID(uint64_t uuid);
-
-    operator uint64_t () const { return m_UUID; }
-
-private:
-    uint64_t m_UUID;
-};
-
+    template<>
+    struct hash<Figment::UUID>
+    {
+        std::size_t operator()(const Figment::UUID &uuid) const
+        {
+            return std::hash<uint64_t>()((uint64_t)uuid);
+        }
+    };
 }
