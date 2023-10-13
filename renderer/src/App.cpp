@@ -292,7 +292,7 @@ void App::GUIUpdate()
         ImGui::EndListBox();
     }
     ImGui::Text("Entity: %d", m_Scene->m_HoveredId);
-    ImGui::Text("Selected: %u", (uint32_t)m_SelectedEntity);
+    ImGui::Text("Selected: %d", m_SelectedEntity ? m_SelectedEntity.GetHandle() : -1);
     ImGui::End();
 
     DrawEntitiesPanel(m_Scene->GetEntities(), [this](Entity entity)
