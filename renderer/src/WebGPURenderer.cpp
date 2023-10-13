@@ -17,8 +17,8 @@ WebGPURenderer::WebGPURenderer(WebGPUContext &context)
                                 +0.5, -0.5, 0.0,
                                 -0.5, +0.5, 0.0,
                                 +0.5, -0.5, 0.0,
-                                -0.5, +0.5, 0.0,
-                                +0.5, +0.5, 0.0
+                                +0.5, +0.5, 0.0,
+                                -0.5, +0.5, 0.0
     };
     m_VertexBuffer = new WebGPUVertexBuffer(context.GetDevice(), data);
 
