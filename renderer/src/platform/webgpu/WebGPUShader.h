@@ -10,7 +10,9 @@ public:
     ~WebGPUShader();
 
     WGPUShaderModule GetShaderModule() { return m_ShaderModule; }
+    std::string GetShaderSource() { return m_ShaderSource; }
 private:
     WGPUShaderModule m_ShaderModule;
+    std::string m_ShaderSource;
 };
 

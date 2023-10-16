@@ -154,7 +154,38 @@ static void DrawVec3(const char *name, glm::vec3 *value, bool *syncValues)
     }
 }
 
-static void DrawEntitiesPanel(const std::vector<Entity>& entities, const std::function<void(Entity)>& selectEntity = nullptr)
+static void DrawWGSLShaderEditor(WebGPUShader &shader)
+{
+    ImGui::SetNextWindowPos(ImVec2(100, 100), ImGuiCond_Once);
+    ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_Once);
+    ImGui::Begin("WebGPU Shader Editor");
+    if (ImGui::BeginTabBar("TabBar"))
+    {
+        ImVec2 contentSize = ImGui::GetContentRegionAvail();
+        if (ImGui::BeginTabItem("WGSL"))
+        {
+            ImGui::InputTextMultiline("##ShaderCode", shader.GetShaderSource().data(), shader.GetShaderSource().size(),
+                    contentSize, ImGuiInputTextFlags_AllowTabInput, nullptr, nullptr);
+            ImGui::EndTabItem();
+        }
+
+        // Create the second tab
+        if (ImGui::BeginTabItem("Compute"))
+        {
+            std::string computeShaderSource = "Hello, World!";
+            ImGui::InputTextMultiline("##ComputeCode", computeShaderSource.data(), computeShaderSource.size(), contentSize);
+            ImGui::EndTabItem();
+        }
+
+        // End the tab bar
+        ImGui::EndTabBar();
+    }
+
+    ImGui::End();
+}
+
+static void DrawEntitiesPanel(const std::vector<Entity> &entities,
+        const std::function<void(Entity)> &selectEntity = nullptr)
 {
     ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Once);
     ImGui::SetNextWindowSize(ImVec2(300, 200), ImGuiCond_Once);
@@ -173,7 +204,8 @@ static void DrawEntitiesPanel(const std::vector<Entity>& entities, const std::fu
         }
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
         {
-            ImGui::SetTooltip("Entity UUID: %llu\nEntt handle: %d", (uint64_t)entity.GetComponent<IdComponent>().UUID, entity.GetHandle());
+            ImGui::SetTooltip("Entity UUID: %llu\nEntt handle: %d", (uint64_t)entity.GetComponent<IdComponent>().UUID,
+                    entity.GetHandle());
         }
         ImGui::PopID();
         i++;
@@ -300,6 +332,7 @@ void App::GUIUpdate()
         SelectEntity(entity);
     });
     DrawInspectorPanel(m_SelectedEntity);
+    DrawWGSLShaderEditor(*m_Renderer->GetShader());
 }
 
 void App::OnResize(uint32_t width, uint32_t height)

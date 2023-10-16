@@ -1,6 +1,6 @@
 #include "WebGPUShader.h"
 
-WebGPUShader::WebGPUShader(WGPUDevice device, const std::string &shaderSource, const char *label)
+WebGPUShader::WebGPUShader(WGPUDevice device, const std::string &shaderSource, const char *label) : m_ShaderSource(shaderSource)
 {
     WGPUShaderModuleWGSLDescriptor shaderCodeDesc = {};
     shaderCodeDesc.chain.next = nullptr;
