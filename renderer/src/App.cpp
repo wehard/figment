@@ -17,7 +17,12 @@ App::App(float width, float height)
     m_Window = Window::Create("Figment C++", width, height);
     m_Window->SetResizeEventCallback([this](WindowResizeEventData data)
     {
-        OnResize(data.FramebufferWidth, data.FramebufferHeight);
+        auto eventData = Figment::WindowResizeEventData { (uint32_t)data.FramebufferWidth,
+                                                          (uint32_t)data.FramebufferHeight };
+        for (auto &layer : m_Layers)
+        {
+            layer->OnEvent(Figment::AppEvent::WindowResize, (void *)&eventData);
+        }
     });
 
     auto *glfwWindow = (GLFWwindow *)m_Window->GetNative();
@@ -60,12 +65,4 @@ void App::Update()
     m_GUICtx->Render();
 
     glfwPollEvents();
-}
-
-
-void App::OnResize(uint32_t width, uint32_t height)
-{
-    // m_Scene->OnResize(width, height);
-    // m_Renderer->OnResize(width, height);
-    Update(); // TODO: Figure out if there is a better way
 }

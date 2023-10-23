@@ -9,7 +9,8 @@
 
 namespace Figment
 {
-    Figment::ImGuiLayer::ImGuiLayer() : Layer("ImGuiLayer")
+    Figment::ImGuiLayer::ImGuiLayer()
+            : Layer("ImGuiLayer")
     {
         auto m_Window = App::Instance()->GetWindow();
         m_Scene = new Scene(m_Window->GetFramebufferWidth(), m_Window->GetFramebufferHeight());
@@ -117,7 +118,8 @@ namespace Figment
             ImVec2 contentSize = ImGui::GetContentRegionAvail();
             if (ImGui::BeginTabItem("WGSL"))
             {
-                ImGui::InputTextMultiline("##ShaderCode", shader.GetShaderSource().data(), shader.GetShaderSource().size(),
+                ImGui::InputTextMultiline("##ShaderCode", shader.GetShaderSource().data(),
+                        shader.GetShaderSource().size(),
                         contentSize, ImGuiInputTextFlags_AllowTabInput, nullptr, nullptr);
                 ImGui::EndTabItem();
             }
@@ -126,7 +128,8 @@ namespace Figment
             if (ImGui::BeginTabItem("Compute"))
             {
                 std::string computeShaderSource = "Hello, World!";
-                ImGui::InputTextMultiline("##ComputeCode", computeShaderSource.data(), computeShaderSource.size(), contentSize);
+                ImGui::InputTextMultiline("##ComputeCode", computeShaderSource.data(), computeShaderSource.size(),
+                        contentSize);
                 ImGui::EndTabItem();
             }
 
@@ -157,7 +160,8 @@ namespace Figment
             }
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             {
-                ImGui::SetTooltip("Entity UUID: %llu\nEntt handle: %d", (uint64_t)entity.GetComponent<IdComponent>().UUID,
+                ImGui::SetTooltip("Entity UUID: %llu\nEntt handle: %d",
+                        (uint64_t)entity.GetComponent<IdComponent>().UUID,
                         entity.GetHandle());
             }
             ImGui::PopID();
@@ -240,7 +244,8 @@ namespace Figment
         glm::vec2 mousePosition = Input::GetMousePosition();
         glm::vec2 ndc = glm::vec2((mousePosition.x / ((float)m_Window->GetWidth() * 0.5)) - 1.0,
                 (mousePosition.y / ((float)m_Window->GetHeight() * 0.5)) - 1.0);
-        glm::vec3 mw = camera->ScreenToWorldSpace(mousePosition, glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
+        glm::vec3 mw = camera->ScreenToWorldSpace(mousePosition,
+                glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
 
         ImGui::SetNextWindowPos(ImVec2(m_Window->GetWidth() - 400, 0), ImGuiCond_Always);
         ImGui::SetNextWindowSize(ImVec2(400, 0), ImGuiCond_Always);
@@ -289,6 +294,29 @@ namespace Figment
     void ImGuiLayer::SelectEntity(Entity entity)
     {
         m_SelectedEntity = entity;
+    }
+
+    void ImGuiLayer::OnEvent(AppEvent event, void *eventData)
+    {
+        switch (event)
+        {
+        case AppEvent::None:
+            break;
+        case AppEvent::WindowClose:
+            break;
+        case AppEvent::WindowResize:
+        {
+            auto ev = (WindowResizeEventData *)eventData;
+            m_Scene->OnResize(ev->width, ev->height);
+            break;
+        }
+        case AppEvent::WindowFocus:
+            break;
+        case AppEvent::WindowLostFocus:
+            break;
+        case AppEvent::WindowMoved:
+            break;
+        }
     }
 }
 

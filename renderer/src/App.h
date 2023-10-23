@@ -21,7 +21,6 @@ public:
     ~App();
 
     void Update();
-    void OnResize(uint32_t width, uint32_t height);
     std::shared_ptr<Window> GetWindow() { return m_Window; }
 
     static App *Instance() { return s_Instance; }

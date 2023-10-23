@@ -16,6 +16,7 @@ namespace Figment
         void OnDetach() override;
         void OnUpdate(float deltaTime) override;
         void OnImGuiRender() override;
+        void OnEvent(AppEvent event, void *eventData) override;
     private:
         Scene *m_Scene;
         Entity m_SelectedEntity;
