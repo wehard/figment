@@ -24,6 +24,7 @@ private:
 
     VerletPhysics m_VerletPhysics;
     std::shared_ptr<WebGPUContext> m_GfxContext;
+    std::unique_ptr<WebGPURenderer> m_Renderer;
 
 public:
     glm::vec4 m_ClearColor;
@@ -37,7 +38,7 @@ public:
     Entity GetEntityById(uint32_t id);
     Entity GetHoveredEntity();
 
-    void Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportSize, WebGPURenderer &renderer);
+    void Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportSize);
     std::shared_ptr<CameraController> GetCameraController();
     void OnResize(uint32_t width, uint32_t height);
 

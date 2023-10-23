@@ -21,23 +21,17 @@ public:
     ~App();
 
     void Update();
-    void GUIUpdate();
-
     void OnResize(uint32_t width, uint32_t height);
+    std::shared_ptr<Window> GetWindow() { return m_Window; }
 
-    void SelectEntity(Entity entity);
-    void DeleteEntity(Entity entity);
+    static App *Instance() { return s_Instance; }
 private:
     std::shared_ptr<Window> m_Window;
-    std::unique_ptr<WebGPURenderer> m_Renderer;
     std::unique_ptr<WebGPUGUIContext> m_GUICtx;
-    Scene *m_Scene;
     std::vector<std::unique_ptr<Figment::Layer>> m_Layers;
 
     double m_CurrentTime = 0;
     double m_LastTime = 0;
 
-    Entity m_SelectedEntity;
-    void HandleKeyboardInput();
-    void HandleMouseInput();
+    static App *s_Instance;
 };

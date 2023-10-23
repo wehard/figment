@@ -1,5 +1,7 @@
 #include "Scene.h"
 #include "Entity.h"
+#include "WebGPUWindow.h"
+#include "App.h"
 
 #ifndef __EMSCRIPTEN__
 #include "ScriptEngine.h"
@@ -13,6 +15,10 @@ Scene::Scene(uint32_t width, uint32_t height)
     m_Camera = std::make_shared<PerspectiveCamera>((float)width / (float)height);
     m_CameraController = std::make_shared<CameraController>(m_Camera);
     m_Camera->m_Position.z = 60.0;
+
+    auto m_Window = App::Instance()->GetWindow();
+    auto webGpuWindow = std::dynamic_pointer_cast<WebGPUWindow>(m_Window);
+    m_Renderer = std::make_unique<WebGPURenderer>(*webGpuWindow->GetContext());
 }
 
 Scene::~Scene() = default;
@@ -71,8 +77,9 @@ Entity Scene::GetHoveredEntity()
     return GetEntityById(m_HoveredId);
 }
 
-void Scene::Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportSize, WebGPURenderer &renderer)
+void Scene::Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportSize)
 {
+    m_Renderer->Begin(*m_CameraController->GetCamera()); // TODO: Make static
     m_CameraController->Update(deltaTime);
 
     glm::vec2 normalized = glm::vec2(mousePosition.x / viewportSize.x, mousePosition.y / viewportSize.y);
@@ -82,7 +89,7 @@ void Scene::Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportS
     }
     else
     {
-        renderer.ReadPixel((int)mousePosition.x, (int)mousePosition.y, [this](uint32_t id)
+        m_Renderer->ReadPixel((int)mousePosition.x, (int)mousePosition.y, [this](uint32_t id)
         {
             m_HoveredId = id;
         });
@@ -96,9 +103,11 @@ void Scene::Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportS
         if (entity.HasComponent<VerletBodyComponent>())
             m_VerletPhysics.Update(entity, GetEntities(), deltaTime);
         auto color = entity.GetHandle() == m_HoveredId ? glm::vec4(1.0, 1.0, 1.0, 1.0) : entity.GetComponent<ColorComponent>().m_Color;
-        renderer.DrawQuad(entity.GetComponent<TransformComponent>().GetTransform(),
+        m_Renderer->DrawQuad(entity.GetComponent<TransformComponent>().GetTransform(),
                 color, entity.GetHandle());
     }
+
+    m_Renderer->End();
 }
 
 std::shared_ptr<CameraController> Scene::GetCameraController()
