@@ -14,33 +14,27 @@
 
 class App
 {
-private:
-  std::shared_ptr<Window> m_Window;
-  std::unique_ptr<WebGPURenderer> m_Renderer;
-  std::unique_ptr<WebGPUGUIContext> m_GUICtx;
-  Scene *m_Scene;
-
-  ImVec4 m_ClearColor = ImVec4(0.15, 0.15, 0.15, 1.00f);
-
-  bool m_FpsCamera;
-  bool m_HandleEvents;
-  double m_CurrentTime = 0;
-  double m_LastTime = 0;
-
-  Entity m_SelectedEntity;
-  void HandleKeyboardInput();
-  void HandleMouseInput();
-
 public:
-  App(float width, float height);
-  ~App();
+    App(float width, float height);
+    ~App();
 
-  void Update();
-  void GUIUpdate();
+    void Update();
+    void GUIUpdate();
 
-  void OnResize(uint32_t width, uint32_t height);
-  void UpdateShader(const char *vertSource, const char *fragSource);
+    void OnResize(uint32_t width, uint32_t height);
 
-  void SelectEntity(Entity entity);
-  void DeleteEntity(Entity entity);
+    void SelectEntity(Entity entity);
+    void DeleteEntity(Entity entity);
+private:
+    std::shared_ptr<Window> m_Window;
+    std::unique_ptr<WebGPURenderer> m_Renderer;
+    std::unique_ptr<WebGPUGUIContext> m_GUICtx;
+    Scene *m_Scene;
+
+    double m_CurrentTime = 0;
+    double m_LastTime = 0;
+
+    Entity m_SelectedEntity;
+    void HandleKeyboardInput();
+    void HandleMouseInput();
 };

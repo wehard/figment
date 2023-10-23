@@ -342,11 +342,6 @@ void App::OnResize(uint32_t width, uint32_t height)
     Update(); // TODO: Figure out if there is a better way
 }
 
-void App::UpdateShader(const char *vertSource, const char *fragSource)
-{
-    printf("App::UpdateShader -- Not implemented!\n");
-}
-
 void App::SelectEntity(Entity entity)
 {
     printf("App::SelectEntity -- %u\n", entity.GetHandle());
