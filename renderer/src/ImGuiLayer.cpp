@@ -289,6 +289,36 @@ namespace Figment
         });
         DrawInspectorPanel(m_SelectedEntity);
         // DrawWGSLShaderEditor(*m_Renderer->GetShader());
+
+        static bool showStyleEditor = false;
+        ImGui::BeginMainMenuBar();
+        if (ImGui::BeginMenu("Figment"))
+        {
+            if (ImGui::MenuItem("New Entity", "Ctrl+N"))
+            {
+            }
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Edit"))
+        {
+            auto text = showStyleEditor ? "Hide Style Editor" : "Show Style Editor";
+            if (ImGui::MenuItem(text, "Ctrl+S"))
+            {
+                showStyleEditor = !showStyleEditor;
+            }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMainMenuBar();
+
+        if (showStyleEditor)
+        {
+            ImGui::SetNextWindowPos(ImVec2(400, 200), ImGuiCond_Once);
+            ImGui::SetNextWindowSize(ImVec2(400, 500), ImGuiCond_Once);
+            ImGui::Begin("Style Editor");
+            auto style = ImGui::GetStyle();
+            ImGui::ShowStyleEditor(&style);
+            ImGui::End();
+        }
     }
 
     void ImGuiLayer::SelectEntity(Entity entity)
