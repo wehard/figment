@@ -9,8 +9,10 @@
 #include "imgui.h"
 #include "WebGPURenderer.h"
 #include "WebGPUGUIContext.h"
+#include "Layer.h"
 
 #include <memory>
+#include <vector>
 
 class App
 {
@@ -30,6 +32,7 @@ private:
     std::unique_ptr<WebGPURenderer> m_Renderer;
     std::unique_ptr<WebGPUGUIContext> m_GUICtx;
     Scene *m_Scene;
+    std::vector<std::unique_ptr<Figment::Layer>> m_Layers;
 
     double m_CurrentTime = 0;
     double m_LastTime = 0;

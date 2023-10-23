@@ -118,6 +118,11 @@ void App::Update()
         HandleMouseInput();
     }
 
+    for (auto &layer : m_Layers)
+    {
+        layer->OnUpdate(deltaTime);
+    }
+
     m_Renderer->Begin(*m_Scene->GetCameraController()->GetCamera());
     m_Scene->Update(deltaTime, Input::GetMousePosition(), glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()),
             *m_Renderer);
