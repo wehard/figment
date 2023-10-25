@@ -40,7 +40,7 @@ Entity Scene::CreateEntity(const std::string &name)
 
     entity.AddComponent<TransformComponent>();
     auto color = GetRandomColor();
-    color.a = 0.5f;
+    color.a = 1.0f;
     entity.AddComponent<ColorComponent>(color);
     return entity;
 }

@@ -190,7 +190,7 @@ void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color, int32_t id)
     blendState.color.dstFactor = WGPUBlendFactor_OneMinusSrcAlpha;
     blendState.color.operation = WGPUBlendOperation_Add;
 
-    blendState.alpha.srcFactor = WGPUBlendFactor_Zero;
+    blendState.alpha.srcFactor = WGPUBlendFactor_One;
     blendState.alpha.dstFactor = WGPUBlendFactor_One;
     blendState.alpha.operation = WGPUBlendOperation_Add;
 
