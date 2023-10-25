@@ -41,7 +41,7 @@ private:
     WebGPUVertexBuffer *m_VertexBuffer;
     RenderPassData m_RenderPassData = {};
     WebGPUTexture *m_IdTexture;
-    WGPUBuffer m_PixelBuffer;
+    WebGPUBuffer<std::byte> *m_PixelBuffer;
     WebGPUShader *m_Shader;
     WebGPUTexture *m_DepthTexture;
 };

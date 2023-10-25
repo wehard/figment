@@ -24,6 +24,32 @@ public:
         printf("WebGPUBuffer<%s> created\n", typeid(T).name());
     }
 
+    WebGPUBuffer(WGPUDevice device, const char *label, uint64_t size, WGPUBufferUsageFlags usage) : m_Size(size)
+    {
+        WGPUBufferDescriptor pixelBufferDesc = {};
+        pixelBufferDesc.nextInChain = nullptr;
+        pixelBufferDesc.label = label;
+        pixelBufferDesc.mappedAtCreation = false;
+        pixelBufferDesc.usage = usage;
+        pixelBufferDesc.size = size;
+        m_Buffer = wgpuDeviceCreateBuffer(device, &pixelBufferDesc);
+    }
+
+    WGPUBufferMapState GetMapState() const
+    {
+        return wgpuBufferGetMapState(m_Buffer);
+    }
+
+    WGPUBuffer GetBuffer() const
+    {
+        return m_Buffer;
+    }
+
+    void Unmap()
+    {
+        wgpuBufferUnmap(m_Buffer);
+    }
+
     ~WebGPUBuffer<T>()
     {
         wgpuBufferRelease(m_Buffer);
