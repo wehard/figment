@@ -120,7 +120,7 @@ template <typename T>
 class WebGPUUniformBuffer
 {
 public:
-    WebGPUUniformBuffer<T>(WGPUDevice device, T *data, uint32_t size) : m_Size(size)
+    WebGPUUniformBuffer<T>(WGPUDevice device, T *data, uint32_t size) : m_Device(device) ,m_Size(size)
     {
         WGPUBufferDescriptor bufferDesc = {};
         bufferDesc.nextInChain = nullptr;
@@ -140,6 +140,24 @@ public:
         wgpuBufferDestroy(m_Buffer);
     }
 
+    void Update(T *data, uint32_t size)
+    {
+        WGPUQueue queue = wgpuDeviceGetQueue(m_Device);
+        wgpuQueueWriteBuffer(queue, m_Buffer, 0, (void*)data, size);
+    }
+
+    WGPUBuffer GetBuffer() const
+    {
+        return m_Buffer;
+    }
+
+    uint32_t GetSize() const
+    {
+        return m_Size;
+    }
+
+private:
+    WGPUDevice m_Device;
     WGPUBuffer m_Buffer;
     uint32_t m_Size;
 };
