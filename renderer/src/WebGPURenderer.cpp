@@ -91,57 +91,6 @@ void WebGPURenderer::End()
     m_RenderPass = nullptr;
 }
 
-static WGPUBindGroupLayoutEntry GetDefaultWGPUBindGroupLayoutEntry()
-{
-    WGPUBindGroupLayoutEntry bindingLayout = {};
-
-    bindingLayout.buffer.nextInChain = nullptr;
-    bindingLayout.buffer.type = WGPUBufferBindingType_Undefined;
-    bindingLayout.buffer.hasDynamicOffset = false;
-
-    bindingLayout.sampler.nextInChain = nullptr;
-    bindingLayout.sampler.type = WGPUSamplerBindingType_Undefined;
-
-    bindingLayout.storageTexture.nextInChain = nullptr;
-    bindingLayout.storageTexture.access = WGPUStorageTextureAccess_Undefined;
-    bindingLayout.storageTexture.format = WGPUTextureFormat_Undefined;
-    bindingLayout.storageTexture.viewDimension = WGPUTextureViewDimension_Undefined;
-
-    bindingLayout.texture.nextInChain = nullptr;
-    bindingLayout.texture.multisampled = false;
-    bindingLayout.texture.sampleType = WGPUTextureSampleType_Undefined;
-    bindingLayout.texture.viewDimension = WGPUTextureViewDimension_Undefined;
-
-    return bindingLayout;
-}
-
-static WGPUDepthStencilState GetDefaultDepthStencilState()
-{
-    WGPUDepthStencilState depthStencilState = {};
-    depthStencilState.nextInChain = nullptr;
-    depthStencilState.format = WGPUTextureFormat_Undefined;
-    depthStencilState.depthWriteEnabled = false;
-    depthStencilState.depthCompare = WGPUCompareFunction_Always;
-    depthStencilState.stencilReadMask = 0xFFFFFFFF;
-    depthStencilState.stencilWriteMask = 0xFFFFFFFF;
-    depthStencilState.depthBias = 0;
-    depthStencilState.depthBiasSlopeScale = 0.0;
-    depthStencilState.depthBiasClamp = 0.0;
-    depthStencilState.stencilFront = {
-            .compare = WGPUCompareFunction_Always,
-            .failOp = WGPUStencilOperation_Keep,
-            .depthFailOp = WGPUStencilOperation_Keep,
-            .passOp = WGPUStencilOperation_Keep,
-    };
-    depthStencilState.stencilBack = {
-            .compare = WGPUCompareFunction_Always,
-            .failOp = WGPUStencilOperation_Keep,
-            .depthFailOp = WGPUStencilOperation_Keep,
-            .passOp = WGPUStencilOperation_Keep,
-    };
-    return depthStencilState;
-}
-
 void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color, int32_t id)
 {
     RenderData renderData = {};

@@ -90,9 +90,33 @@ public:
         m_DepthStencilState.stencilWriteMask = 0;
     }
 
+    static WGPUBindGroupLayoutEntry GetDefaultWGPUBindGroupLayoutEntry()
+    {
+        WGPUBindGroupLayoutEntry bindingLayout = {};
+
+        bindingLayout.buffer.nextInChain = nullptr;
+        bindingLayout.buffer.type = WGPUBufferBindingType_Undefined;
+        bindingLayout.buffer.hasDynamicOffset = false;
+
+        bindingLayout.sampler.nextInChain = nullptr;
+        bindingLayout.sampler.type = WGPUSamplerBindingType_Undefined;
+
+        bindingLayout.storageTexture.nextInChain = nullptr;
+        bindingLayout.storageTexture.access = WGPUStorageTextureAccess_Undefined;
+        bindingLayout.storageTexture.format = WGPUTextureFormat_Undefined;
+        bindingLayout.storageTexture.viewDimension = WGPUTextureViewDimension_Undefined;
+
+        bindingLayout.texture.nextInChain = nullptr;
+        bindingLayout.texture.multisampled = false;
+        bindingLayout.texture.sampleType = WGPUTextureSampleType_Undefined;
+        bindingLayout.texture.viewDimension = WGPUTextureViewDimension_Undefined;
+
+        return bindingLayout;
+    }
+
     void AddBindGroupLayoutEntry(uint32_t binding, WGPUBufferBindingType type, WGPUShaderStageFlags visibility, uint64_t minBindingSize)
     {
-        WGPUBindGroupLayoutEntry entry = {};
+        auto entry = GetDefaultWGPUBindGroupLayoutEntry();
         entry.binding = binding;
         entry.visibility = visibility;
         entry.buffer.type = type;
