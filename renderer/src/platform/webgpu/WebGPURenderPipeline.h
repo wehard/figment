@@ -4,14 +4,14 @@
 #include "WebGPUShader.h"
 #include "webgpu/webgpu.h"
 
-class WebGPURenderPipeline
+class WebGPURenderPipelineBuilder
 {
 public:
-    explicit WebGPURenderPipeline(WebGPUContext &context) : m_Context(context)
+    explicit WebGPURenderPipelineBuilder(WebGPUContext &context, WebGPUShader &shader) : m_Context(context), m_Shader(shader)
     { }
-    ~WebGPURenderPipeline() = default;
+    ~WebGPURenderPipelineBuilder() = default;
 
-    WebGPURenderPipeline &SetVertexBufferLayout(std::vector<WGPUVertexAttribute> attributes, uint64_t stride,
+    WebGPURenderPipelineBuilder &SetVertexBufferLayout(std::vector<WGPUVertexAttribute> attributes, uint64_t stride,
             WGPUVertexStepMode stepMode)
     {
         m_VertexAttributes = attributes;
@@ -20,11 +20,6 @@ public:
         m_VertexBufferLayout.arrayStride = stride;
         m_VertexBufferLayout.stepMode = stepMode;
         return *this;
-    }
-
-    void SetVertexState(WGPUVertexState vertexState)
-    {
-        m_VertexState = vertexState;
     }
 
     void SetPrimitiveState(WGPUPrimitiveTopology topology, WGPUIndexFormat stripIndexFormat, WGPUFrontFace frontFace, WGPUCullMode cullMode)
@@ -58,18 +53,41 @@ public:
         };
     }
 
-    void SetFragmentState(WGPUFragmentState fragmentState)
+    static WGPUDepthStencilState GetDefaultDepthStencilState()
     {
-        m_FragmentState = fragmentState;
-        m_FragmentState.constantCount = 0;
-        m_FragmentState.constants = nullptr;
-        m_FragmentState.targetCount = m_ColorTargetStates.size();
-        m_FragmentState.targets = m_ColorTargetStates.data();
+        WGPUDepthStencilState depthStencilState = {};
+        depthStencilState.nextInChain = nullptr;
+        depthStencilState.format = WGPUTextureFormat_Undefined;
+        depthStencilState.depthWriteEnabled = false;
+        depthStencilState.depthCompare = WGPUCompareFunction_Always;
+        depthStencilState.stencilReadMask = 0xFFFFFFFF;
+        depthStencilState.stencilWriteMask = 0xFFFFFFFF;
+        depthStencilState.depthBias = 0;
+        depthStencilState.depthBiasSlopeScale = 0.0;
+        depthStencilState.depthBiasClamp = 0.0;
+        depthStencilState.stencilFront = {
+                .compare = WGPUCompareFunction_Always,
+                .failOp = WGPUStencilOperation_Keep,
+                .depthFailOp = WGPUStencilOperation_Keep,
+                .passOp = WGPUStencilOperation_Keep,
+        };
+        depthStencilState.stencilBack = {
+                .compare = WGPUCompareFunction_Always,
+                .failOp = WGPUStencilOperation_Keep,
+                .depthFailOp = WGPUStencilOperation_Keep,
+                .passOp = WGPUStencilOperation_Keep,
+        };
+        return depthStencilState;
     }
 
-    void SetDepthStencilState(WGPUDepthStencilState depthStencilState)
+    void SetDepthStencilState(WGPUTextureFormat format, WGPUCompareFunction compareFunction, bool depthWriteEnabled)
     {
-        m_DepthStencilState = depthStencilState;
+        m_DepthStencilState = GetDefaultDepthStencilState();
+        m_DepthStencilState.depthCompare = compareFunction;
+        m_DepthStencilState.depthWriteEnabled = depthWriteEnabled;
+        m_DepthStencilState.format = format;
+        m_DepthStencilState.stencilReadMask = 0;
+        m_DepthStencilState.stencilWriteMask = 0;
     }
 
     void AddBindGroupLayoutEntry(uint32_t binding, WGPUBufferBindingType type, WGPUShaderStageFlags visibility, uint64_t minBindingSize)
@@ -94,18 +112,26 @@ public:
         m_BindGroupEntries.push_back(entry);
     }
 
-    WGPURenderPipeline Create()
+    void Create()
     {
         WGPURenderPipelineDescriptor desc = {};
         desc.nextInChain = nullptr;
-        desc.vertex = m_VertexState;
+        desc.vertex = {
+                .module = m_Shader.GetShaderModule(),
+                .entryPoint = "vs_main",
+                .constantCount = 0,
+                .constants = nullptr,
+        };
         desc.vertex.bufferCount = 1;
         desc.vertex.buffers = &m_VertexBufferLayout;
         desc.primitive = m_PrimitiveState;
 
-        m_FragmentState.targetCount = m_ColorTargetStates.size();
-        m_FragmentState.targets = m_ColorTargetStates.data();
-        desc.fragment = &m_FragmentState;
+        WGPUFragmentState fragmentState = {};
+        fragmentState.module = m_Shader.GetShaderModule();
+        fragmentState.entryPoint = "fs_main";
+        fragmentState.targetCount = m_ColorTargetStates.size();
+        fragmentState.targets = m_ColorTargetStates.data();
+        desc.fragment = &fragmentState;
         desc.depthStencil = &m_DepthStencilState;
 
         desc.multisample.count = 1;
@@ -116,69 +142,43 @@ public:
         bindGroupLayoutDesc.nextInChain = nullptr;
         bindGroupLayoutDesc.entryCount = m_BindGroupLayoutEntries.size();
         bindGroupLayoutDesc.entries = m_BindGroupLayoutEntries.data();
-        m_BindGroupLayout = wgpuDeviceCreateBindGroupLayout(m_Context.GetDevice(), &bindGroupLayoutDesc);
+        auto bindGroupLayout = wgpuDeviceCreateBindGroupLayout(m_Context.GetDevice(), &bindGroupLayoutDesc);
 
         WGPUPipelineLayoutDescriptor layoutDesc = {
                 .nextInChain = nullptr,
                 .bindGroupLayoutCount = m_BindGroupLayoutEntries.size(),
-                .bindGroupLayouts = &m_BindGroupLayout
+                .bindGroupLayouts = &bindGroupLayout
         };
 
         desc.layout = wgpuDeviceCreatePipelineLayout(m_Context.GetDevice(), &layoutDesc);
 
-        return wgpuDeviceCreateRenderPipeline(m_Context.GetDevice(), &desc);
-    }
+        m_Pipeline =  wgpuDeviceCreateRenderPipeline(m_Context.GetDevice(), &desc);
 
-    WGPUBindGroup CreateBindGroup()
-    {
         WGPUBindGroupDescriptor bindGroupDesc = {
                 .nextInChain = nullptr,
-                .layout = m_BindGroupLayout,
+                .layout = bindGroupLayout,
                 .entryCount = m_BindGroupEntries.size(),
                 .entries = m_BindGroupEntries.data()
         };
-        return wgpuDeviceCreateBindGroup(m_Context.GetDevice(), &bindGroupDesc);
+        m_BindGroup = wgpuDeviceCreateBindGroup(m_Context.GetDevice(), &bindGroupDesc);
     }
+
+    WGPURenderPipeline GetPipeline() { return m_Pipeline; }
+    WGPUBindGroup GetBindGroup() { return m_BindGroup; }
 
 private:
     WebGPUContext &m_Context;
+    WebGPUShader &m_Shader;
+    WGPURenderPipeline m_Pipeline = {};
+    WGPUBindGroup m_BindGroup = {};
     WGPUVertexBufferLayout m_VertexBufferLayout = {};
     std::vector<WGPUVertexAttribute> m_VertexAttributes;
     WGPUPrimitiveState m_PrimitiveState = {};
-    WGPUVertexState m_VertexState = {};
-    WGPUFragmentState m_FragmentState = {};
+    // WGPUFragmentState m_FragmentState = {};
     WGPUDepthStencilState m_DepthStencilState = {};
     std::vector<WGPUColorTargetState> m_ColorTargetStates;
     std::vector<WGPUBlendState> m_BlendStates;
     std::vector<WGPUBindGroupLayoutEntry> m_BindGroupLayoutEntries;
     std::vector<WGPUBindGroupEntry> m_BindGroupEntries;
-    WGPUBindGroupLayout m_BindGroupLayout = {};
     WGPUBlendState m_BlendState = {};
-};
-
-class WebGPURenderPipelineBuilder
-{
-public:
-    WebGPURenderPipelineBuilder(WebGPUContext &context)
-            : m_Context(context)
-    { }
-    ~WebGPURenderPipelineBuilder()
-    { }
-
-    WGPURenderPipeline Create(WebGPUShader *shader)
-    {
-        WGPURenderPipelineDescriptor desc = {};
-        desc.vertex = shader->GetVertexStage();
-        auto fragment = shader->GetFragmentStage(m_Context.GetTextureFormat(), WGPUTextureFormat_R32Sint);
-        desc.fragment = &fragment;
-        desc.primitive.topology = WGPUPrimitiveTopology_TriangleList;
-        desc.primitive.cullMode = WGPUCullMode_None;
-        desc.primitive.frontFace = WGPUFrontFace_CCW;
-        desc.layout = shader->GetPipelineLayout(0);
-        auto depthState = shader->GetDepthStencilState(WGPUTextureFormat_Depth24Plus);
-        desc.depthStencil = &depthState;
-        return wgpuDeviceCreateRenderPipeline(m_Context.GetDevice(), &desc);
-    }
-private:
-    WebGPUContext &m_Context;
 };

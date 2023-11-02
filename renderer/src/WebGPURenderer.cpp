@@ -153,53 +153,29 @@ void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color, int32_t id)
     auto uniformRenderData = new WebGPUUniformBuffer<RenderData>(m_Context.GetDevice(), &renderData,
             sizeof(renderData));
 
-    //// Create dynamic pipeline
-    auto quadPipeline = WebGPURenderPipeline(m_Context);
-    quadPipeline.SetVertexBufferLayout({
+    auto pipelineBuilder = WebGPURenderPipelineBuilder(m_Context, *m_Shader);
+    pipelineBuilder.SetVertexBufferLayout({
             {
                     .format = WGPUVertexFormat_Float32x3,
                     .offset = 0,
                     .shaderLocation = 0,
             }}, 3 * sizeof(float), WGPUVertexStepMode_Vertex);
-    quadPipeline.SetVertexState({
-            .module = m_Shader->GetShaderModule(),
-            .entryPoint = "vs_main",
-            .constantCount = 0,
-            .constants = nullptr,
-    });
 
-    quadPipeline.AddColorTargetState(0, m_Context.GetTextureFormat(), WGPUColorWriteMask_All, true);
-    quadPipeline.AddColorTargetState(1, m_IdTexture->GetTextureFormat(), WGPUColorWriteMask_All, true);
-    quadPipeline.SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined, WGPUFrontFace_CCW, WGPUCullMode_None);
+    pipelineBuilder.AddColorTargetState(0, m_Context.GetTextureFormat(), WGPUColorWriteMask_All, false);
+    pipelineBuilder.AddColorTargetState(1, m_IdTexture->GetTextureFormat(), WGPUColorWriteMask_All, true);
+    pipelineBuilder.SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined, WGPUFrontFace_CCW, WGPUCullMode_None);
 
-    WGPUFragmentState fragmentState = {};
-    fragmentState.module = m_Shader->GetShaderModule();
-    fragmentState.entryPoint = "fs_main";
+    pipelineBuilder.SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
 
-    quadPipeline.SetFragmentState(fragmentState);
+    pipelineBuilder.AddBinding(0, uniformRenderData->GetBuffer(), 0, uniformRenderData->GetSize());
+    pipelineBuilder.AddBindGroupLayoutEntry(0, WGPUBufferBindingType_Uniform, WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, uniformRenderData->GetSize());
 
-    auto depthStencilState = GetDefaultDepthStencilState();
-    depthStencilState.depthCompare = WGPUCompareFunction_Less;
-    depthStencilState.depthWriteEnabled = true;
-    depthStencilState.format = m_DepthTexture->GetTextureFormat();
-    depthStencilState.stencilReadMask = 0;
-    depthStencilState.stencilWriteMask = 0;
-    quadPipeline.SetDepthStencilState(depthStencilState);
+    pipelineBuilder.Create();
 
-    quadPipeline.AddBinding(0, uniformRenderData->m_Buffer, 0, uniformRenderData->m_Size);
-    quadPipeline.AddBindGroupLayoutEntry(0, WGPUBufferBindingType_Uniform, WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, uniformRenderData->m_Size);
-
-    auto pipeline = quadPipeline.Create();
-    auto bindGroup = quadPipeline.CreateBindGroup();
-
-    wgpuRenderPassEncoderSetPipeline(m_RenderPass, pipeline);
-
+    wgpuRenderPassEncoderSetPipeline(m_RenderPass, pipelineBuilder.GetPipeline());
     wgpuRenderPassEncoderSetVertexBuffer(m_RenderPass, 0, m_VertexBuffer->m_Buffer, 0, m_VertexBuffer->m_Size);
-
-    wgpuRenderPassEncoderSetBindGroup(m_RenderPass, 0, bindGroup, 0, nullptr);
-
+    wgpuRenderPassEncoderSetBindGroup(m_RenderPass, 0, pipelineBuilder.GetBindGroup(), 0, nullptr);
     wgpuRenderPassEncoderDraw(m_RenderPass, m_VertexBuffer->m_VertexCount, 1, 0, 0);
-    ////// End dynamic pipeline
 }
 
 void WebGPURenderer::ReadPixel(int x, int y, std::function<void(int32_t)> callback)
