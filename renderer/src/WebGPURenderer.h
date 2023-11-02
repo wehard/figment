@@ -31,6 +31,7 @@ public:
     WGPURenderPassEncoder Begin(Camera &camera);
     void End();
     void DrawQuad(glm::mat4 transform, glm::vec4 color, int32_t id);
+    void DrawQuad2(glm::mat4 transform, glm::vec4 color, int32_t id);
     void ReadPixel(int x, int y, std::function<void(int32_t)> callback);
     void OnResize(uint32_t width, uint32_t height);
     WebGPUShader *GetShader() { return m_Shader; }
@@ -45,3 +46,5 @@ private:
     WebGPUShader *m_Shader;
     WebGPUTexture *m_DepthTexture;
 };
+
+

@@ -2,6 +2,7 @@
 #include "WebGPUBuffer.h"
 #include "WebGPUTexture.h"
 #include "WebGPUShader.h"
+#include "WebGPURenderPipeline.h"
 #include "Utils.h"
 #include <utility>
 #include <vector>
@@ -25,7 +26,8 @@ WebGPURenderer::WebGPURenderer(WebGPUContext &context)
     m_IdTexture = new WebGPUTexture(context.GetDevice(), WGPUTextureFormat_R32Sint, context.GetSwapChainWidth(),
             context.GetSwapChainHeight());
 
-    m_PixelBuffer = new WebGPUBuffer<std::byte>(context.GetDevice(), "PixelBuffer", 2048 * 2048 * sizeof(int32_t), WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead);
+    m_PixelBuffer = new WebGPUBuffer<std::byte>(context.GetDevice(), "PixelBuffer", 2048 * 2048 * sizeof(int32_t),
+            WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead);
 
     m_DepthTexture = WebGPUTexture::CreateDepthTexture(context.GetDevice(), WGPUTextureFormat_Depth24Plus,
             context.GetSwapChainWidth(), context.GetSwapChainHeight());
@@ -151,112 +153,44 @@ void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color, int32_t id)
     auto uniformRenderData = new WebGPUUniformBuffer<RenderData>(m_Context.GetDevice(), &renderData,
             sizeof(renderData));
 
-    WGPURenderPipelineDescriptor pipelineDesc = {};
-    pipelineDesc.nextInChain = nullptr;
+    //// Create dynamic pipeline
+    auto quadPipeline = WebGPURenderPipeline(m_Context);
+    quadPipeline.SetVertexBufferLayout({
+            {
+                    .format = WGPUVertexFormat_Float32x3,
+                    .offset = 0,
+                    .shaderLocation = 0,
+            }}, 3 * sizeof(float), WGPUVertexStepMode_Vertex);
+    quadPipeline.SetVertexState({
+            .module = m_Shader->GetShaderModule(),
+            .entryPoint = "vs_main",
+            .constantCount = 0,
+            .constants = nullptr,
+    });
 
-    WGPUVertexBufferLayout vertexBufferLayout = {};
-
-    WGPUVertexAttribute vertexAttrib = {};
-    vertexAttrib.shaderLocation = 0;
-    vertexAttrib.format = WGPUVertexFormat_Float32x3;
-    vertexAttrib.offset = 0;
-
-    vertexBufferLayout.attributeCount = 1;
-    vertexBufferLayout.attributes = &vertexAttrib;
-    vertexBufferLayout.arrayStride = 3 * sizeof(float);
-    vertexBufferLayout.stepMode = WGPUVertexStepMode_Vertex;
-
-    pipelineDesc.vertex.bufferCount = 1;
-    pipelineDesc.vertex.buffers = &vertexBufferLayout;
-
-    pipelineDesc.vertex.module = m_Shader->GetShaderModule();
-    pipelineDesc.vertex.entryPoint = "vs_main";
-    pipelineDesc.vertex.constantCount = 0;
-    pipelineDesc.vertex.constants = nullptr;
-
-    pipelineDesc.primitive.topology = WGPUPrimitiveTopology_TriangleList;
-    pipelineDesc.primitive.stripIndexFormat = WGPUIndexFormat_Undefined;
-    pipelineDesc.primitive.frontFace = WGPUFrontFace_CCW;
-    pipelineDesc.primitive.cullMode = WGPUCullMode_None;
-
-    WGPUBlendState blendState = {};
-    blendState.color.srcFactor = WGPUBlendFactor_SrcAlpha;
-    blendState.color.dstFactor = WGPUBlendFactor_OneMinusSrcAlpha;
-    blendState.color.operation = WGPUBlendOperation_Add;
-
-    blendState.alpha.srcFactor = WGPUBlendFactor_One;
-    blendState.alpha.dstFactor = WGPUBlendFactor_One;
-    blendState.alpha.operation = WGPUBlendOperation_Add;
-
-    WGPUColorTargetState colorTargets[2] = {};
-
-    colorTargets[0].nextInChain = nullptr;
-    colorTargets[0].format = m_Context.GetTextureFormat();
-    colorTargets[0].blend = &blendState;
-    colorTargets[0].writeMask = WGPUColorWriteMask_All;
-
-    colorTargets[1].nextInChain = nullptr;
-    colorTargets[1].format = m_IdTexture->GetTextureFormat();
-    colorTargets[1].blend = nullptr;
-    colorTargets[1].writeMask = WGPUColorWriteMask_All;
+    quadPipeline.AddColorTargetState(0, m_Context.GetTextureFormat(), WGPUColorWriteMask_All, true);
+    quadPipeline.AddColorTargetState(1, m_IdTexture->GetTextureFormat(), WGPUColorWriteMask_All, true);
+    quadPipeline.SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined, WGPUFrontFace_CCW, WGPUCullMode_None);
 
     WGPUFragmentState fragmentState = {};
     fragmentState.module = m_Shader->GetShaderModule();
     fragmentState.entryPoint = "fs_main";
-    fragmentState.constantCount = 0;
-    fragmentState.constants = nullptr;
-    fragmentState.targetCount = 2;
-    fragmentState.targets = colorTargets;
 
-    pipelineDesc.fragment = &fragmentState;
+    quadPipeline.SetFragmentState(fragmentState);
+
     auto depthStencilState = GetDefaultDepthStencilState();
     depthStencilState.depthCompare = WGPUCompareFunction_Less;
     depthStencilState.depthWriteEnabled = true;
     depthStencilState.format = m_DepthTexture->GetTextureFormat();
     depthStencilState.stencilReadMask = 0;
     depthStencilState.stencilWriteMask = 0;
-    pipelineDesc.depthStencil = &depthStencilState;
+    quadPipeline.SetDepthStencilState(depthStencilState);
 
-    pipelineDesc.multisample.count = 1;
-    pipelineDesc.multisample.mask = ~0u;
-    pipelineDesc.multisample.alphaToCoverageEnabled = false;
+    quadPipeline.AddBinding(0, uniformRenderData->m_Buffer, 0, uniformRenderData->m_Size);
+    quadPipeline.AddBindGroupLayoutEntry(0, WGPUBufferBindingType_Uniform, WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, uniformRenderData->m_Size);
 
-    WGPUBindGroupLayoutEntry bindingLayout = GetDefaultWGPUBindGroupLayoutEntry();
-    bindingLayout.binding = 0;
-    bindingLayout.visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
-    bindingLayout.buffer.type = WGPUBufferBindingType_Uniform;
-    bindingLayout.buffer.minBindingSize = uniformRenderData->m_Size;
-
-    WGPUBindGroupLayoutDescriptor bindGroupLayoutDesc = {};
-    bindGroupLayoutDesc.nextInChain = nullptr;
-    bindGroupLayoutDesc.entryCount = 1;
-    bindGroupLayoutDesc.entries = &bindingLayout;
-    WGPUBindGroupLayout bindGroupLayout = wgpuDeviceCreateBindGroupLayout(m_Context.GetDevice(), &bindGroupLayoutDesc);
-
-    WGPUPipelineLayoutDescriptor layoutDesc = {};
-    layoutDesc.nextInChain = nullptr;
-    layoutDesc.bindGroupLayoutCount = 1;
-    layoutDesc.bindGroupLayouts = &bindGroupLayout;
-
-    WGPUPipelineLayout layout = wgpuDeviceCreatePipelineLayout(m_Context.GetDevice(), &layoutDesc);
-
-    pipelineDesc.layout = layout;
-
-    WGPUBindGroupEntry binding = {};
-    binding.nextInChain = nullptr;
-    binding.binding = 0;
-    binding.buffer = uniformRenderData->m_Buffer;
-    binding.offset = 0;
-    binding.size = uniformRenderData->m_Size;
-
-    WGPUBindGroupDescriptor bindGroupDesc = {};
-    bindGroupDesc.nextInChain = nullptr;
-    bindGroupDesc.layout = bindGroupLayout;
-    bindGroupDesc.entryCount = bindGroupLayoutDesc.entryCount;
-    bindGroupDesc.entries = &binding;
-    WGPUBindGroup bindGroup = wgpuDeviceCreateBindGroup(m_Context.GetDevice(), &bindGroupDesc);
-
-    WGPURenderPipeline pipeline = wgpuDeviceCreateRenderPipeline(m_Context.GetDevice(), &pipelineDesc);
+    auto pipeline = quadPipeline.Create();
+    auto bindGroup = quadPipeline.CreateBindGroup();
 
     wgpuRenderPassEncoderSetPipeline(m_RenderPass, pipeline);
 
@@ -265,6 +199,7 @@ void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color, int32_t id)
     wgpuRenderPassEncoderSetBindGroup(m_RenderPass, 0, bindGroup, 0, nullptr);
 
     wgpuRenderPassEncoderDraw(m_RenderPass, m_VertexBuffer->m_VertexCount, 1, 0, 0);
+    ////// End dynamic pipeline
 }
 
 void WebGPURenderer::ReadPixel(int x, int y, std::function<void(int32_t)> callback)
