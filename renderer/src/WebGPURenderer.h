@@ -25,6 +25,14 @@ struct CameraData
 };
 
 constexpr uint32_t MaxCircleCount = 10000;
+constexpr uint32_t MaxQuadCount = 10000;
+
+struct QuadVertex
+{
+    glm::vec3 Position;
+    glm::vec4 Color;
+    int32_t Id;
+};
 
 struct CircleVertex
 {
@@ -39,14 +47,19 @@ struct RendererData
     std::vector<CircleVertex> CircleVertices;
     uint32_t CircleVertexCount = 0;
 
+    std::vector<QuadVertex> QuadVertices;
+    uint32_t QuadVertexCount = 0;
+
     void Init()
     {
         CircleVertices.resize(MaxCircleCount * 6);
+        QuadVertices.resize(MaxQuadCount * 6);
     }
 
     void Reset()
     {
         CircleVertexCount = 0;
+        QuadVertexCount = 0;
     }
 };
 
