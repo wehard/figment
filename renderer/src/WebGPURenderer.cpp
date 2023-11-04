@@ -147,7 +147,8 @@ void WebGPURenderer::DrawCircles()
     pipelineBuilder.Create();
 
     wgpuRenderPassEncoderSetPipeline(m_RenderPass, pipelineBuilder.GetPipeline());
-    wgpuRenderPassEncoderSetVertexBuffer(m_RenderPass, 0, circleVertexBuffer->GetBuffer(), 0, circleVertexBuffer->GetSize());
+    wgpuRenderPassEncoderSetVertexBuffer(m_RenderPass, 0, circleVertexBuffer->GetBuffer(), 0,
+            m_RendererData.CircleVertexCount * sizeof(CircleVertex));
     wgpuRenderPassEncoderSetBindGroup(m_RenderPass, 0, pipelineBuilder.GetBindGroup(), 0, nullptr);
     wgpuRenderPassEncoderDraw(m_RenderPass, m_RendererData.CircleVertexCount, 1, 0, 0);
 }
@@ -195,12 +196,25 @@ void WebGPURenderer::DrawCircle(glm::vec3 position, glm::vec4 color, int32_t id)
     if (m_RendererData.CircleVertexCount >= MaxCircleCount)
         return;
 
-    m_RendererData.CircleVertices[m_RendererData.CircleVertexCount] = {
-            .Position = position,
-            .Color = color,
-            .Id = id
+    std::vector<glm::vec3> vertices = {
+            { -0.5, -0.5, 0.0 },
+            { +0.5, -0.5, 0.0 },
+            { -0.5, +0.5, 0.0 },
+            { +0.5, -0.5, 0.0 },
+            { +0.5, +0.5, 0.0 },
+            { -0.5, +0.5, 0.0 }
     };
-    m_RendererData.CircleVertexCount++;
+
+    for (int i = 0; i < 6; ++i)
+    {
+        m_RendererData.CircleVertices[m_RendererData.CircleVertexCount + i] = {
+                .Position = position + vertices[i],
+                .Color = color,
+                .Id = id
+        };
+    }
+
+    m_RendererData.CircleVertexCount += 6;
 }
 
 void WebGPURenderer::ReadPixel(int x, int y, std::function<void(int32_t)> callback)

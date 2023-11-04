@@ -108,7 +108,7 @@ void Scene::Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportS
     }
 
     m_Renderer->DrawCircle(glm::vec3(1.0),
-            glm::vec4(1),  -1);
+            glm::vec4(1),  -42);
 
     m_Renderer->End();
 }

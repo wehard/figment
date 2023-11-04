@@ -24,7 +24,7 @@ struct CameraData
     glm::mat4 ProjectionMatrix;
 };
 
-constexpr uint32_t MaxCircleCount = 10000;
+constexpr uint32_t MaxCircleCount = 100;
 
 struct CircleVertex
 {
@@ -40,7 +40,7 @@ struct RendererData
 
     void Init()
     {
-        CircleVertices.resize(MaxCircleCount);
+        CircleVertices.resize(MaxCircleCount * 4);
     }
 
     void Reset()

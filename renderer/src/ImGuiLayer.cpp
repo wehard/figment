@@ -17,17 +17,17 @@ namespace Figment
 
         auto front = m_Scene->CreateEntity("Front");
         auto &transformFront = front.GetComponent<TransformComponent>();
-        transformFront.Position = glm::vec3(10.0f, 0.0f, 10.0f);
+        transformFront.Position = glm::vec3(10.0f, 0.0f, -10.0f);
         transformFront.Scale = glm::vec3(20.0f);
 
         auto middle = m_Scene->CreateEntity("Middle");
         auto &transformMiddle = middle.GetComponent<TransformComponent>();
-        transformMiddle.Position = glm::vec3(0.0f, 0.0f, 0.0f);
+        transformMiddle.Position = glm::vec3(0.0f, 0.0f, -20.0f);
         transformMiddle.Scale = glm::vec3(20.0f);
 
         auto back = m_Scene->CreateEntity("Back");
         auto &transformBack = back.GetComponent<TransformComponent>();
-        transformBack.Position = glm::vec3(-10.0f, 0.0f, -10.0f);
+        transformBack.Position = glm::vec3(-10.0f, 0.0f, -30.0f);
         transformBack.Scale = glm::vec3(20.0f);
     }
 
