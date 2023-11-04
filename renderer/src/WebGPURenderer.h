@@ -28,7 +28,8 @@ constexpr uint32_t MaxCircleCount = 100;
 
 struct CircleVertex
 {
-    glm::vec3 Position;
+    glm::vec3 WorldPosition;
+    glm::vec3 LocalPosition;
     glm::vec4 Color;
     int32_t Id;
 };
@@ -40,7 +41,7 @@ struct RendererData
 
     void Init()
     {
-        CircleVertices.resize(MaxCircleCount * 4);
+        CircleVertices.resize(MaxCircleCount * 6);
     }
 
     void Reset()
@@ -56,7 +57,7 @@ public:
     WGPURenderPassEncoder Begin(Camera &camera);
     void End();
     void DrawQuad(glm::mat4 transform, glm::vec4 color, int32_t id);
-    void DrawCircle(glm::vec3 position, glm::vec4 color, int32_t id);
+    void DrawCircle(glm::vec3 position, glm::vec4 color, float radius, int32_t id);
     void ReadPixel(int x, int y, std::function<void(int32_t)> callback);
     void OnResize(uint32_t width, uint32_t height);
     WebGPUShader *GetShader() { return m_Shader; }

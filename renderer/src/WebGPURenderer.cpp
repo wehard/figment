@@ -122,14 +122,19 @@ void WebGPURenderer::DrawCircles()
                     .shaderLocation = 0,
             },
             {
-                    .format = WGPUVertexFormat_Float32x4,
+                    .format = WGPUVertexFormat_Float32x3,
                     .offset = 3 * sizeof(float),
                     .shaderLocation = 1,
             },
             {
-                    .format = WGPUVertexFormat_Sint32,
-                    .offset = 7 * sizeof(float),
+                    .format = WGPUVertexFormat_Float32x4,
+                    .offset = 6 * sizeof(float),
                     .shaderLocation = 2,
+            },
+            {
+                    .format = WGPUVertexFormat_Sint32,
+                    .offset = 10 * sizeof(float),
+                    .shaderLocation = 3,
             }
     }, sizeof(CircleVertex), WGPUVertexStepMode_Vertex);
 
@@ -191,7 +196,7 @@ void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color, int32_t id)
     wgpuRenderPassEncoderDraw(m_RenderPass, m_VertexBuffer->m_VertexCount, 1, 0, 0);
 }
 
-void WebGPURenderer::DrawCircle(glm::vec3 position, glm::vec4 color, int32_t id)
+void WebGPURenderer::DrawCircle(glm::vec3 position, glm::vec4 color, float radius, int32_t id)
 {
     if (m_RendererData.CircleVertexCount >= MaxCircleCount)
         return;
@@ -208,7 +213,8 @@ void WebGPURenderer::DrawCircle(glm::vec3 position, glm::vec4 color, int32_t id)
     for (int i = 0; i < 6; ++i)
     {
         m_RendererData.CircleVertices[m_RendererData.CircleVertexCount + i] = {
-                .Position = position + vertices[i],
+                .WorldPosition = vertices[i] * radius + position,
+                .LocalPosition = vertices[i],
                 .Color = color,
                 .Id = id
         };
