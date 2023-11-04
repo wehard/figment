@@ -8,7 +8,7 @@ template <typename T>
 class WebGPUBuffer
 {
 public:
-    WebGPUBuffer(WGPUDevice device, std::vector<T> data) : m_Size(data.size() * sizeof(T))
+    WebGPUBuffer(WGPUDevice device, std::vector<T> data) : m_Device(device), m_Size(data.size() * sizeof(T))
     {
         WGPUBufferDescriptor bufferDesc = {};
         bufferDesc.nextInChain = nullptr;
@@ -24,7 +24,7 @@ public:
         printf("WebGPUBuffer<%s> created\n", typeid(T).name());
     }
 
-    WebGPUBuffer(WGPUDevice device, const char *label, uint64_t size, WGPUBufferUsageFlags usage) : m_Size(size)
+    WebGPUBuffer(WGPUDevice device, const char *label, uint64_t size, WGPUBufferUsageFlags usage) : m_Device(device), m_Size(size)
     {
         WGPUBufferDescriptor pixelBufferDesc = {};
         pixelBufferDesc.nextInChain = nullptr;
@@ -33,6 +33,12 @@ public:
         pixelBufferDesc.usage = usage;
         pixelBufferDesc.size = size;
         m_Buffer = wgpuDeviceCreateBuffer(device, &pixelBufferDesc);
+    }
+
+    void SetData(std::vector<T> data, size_t size)
+    {
+        WGPUQueue queue = wgpuDeviceGetQueue(m_Device);
+        wgpuQueueWriteBuffer(queue, m_Buffer, 0, data.data(), size);
     }
 
     WGPUBufferMapState GetMapState() const
@@ -50,12 +56,18 @@ public:
         wgpuBufferUnmap(m_Buffer);
     }
 
+    uint32_t GetSize() const
+    {
+        return m_Size;
+    }
+
     ~WebGPUBuffer<T>()
     {
         wgpuBufferRelease(m_Buffer);
         wgpuBufferDestroy(m_Buffer);
     }
 private:
+    WGPUDevice m_Device;
     WGPUBuffer m_Buffer;
     uint32_t m_Size;
 };

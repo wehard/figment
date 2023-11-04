@@ -8,7 +8,7 @@
 #include "webgpu/webgpu.h"
 #include "glm/glm.hpp"
 
-struct RenderData
+struct UniformData
 {
     glm::mat4 ModelMatrix;
     glm::mat4 ViewMatrix;
@@ -18,10 +18,35 @@ struct RenderData
     uint32_t _padding[3];
 };
 
-struct RenderPassData
+struct CameraData
 {
     glm::mat4 ViewMatrix;
     glm::mat4 ProjectionMatrix;
+};
+
+constexpr uint32_t MaxCircleCount = 10000;
+
+struct CircleVertex
+{
+    glm::vec3 Position;
+    glm::vec4 Color;
+    int32_t Id;
+};
+
+struct RendererData
+{
+    std::vector<CircleVertex> CircleVertices;
+    uint32_t CircleVertexCount = 0;
+
+    void Init()
+    {
+        CircleVertices.resize(MaxCircleCount);
+    }
+
+    void Reset()
+    {
+        CircleVertexCount = 0;
+    }
 };
 
 class WebGPURenderer
@@ -31,20 +56,24 @@ public:
     WGPURenderPassEncoder Begin(Camera &camera);
     void End();
     void DrawQuad(glm::mat4 transform, glm::vec4 color, int32_t id);
-    void DrawQuad2(glm::mat4 transform, glm::vec4 color, int32_t id);
+    void DrawCircle(glm::vec3 position, glm::vec4 color, int32_t id);
     void ReadPixel(int x, int y, std::function<void(int32_t)> callback);
     void OnResize(uint32_t width, uint32_t height);
     WebGPUShader *GetShader() { return m_Shader; }
 private:
+    void DrawCircles();
     WebGPUContext &m_Context;
     WGPUCommandEncoder m_CommandEncoder = {};
     WGPURenderPassEncoder m_RenderPass = {};
     WebGPUVertexBuffer *m_VertexBuffer;
-    RenderPassData m_RenderPassData = {};
+    CameraData m_CameraData = {};
     WebGPUTexture *m_IdTexture;
     WebGPUBuffer<std::byte> *m_PixelBuffer;
     WebGPUShader *m_Shader;
+    WebGPUShader *m_CircleShader;
     WebGPUTexture *m_DepthTexture;
+
+    RendererData m_RendererData;
 };
 
 

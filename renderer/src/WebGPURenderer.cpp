@@ -13,6 +13,7 @@ WebGPURenderer::WebGPURenderer(WebGPUContext &context)
         : m_Context(context)
 {
     m_Shader = new WebGPUShader(context.GetDevice(), *Utils::LoadFile2("res/shaders/wgsl/default.wgsl"));
+    m_CircleShader = new WebGPUShader(context.GetDevice(), *Utils::LoadFile2("res/shaders/wgsl/circle.wgsl"));
 
     std::vector<float> data = { -0.5, -0.5, 0.0,
                                 +0.5, -0.5, 0.0,
@@ -31,12 +32,14 @@ WebGPURenderer::WebGPURenderer(WebGPUContext &context)
 
     m_DepthTexture = WebGPUTexture::CreateDepthTexture(context.GetDevice(), WGPUTextureFormat_Depth24Plus,
             context.GetSwapChainWidth(), context.GetSwapChainHeight());
+
+    m_RendererData.Init();
 }
 
 WGPURenderPassEncoder WebGPURenderer::Begin(Camera &camera)
 {
-    m_RenderPassData.ProjectionMatrix = camera.GetProjectionMatrix();
-    m_RenderPassData.ViewMatrix = camera.GetViewMatrix();
+    m_CameraData.ProjectionMatrix = camera.GetProjectionMatrix();
+    m_CameraData.ViewMatrix = camera.GetViewMatrix();
 
     auto device = m_Context.GetDevice();
 
@@ -73,11 +76,16 @@ WGPURenderPassEncoder WebGPURenderer::Begin(Camera &camera)
     renderPassDesc.depthStencilAttachment = &depthStencilAttachment;
 
     m_RenderPass = wgpuCommandEncoderBeginRenderPass(m_CommandEncoder, &renderPassDesc);
+
+    m_RendererData.Reset();
+
     return m_RenderPass;
 }
 
 void WebGPURenderer::End()
 {
+    DrawCircles();
+
     wgpuRenderPassEncoderEnd(m_RenderPass);
 
     WGPUCommandBufferDescriptor commandBufferDesc = {};
@@ -91,15 +99,68 @@ void WebGPURenderer::End()
     m_RenderPass = nullptr;
 }
 
+void WebGPURenderer::DrawCircles()
+{
+    if (m_RendererData.CircleVertexCount == 0)
+        return;
+
+    CameraData cameraData = {};
+    cameraData.ViewMatrix = m_CameraData.ViewMatrix;
+    cameraData.ProjectionMatrix = m_CameraData.ProjectionMatrix;
+    auto cameraDataBuffer = new WebGPUUniformBuffer<CameraData>(m_Context.GetDevice(), &cameraData,
+            sizeof(cameraData));
+
+    auto circleVertexBuffer = new WebGPUBuffer<CircleVertex>(m_Context.GetDevice(), "CircleVertexBuffer",
+            m_RendererData.CircleVertexCount * sizeof(CircleVertex), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex);
+    circleVertexBuffer->SetData(m_RendererData.CircleVertices, m_RendererData.CircleVertexCount * sizeof(CircleVertex));
+
+    auto pipelineBuilder = WebGPURenderPipelineBuilder(m_Context, *m_CircleShader);
+    pipelineBuilder.SetVertexBufferLayout({
+            {
+                    .format = WGPUVertexFormat_Float32x3,
+                    .offset = 0,
+                    .shaderLocation = 0,
+            },
+            {
+                    .format = WGPUVertexFormat_Float32x4,
+                    .offset = 3 * sizeof(float),
+                    .shaderLocation = 1,
+            },
+            {
+                    .format = WGPUVertexFormat_Sint32,
+                    .offset = 7 * sizeof(float),
+                    .shaderLocation = 2,
+            }
+    }, sizeof(CircleVertex), WGPUVertexStepMode_Vertex);
+
+    pipelineBuilder.AddColorTargetState(0, m_Context.GetTextureFormat(), WGPUColorWriteMask_All, false);
+    pipelineBuilder.AddColorTargetState(1, m_IdTexture->GetTextureFormat(), WGPUColorWriteMask_All, true);
+    pipelineBuilder.SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined, WGPUFrontFace_CCW,
+            WGPUCullMode_None);
+
+    pipelineBuilder.SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
+
+    pipelineBuilder.AddBinding(0, cameraDataBuffer->GetBuffer(), 0, cameraDataBuffer->GetSize());
+    pipelineBuilder.AddBindGroupLayoutEntry(0, WGPUBufferBindingType_Uniform,
+            WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, cameraDataBuffer->GetSize());
+
+    pipelineBuilder.Create();
+
+    wgpuRenderPassEncoderSetPipeline(m_RenderPass, pipelineBuilder.GetPipeline());
+    wgpuRenderPassEncoderSetVertexBuffer(m_RenderPass, 0, circleVertexBuffer->GetBuffer(), 0, circleVertexBuffer->GetSize());
+    wgpuRenderPassEncoderSetBindGroup(m_RenderPass, 0, pipelineBuilder.GetBindGroup(), 0, nullptr);
+    wgpuRenderPassEncoderDraw(m_RenderPass, m_RendererData.CircleVertexCount, 1, 0, 0);
+}
+
 void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color, int32_t id)
 {
-    RenderData renderData = {};
+    UniformData renderData = {};
     renderData.Color = color;
     renderData.ModelMatrix = transform;
-    renderData.ViewMatrix = m_RenderPassData.ViewMatrix;
-    renderData.ProjectionMatrix = m_RenderPassData.ProjectionMatrix;
+    renderData.ViewMatrix = m_CameraData.ViewMatrix;
+    renderData.ProjectionMatrix = m_CameraData.ProjectionMatrix;
     renderData.Id = id;
-    auto uniformRenderData = new WebGPUUniformBuffer<RenderData>(m_Context.GetDevice(), &renderData,
+    auto uniformRenderData = new WebGPUUniformBuffer<UniformData>(m_Context.GetDevice(), &renderData,
             sizeof(renderData));
 
     auto pipelineBuilder = WebGPURenderPipelineBuilder(m_Context, *m_Shader);
@@ -112,12 +173,14 @@ void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color, int32_t id)
 
     pipelineBuilder.AddColorTargetState(0, m_Context.GetTextureFormat(), WGPUColorWriteMask_All, false);
     pipelineBuilder.AddColorTargetState(1, m_IdTexture->GetTextureFormat(), WGPUColorWriteMask_All, true);
-    pipelineBuilder.SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined, WGPUFrontFace_CCW, WGPUCullMode_None);
+    pipelineBuilder.SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined, WGPUFrontFace_CCW,
+            WGPUCullMode_None);
 
     pipelineBuilder.SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
 
     pipelineBuilder.AddBinding(0, uniformRenderData->GetBuffer(), 0, uniformRenderData->GetSize());
-    pipelineBuilder.AddBindGroupLayoutEntry(0, WGPUBufferBindingType_Uniform, WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, uniformRenderData->GetSize());
+    pipelineBuilder.AddBindGroupLayoutEntry(0, WGPUBufferBindingType_Uniform,
+            WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, uniformRenderData->GetSize());
 
     pipelineBuilder.Create();
 
@@ -125,6 +188,19 @@ void WebGPURenderer::DrawQuad(glm::mat4 transform, glm::vec4 color, int32_t id)
     wgpuRenderPassEncoderSetVertexBuffer(m_RenderPass, 0, m_VertexBuffer->m_Buffer, 0, m_VertexBuffer->m_Size);
     wgpuRenderPassEncoderSetBindGroup(m_RenderPass, 0, pipelineBuilder.GetBindGroup(), 0, nullptr);
     wgpuRenderPassEncoderDraw(m_RenderPass, m_VertexBuffer->m_VertexCount, 1, 0, 0);
+}
+
+void WebGPURenderer::DrawCircle(glm::vec3 position, glm::vec4 color, int32_t id)
+{
+    if (m_RendererData.CircleVertexCount >= MaxCircleCount)
+        return;
+
+    m_RendererData.CircleVertices[m_RendererData.CircleVertexCount] = {
+            .Position = position,
+            .Color = color,
+            .Id = id
+    };
+    m_RendererData.CircleVertexCount++;
 }
 
 void WebGPURenderer::ReadPixel(int x, int y, std::function<void(int32_t)> callback)

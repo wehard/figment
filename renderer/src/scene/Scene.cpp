@@ -107,6 +107,9 @@ void Scene::Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportS
                 color, entity.GetHandle());
     }
 
+    m_Renderer->DrawCircle(glm::vec3(1.0),
+            glm::vec4(1),  -1);
+
     m_Renderer->End();
 }
 
