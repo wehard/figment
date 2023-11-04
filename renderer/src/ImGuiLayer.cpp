@@ -272,6 +272,9 @@ namespace Figment
             ImGui::TreePop();
         }
 
+        auto fps = App::Instance()->GetFps();
+        ImGui::Text("FPS: %.2f", fps);
+
         if (ImGui::BeginListBox("Mouse"))
         {
             ImGui::Text("Position: %.2f %.2f", mousePosition.x, mousePosition.y);
@@ -297,6 +300,9 @@ namespace Figment
         {
             if (ImGui::MenuItem("New Entity", "Ctrl+N"))
             {
+                auto entity = m_Scene->CreateEntity("New Entity");
+                entity.AddComponent<ColorComponent>();
+                entity.AddComponent<CircleComponent>();
             }
             ImGui::EndMenu();
         }

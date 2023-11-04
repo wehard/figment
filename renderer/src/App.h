@@ -22,6 +22,7 @@ public:
 
     void Update();
     std::shared_ptr<Window> GetWindow() { return m_Window; }
+    double GetFps() { return m_Fps; }
 
     static App *Instance() { return s_Instance; }
 private:
@@ -31,6 +32,7 @@ private:
 
     double m_CurrentTime = 0;
     double m_LastTime = 0;
+    double m_Fps = 0;
 
     static App *s_Instance;
 };
