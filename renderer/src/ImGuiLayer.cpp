@@ -15,20 +15,12 @@ namespace Figment
         auto m_Window = App::Instance()->GetWindow();
         m_Scene = new Scene(m_Window->GetFramebufferWidth(), m_Window->GetFramebufferHeight());
 
-        auto front = m_Scene->CreateEntity("Front");
-        auto &transformFront = front.GetComponent<TransformComponent>();
-        transformFront.Position = glm::vec3(10.0f, 0.0f, -10.0f);
+        auto circleEntity = m_Scene->CreateEntity("Front");
+        auto &transformFront = circleEntity.GetComponent<TransformComponent>();
+        transformFront.Position = glm::vec3(0.0f, 0.0f, 0.0f);
         transformFront.Scale = glm::vec3(20.0f);
-
-        auto middle = m_Scene->CreateEntity("Middle");
-        auto &transformMiddle = middle.GetComponent<TransformComponent>();
-        transformMiddle.Position = glm::vec3(0.0f, 0.0f, -20.0f);
-        transformMiddle.Scale = glm::vec3(20.0f);
-
-        auto back = m_Scene->CreateEntity("Back");
-        auto &transformBack = back.GetComponent<TransformComponent>();
-        transformBack.Position = glm::vec3(-10.0f, 0.0f, -30.0f);
-        transformBack.Scale = glm::vec3(20.0f);
+        auto &circleComponent = circleEntity.AddComponent<CircleComponent>();
+        circleComponent.Radius = 20.0f;
     }
 
     Figment::ImGuiLayer::~ImGuiLayer()
@@ -205,10 +197,19 @@ namespace Figment
 
         if (entity.HasComponent<VerletBodyComponent>())
         {
+            ImGui::Separator();
             auto &body = entity.GetComponent<VerletBodyComponent>();
             ImGui::Text("Verlet Body");
             ImGui::DragFloat3("Previous position", (float *)&body.m_PreviousPosition.x);
             ImGui::Text("Velocity: x %f y %f z %f", body.m_Velocity.x, body.m_Velocity.y, body.m_Velocity.z);
+        }
+
+        if (entity.HasComponent<CircleComponent>())
+        {
+            ImGui::Separator();
+            auto &circle = entity.GetComponent<CircleComponent>();
+            ImGui::Text("Circle");
+            ImGui::DragFloat("Radius", &circle.Radius, 0.1f, 0.1f, FLT_MAX, "%.2f");
         }
         ImGui::End();
     }

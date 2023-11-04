@@ -99,14 +99,13 @@ void Scene::Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportS
     for (auto e : view)
     {
         Entity entity = { e, this };
-
-        if (entity.HasComponent<VerletBodyComponent>())
-            m_VerletPhysics.Update(entity, GetEntities(), deltaTime);
-        auto color = entity.GetHandle() == m_HoveredId ? glm::vec4(1.0, 1.0, 1.0, 1.0) : entity.GetComponent<ColorComponent>().m_Color;
-        // m_Renderer->DrawQuad(entity.GetComponent<TransformComponent>().GetTransform(),
-        //         color, entity.GetHandle());
-        m_Renderer->DrawCircle(entity.GetComponent<TransformComponent>().Position,
-                color, 10.0,  entity.GetHandle());
+        if (entity.HasComponent<CircleComponent>())
+        {
+            auto &circle = entity.GetComponent<CircleComponent>();
+            auto &transform = entity.GetComponent<TransformComponent>();
+            auto color = entity.GetHandle() == m_HoveredId ? glm::vec4(1.0, 1.0, 1.0, 1.0) : entity.GetComponent<ColorComponent>().m_Color;
+            m_Renderer->DrawCircle(transform.Position, color, circle.Radius, entity.GetHandle());
+        }
     }
 
     m_Renderer->End();

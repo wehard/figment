@@ -63,6 +63,14 @@ struct ColorComponent
     ColorComponent(glm::vec4 color) : m_Color(color) {}
 };
 
+struct CircleComponent
+{
+    float Radius = 1.0f;
+
+    CircleComponent() = default;
+    CircleComponent(float radius) : Radius(radius) {}
+};
+
 class Entity
 {
 private:
