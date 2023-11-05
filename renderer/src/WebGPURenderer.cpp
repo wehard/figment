@@ -9,6 +9,8 @@
 
 #define MEM_ALIGN(_SIZE, _ALIGN)        (((_SIZE) + ((_ALIGN) - 1)) & ~((_ALIGN) - 1))
 
+RendererStats WebGPURenderer::s_Stats = {};
+
 WebGPURenderer::WebGPURenderer(WebGPUContext &context)
         : m_Context(context)
 {
@@ -79,6 +81,7 @@ WGPURenderPassEncoder WebGPURenderer::Begin(Camera &camera)
     m_RenderPass = wgpuCommandEncoderBeginRenderPass(m_CommandEncoder, &renderPassDesc);
 
     m_RendererData.Reset();
+    s_Stats.Reset();
 
     return m_RenderPass;
 }
@@ -99,6 +102,10 @@ void WebGPURenderer::End()
     m_CommandEncoder = nullptr;
     wgpuRenderPassEncoderRelease(m_RenderPass);
     m_RenderPass = nullptr;
+
+    s_Stats.CircleCount = m_RendererData.CircleVertexCount / 6;
+    s_Stats.QuadCount = m_RendererData.QuadVertexCount / 6;
+    s_Stats.VertexCount = m_RendererData.CircleVertexCount + m_RendererData.QuadVertexCount;
 }
 
 void WebGPURenderer::DrawCircles()
@@ -158,6 +165,7 @@ void WebGPURenderer::DrawCircles()
             m_RendererData.CircleVertexCount * sizeof(CircleVertex));
     wgpuRenderPassEncoderSetBindGroup(m_RenderPass, 0, pipelineBuilder.GetBindGroup(), 0, nullptr);
     wgpuRenderPassEncoderDraw(m_RenderPass, m_RendererData.CircleVertexCount, 1, 0, 0);
+    s_Stats.DrawCalls++;
 }
 
 void WebGPURenderer::DrawQuads()
@@ -217,6 +225,7 @@ void WebGPURenderer::DrawQuads()
             m_RendererData.QuadVertexCount * sizeof(QuadVertex));
     wgpuRenderPassEncoderSetBindGroup(m_RenderPass, 0, pipelineBuilder.GetBindGroup(), 0, nullptr);
     wgpuRenderPassEncoderDraw(m_RenderPass, m_RendererData.QuadVertexCount, 1, 0, 0);
+    s_Stats.DrawCalls++;
 }
 
 void WebGPURenderer::DrawQuad(glm::vec3 position, glm::vec4 color, int32_t id)

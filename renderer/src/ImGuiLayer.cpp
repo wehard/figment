@@ -290,7 +290,15 @@ namespace Figment
         }
         ImGui::Text("Entity: %d", m_Scene->m_HoveredId);
         ImGui::Text("Selected: %d", m_SelectedEntity ? m_SelectedEntity.GetHandle() : -1);
+        ImGui::Separator();
+        auto stats = WebGPURenderer::GetStats();
+        ImGui::Text("Draw calls: %d", stats.DrawCalls);
+        ImGui::Text("Vertex count: %d", stats.VertexCount);
+        ImGui::Text("Quad count: %d", stats.QuadCount);
+        ImGui::Text("Circle count: %d", stats.CircleCount);
         ImGui::End();
+
+
 
         DrawEntitiesPanel(m_Scene->GetEntities(), [this](Entity entity)
         {
@@ -305,8 +313,7 @@ namespace Figment
         {
             if (ImGui::MenuItem("New Entity", "Ctrl+N"))
             {
-                auto entity = m_Scene->CreateEntity("New Entity");
-                entity.AddComponent<ColorComponent>();
+                auto entity = m_Scene->CreateEntity("New Quad");
                 entity.AddComponent<QuadComponent>();
             }
             ImGui::EndMenu();

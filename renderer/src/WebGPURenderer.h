@@ -64,6 +64,22 @@ struct RendererData
     }
 };
 
+struct RendererStats
+{
+    uint32_t DrawCalls = 0;
+    uint32_t VertexCount = 0;
+    uint32_t CircleCount = 0;
+    uint32_t QuadCount = 0;
+
+    void Reset()
+    {
+        DrawCalls = 0;
+        VertexCount = 0;
+        CircleCount = 0;
+        QuadCount = 0;
+    }
+};
+
 class WebGPURenderer
 {
 public:
@@ -75,6 +91,7 @@ public:
     void ReadPixel(int x, int y, std::function<void(int32_t)> callback);
     void OnResize(uint32_t width, uint32_t height);
     WebGPUShader *GetShader() { return m_Shader; }
+    static RendererStats GetStats() { return s_Stats; }
 private:
     void DrawCircles();
     void DrawQuads();
@@ -91,6 +108,7 @@ private:
     WebGPUTexture *m_DepthTexture;
 
     RendererData m_RendererData;
+    static RendererStats s_Stats;
 };
 
 
