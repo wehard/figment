@@ -125,7 +125,7 @@ void WebGPURenderPipelineBuilder::AddBinding(uint32_t binding, WGPUBuffer buffer
     m_BindGroupEntries.push_back(entry);
 }
 
-void WebGPURenderPipelineBuilder::Create()
+void WebGPURenderPipelineBuilder::Build()
 {
     WGPURenderPipelineDescriptor desc = {};
     desc.nextInChain = nullptr;

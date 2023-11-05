@@ -158,7 +158,7 @@ void WebGPURenderer::DrawCircles()
     pipelineBuilder.AddBindGroupLayoutEntry(0, WGPUBufferBindingType_Uniform,
             WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, cameraDataBuffer->GetSize());
 
-    pipelineBuilder.Create();
+    pipelineBuilder.Build();
 
     wgpuRenderPassEncoderSetPipeline(m_RenderPass, pipelineBuilder.GetPipeline());
     wgpuRenderPassEncoderSetVertexBuffer(m_RenderPass, 0, circleVertexBuffer->GetBuffer(), 0,
@@ -218,7 +218,7 @@ void WebGPURenderer::DrawQuads()
     pipelineBuilder.AddBindGroupLayoutEntry(0, WGPUBufferBindingType_Uniform,
             WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, cameraDataBuffer->GetSize());
 
-    pipelineBuilder.Create();
+    pipelineBuilder.Build();
 
     wgpuRenderPassEncoderSetPipeline(m_RenderPass, pipelineBuilder.GetPipeline());
     wgpuRenderPassEncoderSetVertexBuffer(m_RenderPass, 0, quadVertexBuffer->GetBuffer(), 0,

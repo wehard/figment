@@ -18,7 +18,7 @@ public:
     void SetDepthStencilState(WGPUTextureFormat format, WGPUCompareFunction compareFunction, bool depthWriteEnabled);
     void AddBindGroupLayoutEntry(uint32_t binding, WGPUBufferBindingType type, WGPUShaderStageFlags visibility, uint64_t minBindingSize);
     void AddBinding(uint32_t binding, WGPUBuffer buffer, uint64_t offset, uint64_t size);
-    void Create();
+    void Build();
     WGPURenderPipeline GetPipeline() { return m_Pipeline; }
     WGPUBindGroup GetBindGroup() { return m_BindGroup; }
 private:
