@@ -46,7 +46,8 @@ void App::Update()
     m_CurrentTime = glfwGetTime();
     double deltaTime = m_CurrentTime - m_LastTime;
     m_LastTime = m_CurrentTime;
-    m_Fps = 1.0 / deltaTime;
+
+    m_FPSCounter.Update(deltaTime);
 
     ImGuiIO &io = ImGui::GetIO();
     if (!io.WantCaptureKeyboard || !io.WantCaptureMouse)

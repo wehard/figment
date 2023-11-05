@@ -282,9 +282,6 @@ namespace Figment
             ImGui::TreePop();
         }
 
-        auto fps = App::Instance()->GetFps();
-        ImGui::Text("FPS: %.2f", fps);
-
         if (ImGui::BeginListBox("Mouse"))
         {
             ImGui::Text("Position: %.2f %.2f", mousePosition.x, mousePosition.y);
@@ -301,9 +298,12 @@ namespace Figment
         ImGui::Text("Vertex count: %d", stats.VertexCount);
         ImGui::Text("Quad count: %d", stats.QuadCount);
         ImGui::Text("Circle count: %d", stats.CircleCount);
+        ImGui::Separator();
+        auto fpsCounter = App::Instance()->GetFPSCounter();
+        ImGui::Text("FPS: %.2f", fpsCounter.GetFPS());
+        ImGui::Text("Frame time: %.2f ms", fpsCounter.GetFrameTime());
+        ImGui::Text("Frame count: %d", fpsCounter.GetFrameCount());
         ImGui::End();
-
-
 
         DrawEntitiesPanel(m_Scene->GetEntities(), [this](Entity entity)
         {
