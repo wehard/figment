@@ -26,6 +26,8 @@ struct CameraData
 
 constexpr uint32_t MaxCircleCount = 10000;
 constexpr uint32_t MaxQuadCount = 10000;
+constexpr uint32_t MaxCircleVertexCount = MaxCircleCount * 6;
+constexpr uint32_t MaxQuadVertexCount = MaxQuadCount * 6;
 
 struct QuadVertex
 {

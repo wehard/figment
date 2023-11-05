@@ -1,4 +1,5 @@
 #include "ImGuiLayer.h"
+#include "Random.h"
 
 #include "imgui.h"
 #include "imgui_impl_wgpu.h"
@@ -15,17 +16,21 @@ namespace Figment
         auto m_Window = App::Instance()->GetWindow();
         m_Scene = new Scene(m_Window->GetFramebufferWidth(), m_Window->GetFramebufferHeight());
 
-        auto circleEntity = m_Scene->CreateEntity("Circle");
-        auto &transformCircle = circleEntity.GetComponent<TransformComponent>();
-        transformCircle.Position = glm::vec3(0.0f, 0.0f, 0.0f);
-        transformCircle.Scale = glm::vec3(20.0f);
-        circleEntity.AddComponent<CircleComponent>(20.0f);
+        for (int i = 0; i < MaxQuadCount; i++)
+        {
+            auto quadEntity = m_Scene->CreateEntity("Quad");
+            auto &transformQuad = quadEntity.GetComponent<TransformComponent>();
+            transformQuad.Position = glm::vec3(Random::Float(-100.0, 100.0), Random::Float(-100.0, 100.0), Random::Float(-100.0, 100.0));
+            quadEntity.AddComponent<QuadComponent>();
+        }
 
-        auto quadEntity = m_Scene->CreateEntity("Quad");
-        auto &transformQuad = quadEntity.GetComponent<TransformComponent>();
-        transformQuad.Position = glm::vec3(0.0f, 0.0f, 0.0f);
-        transformQuad.Scale = glm::vec3(20.0f);
-        quadEntity.AddComponent<QuadComponent>();
+        for (int j = 0; j < MaxCircleCount; j++)
+        {
+            auto circleEntity = m_Scene->CreateEntity("Circle");
+            auto &transformCircle = circleEntity.GetComponent<TransformComponent>();
+            transformCircle.Position = glm::vec3(Random::Float(-100.0, 100.0), Random::Float(-100.0, 100.0), Random::Float(-100.0, 100.0));
+            circleEntity.AddComponent<CircleComponent>(2.0f);
+        }
     }
 
     Figment::ImGuiLayer::~ImGuiLayer()
