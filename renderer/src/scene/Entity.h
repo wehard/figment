@@ -71,6 +71,14 @@ struct CircleComponent
     CircleComponent(float radius) : Radius(radius) {}
 };
 
+struct QuadComponent
+{
+    float Radius = 1.0f;
+
+    QuadComponent() = default;
+    QuadComponent(float radius) : Radius(radius) {}
+};
+
 class Entity
 {
 private:

@@ -15,12 +15,17 @@ namespace Figment
         auto m_Window = App::Instance()->GetWindow();
         m_Scene = new Scene(m_Window->GetFramebufferWidth(), m_Window->GetFramebufferHeight());
 
-        auto circleEntity = m_Scene->CreateEntity("Front");
-        auto &transformFront = circleEntity.GetComponent<TransformComponent>();
-        transformFront.Position = glm::vec3(0.0f, 0.0f, 0.0f);
-        transformFront.Scale = glm::vec3(20.0f);
-        auto &circleComponent = circleEntity.AddComponent<CircleComponent>();
-        circleComponent.Radius = 20.0f;
+        auto circleEntity = m_Scene->CreateEntity("Circle");
+        auto &transformCircle = circleEntity.GetComponent<TransformComponent>();
+        transformCircle.Position = glm::vec3(0.0f, 0.0f, 0.0f);
+        transformCircle.Scale = glm::vec3(20.0f);
+        circleEntity.AddComponent<CircleComponent>(20.0f);
+
+        auto quadEntity = m_Scene->CreateEntity("Quad");
+        auto &transformQuad = quadEntity.GetComponent<TransformComponent>();
+        transformQuad.Position = glm::vec3(0.0f, 0.0f, 0.0f);
+        transformQuad.Scale = glm::vec3(20.0f);
+        quadEntity.AddComponent<QuadComponent>();
     }
 
     Figment::ImGuiLayer::~ImGuiLayer()
@@ -302,7 +307,7 @@ namespace Figment
             {
                 auto entity = m_Scene->CreateEntity("New Entity");
                 entity.AddComponent<ColorComponent>();
-                entity.AddComponent<CircleComponent>();
+                entity.AddComponent<QuadComponent>();
             }
             ImGui::EndMenu();
         }

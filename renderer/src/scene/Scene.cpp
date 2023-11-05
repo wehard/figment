@@ -106,6 +106,13 @@ void Scene::Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportS
             auto color = entity.GetHandle() == m_HoveredId ? glm::vec4(1.0, 1.0, 1.0, 1.0) : entity.GetComponent<ColorComponent>().m_Color;
             m_Renderer->DrawCircle(transform.Position, color, circle.Radius, entity.GetHandle());
         }
+        if (entity.HasComponent<QuadComponent>())
+        {
+            auto &quad = entity.GetComponent<QuadComponent>();
+            auto &transform = entity.GetComponent<TransformComponent>();
+            auto color = entity.GetHandle() == m_HoveredId ? glm::vec4(1.0, 1.0, 1.0, 1.0) : entity.GetComponent<ColorComponent>().m_Color;
+            m_Renderer->DrawQuad(transform.Position, color, entity.GetHandle());
+        }
     }
 
     m_Renderer->End();
