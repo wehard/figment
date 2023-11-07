@@ -25,13 +25,9 @@ App::App(uint32_t width, uint32_t height)
         }
     });
 
-    auto *glfwWindow = (GLFWwindow *)m_Window->GetNative();
-    Input::Initialize(glfwWindow);
+    Input::Initialize((GLFWwindow *)m_Window->GetNative());
     m_GUICtx = std::make_unique<WebGPUGUIContext>();
-
-    const char *glslVersion = "#version 300 es";
-
-    m_GUICtx->Init(m_Window, glslVersion);
+    m_GUICtx->Init(m_Window, "glslVersion");
 
     m_Layers.emplace_back(std::make_unique<Figment::ImGuiLayer>());
 }

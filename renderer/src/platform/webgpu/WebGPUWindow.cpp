@@ -53,7 +53,7 @@ WebGPUWindow::WebGPUWindow(const std::string &title, const uint32_t width, const
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
-    m_Window = glfwCreateWindow(width, height, "Figment - WebGPU", nullptr, nullptr);
+    m_Window = glfwCreateWindow((int)width, (int)height, "Figment - WebGPU", nullptr, nullptr);
 
     if (!m_Window)
     {
@@ -91,7 +91,6 @@ WebGPUWindow::~WebGPUWindow()
 
 void WebGPUWindow::Resize(WindowResizeEventData resizeData)
 {
-    // glViewport(0, 0, resizeData.FramebufferWidth, resizeData.FramebufferHeight);
     m_Width = resizeData.Width;
     m_Height = resizeData.Height;
     m_FramebufferWidth = resizeData.FramebufferWidth;

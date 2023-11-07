@@ -7,10 +7,8 @@
 #include "ScriptEngine.h"
 #endif
 
-Scene::Scene() = default;
-
 Scene::Scene(uint32_t width, uint32_t height)
-        : m_Width(width), m_Height(height), m_ClearColor(glm::vec4(0.1, 0.1, 0.1, 1.0))
+        : m_Width(width), m_Height(height)
 {
     m_Camera = std::make_shared<PerspectiveCamera>((float)width / (float)height);
     m_CameraController = std::make_shared<CameraController>(m_Camera);
@@ -21,7 +19,10 @@ Scene::Scene(uint32_t width, uint32_t height)
     m_Renderer = std::make_unique<WebGPURenderer>(*webGpuWindow->GetContext());
 }
 
-Scene::~Scene() = default;
+Scene::~Scene()
+{
+
+}
 
 static glm::vec4 GetRandomColor()
 {
@@ -77,7 +78,7 @@ Entity Scene::GetHoveredEntity()
     return GetEntityById(m_HoveredId);
 }
 
-void Scene::Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportSize)
+void Scene::OnUpdate(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportSize)
 {
     m_Renderer->Begin(*m_CameraController->GetCamera()); // TODO: Make static
     m_CameraController->Update(deltaTime);
@@ -99,19 +100,16 @@ void Scene::Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportS
     for (auto e : view)
     {
         Entity entity = { e, this };
+        auto &transform = entity.GetComponent<TransformComponent>();
+        auto color = entity.GetHandle() == m_HoveredId ? glm::vec4(1.0, 1.0, 1.0, 1.0) : entity.GetComponent<ColorComponent>().m_Color;
         if (entity.HasComponent<CircleComponent>())
         {
             auto &circle = entity.GetComponent<CircleComponent>();
-            auto &transform = entity.GetComponent<TransformComponent>();
-            auto color = entity.GetHandle() == m_HoveredId ? glm::vec4(1.0, 1.0, 1.0, 1.0) : entity.GetComponent<ColorComponent>().m_Color;
-            m_Renderer->DrawCircle(transform.Position, color, circle.Radius, entity.GetHandle());
+            m_Renderer->DrawCircle(transform.Position, color, circle.Radius, (int)entity.GetHandle());
         }
         if (entity.HasComponent<QuadComponent>())
         {
-            auto &quad = entity.GetComponent<QuadComponent>();
-            auto &transform = entity.GetComponent<TransformComponent>();
-            auto color = entity.GetHandle() == m_HoveredId ? glm::vec4(1.0, 1.0, 1.0, 1.0) : entity.GetComponent<ColorComponent>().m_Color;
-            m_Renderer->DrawQuad(transform.Position, color, entity.GetHandle());
+            m_Renderer->DrawQuad(transform.Position, color, (int)entity.GetHandle());
         }
     }
 
@@ -130,3 +128,4 @@ void Scene::OnResize(uint32_t width, uint32_t height)
     m_Camera->Resize((float)width, (float)height);
     m_Renderer->OnResize(width, height);
 }
+

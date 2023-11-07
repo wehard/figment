@@ -1,6 +1,12 @@
 #include "WebGPURenderPipeline.h"
 
-WebGPURenderPipelineBuilder &WebGPURenderPipelineBuilder::SetVertexBufferLayout(std::vector<WGPUVertexAttribute> attributes, uint64_t stride,
+WebGPURenderPipelineBuilder::~WebGPURenderPipelineBuilder()
+{
+    wgpuRenderPipelineRelease(m_Pipeline);
+    wgpuBindGroupRelease(m_BindGroup);
+}
+
+void WebGPURenderPipelineBuilder::SetVertexBufferLayout(std::vector<WGPUVertexAttribute> attributes, uint64_t stride,
         WGPUVertexStepMode stepMode)
 {
     m_VertexAttributes = attributes;
@@ -8,7 +14,6 @@ WebGPURenderPipelineBuilder &WebGPURenderPipelineBuilder::SetVertexBufferLayout(
     m_VertexBufferLayout.attributes = m_VertexAttributes.data();
     m_VertexBufferLayout.arrayStride = stride;
     m_VertexBufferLayout.stepMode = stepMode;
-    return *this;
 }
 
 void WebGPURenderPipelineBuilder::SetPrimitiveState(WGPUPrimitiveTopology topology, WGPUIndexFormat stripIndexFormat, WGPUFrontFace frontFace, WGPUCullMode cullMode)
@@ -175,3 +180,5 @@ void WebGPURenderPipelineBuilder::Build()
     };
     m_BindGroup = wgpuDeviceCreateBindGroup(m_Context.GetDevice(), &bindGroupDesc);
 }
+
+

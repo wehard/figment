@@ -20,7 +20,8 @@ namespace Figment
         {
             auto quadEntity = m_Scene->CreateEntity("Quad");
             auto &transformQuad = quadEntity.GetComponent<TransformComponent>();
-            transformQuad.Position = glm::vec3(Random::Float(-100.0, 100.0), Random::Float(-100.0, 100.0), Random::Float(-100.0, 100.0));
+            transformQuad.Position = glm::vec3(Random::Float(-100.0, 100.0), Random::Float(-100.0, 100.0),
+                    Random::Float(-100.0, 100.0));
             quadEntity.AddComponent<QuadComponent>();
         }
 
@@ -28,7 +29,8 @@ namespace Figment
         {
             auto circleEntity = m_Scene->CreateEntity("Circle");
             auto &transformCircle = circleEntity.GetComponent<TransformComponent>();
-            transformCircle.Position = glm::vec3(Random::Float(-100.0, 100.0), Random::Float(-100.0, 100.0), Random::Float(-100.0, 100.0));
+            transformCircle.Position = glm::vec3(Random::Float(-100.0, 100.0), Random::Float(-100.0, 100.0),
+                    Random::Float(-100.0, 100.0));
             circleEntity.AddComponent<CircleComponent>(2.0f);
         }
     }
@@ -51,7 +53,7 @@ namespace Figment
     void Figment::ImGuiLayer::OnUpdate(float deltaTime)
     {
         auto m_Window = App::Instance()->GetWindow();
-        m_Scene->Update(deltaTime, Input::GetMousePosition(), glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
+        m_Scene->OnUpdate(deltaTime, Input::GetMousePosition(), glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
 
         ImGuiIO &io = ImGui::GetIO();
         if (io.WantCaptureMouse || io.WantCaptureKeyboard)
@@ -96,7 +98,6 @@ namespace Figment
         {
             for (size_t i = 0; i < 3; i++)
             {
-                float f = value[0][i];
                 if (tempValue[i] != value[0][i])
                 {
                     *value = glm::vec3(tempValue[i]);
@@ -148,26 +149,15 @@ namespace Figment
         ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Once);
         ImGui::SetNextWindowSize(ImVec2(300, 200), ImGuiCond_Once);
         ImGui::Begin("Entities");
-        int i = 0;
         for (auto entity : entities)
         {
-            ImGui::PushID(i);
+            ImGui::PushID((int)entity.GetHandle());
             auto &info = entity.GetComponent<InfoComponent>();
-            char buf[128];
-            memset(buf, 0, sizeof(buf));
-            snprintf(buf, sizeof(buf), "%-20s", info.m_Name.c_str());
-            if (ImGui::Selectable(buf))
+            if (ImGui::Selectable( info.m_Name.c_str()))
             {
                 selectEntity(entity);
             }
-            if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
-            {
-                ImGui::SetTooltip("Entity UUID: %llu\nEntt handle: %d",
-                        (uint64_t)entity.GetComponent<IdComponent>().UUID,
-                        entity.GetHandle());
-            }
             ImGui::PopID();
-            i++;
         }
         ImGui::End();
     }

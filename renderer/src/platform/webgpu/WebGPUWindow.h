@@ -10,7 +10,7 @@
 class WebGPUWindow : public Window
 {
 public:
-    WebGPUWindow(const std::string &title, const uint32_t width, const uint32_t height);
+    WebGPUWindow(const std::string &title, uint32_t width, uint32_t height);
     ~WebGPUWindow() override;
     void Resize(WindowResizeEventData resizeData);
     bool ShouldClose() override;

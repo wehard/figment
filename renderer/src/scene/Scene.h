@@ -13,34 +13,28 @@ class Entity;
 
 class Scene
 {
-private:
-    std::shared_ptr<CameraController> m_CameraController;
-    std::shared_ptr<PerspectiveCamera> m_Camera;
-
-    entt::registry m_Registry;
-
-    uint32_t m_Width;
-    uint32_t m_Height;
-
-    VerletPhysics m_VerletPhysics;
-    std::shared_ptr<WebGPUContext> m_GfxContext;
-    std::unique_ptr<WebGPURenderer> m_Renderer;
-
 public:
-    glm::vec4 m_ClearColor;
-    int32_t m_HoveredId = -1;
-    Scene();
+    Scene() = default;
     Scene(uint32_t width, uint32_t height);
     ~Scene();
+    void OnUpdate(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportSize);
+    void OnResize(uint32_t width, uint32_t height);
     Entity CreateEntity(const std::string &name = std::string());
     void DestroyEntity(Entity entity);
     std::vector<Entity> GetEntities();
     Entity GetEntityById(uint32_t id);
     Entity GetHoveredEntity();
-
-    void Update(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportSize);
     std::shared_ptr<CameraController> GetCameraController();
-    void OnResize(uint32_t width, uint32_t height);
+    int32_t m_HoveredId = -1;
 
     friend class Entity;
+private:
+    entt::registry m_Registry;
+    uint32_t m_Width;
+    uint32_t m_Height;
+    std::shared_ptr<WebGPUContext> m_GfxContext;
+    std::unique_ptr<WebGPURenderer> m_Renderer;
+    std::shared_ptr<CameraController> m_CameraController;
+    std::shared_ptr<PerspectiveCamera> m_Camera;
+    VerletPhysics m_VerletPhysics;
 };
