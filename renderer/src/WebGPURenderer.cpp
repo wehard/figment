@@ -41,6 +41,8 @@ WebGPURenderer::WebGPURenderer(WebGPUContext &context)
             MaxCircleVertexCount * sizeof(CircleVertex), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex);
     m_QuadVertexBuffer = new WebGPUBuffer<QuadVertex>(m_Context.GetDevice(), "QuadVertexBuffer",
             MaxQuadVertexCount * sizeof(QuadVertex), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex);
+    m_CameraDataUniformBuffer = new WebGPUBuffer<CameraData>(m_Context.GetDevice(), "CameraDataUniformBuffer",
+            sizeof(CameraData), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 }
 
 WebGPURenderer::~WebGPURenderer()
@@ -53,12 +55,17 @@ WebGPURenderer::~WebGPURenderer()
     delete m_Shader;
     delete m_CircleShader;
     delete m_QuadShader;
+    delete m_CameraDataUniformBuffer;
 }
 
 WGPURenderPassEncoder WebGPURenderer::Begin(Camera &camera)
 {
-    m_CameraData.ProjectionMatrix = camera.GetProjectionMatrix();
-    m_CameraData.ViewMatrix = camera.GetViewMatrix();
+    CameraData cameraData = {
+            .ViewMatrix = camera.GetViewMatrix(),
+            .ProjectionMatrix = camera.GetProjectionMatrix()
+    };
+
+    m_CameraDataUniformBuffer->SetData(&cameraData, sizeof(cameraData));
 
     auto device = m_Context.GetDevice();
 
@@ -129,14 +136,10 @@ void WebGPURenderer::DrawCircles()
     if (m_RendererData.CircleVertexCount == 0)
         return;
 
-    CameraData cameraData = {};
-    cameraData.ViewMatrix = m_CameraData.ViewMatrix;
-    cameraData.ProjectionMatrix = m_CameraData.ProjectionMatrix;
-    auto cameraDataBuffer = new WebGPUUniformBuffer<CameraData>(m_Context.GetDevice(), &cameraData,
-            sizeof(cameraData));
+    // auto cameraDataBuffer = new WebGPUUniformBuffer<CameraData>(m_Context.GetDevice(), &m_CameraData,
+    //         sizeof(m_CameraData));
 
-
-    m_CircleVertexBuffer->SetData(m_RendererData.CircleVertices, m_RendererData.CircleVertexCount * sizeof(CircleVertex));
+    m_CircleVertexBuffer->SetData(m_RendererData.CircleVertices.data(), m_RendererData.CircleVertexCount * sizeof(CircleVertex));
 
     auto pipelineBuilder = WebGPURenderPipelineBuilder(m_Context, *m_CircleShader);
     pipelineBuilder.SetVertexBufferLayout({
@@ -169,9 +172,9 @@ void WebGPURenderer::DrawCircles()
 
     pipelineBuilder.SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
 
-    pipelineBuilder.AddBinding(0, cameraDataBuffer->GetBuffer(), 0, cameraDataBuffer->GetSize());
+    pipelineBuilder.AddBinding(0, m_CameraDataUniformBuffer->GetBuffer(), 0, m_CameraDataUniformBuffer->GetSize());
     pipelineBuilder.AddBindGroupLayoutEntry(0, WGPUBufferBindingType_Uniform,
-            WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, cameraDataBuffer->GetSize());
+            WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, m_CameraDataUniformBuffer->GetSize());
 
     pipelineBuilder.Build();
 
@@ -189,14 +192,7 @@ void WebGPURenderer::DrawQuads()
     if (m_RendererData.QuadVertexCount == 0)
         return;
 
-    CameraData cameraData = {};
-    cameraData.ViewMatrix = m_CameraData.ViewMatrix;
-    cameraData.ProjectionMatrix = m_CameraData.ProjectionMatrix;
-    auto cameraDataBuffer = new WebGPUUniformBuffer<CameraData>(m_Context.GetDevice(), &cameraData,
-            sizeof(cameraData));
-
-
-    m_QuadVertexBuffer->SetData(m_RendererData.QuadVertices, m_RendererData.QuadVertexCount * sizeof(QuadVertex));
+    m_QuadVertexBuffer->SetData(m_RendererData.QuadVertices.data(), m_RendererData.QuadVertexCount * sizeof(QuadVertex));
 
     auto pipelineBuilder = WebGPURenderPipelineBuilder(m_Context, *m_QuadShader);
     pipelineBuilder.SetVertexBufferLayout({
@@ -229,9 +225,9 @@ void WebGPURenderer::DrawQuads()
 
     pipelineBuilder.SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
 
-    pipelineBuilder.AddBinding(0, cameraDataBuffer->GetBuffer(), 0, cameraDataBuffer->GetSize());
+    pipelineBuilder.AddBinding(0, m_CameraDataUniformBuffer->GetBuffer(), 0, m_CameraDataUniformBuffer->GetSize());
     pipelineBuilder.AddBindGroupLayoutEntry(0, WGPUBufferBindingType_Uniform,
-            WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, cameraDataBuffer->GetSize());
+            WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, m_CameraDataUniformBuffer->GetSize());
 
     pipelineBuilder.Build();
 

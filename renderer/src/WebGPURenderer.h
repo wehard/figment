@@ -113,11 +113,11 @@ private:
     WebGPUContext &m_Context;
     WGPUCommandEncoder m_CommandEncoder = {};
     WGPURenderPassEncoder m_RenderPass = {};
-    CameraData m_CameraData = {};
     WebGPUTexture *m_IdTexture;
     WebGPUBuffer<CircleVertex> *m_CircleVertexBuffer;
     WebGPUBuffer<QuadVertex> *m_QuadVertexBuffer;
     WebGPUBuffer<std::byte> *m_PixelBuffer;
+    WebGPUBuffer<CameraData> *m_CameraDataUniformBuffer;
     WebGPUShader *m_Shader;
     WebGPUShader *m_CircleShader;
     WebGPUShader *m_QuadShader;
