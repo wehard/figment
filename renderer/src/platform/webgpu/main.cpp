@@ -1,8 +1,7 @@
 #include "App.h"
 
 #include <emscripten.h>
-#include <cstdlib>
-#include <stdio.h>
+#include <cstdio>
 #include <string>
 
 App *app;
@@ -18,9 +17,9 @@ int main(int argc, char **argv)
     {
         printf("Not enough args!\n");
     }
-	float width = strtof(argv[1], nullptr);
-	float height = strtof(argv[2], nullptr);
-	printf("%s:%d Initial canvas size %f x %f\n", __FILE__, __LINE__, width, height);
+	uint32_t width = std::stoul(argv[1]);
+	uint32_t height = std::stoul(argv[2]);
+	printf("%s:%d Initial canvas size %u x %u\n", __FILE__, __LINE__, width, height);
 	app = new App(width, height);
 
 	emscripten_set_main_loop_arg(main_loop, app, 0, false);

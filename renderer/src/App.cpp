@@ -11,7 +11,7 @@
 
 App *App::s_Instance = nullptr;
 
-App::App(float width, float height)
+App::App(uint32_t width, uint32_t height)
 {
     s_Instance = this;
     m_Window = Window::Create("Figment C++", width, height);
@@ -43,8 +43,8 @@ App::~App()
 
 void App::Update()
 {
-    m_CurrentTime = glfwGetTime();
-    double deltaTime = m_CurrentTime - m_LastTime;
+    m_CurrentTime = (float)glfwGetTime();
+    float deltaTime = m_CurrentTime - m_LastTime;
     m_LastTime = m_CurrentTime;
 
     m_FPSCounter.Update(deltaTime);

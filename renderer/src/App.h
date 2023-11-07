@@ -18,7 +18,7 @@
 class App
 {
 public:
-    App(float width, float height);
+    App(uint32_t width, uint32_t height);
     ~App();
 
     void Update();
@@ -31,8 +31,8 @@ private:
     std::unique_ptr<WebGPUGUIContext> m_GUICtx;
     std::vector<std::unique_ptr<Figment::Layer>> m_Layers;
 
-    double m_CurrentTime = 0;
-    double m_LastTime = 0;
+    float m_CurrentTime = 0;
+    float m_LastTime = 0;
 
     FPSCounter m_FPSCounter;
 
