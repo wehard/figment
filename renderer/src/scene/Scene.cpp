@@ -109,7 +109,7 @@ void Scene::OnUpdate(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewpor
         }
         if (entity.HasComponent<QuadComponent>())
         {
-            m_Renderer->DrawQuad(transform.Position, color, (int)entity.GetHandle());
+            m_Renderer->DrawQuad(transform.Position, transform.Scale, color, (int)entity.GetHandle());
         }
     }
 

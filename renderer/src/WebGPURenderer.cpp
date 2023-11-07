@@ -240,7 +240,7 @@ void WebGPURenderer::DrawQuads()
     s_Stats.DrawCalls++;
 }
 
-void WebGPURenderer::DrawQuad(glm::vec3 position, glm::vec4 color, int32_t id)
+void WebGPURenderer::DrawQuad(glm::vec3 position, glm::vec3 scale, glm::vec4 color, int32_t id)
 {
     if (m_RendererData.QuadVertexCount >= MaxQuadVertexCount - 6)
         return;
@@ -248,14 +248,19 @@ void WebGPURenderer::DrawQuad(glm::vec3 position, glm::vec4 color, int32_t id)
     for (int i = 0; i < 6; ++i)
     {
         m_RendererData.QuadVertices[m_RendererData.QuadVertexCount + i] = {
-                .WorldPosition = m_QuadVertices[i] + position,
-                .LocalPosition = m_QuadVertices[i],
+                .WorldPosition = m_QuadVertices[i] * scale + position,
+                .LocalPosition = m_QuadVertices[i] * scale,
                 .Color = color,
                 .Id = id
         };
     }
 
     m_RendererData.QuadVertexCount += 6;
+}
+
+void WebGPURenderer::DrawQuad(glm::vec3 position, glm::vec4 color, int32_t id)
+{
+    DrawQuad(position, glm::vec3(1.0f), color, id);
 }
 
 void WebGPURenderer::DrawCircle(glm::vec3 position, glm::vec4 color, float radius, int32_t id)
