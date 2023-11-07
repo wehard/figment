@@ -25,7 +25,6 @@ WebGPURenderer::WebGPURenderer(WebGPUContext &context)
                                 +0.5, +0.5, 0.0,
                                 -0.5, +0.5, 0.0
     };
-    m_VertexBuffer = new WebGPUVertexBuffer(context.GetDevice(), data);
 
     m_IdTexture = new WebGPUTexture(context.GetDevice(), WGPUTextureFormat_R32Sint, context.GetSwapChainWidth(),
             context.GetSwapChainHeight());
@@ -37,6 +36,23 @@ WebGPURenderer::WebGPURenderer(WebGPUContext &context)
             context.GetSwapChainWidth(), context.GetSwapChainHeight());
 
     m_RendererData.Init();
+
+    m_CircleVertexBuffer = new WebGPUBuffer<CircleVertex>(m_Context.GetDevice(), "CircleVertexBuffer",
+            MaxCircleVertexCount * sizeof(CircleVertex), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex);
+    m_QuadVertexBuffer = new WebGPUBuffer<QuadVertex>(m_Context.GetDevice(), "QuadVertexBuffer",
+            MaxQuadVertexCount * sizeof(QuadVertex), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex);
+}
+
+WebGPURenderer::~WebGPURenderer()
+{
+    delete m_IdTexture;
+    delete m_DepthTexture;
+    delete m_CircleVertexBuffer;
+    delete m_QuadVertexBuffer;
+    delete m_PixelBuffer;
+    delete m_Shader;
+    delete m_CircleShader;
+    delete m_QuadShader;
 }
 
 WGPURenderPassEncoder WebGPURenderer::Begin(Camera &camera)
@@ -119,9 +135,8 @@ void WebGPURenderer::DrawCircles()
     auto cameraDataBuffer = new WebGPUUniformBuffer<CameraData>(m_Context.GetDevice(), &cameraData,
             sizeof(cameraData));
 
-    auto circleVertexBuffer = new WebGPUBuffer<CircleVertex>(m_Context.GetDevice(), "CircleVertexBuffer",
-            m_RendererData.CircleVertexCount * sizeof(CircleVertex), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex);
-    circleVertexBuffer->SetData(m_RendererData.CircleVertices, m_RendererData.CircleVertexCount * sizeof(CircleVertex));
+
+    m_CircleVertexBuffer->SetData(m_RendererData.CircleVertices, m_RendererData.CircleVertexCount * sizeof(CircleVertex));
 
     auto pipelineBuilder = WebGPURenderPipelineBuilder(m_Context, *m_CircleShader);
     pipelineBuilder.SetVertexBufferLayout({
@@ -161,10 +176,11 @@ void WebGPURenderer::DrawCircles()
     pipelineBuilder.Build();
 
     wgpuRenderPassEncoderSetPipeline(m_RenderPass, pipelineBuilder.GetPipeline());
-    wgpuRenderPassEncoderSetVertexBuffer(m_RenderPass, 0, circleVertexBuffer->GetBuffer(), 0,
+    wgpuRenderPassEncoderSetVertexBuffer(m_RenderPass, 0, m_CircleVertexBuffer->GetBuffer(), 0,
             m_RendererData.CircleVertexCount * sizeof(CircleVertex));
     wgpuRenderPassEncoderSetBindGroup(m_RenderPass, 0, pipelineBuilder.GetBindGroup(), 0, nullptr);
     wgpuRenderPassEncoderDraw(m_RenderPass, m_RendererData.CircleVertexCount, 1, 0, 0);
+
     s_Stats.DrawCalls++;
 }
 
@@ -179,9 +195,8 @@ void WebGPURenderer::DrawQuads()
     auto cameraDataBuffer = new WebGPUUniformBuffer<CameraData>(m_Context.GetDevice(), &cameraData,
             sizeof(cameraData));
 
-    auto quadVertexBuffer = new WebGPUBuffer<QuadVertex>(m_Context.GetDevice(), "QuadVertexBuffer",
-            m_RendererData.QuadVertexCount * sizeof(QuadVertex), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex);
-    quadVertexBuffer->SetData(m_RendererData.QuadVertices, m_RendererData.QuadVertexCount * sizeof(QuadVertex));
+
+    m_QuadVertexBuffer->SetData(m_RendererData.QuadVertices, m_RendererData.QuadVertexCount * sizeof(QuadVertex));
 
     auto pipelineBuilder = WebGPURenderPipelineBuilder(m_Context, *m_QuadShader);
     pipelineBuilder.SetVertexBufferLayout({
@@ -221,10 +236,11 @@ void WebGPURenderer::DrawQuads()
     pipelineBuilder.Build();
 
     wgpuRenderPassEncoderSetPipeline(m_RenderPass, pipelineBuilder.GetPipeline());
-    wgpuRenderPassEncoderSetVertexBuffer(m_RenderPass, 0, quadVertexBuffer->GetBuffer(), 0,
+    wgpuRenderPassEncoderSetVertexBuffer(m_RenderPass, 0, m_QuadVertexBuffer->GetBuffer(), 0,
             m_RendererData.QuadVertexCount * sizeof(QuadVertex));
     wgpuRenderPassEncoderSetBindGroup(m_RenderPass, 0, pipelineBuilder.GetBindGroup(), 0, nullptr);
     wgpuRenderPassEncoderDraw(m_RenderPass, m_RendererData.QuadVertexCount, 1, 0, 0);
+
     s_Stats.DrawCalls++;
 }
 
@@ -233,20 +249,11 @@ void WebGPURenderer::DrawQuad(glm::vec3 position, glm::vec4 color, int32_t id)
     if (m_RendererData.QuadVertexCount >= MaxQuadVertexCount - 6)
         return;
 
-    std::vector<glm::vec3> vertices = {
-            { -0.5, -0.5, 0.0 },
-            { +0.5, -0.5, 0.0 },
-            { -0.5, +0.5, 0.0 },
-            { +0.5, -0.5, 0.0 },
-            { +0.5, +0.5, 0.0 },
-            { -0.5, +0.5, 0.0 }
-    };
-
     for (int i = 0; i < 6; ++i)
     {
         m_RendererData.QuadVertices[m_RendererData.QuadVertexCount + i] = {
-                .WorldPosition = vertices[i] + position,
-                .LocalPosition = vertices[i],
+                .WorldPosition = m_QuadVertices[i] + position,
+                .LocalPosition = m_QuadVertices[i],
                 .Color = color,
                 .Id = id
         };
@@ -260,20 +267,11 @@ void WebGPURenderer::DrawCircle(glm::vec3 position, glm::vec4 color, float radiu
     if (m_RendererData.CircleVertexCount >= MaxCircleVertexCount - 6)
         return;
 
-    std::vector<glm::vec3> vertices = {
-            { -0.5, -0.5, 0.0 },
-            { +0.5, -0.5, 0.0 },
-            { -0.5, +0.5, 0.0 },
-            { +0.5, -0.5, 0.0 },
-            { +0.5, +0.5, 0.0 },
-            { -0.5, +0.5, 0.0 }
-    };
-
     for (int i = 0; i < 6; ++i)
     {
         m_RendererData.CircleVertices[m_RendererData.CircleVertexCount + i] = {
-                .WorldPosition = vertices[i] * radius + position,
-                .LocalPosition = vertices[i],
+                .WorldPosition = m_QuadVertices[i] * radius + position,
+                .LocalPosition = m_QuadVertices[i],
                 .Color = color,
                 .Id = id
         };
@@ -360,3 +358,4 @@ void WebGPURenderer::OnResize(uint32_t width, uint32_t height)
     m_DepthTexture = WebGPUTexture::CreateDepthTexture(m_Context.GetDevice(), WGPUTextureFormat_Depth24Plus,
             width, height);
 }
+

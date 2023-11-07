@@ -24,8 +24,8 @@ struct CameraData
     glm::mat4 ProjectionMatrix;
 };
 
-constexpr uint32_t MaxCircleCount = 10000;
-constexpr uint32_t MaxQuadCount = 10000;
+constexpr uint32_t MaxCircleCount = 30000;
+constexpr uint32_t MaxQuadCount = 30000;
 constexpr uint32_t MaxCircleVertexCount = MaxCircleCount * 6;
 constexpr uint32_t MaxQuadVertexCount = MaxQuadCount * 6;
 
@@ -86,23 +86,37 @@ class WebGPURenderer
 {
 public:
     explicit WebGPURenderer(WebGPUContext &context);
+    ~WebGPURenderer();
     WGPURenderPassEncoder Begin(Camera &camera);
     void End();
     void DrawQuad(glm::vec3 position, glm::vec4 color, int32_t id);
     void DrawCircle(glm::vec3 position, glm::vec4 color, float radius, int32_t id);
     void ReadPixel(int x, int y, std::function<void(int32_t)> callback);
     void OnResize(uint32_t width, uint32_t height);
-    WebGPUShader *GetShader() { return m_Shader; }
-    static RendererStats GetStats() { return s_Stats; }
+    WebGPUShader *GetShader()
+    { return m_Shader; }
+    static RendererStats GetStats()
+    { return s_Stats; }
 private:
     void DrawCircles();
     void DrawQuads();
+private:
+    static constexpr glm::vec3 m_QuadVertices[] = {
+            { -0.5, -0.5, 0.0 },
+            { +0.5, -0.5, 0.0 },
+            { -0.5, +0.5, 0.0 },
+            { +0.5, -0.5, 0.0 },
+            { +0.5, +0.5, 0.0 },
+            { -0.5, +0.5, 0.0 }
+    };
+
     WebGPUContext &m_Context;
     WGPUCommandEncoder m_CommandEncoder = {};
     WGPURenderPassEncoder m_RenderPass = {};
-    WebGPUVertexBuffer *m_VertexBuffer;
     CameraData m_CameraData = {};
     WebGPUTexture *m_IdTexture;
+    WebGPUBuffer<CircleVertex> *m_CircleVertexBuffer;
+    WebGPUBuffer<QuadVertex> *m_QuadVertexBuffer;
     WebGPUBuffer<std::byte> *m_PixelBuffer;
     WebGPUShader *m_Shader;
     WebGPUShader *m_CircleShader;
