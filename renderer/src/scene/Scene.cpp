@@ -105,7 +105,7 @@ void Scene::OnUpdate(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewpor
         if (entity.HasComponent<CircleComponent>())
         {
             auto &circle = entity.GetComponent<CircleComponent>();
-            m_Renderer->DrawCircle(transform.Position, color, circle.Radius, (int)entity.GetHandle());
+            m_Renderer->DrawCircle(transform.Position, transform.Scale, color, (int)entity.GetHandle());
         }
         if (entity.HasComponent<QuadComponent>())
         {

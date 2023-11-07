@@ -240,6 +240,11 @@ void WebGPURenderer::DrawQuads()
     s_Stats.DrawCalls++;
 }
 
+void WebGPURenderer::DrawQuad(glm::vec3 position, glm::vec4 color, int32_t id)
+{
+    DrawQuad(position, glm::vec3(1.0f), color, id);
+}
+
 void WebGPURenderer::DrawQuad(glm::vec3 position, glm::vec3 scale, glm::vec4 color, int32_t id)
 {
     if (m_RendererData.QuadVertexCount >= MaxQuadVertexCount - 6)
@@ -258,12 +263,12 @@ void WebGPURenderer::DrawQuad(glm::vec3 position, glm::vec3 scale, glm::vec4 col
     m_RendererData.QuadVertexCount += 6;
 }
 
-void WebGPURenderer::DrawQuad(glm::vec3 position, glm::vec4 color, int32_t id)
+void WebGPURenderer::DrawCircle(glm::vec3 position, glm::vec4 color, float radius, int32_t id)
 {
-    DrawQuad(position, glm::vec3(1.0f), color, id);
+    DrawCircle(position, glm::vec3(radius), color, id);
 }
 
-void WebGPURenderer::DrawCircle(glm::vec3 position, glm::vec4 color, float radius, int32_t id)
+void WebGPURenderer::DrawCircle(glm::vec3 position, glm::vec3 scale, glm::vec4 color, int32_t id)
 {
     if (m_RendererData.CircleVertexCount >= MaxCircleVertexCount - 6)
         return;
@@ -271,7 +276,7 @@ void WebGPURenderer::DrawCircle(glm::vec3 position, glm::vec4 color, float radiu
     for (int i = 0; i < 6; ++i)
     {
         m_RendererData.CircleVertices[m_RendererData.CircleVertexCount + i] = {
-                .WorldPosition = m_QuadVertices[i] * radius + position,
+                .WorldPosition = m_QuadVertices[i] * scale + position,
                 .LocalPosition = m_QuadVertices[i],
                 .Color = color,
                 .Id = id
