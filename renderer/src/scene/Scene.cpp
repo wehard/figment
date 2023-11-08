@@ -12,7 +12,7 @@ Scene::Scene(uint32_t width, uint32_t height)
 {
     m_Camera = std::make_shared<PerspectiveCamera>((float)width / (float)height);
     m_CameraController = std::make_shared<CameraController>(m_Camera);
-    m_Camera->m_Position.z = 60.0;
+    m_Camera->GetPositionPtr()->z = 60.0;
 
     auto m_Window = App::Instance()->GetWindow();
     auto webGpuWindow = std::dynamic_pointer_cast<WebGPUWindow>(m_Window);

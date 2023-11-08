@@ -8,9 +8,10 @@ public:
     ~CameraController() = default;
 
     void Update(float deltaTime);
-    bool IsFpsCamera() const { return m_FpsCamera; };
-
     std::shared_ptr<PerspectiveCamera> GetCamera();
+    bool IsFpsCamera() const { return m_FpsCamera; };
+    float GetSpeed() const { return m_MovementSpeed; };
+    float GetRotationSpeed() const { return m_RotationSpeed; };
 private:
     void ProcessKeyboard(float deltaTime);
     void ProcessMouseMovement(bool constrainPitch = true);

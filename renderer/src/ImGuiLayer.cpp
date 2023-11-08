@@ -222,44 +222,41 @@ namespace Figment
         ImGui::End();
     }
 
-    void Figment::ImGuiLayer::OnImGuiRender()
+    static void DrawEditorCameraSection(CameraController &cameraController)
     {
-        ImGui_ImplWGPU_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
-        auto m_Window = App::Instance()->GetWindow();
-
-        auto camera = m_Scene->GetCameraController()->GetCamera();
-        size_t cameraWindowWidth = 400;
-        ImGui::SetNextWindowPos(ImVec2(m_Window->GetWidth() / 2 - cameraWindowWidth / 2, 0), ImGuiCond_Once);
-        ImGui::SetNextWindowSize(ImVec2(cameraWindowWidth, 0), ImGuiCond_Once);
-        ImGui::Begin("Camera");
-        glm::vec3 cameraPosition = camera->GetPosition();
-        ImGui::Text("%-12s %f %f %f", "Position", cameraPosition.x, cameraPosition.y, cameraPosition.z);
-        ImGui::Text("%-12s %f %f %f", "Forward", camera->m_Forward.x, camera->m_Forward.y, camera->m_Forward.z);
-        ImGui::Text("%-12s %f", "Yaw", camera->m_Yaw);
-        ImGui::Text("%-12s %f", "Pitch", camera->m_Pitch);
-        ImGui::Text("%-12s %f", "Aspect", camera->GetAspectRatio());
-
+        auto cameraSettings = cameraController.GetCamera()->GetSettings();
+        ImGui::Text("Speed: %.2f", cameraController.GetSpeed());
+        ImGui::Text("Rotation speed: %.2f", cameraController.GetRotationSpeed());
         ImGui::Separator();
+        ImGui::Text("Aspect: %.2f", cameraSettings.AspectRatio);
+        ImGui::Text("Near: %.2f", cameraSettings.NearClip);
+        ImGui::Text("Far: %.2f", cameraSettings.FarClip);
+        ImGui::Text("Yaw: %.2f", cameraSettings.Yaw);
+        ImGui::Text("Pitch: %.2f", cameraSettings.Pitch);
+        ImGui::Text("Position: %.2f %.2f %.2f", cameraSettings.Position.x,
+                cameraSettings.Position.y, cameraSettings.Position.z);
+        ImGui::Text("Forward: %.2f %.2f %.2f", cameraSettings.Forward.x,
+                cameraSettings.Forward.y, cameraSettings.Forward.z);
+        ImGui::Text("Right: %.2f %.2f %.2f", cameraSettings.Right.x,
+                cameraSettings.Right.y, cameraSettings.Right.z);
+        ImGui::Text("Up: %.2f %.2f %.2f", cameraSettings.Up.x,
+                cameraSettings.Up.y, cameraSettings.Up.z);
+    }
 
-        if (ImGui::DragFloat3("Position", (float *)&cameraPosition.x, 0.1f, 0.0f, 0.0f, "%.2f"))
-        {
-            camera->m_Position = cameraPosition;
-        }
-        ImGui::End();
+    static void DrawInfoPanel(Scene &scene, Entity selectedEntity)
+    {
+        auto window = App::Instance()->GetWindow();
 
+        auto cameraController = scene.GetCameraController();
         glm::vec2 mousePosition = Input::GetMousePosition();
-        glm::vec2 ndc = glm::vec2((mousePosition.x / ((float)m_Window->GetWidth() * 0.5)) - 1.0,
-                (mousePosition.y / ((float)m_Window->GetHeight() * 0.5)) - 1.0);
-        glm::vec3 mw = camera->ScreenToWorldSpace(mousePosition,
-                glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
+        glm::vec2 ndc = glm::vec2((mousePosition.x / ((float)window->GetWidth() * 0.5)) - 1.0,
+                (mousePosition.y / ((float)window->GetHeight() * 0.5)) - 1.0);
+        glm::vec3 mw = cameraController->GetCamera()->ScreenToWorldSpace(mousePosition,
+                glm::vec2(window->GetWidth(), window->GetHeight()));
 
-        ImGui::SetNextWindowPos(ImVec2(m_Window->GetWidth() - 400, 0), ImGuiCond_Always);
+        ImGui::SetNextWindowPos(ImVec2(window->GetWidth() - 400, 0), ImGuiCond_Always);
         ImGui::SetNextWindowSize(ImVec2(400, 0), ImGuiCond_Always);
         ImGui::Begin("Info");
-        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if (ImGui::TreeNode("Window"))
         {
             if (ImGui::BeginTable("My Table", 2))
@@ -268,40 +265,96 @@ namespace Figment
                 ImGui::TableSetColumnIndex(0);
                 ImGui::Text("Viewport");
                 ImGui::TableSetColumnIndex(1);
-                ImGui::Text("%dx%d", m_Window->GetWidth(), m_Window->GetHeight());
+                ImGui::Text("%dx%d", window->GetWidth(), window->GetHeight());
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
                 ImGui::Text("Framebuffer");
                 ImGui::TableSetColumnIndex(1);
-                ImGui::Text("%dx%d", m_Window->GetFramebufferWidth(), m_Window->GetFramebufferHeight());
+                ImGui::Text("%dx%d", window->GetFramebufferWidth(), window->GetFramebufferHeight());
                 ImGui::EndTable();
             }
 
             ImGui::TreePop();
         }
 
-        if (ImGui::BeginListBox("Mouse"))
+        if (ImGui::TreeNode("Camera"))
         {
-            ImGui::Text("Position: %.2f %.2f", mousePosition.x, mousePosition.y);
-            ImGui::Text("Delta: %.2f %.2f", Input::GetMouseDelta().x, Input::GetMouseDelta().y);
-            ImGui::Text("NDC: %.2f %.2f", ndc.x, ndc.y);
-            ImGui::Text("World: %.2f %.2f %.2f", mw.x, mw.y, mw.z);
-            ImGui::EndListBox();
+            DrawEditorCameraSection(*scene.GetCameraController());
+            ImGui::TreePop();
         }
-        ImGui::Text("Entity: %d", m_Scene->m_HoveredId);
-        ImGui::Text("Selected: %d", m_SelectedEntity ? m_SelectedEntity.GetHandle() : -1);
-        ImGui::Separator();
-        auto stats = WebGPURenderer::GetStats();
-        ImGui::Text("Draw calls: %d", stats.DrawCalls);
-        ImGui::Text("Vertex count: %d", stats.VertexCount);
-        ImGui::Text("Quad count: %d", stats.QuadCount);
-        ImGui::Text("Circle count: %d", stats.CircleCount);
-        ImGui::Separator();
-        auto fpsCounter = App::Instance()->GetFPSCounter();
-        ImGui::Text("FPS: %.2f", fpsCounter.GetFPS());
-        ImGui::Text("Frame time: %.2f ms", fpsCounter.GetFrameTime());
-        ImGui::Text("Frame count: %d", fpsCounter.GetFrameCount());
+
+        if (ImGui::TreeNode("Input"))
+        {
+            if (ImGui::BeginTable("Mouse", 2))
+            {
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("Position");
+                ImGui::TableSetColumnIndex(1);
+                ImGui::Text("%.2f %.2f", mousePosition.x, mousePosition.y);
+
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("Delta");
+                ImGui::TableSetColumnIndex(1);
+                ImGui::Text("%.2f %.2f", Input::GetMouseDelta().x, Input::GetMouseDelta().y);
+
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("NDC");
+                ImGui::TableSetColumnIndex(1);
+                ImGui::Text("%.2f %.2f", ndc.x, ndc.y);
+
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("World");
+                ImGui::TableSetColumnIndex(1);
+                ImGui::Text("%.2f %.2f %.2f", mw.x, mw.y, mw.z);
+                ImGui::EndTable();
+
+                ImGui::Separator();
+
+                ImGui::BeginTable("Entity Selection", 2);
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("Entity");
+                ImGui::TableSetColumnIndex(1);
+                ImGui::Text("%d", scene.m_HoveredId);
+
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("Selected");
+                ImGui::TableSetColumnIndex(1);
+                ImGui::Text("%d", selectedEntity ? selectedEntity.GetHandle() : -1);
+                ImGui::EndTable();
+            }
+            ImGui::TreePop();
+        }
+
+        if (ImGui::TreeNode("Renderer"))
+        {
+            auto stats = WebGPURenderer::GetStats();
+            ImGui::Text("Draw calls: %d", stats.DrawCalls);
+            ImGui::Text("Vertex count: %d", stats.VertexCount);
+            ImGui::Text("Quad count: %d", stats.QuadCount);
+            ImGui::Text("Circle count: %d", stats.CircleCount);
+            ImGui::Separator();
+            auto fpsCounter = App::Instance()->GetFPSCounter();
+            ImGui::Text("FPS: %.2f", fpsCounter.GetFPS());
+            ImGui::Text("Frame time: %.2f ms", fpsCounter.GetFrameTime());
+            ImGui::Text("Frame count: %d", fpsCounter.GetFrameCount());
+            ImGui::TreePop();
+        }
         ImGui::End();
+    }
+
+    void Figment::ImGuiLayer::OnImGuiRender()
+    {
+        ImGui_ImplWGPU_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        DrawInfoPanel(*m_Scene, m_SelectedEntity);
 
         DrawScenePanel(m_Scene->GetEntities(), [this](Entity entity)
         {
