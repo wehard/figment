@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <random>
+#include "glm/glm.hpp"
 
 namespace Figment
 {
@@ -20,6 +21,11 @@ namespace Figment
         static float Float(float min, float max)
         {
             return min + Float() * (max - min);
+        }
+
+        static glm::vec4 Color()
+        {
+            return { Float(0.0, 1.0), Float(0.0, 1.0), Float(0.0, 1.0), 1.0f };
         }
     };
 }

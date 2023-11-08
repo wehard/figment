@@ -55,16 +55,10 @@ struct VerletBodyComponent
     glm::vec3 m_Velocity = glm::vec3(0.0, 0.0, 0.0);
 };
 
-struct ColorComponent
-{
-    glm::vec4 m_Color = glm::vec4(1.0);
-
-    ColorComponent() = default;
-    ColorComponent(glm::vec4 color) : m_Color(color) {}
-};
-
 struct CircleComponent
 {
+    glm::vec4 Color = glm::vec4(1.0);
+    float Thickness = 0.1f;
     float Radius = 1.0f;
 
     CircleComponent() = default;
@@ -73,10 +67,9 @@ struct CircleComponent
 
 struct QuadComponent
 {
-    float Radius = 1.0f;
+    glm::vec4 Color = glm::vec4(1.0);
 
     QuadComponent() = default;
-    QuadComponent(float radius) : Radius(radius) {}
 };
 
 class Entity

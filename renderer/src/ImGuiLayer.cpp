@@ -22,7 +22,8 @@ namespace Figment
             auto &transformQuad = quadEntity.GetComponent<TransformComponent>();
             transformQuad.Position = glm::vec3(Random::Float(-100.0, 100.0), Random::Float(-100.0, 100.0),
                     Random::Float(-100.0, 100.0));
-            quadEntity.AddComponent<QuadComponent>();
+            auto &quad = quadEntity.AddComponent<QuadComponent>();
+            quad.Color = Random::Color();
         }
 
         for (int j = 0; j < MaxCircleCount; j++)
@@ -31,7 +32,8 @@ namespace Figment
             auto &transformCircle = circleEntity.GetComponent<TransformComponent>();
             transformCircle.Position = glm::vec3(Random::Float(-100.0, 100.0), Random::Float(-100.0, 100.0),
                     Random::Float(-100.0, 100.0));
-            circleEntity.AddComponent<CircleComponent>(2.0f);
+            auto &circle = circleEntity.AddComponent<CircleComponent>(2.0f);
+            circle.Color = Random::Color();
         }
     }
 
@@ -143,17 +145,17 @@ namespace Figment
         ImGui::End();
     }
 
-    static void DrawEntitiesPanel(const std::vector<Entity> &entities,
+    static void DrawScenePanel(const std::vector<Entity> &entities,
             const std::function<void(Entity)> &selectEntity = nullptr)
     {
         ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Once);
         ImGui::SetNextWindowSize(ImVec2(300, 200), ImGuiCond_Once);
-        ImGui::Begin("Entities");
+        ImGui::Begin("Scene");
         for (auto entity : entities)
         {
             ImGui::PushID((int)entity.GetHandle());
             auto &info = entity.GetComponent<InfoComponent>();
-            if (ImGui::Selectable( info.m_Name.c_str()))
+            if (ImGui::Selectable(info.m_Name.c_str()))
             {
                 selectEntity(entity);
             }
@@ -162,21 +164,8 @@ namespace Figment
         ImGui::End();
     }
 
-    static void DrawInspectorPanel(Entity entity)
+    static void DrawInfoComponent(InfoComponent &info)
     {
-        ImGui::SetNextWindowPos(ImVec2(0, 300), ImGuiCond_Once);
-        ImGui::SetNextWindowSize(ImVec2(300, 500), ImGuiCond_Once);
-        ImGui::Begin("Inspector");
-
-        if (!entity)
-        {
-            ImGui::Text("No entity selected");
-            ImGui::End();
-            return;
-        }
-
-        auto &info = entity.GetComponent<InfoComponent>();
-
         char buf[128];
         memset(buf, 0, sizeof(buf));
         snprintf(buf, sizeof(buf), "%s", info.m_Name.c_str());
@@ -184,33 +173,52 @@ namespace Figment
         {
             info.m_Name = std::string(buf);
         }
+    }
 
-        auto &transform = entity.GetComponent<TransformComponent>();
+    static void DrawTransformComponent(TransformComponent &transform)
+    {
         ImGui::DragFloat3("Position", (float *)&transform.Position.x, 0.1f, 0.0f, 0.0f, "%.2f");
         ImGui::DragFloat3("Rotation", (float *)&transform.Rotation.x, 0.1f, 0.0f, 0.0f, "%.2f");
 
         static bool syncScale = true;
         DrawVec3("Scale", &transform.Scale, &syncScale);
+    }
 
-        ImGui::Separator();
-        ImGui::ColorEdit4("Color", (float *)&entity.GetComponent<ColorComponent>().m_Color.x);
+    static void DrawQuadComponent(QuadComponent &quad)
+    {
+        ImGui::ColorEdit4("Color", (float *)&quad.Color);
+    }
 
-        if (entity.HasComponent<VerletBodyComponent>())
+    static void DrawCircleComponent(CircleComponent &circle)
+    {
+        ImGui::ColorEdit4("Color", (float *)&circle.Color);
+        ImGui::DragFloat("Radius", &circle.Radius, 0.1f, 0.1f, FLT_MAX, "%.2f");
+    }
+
+    static void DrawEntityInspectorPanel(Entity entity)
+    {
+        ImGui::SetNextWindowPos(ImVec2(0, 300), ImGuiCond_Once);
+        ImGui::SetNextWindowSize(ImVec2(300, 500), ImGuiCond_Once);
+        ImGui::Begin("Entity Inspector");
+
+        if (!entity)
         {
-            ImGui::Separator();
-            auto &body = entity.GetComponent<VerletBodyComponent>();
-            ImGui::Text("Verlet Body");
-            ImGui::DragFloat3("Previous position", (float *)&body.m_PreviousPosition.x);
-            ImGui::Text("Velocity: x %f y %f z %f", body.m_Velocity.x, body.m_Velocity.y, body.m_Velocity.z);
+            ImGui::End();
+            return;
         }
+
+        if (entity.HasComponent<InfoComponent>())
+            DrawInfoComponent(entity.GetComponent<InfoComponent>());
+
+        if (entity.HasComponent<TransformComponent>())
+            DrawTransformComponent(entity.GetComponent<TransformComponent>());
+
+        if (entity.HasComponent<QuadComponent>())
+            DrawQuadComponent(entity.GetComponent<QuadComponent>());
 
         if (entity.HasComponent<CircleComponent>())
-        {
-            ImGui::Separator();
-            auto &circle = entity.GetComponent<CircleComponent>();
-            ImGui::Text("Circle");
-            ImGui::DragFloat("Radius", &circle.Radius, 0.1f, 0.1f, FLT_MAX, "%.2f");
-        }
+            DrawCircleComponent(entity.GetComponent<CircleComponent>());
+
         ImGui::End();
     }
 
@@ -295,44 +303,12 @@ namespace Figment
         ImGui::Text("Frame count: %d", fpsCounter.GetFrameCount());
         ImGui::End();
 
-        DrawEntitiesPanel(m_Scene->GetEntities(), [this](Entity entity)
+        DrawScenePanel(m_Scene->GetEntities(), [this](Entity entity)
         {
             SelectEntity(entity);
         });
-        DrawInspectorPanel(m_SelectedEntity);
+        DrawEntityInspectorPanel(m_SelectedEntity);
         // DrawWGSLShaderEditor(*m_Renderer->GetShader());
-
-        static bool showStyleEditor = false;
-        ImGui::BeginMainMenuBar();
-        if (ImGui::BeginMenu("Figment"))
-        {
-            if (ImGui::MenuItem("New Entity", "Ctrl+N"))
-            {
-                auto entity = m_Scene->CreateEntity("New Quad");
-                entity.AddComponent<QuadComponent>();
-            }
-            ImGui::EndMenu();
-        }
-        if (ImGui::BeginMenu("Edit"))
-        {
-            auto text = showStyleEditor ? "Hide Style Editor" : "Show Style Editor";
-            if (ImGui::MenuItem(text, "Ctrl+S"))
-            {
-                showStyleEditor = !showStyleEditor;
-            }
-            ImGui::EndMenu();
-        }
-        ImGui::EndMainMenuBar();
-
-        if (showStyleEditor)
-        {
-            ImGui::SetNextWindowPos(ImVec2(400, 200), ImGuiCond_Once);
-            ImGui::SetNextWindowSize(ImVec2(400, 500), ImGuiCond_Once);
-            ImGui::Begin("Style Editor");
-            auto style = ImGui::GetStyle();
-            ImGui::ShowStyleEditor(&style);
-            ImGui::End();
-        }
     }
 
     void ImGuiLayer::SelectEntity(Entity entity)

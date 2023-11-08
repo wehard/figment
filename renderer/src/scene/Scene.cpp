@@ -24,12 +24,6 @@ Scene::~Scene()
 
 }
 
-static glm::vec4 GetRandomColor()
-{
-    return { (float)rand() / (float)RAND_MAX, (float)rand() / (float)RAND_MAX, (float)rand() / (float)RAND_MAX,
-             1.0 };
-}
-
 Entity Scene::CreateEntity(const std::string &name)
 {
     Entity entity = { m_Registry.create(), this };
@@ -40,9 +34,7 @@ Entity Scene::CreateEntity(const std::string &name)
     // printf("Created entity with uuid %llu\n", (uint64_t)id.UUID);
 
     entity.AddComponent<TransformComponent>();
-    auto color = GetRandomColor();
-    color.a = 1.0f;
-    entity.AddComponent<ColorComponent>(color);
+
     return entity;
 }
 
@@ -101,14 +93,16 @@ void Scene::OnUpdate(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewpor
     {
         Entity entity = { e, this };
         auto &transform = entity.GetComponent<TransformComponent>();
-        auto color = entity.GetHandle() == m_HoveredId ? glm::vec4(1.0, 1.0, 1.0, 1.0) : entity.GetComponent<ColorComponent>().m_Color;
         if (entity.HasComponent<CircleComponent>())
         {
             auto &circle = entity.GetComponent<CircleComponent>();
+            auto color = entity.GetHandle() == m_HoveredId ? glm::vec4(1.0, 1.0, 1.0, 1.0) : circle.Color;
             m_Renderer->DrawCircle(transform.Position, transform.Scale, color, (int)entity.GetHandle());
         }
         if (entity.HasComponent<QuadComponent>())
         {
+            auto &quad = entity.GetComponent<QuadComponent>();
+            auto color = entity.GetHandle() == m_HoveredId ? glm::vec4(1.0, 1.0, 1.0, 1.0) : quad.Color;
             m_Renderer->DrawQuad(transform.Position, transform.Scale, color, (int)entity.GetHandle());
         }
     }
