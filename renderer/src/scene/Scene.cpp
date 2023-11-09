@@ -30,9 +30,7 @@ Entity Scene::CreateEntity(const std::string &name)
     auto &info = entity.AddComponent<InfoComponent>();
     info.m_Name = name.empty() ? "Unnamed" : name;
 
-    // auto &id = entity.AddComponent<IdComponent>();
-    // printf("Created entity with uuid %llu\n", (uint64_t)id.UUID);
-
+    entity.AddComponent<IdComponent>();
     entity.AddComponent<TransformComponent>();
 
     return entity;

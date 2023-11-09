@@ -155,9 +155,16 @@ namespace Figment
         {
             ImGui::PushID((int)entity.GetHandle());
             auto &info = entity.GetComponent<InfoComponent>();
+            auto &id = entity.GetComponent<IdComponent>();
             if (ImGui::Selectable(info.m_Name.c_str()))
             {
                 selectEntity(entity);
+            }
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                ImGui::Text("UUID: %llu", (uint64_t)id.UUID);
+                ImGui::EndTooltip();
             }
             ImGui::PopID();
         }
