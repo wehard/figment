@@ -1,4 +1,4 @@
-#include "ImGuiLayer.h"
+#include "EditorLayer.h"
 #include "Random.h"
 
 #include "imgui.h"
@@ -10,8 +10,8 @@
 
 namespace Figment
 {
-    Figment::ImGuiLayer::ImGuiLayer()
-            : Layer("ImGuiLayer")
+    Figment::EditorLayer::EditorLayer()
+            : Layer("EditorLayer")
     {
         auto m_Window = App::Instance()->GetWindow();
         m_Scene = new Scene(m_Window->GetFramebufferWidth(), m_Window->GetFramebufferHeight());
@@ -37,22 +37,22 @@ namespace Figment
         }
     }
 
-    Figment::ImGuiLayer::~ImGuiLayer()
+    Figment::EditorLayer::~EditorLayer()
     {
         delete m_Scene;
     }
 
-    void Figment::ImGuiLayer::OnAttach()
+    void Figment::EditorLayer::OnAttach()
     {
 
     }
 
-    void Figment::ImGuiLayer::OnDetach()
+    void Figment::EditorLayer::OnDetach()
     {
 
     }
 
-    void Figment::ImGuiLayer::OnUpdate(float deltaTime)
+    void Figment::EditorLayer::OnUpdate(float deltaTime)
     {
         auto m_Window = App::Instance()->GetWindow();
         m_Scene->OnUpdate(deltaTime, Input::GetMousePosition(), glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
@@ -348,7 +348,7 @@ namespace Figment
         ImGui::End();
     }
 
-    void Figment::ImGuiLayer::OnImGuiRender()
+    void Figment::EditorLayer::OnImGuiRender()
     {
         ImGui_ImplWGPU_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -364,12 +364,12 @@ namespace Figment
         // DrawWGSLShaderEditor(*m_Renderer->GetShader());
     }
 
-    void ImGuiLayer::SelectEntity(Entity entity)
+    void EditorLayer::SelectEntity(Entity entity)
     {
         m_SelectedEntity = entity;
     }
 
-    void ImGuiLayer::OnEvent(AppEvent event, void *eventData)
+    void EditorLayer::OnEvent(AppEvent event, void *eventData)
     {
         switch (event)
         {

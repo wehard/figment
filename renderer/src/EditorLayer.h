@@ -7,11 +7,11 @@
 
 namespace Figment
 {
-    class ImGuiLayer : public Layer
+    class EditorLayer : public Layer
     {
     public:
-        ImGuiLayer();
-        ~ImGuiLayer() override;
+        EditorLayer();
+        ~EditorLayer() override;
         void OnAttach() override;
         void OnDetach() override;
         void OnUpdate(float deltaTime) override;

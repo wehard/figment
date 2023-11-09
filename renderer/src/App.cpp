@@ -7,7 +7,7 @@
 
 #include "imgui_impl_wgpu.h"
 #include "WebGPUWindow.h"
-#include "ImGuiLayer.h"
+#include "EditorLayer.h"
 
 App *App::s_Instance = nullptr;
 
@@ -29,7 +29,7 @@ App::App(uint32_t width, uint32_t height)
     m_GUICtx = std::make_unique<WebGPUGUIContext>();
     m_GUICtx->Init(m_Window, "glslVersion");
 
-    m_Layers.emplace_back(std::make_unique<Figment::ImGuiLayer>());
+    m_Layers.emplace_back(std::make_unique<Figment::EditorLayer>());
 }
 
 App::~App()
