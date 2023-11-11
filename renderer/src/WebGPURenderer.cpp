@@ -247,7 +247,7 @@ void WebGPURenderer::DrawQuad(glm::vec3 position, glm::vec4 color, int32_t id)
 
 void WebGPURenderer::DrawQuad(glm::vec3 position, glm::vec3 scale, glm::vec4 color, int32_t id)
 {
-    if (m_RendererData.QuadVertexCount >= MaxQuadVertexCount - 6)
+    if (m_RendererData.QuadVertexCount >= MaxQuadVertexCount)
         return;
 
     for (int i = 0; i < 6; ++i)
@@ -270,7 +270,7 @@ void WebGPURenderer::DrawCircle(glm::vec3 position, glm::vec4 color, float radiu
 
 void WebGPURenderer::DrawCircle(glm::vec3 position, glm::vec3 scale, glm::vec4 color, int32_t id)
 {
-    if (m_RendererData.CircleVertexCount >= MaxCircleVertexCount - 6)
+    if (m_RendererData.CircleVertexCount >= MaxCircleVertexCount)
         return;
 
     for (int i = 0; i < 6; ++i)
