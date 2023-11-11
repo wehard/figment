@@ -7,6 +7,7 @@
 #include "glm.hpp"
 #include "Input.h"
 #include "App.h"
+#include "WebGPUWindow.h"
 
 namespace Figment
 {
@@ -16,25 +17,11 @@ namespace Figment
         auto m_Window = App::Instance()->GetWindow();
         m_Scene = new Scene(m_Window->GetFramebufferWidth(), m_Window->GetFramebufferHeight());
 
-        for (int i = 0; i < MaxQuadCount; i++)
-        {
-            auto quadEntity = m_Scene->CreateEntity("Quad");
-            auto &transformQuad = quadEntity.GetComponent<TransformComponent>();
-            transformQuad.Position = glm::vec3(Random::Float(-100.0, 100.0), Random::Float(-100.0, 100.0),
-                    Random::Float(-100.0, 100.0));
-            auto &quad = quadEntity.AddComponent<QuadComponent>();
-            quad.Color = Random::Color();
-        }
-
-        for (int j = 0; j < MaxCircleCount; j++)
-        {
-            auto circleEntity = m_Scene->CreateEntity("Circle");
-            auto &transformCircle = circleEntity.GetComponent<TransformComponent>();
-            transformCircle.Position = glm::vec3(Random::Float(-100.0, 100.0), Random::Float(-100.0, 100.0),
-                    Random::Float(-100.0, 100.0));
-            auto &circle = circleEntity.AddComponent<CircleComponent>(2.0f);
-            circle.Color = Random::Color();
-        }
+        auto entity = m_Scene->CreateEntity("Quad");
+        auto &quad = entity.AddComponent<QuadComponent>();
+        auto webGpuWindow = std::dynamic_pointer_cast<WebGPUWindow>(m_Window);
+        auto figmentShader = new WebGPUShader(webGpuWindow->GetContext()->GetDevice(), "assets/shaders/figment.wgsl");
+        entity.AddComponent<FigmentComponent>(figmentShader);
     }
 
     Figment::EditorLayer::~EditorLayer()
@@ -184,6 +171,7 @@ namespace Figment
 
     static void DrawTransformComponent(TransformComponent &transform)
     {
+        ImGui::Separator();
         ImGui::DragFloat3("Position", (float *)&transform.Position.x, 0.1f, 0.0f, 0.0f, "%.2f");
         ImGui::DragFloat3("Rotation", (float *)&transform.Rotation.x, 0.1f, 0.0f, 0.0f, "%.2f");
 
@@ -193,13 +181,24 @@ namespace Figment
 
     static void DrawQuadComponent(QuadComponent &quad)
     {
+        ImGui::Separator();
         ImGui::ColorEdit4("Color", (float *)&quad.Color);
     }
 
     static void DrawCircleComponent(CircleComponent &circle)
     {
+        ImGui::Separator();
         ImGui::ColorEdit4("Color", (float *)&circle.Color);
         ImGui::DragFloat("Radius", &circle.Radius, 0.1f, 0.1f, FLT_MAX, "%.2f");
+    }
+
+    static void DrawFigmentComponent(FigmentComponent &figment)
+    {
+        ImGui::Separator();
+        ImGui::Text("Figment %s", figment.m_Shader->GetShaderSource().c_str());
+        ImGui::Button("Edit source", ImVec2(100, 20));
+        ImGui::SameLine();
+        ImGui::Button("Reload", ImVec2(100, 20));
     }
 
     static void DrawEntityInspectorPanel(Entity entity)
@@ -225,6 +224,9 @@ namespace Figment
 
         if (entity.HasComponent<CircleComponent>())
             DrawCircleComponent(entity.GetComponent<CircleComponent>());
+
+        if (entity.HasComponent<FigmentComponent>())
+            DrawFigmentComponent(entity.GetComponent<FigmentComponent>());
 
         ImGui::End();
     }

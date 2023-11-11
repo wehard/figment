@@ -68,3 +68,9 @@ struct QuadComponent
 
     QuadComponent() = default;
 };
+
+struct FigmentComponent
+{
+    WebGPUShader *m_Shader;
+    FigmentComponent(WebGPUShader *shader) : m_Shader(shader) {}
+};
