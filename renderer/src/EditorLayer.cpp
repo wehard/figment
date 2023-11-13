@@ -11,35 +11,37 @@
 
 namespace Figment
 {
-    Figment::EditorLayer::EditorLayer()
+    EditorLayer::EditorLayer()
             : Layer("EditorLayer")
     {
-        auto m_Window = App::Instance()->GetWindow();
-        m_Scene = new Scene(m_Window->GetFramebufferWidth(), m_Window->GetFramebufferHeight());
+        const auto webGpuWindow = std::dynamic_pointer_cast<WebGPUWindow>(App::Instance()->GetWindow());
+
+        m_Scene = new Scene(webGpuWindow->GetFramebufferWidth(), webGpuWindow->GetFramebufferHeight());
 
         auto entity = m_Scene->CreateEntity("Quad");
         auto &quad = entity.AddComponent<QuadComponent>();
-        auto webGpuWindow = std::dynamic_pointer_cast<WebGPUWindow>(m_Window);
         auto figmentShader = new WebGPUShader(webGpuWindow->GetContext()->GetDevice(), "assets/shaders/figment.wgsl");
         entity.AddComponent<FigmentComponent>(figmentShader);
+
+        SelectEntity(entity);
     }
 
-    Figment::EditorLayer::~EditorLayer()
+    EditorLayer::~EditorLayer()
     {
         delete m_Scene;
     }
 
-    void Figment::EditorLayer::OnAttach()
+    void EditorLayer::OnAttach()
     {
 
     }
 
-    void Figment::EditorLayer::OnDetach()
+    void EditorLayer::OnDetach()
     {
 
     }
 
-    void Figment::EditorLayer::OnUpdate(float deltaTime)
+    void EditorLayer::OnUpdate(float deltaTime)
     {
         auto m_Window = App::Instance()->GetWindow();
         m_Scene->OnUpdate(deltaTime, Input::GetMousePosition(), glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
@@ -357,7 +359,7 @@ namespace Figment
         ImGui::End();
     }
 
-    void Figment::EditorLayer::OnImGuiRender()
+    void EditorLayer::OnImGuiRender()
     {
         ImGui_ImplWGPU_NewFrame();
         ImGui_ImplGlfw_NewFrame();
