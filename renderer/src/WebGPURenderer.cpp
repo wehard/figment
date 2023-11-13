@@ -28,7 +28,7 @@ WebGPURenderer::WebGPURenderer(WebGPUContext &context)
     m_IdTexture = new WebGPUTexture(context.GetDevice(), WGPUTextureFormat_R32Sint, context.GetSwapChainWidth(),
             context.GetSwapChainHeight());
 
-    m_PixelBuffer = new WebGPUBuffer<std::byte>(context.GetDevice(), "PixelBuffer", 2048 * 2048 * sizeof(int32_t),
+    m_PixelBuffer = new WebGPUBuffer<int32_t>(context.GetDevice(), "PixelBuffer", 2048 * 2048 * sizeof(int32_t),
             WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead);
 
     m_DepthTexture = WebGPUTexture::CreateDepthTexture(context.GetDevice(), WGPUTextureFormat_Depth24Plus,
@@ -137,7 +137,8 @@ void WebGPURenderer::DrawCircles()
     // auto cameraDataBuffer = new WebGPUUniformBuffer<CameraData>(m_Context.GetDevice(), &m_CameraData,
     //         sizeof(m_CameraData));
 
-    m_CircleVertexBuffer->SetData(m_RendererData.CircleVertices.data(), m_RendererData.CircleVertexCount * sizeof(CircleVertex));
+    m_CircleVertexBuffer->SetData(m_RendererData.CircleVertices.data(),
+            m_RendererData.CircleVertexCount * sizeof(CircleVertex));
 
     auto pipelineBuilder = WebGPURenderPipelineBuilder(m_Context, *m_CircleShader);
     pipelineBuilder.SetVertexBufferLayout({
@@ -190,7 +191,8 @@ void WebGPURenderer::DrawQuads()
     if (m_RendererData.QuadVertexCount == 0)
         return;
 
-    m_QuadVertexBuffer->SetData(m_RendererData.QuadVertices.data(), m_RendererData.QuadVertexCount * sizeof(QuadVertex));
+    m_QuadVertexBuffer->SetData(m_RendererData.QuadVertices.data(),
+            m_RendererData.QuadVertexCount * sizeof(QuadVertex));
 
     auto pipelineBuilder = WebGPURenderPipelineBuilder(m_Context, *m_QuadShader);
     pipelineBuilder.SetVertexBufferLayout({
@@ -322,36 +324,36 @@ void WebGPURenderer::ReadPixel(int x, int y, std::function<void(int32_t)> callba
     WGPUQueue queue = wgpuDeviceGetQueue(m_Context.GetDevice());
     wgpuQueueSubmit(queue, 1, &commandBuffer);
 
-    struct BufferMapReadCallbackData
+    struct BufferMapReadParams
     {
-        WGPUBuffer buffer = nullptr;
-        uint32_t x = 0;
-        uint32_t y = 0;
-        std::function<void(int32_t)> callback;
+        WGPUBuffer Buffer = nullptr;
+        uint32_t Size = 0;
+        glm::ivec2 Position = glm::ivec2(0);
+        std::function<void(int32_t)> Callback;
     };
 
-    auto *callbackData = new BufferMapReadCallbackData();
-    callbackData->buffer = m_PixelBuffer->GetBuffer();
-    callbackData->x = x;
-    callbackData->y = y;
-    callbackData->callback = std::move(callback);
+    auto *bufferMapReadParams = new BufferMapReadParams();
+    bufferMapReadParams->Buffer = m_PixelBuffer->GetBuffer();
+    bufferMapReadParams->Size = m_PixelBuffer->GetSize();
+    bufferMapReadParams->Position = { x, y };
+    bufferMapReadParams->Callback = std::move(callback);
 
-    wgpuBufferMapAsync(m_PixelBuffer->GetBuffer(), WGPUMapMode_Read, 0, 2048 * 2048 * sizeof(int32_t),
+    wgpuBufferMapAsync(m_PixelBuffer->GetBuffer(), WGPUMapMode_Read, 0, m_PixelBuffer->GetSize(),
             [](WGPUBufferMapAsyncStatus status, void *userData)
             {
-                auto *callbackData = (BufferMapReadCallbackData *)userData;
+                auto *params = (BufferMapReadParams *)userData;
                 if (status != WGPUBufferMapAsyncStatus_Success)
                 {
                     printf("Buffer map failed with WGPUBufferMapAsyncStatus: %d\n", status);
                     return;
                 }
-                auto *pixels = (int32_t *)wgpuBufferGetConstMappedRange(callbackData->buffer, 0,
-                        2048 * 2048 * sizeof(int32_t));
-                auto id = pixels[callbackData->y * 2048 + callbackData->x];
-                wgpuBufferUnmap(callbackData->buffer);
-                callbackData->callback(id);
-                delete callbackData;
-            }, (void *)callbackData);
+                auto *pixels = (int32_t *)wgpuBufferGetConstMappedRange(params->Buffer, 0,
+                        params->Size);
+                auto id = pixels[params->Position.y * 2048 + params->Position.x];
+                wgpuBufferUnmap(params->Buffer);
+                params->Callback(id);
+                delete params;
+            }, (void *)bufferMapReadParams);
 }
 
 void WebGPURenderer::OnResize(uint32_t width, uint32_t height)
@@ -365,39 +367,125 @@ void WebGPURenderer::OnResize(uint32_t width, uint32_t height)
 
 void WebGPURenderer::BeginComputePass()
 {
+    WGPUCommandEncoderDescriptor desc = {};
+    m_ComputeCommandEncoder = wgpuDeviceCreateCommandEncoder(m_Context.GetDevice(), &desc);
+
     WGPUComputePassDescriptor computePassDesc = {};
     computePassDesc.label = "ComputePass";
     computePassDesc.timestampWriteCount = 0;
     computePassDesc.timestampWrites = nullptr;
 
-    m_ComputePass = wgpuCommandEncoderBeginComputePass(m_CommandEncoder, &computePassDesc);
+    m_ComputePass = wgpuCommandEncoderBeginComputePass(m_ComputeCommandEncoder, &computePassDesc);
 }
 
-void WebGPURenderer::Compute(WebGPUShader &computeShader)
+static WGPUBindGroupLayoutEntry GetDefaultWGPUBindGroupLayoutEntry()
 {
+    WGPUBindGroupLayoutEntry bindingLayout = {};
+
+    bindingLayout.buffer.nextInChain = nullptr;
+    bindingLayout.buffer.type = WGPUBufferBindingType_Undefined;
+    bindingLayout.buffer.hasDynamicOffset = false;
+
+    bindingLayout.sampler.nextInChain = nullptr;
+    bindingLayout.sampler.type = WGPUSamplerBindingType_Undefined;
+
+    bindingLayout.storageTexture.nextInChain = nullptr;
+    bindingLayout.storageTexture.access = WGPUStorageTextureAccess_Undefined;
+    bindingLayout.storageTexture.format = WGPUTextureFormat_Undefined;
+    bindingLayout.storageTexture.viewDimension = WGPUTextureViewDimension_Undefined;
+
+    bindingLayout.texture.nextInChain = nullptr;
+    bindingLayout.texture.multisampled = false;
+    bindingLayout.texture.sampleType = WGPUTextureSampleType_Undefined;
+    bindingLayout.texture.viewDimension = WGPUTextureViewDimension_Undefined;
+
+    return bindingLayout;
+}
+
+void WebGPURenderer::Compute(WebGPUShader &computeShader, WebGPUBuffer<float> &buffer, WebGPUBuffer<float> &mapBuffer)
+{
+    WGPUBindGroupLayoutEntry bindGroupLayoutEntry = GetDefaultWGPUBindGroupLayoutEntry();
+    bindGroupLayoutEntry.nextInChain = nullptr;
+    bindGroupLayoutEntry.binding = 0;
+    bindGroupLayoutEntry.visibility = WGPUShaderStage_Compute;
+    bindGroupLayoutEntry.buffer.type = WGPUBufferBindingType_Storage;
+
+    WGPUBindGroupLayoutDescriptor bindGroupLayoutDesc = {};
+    bindGroupLayoutDesc.label = "ComputeBindGroupLayout";
+    bindGroupLayoutDesc.entryCount = 1;
+    bindGroupLayoutDesc.entries = &bindGroupLayoutEntry;
+
+    auto bindGroupLayout = wgpuDeviceCreateBindGroupLayout(m_Context.GetDevice(), &bindGroupLayoutDesc);
+
+    WGPUBindGroupEntry bindGroupEntry = {};
+    bindGroupEntry.binding = 0;
+    bindGroupEntry.buffer = buffer.GetBuffer();
+    bindGroupEntry.offset = 0;
+    bindGroupEntry.size = buffer.GetSize();
+
+    WGPUBindGroupDescriptor bindGroupDesc = {};
+    bindGroupDesc.label = "ComputeBindGroup";
+    bindGroupDesc.layout = bindGroupLayout;
+    bindGroupDesc.entryCount = 1;
+    bindGroupDesc.entries = &bindGroupEntry;
+
+    WGPUPipelineLayoutDescriptor pipelineLayoutDesc = {};
+    pipelineLayoutDesc.label = "ComputePipelineLayout";
+    pipelineLayoutDesc.bindGroupLayoutCount = 1;
+    pipelineLayoutDesc.bindGroupLayouts = &bindGroupLayout;
+    auto pipelineLayout = wgpuDeviceCreatePipelineLayout(m_Context.GetDevice(), &pipelineLayoutDesc);
+
     WGPUComputePipelineDescriptor computePipelineDesc = {};
     computePipelineDesc.label = "ComputePipeline";
     computePipelineDesc.compute.entryPoint = "main";
     computePipelineDesc.compute.module = computeShader.GetShaderModule();
+    computePipelineDesc.layout = pipelineLayout;
+
     auto pipeline = wgpuDeviceCreateComputePipeline(m_Context.GetDevice(), &computePipelineDesc);
+    auto bindGroup = wgpuDeviceCreateBindGroup(m_Context.GetDevice(), &bindGroupDesc);
     wgpuComputePassEncoderSetPipeline(m_ComputePass, pipeline);
-    // wgpuComputePassEncoderSetBindGroup(m_ComputePass, 0, computeShader.GetBindGroup(), 0, nullptr);
-    // wgpuComputePassEncoderDispatchWorkgroups(m_ComputePass, 2048, 2048, 1);
+    wgpuComputePassEncoderSetBindGroup(m_ComputePass, 0, bindGroup, 0, nullptr);
+    uint32_t invocationCount = buffer.GetSize();
+    uint32_t workgroupSize = 32;
+    uint32_t workgroupCount = (invocationCount + workgroupSize - 1) / workgroupSize;
+    wgpuComputePassEncoderDispatchWorkgroups(m_ComputePass, workgroupCount, 1, 1);
+    ComputeResultCopyOperation<float> operation = {
+            .From = buffer,
+            .To = mapBuffer,
+            .Size = buffer.GetSize()
+    };
+    m_ComputeResultCopyOperations.emplace_back(operation);
 }
 
 void WebGPURenderer::EndComputePass()
 {
     wgpuComputePassEncoderEnd(m_ComputePass);
 
+    for (auto &op : m_ComputeResultCopyOperations)
+    {
+        if (op.To.GetMapState() == WGPUBufferMapState_Mapped)
+        {
+            printf("Buffer is already mapped\n");
+            break;
+        }
+
+        // wgpuCommandEncoderCopyBufferToBuffer(m_ComputeCommandEncoder, op.From.GetBuffer(), 0, op.To.GetBuffer(), 0, op.Size);
+        // op.To.MapReadAsync([](const float* data, size_t size) {
+        //     printf("MapReadAsyncCallback called with float pointer: %p\n", data);
+        // });
+    }
+
     WGPUCommandBufferDescriptor commandBufferDesc = {};
-    WGPUCommandBuffer commandBuffer = wgpuCommandEncoderFinish(m_CommandEncoder, &commandBufferDesc);
+    WGPUCommandBuffer commandBuffer = wgpuCommandEncoderFinish(m_ComputeCommandEncoder, &commandBufferDesc);
     WGPUQueue queue = wgpuDeviceGetQueue(m_Context.GetDevice());
     wgpuQueueSubmit(queue, 1, &commandBuffer);
 
-    wgpuCommandEncoderRelease(m_CommandEncoder);
-    m_CommandEncoder = nullptr;
+    wgpuCommandEncoderRelease(m_ComputeCommandEncoder);
+    m_ComputeCommandEncoder = nullptr;
     wgpuComputePassEncoderRelease(m_ComputePass);
     m_ComputePass = nullptr;
+
+    m_ComputeResultCopyOperations.clear();
 }
 
 

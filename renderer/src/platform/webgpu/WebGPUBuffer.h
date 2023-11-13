@@ -20,6 +20,12 @@ public:
         m_Buffer = wgpuDeviceCreateBuffer(device, &pixelBufferDesc);
     }
 
+    ~WebGPUBuffer<T>()
+    {
+        wgpuBufferRelease(m_Buffer);
+        wgpuBufferDestroy(m_Buffer);
+    }
+
     void SetData(T *data, uint32_t size)
     {
         WGPUQueue queue = wgpuDeviceGetQueue(m_Device);
@@ -46,11 +52,50 @@ public:
         return m_Size;
     }
 
-    ~WebGPUBuffer<T>()
+    using MapReadAsyncCallbackFn = std::function<void(const T*, size_t size)>;
+
+    void MapReadAsync(MapReadAsyncCallbackFn callback)
     {
-        wgpuBufferRelease(m_Buffer);
-        wgpuBufferDestroy(m_Buffer);
+        auto mapState = GetMapState();
+        if (mapState == WGPUBufferMapState_Mapped)
+        {
+            printf("Buffer is already mapped\n");
+            return;
+        }
+
+        struct CallbackData
+        {
+            MapReadAsyncCallbackFn Callback;
+            WebGPUBuffer<T> *Buffer;
+        };
+
+        auto callbackData = new CallbackData();
+        callbackData->Callback = callback;
+        callbackData->Buffer = this;
+
+        wgpuBufferMapAsync(m_Buffer, WGPUMapMode_Read, 0, m_Size,
+                [](WGPUBufferMapAsyncStatus status, void *userData)
+                {
+                    auto callbackData = (CallbackData *)userData;
+                    if (callbackData->Buffer == nullptr)
+                    {
+                        printf("Buffer is null\n");
+                        return;
+                    }
+                    if (status != WGPUBufferMapAsyncStatus_Success)
+                    {
+                        printf("Buffer map failed with WGPUBufferMapAsyncStatus: %d\n", status);
+                        return;
+                    }
+                    auto *pixels = (T *)wgpuBufferGetConstMappedRange(callbackData->Buffer->GetBuffer(), 0,
+                            callbackData->Buffer->GetSize());
+                    wgpuBufferUnmap(callbackData->Buffer->GetBuffer());
+                    callbackData->Callback(pixels, callbackData->Buffer->GetSize());
+                    delete callbackData;
+                }, (void *)&callbackData);
     }
+
+
 private:
     WGPUDevice m_Device;
     WGPUBuffer m_Buffer;

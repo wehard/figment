@@ -1,6 +1,6 @@
 #include "WebGPUFramebuffer.h"
 #include "webgpu/webgpu.h"
-#include "webgpu//webgpu_cpp.h"
+#include "webgpu/webgpu_cpp.h"
 
 WebGPUFramebuffer::WebGPUFramebuffer(uint32_t width, uint32_t height) : m_Width(width), m_Height(height)
 {

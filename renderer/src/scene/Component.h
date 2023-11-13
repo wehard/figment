@@ -71,6 +71,15 @@ struct QuadComponent
 
 struct FigmentComponent
 {
-    WebGPUShader *m_Shader;
-    FigmentComponent(WebGPUShader *shader) : m_Shader(shader) {}
+    WebGPUShader &Shader;
+    WebGPUShader &ComputeShader;
+    WebGPUBuffer<float> *Buffer;
+    WebGPUBuffer<float> *MapBuffer;
+
+    FigmentComponent(WebGPUShader &shader, WebGPUShader &computeShader) : Shader(shader), ComputeShader(computeShader) {}
+    ~FigmentComponent()
+    {
+        delete Buffer;
+        delete MapBuffer;
+    }
 };

@@ -35,6 +35,14 @@ struct CircleVertex
     int32_t Id;
 };
 
+template<typename T>
+struct ComputeResultCopyOperation
+{
+    WebGPUBuffer<T> &From;
+    WebGPUBuffer<T> &To;
+    uint32_t Size;
+};
+
 struct RendererData
 {
     std::vector<CircleVertex> CircleVertices;
@@ -81,7 +89,7 @@ public:
     void End();
     void BeginComputePass();
     void EndComputePass();
-    void Compute(WebGPUShader &computeShader);
+    void Compute(WebGPUShader &computeShader, WebGPUBuffer<float> &buffer, WebGPUBuffer<float> &mapBuffer);
     void DrawQuad(glm::vec3 position, glm::vec4 color, int32_t id);
     void DrawQuad(glm::vec3 position, glm::vec3 scale, glm::vec4 color, int32_t id);
     void DrawCircle(glm::vec3 position, glm::vec4 color, float radius, int32_t id);
@@ -103,14 +111,17 @@ private:
             { -0.5, +0.5, 0.0 }
     };
 
+    std::vector<ComputeResultCopyOperation<float>> m_ComputeResultCopyOperations;
+
     WebGPUContext &m_Context;
     WGPUCommandEncoder m_CommandEncoder = {};
+    WGPUCommandEncoder m_ComputeCommandEncoder = {};
     WGPURenderPassEncoder m_RenderPass = {};
     WGPUComputePassEncoder m_ComputePass = {};
     WebGPUTexture *m_IdTexture;
     WebGPUBuffer<CircleVertex> *m_CircleVertexBuffer;
     WebGPUBuffer<QuadVertex> *m_QuadVertexBuffer;
-    WebGPUBuffer<std::byte> *m_PixelBuffer;
+    WebGPUBuffer<int32_t> *m_PixelBuffer;
     WebGPUBuffer<CameraData> *m_CameraDataUniformBuffer;
     WebGPUShader *m_CircleShader;
     WebGPUShader *m_QuadShader;

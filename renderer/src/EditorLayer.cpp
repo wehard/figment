@@ -1,5 +1,4 @@
 #include "EditorLayer.h"
-#include "Random.h"
 
 #include "imgui.h"
 #include "imgui_impl_wgpu.h"
@@ -21,9 +20,11 @@ namespace Figment
 
         auto entity = m_Scene->CreateEntity("Quad");
         auto &quad = entity.AddComponent<QuadComponent>();
-        auto figmentShader = new WebGPUShader(webGpuWindow->GetContext()->GetDevice(), *Utils::LoadFile2("res/shaders/wgsl/default.wgsl"));
-        entity.AddComponent<FigmentComponent>(figmentShader);
-
+        auto figmentShader = new WebGPUShader(webGpuWindow->GetContext()->GetDevice(), *Utils::LoadFile2("res/shaders/wgsl/figment.wgsl"));
+        auto computeShader = new WebGPUShader(webGpuWindow->GetContext()->GetDevice(), *Utils::LoadFile2("res/shaders/wgsl/compute.wgsl"));
+        auto &figment = entity.AddComponent<FigmentComponent>(*figmentShader, *computeShader);
+        figment.Buffer = new WebGPUBuffer<float>(webGpuWindow->GetContext()->GetDevice(), "FigmentBuffer", 256 * sizeof(float), WGPUBufferUsage_Storage | WGPUBufferUsage_CopySrc);
+        figment.MapBuffer = new WebGPUBuffer<float>(webGpuWindow->GetContext()->GetDevice(), "FigmentMapBuffer", 256 * sizeof(float), WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead);
         SelectEntity(entity);
     }
 
@@ -198,7 +199,7 @@ namespace Figment
     static void DrawFigmentComponent(FigmentComponent &figment)
     {
         ImGui::Separator();
-        ImGui::Text("Figment %s", figment.m_Shader->GetShaderSource().c_str());
+        ImGui::Text("Figment %s", figment.ComputeShader.GetShaderSource().c_str());
         ImGui::Button("Edit source", ImVec2(100, 20));
         ImGui::SameLine();
         ImGui::Button("Reload", ImVec2(100, 20));
