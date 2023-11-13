@@ -14,7 +14,6 @@ RendererStats WebGPURenderer::s_Stats = {};
 WebGPURenderer::WebGPURenderer(WebGPUContext &context)
         : m_Context(context)
 {
-    m_Shader = new WebGPUShader(context.GetDevice(), *Utils::LoadFile2("res/shaders/wgsl/default.wgsl"));
     m_CircleShader = new WebGPUShader(context.GetDevice(), *Utils::LoadFile2("res/shaders/wgsl/circle.wgsl"));
     m_QuadShader = new WebGPUShader(context.GetDevice(), *Utils::LoadFile2("res/shaders/wgsl/quad.wgsl"));
 
@@ -52,7 +51,6 @@ WebGPURenderer::~WebGPURenderer()
     delete m_CircleVertexBuffer;
     delete m_QuadVertexBuffer;
     delete m_PixelBuffer;
-    delete m_Shader;
     delete m_CircleShader;
     delete m_QuadShader;
     delete m_CameraDataUniformBuffer;
@@ -364,4 +362,42 @@ void WebGPURenderer::OnResize(uint32_t width, uint32_t height)
     m_DepthTexture = WebGPUTexture::CreateDepthTexture(m_Context.GetDevice(), WGPUTextureFormat_Depth24Plus,
             width, height);
 }
+
+void WebGPURenderer::BeginComputePass()
+{
+    WGPUComputePassDescriptor computePassDesc = {};
+    computePassDesc.label = "ComputePass";
+    computePassDesc.timestampWriteCount = 0;
+    computePassDesc.timestampWrites = nullptr;
+
+    m_ComputePass = wgpuCommandEncoderBeginComputePass(m_CommandEncoder, &computePassDesc);
+}
+
+void WebGPURenderer::Compute(WebGPUShader &computeShader)
+{
+    WGPUComputePipelineDescriptor computePipelineDesc = {};
+    computePipelineDesc.label = "ComputePipeline";
+    computePipelineDesc.compute.entryPoint = "main";
+    computePipelineDesc.compute.module = computeShader.GetShaderModule();
+    auto pipeline = wgpuDeviceCreateComputePipeline(m_Context.GetDevice(), &computePipelineDesc);
+    wgpuComputePassEncoderSetPipeline(m_ComputePass, pipeline);
+    // wgpuComputePassEncoderSetBindGroup(m_ComputePass, 0, computeShader.GetBindGroup(), 0, nullptr);
+    // wgpuComputePassEncoderDispatchWorkgroups(m_ComputePass, 2048, 2048, 1);
+}
+
+void WebGPURenderer::EndComputePass()
+{
+    wgpuComputePassEncoderEnd(m_ComputePass);
+
+    WGPUCommandBufferDescriptor commandBufferDesc = {};
+    WGPUCommandBuffer commandBuffer = wgpuCommandEncoderFinish(m_CommandEncoder, &commandBufferDesc);
+    WGPUQueue queue = wgpuDeviceGetQueue(m_Context.GetDevice());
+    wgpuQueueSubmit(queue, 1, &commandBuffer);
+
+    wgpuCommandEncoderRelease(m_CommandEncoder);
+    m_CommandEncoder = nullptr;
+    wgpuComputePassEncoderRelease(m_ComputePass);
+    m_ComputePass = nullptr;
+}
+
 

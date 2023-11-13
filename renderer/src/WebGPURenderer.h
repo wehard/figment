@@ -79,6 +79,9 @@ public:
     ~WebGPURenderer();
     WGPURenderPassEncoder Begin(Camera &camera);
     void End();
+    void BeginComputePass();
+    void EndComputePass();
+    void Compute(WebGPUShader &computeShader);
     void DrawQuad(glm::vec3 position, glm::vec4 color, int32_t id);
     void DrawQuad(glm::vec3 position, glm::vec3 scale, glm::vec4 color, int32_t id);
     void DrawCircle(glm::vec3 position, glm::vec4 color, float radius, int32_t id);
@@ -103,12 +106,12 @@ private:
     WebGPUContext &m_Context;
     WGPUCommandEncoder m_CommandEncoder = {};
     WGPURenderPassEncoder m_RenderPass = {};
+    WGPUComputePassEncoder m_ComputePass = {};
     WebGPUTexture *m_IdTexture;
     WebGPUBuffer<CircleVertex> *m_CircleVertexBuffer;
     WebGPUBuffer<QuadVertex> *m_QuadVertexBuffer;
     WebGPUBuffer<std::byte> *m_PixelBuffer;
     WebGPUBuffer<CameraData> *m_CameraDataUniformBuffer;
-    WebGPUShader *m_Shader;
     WebGPUShader *m_CircleShader;
     WebGPUShader *m_QuadShader;
     WebGPUTexture *m_DepthTexture;
