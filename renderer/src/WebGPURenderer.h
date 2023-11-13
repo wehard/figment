@@ -8,16 +8,6 @@
 #include "webgpu/webgpu.h"
 #include "glm/glm.hpp"
 
-struct UniformData
-{
-    glm::mat4 ModelMatrix;
-    glm::mat4 ViewMatrix;
-    glm::mat4 ProjectionMatrix;
-    glm::vec4 Color;
-    uint32_t Id;
-    uint32_t _padding[3];
-};
-
 struct CameraData
 {
     glm::mat4 ViewMatrix;
@@ -95,10 +85,8 @@ public:
     void DrawCircle(glm::vec3 position, glm::vec3 scale, glm::vec4 color, int32_t id);
     void ReadPixel(int x, int y, std::function<void(int32_t)> callback);
     void OnResize(uint32_t width, uint32_t height);
-    WebGPUShader *GetShader()
-    { return m_Shader; }
-    static RendererStats GetStats()
-    { return s_Stats; }
+
+    static RendererStats GetStats() { return s_Stats; }
 private:
     void DrawCircles();
     void DrawQuads();
