@@ -8,6 +8,7 @@
 #include "Input.h"
 #include "App.h"
 #include "WebGPUWindow.h"
+#include "Utils.h"
 
 namespace Figment
 {
@@ -20,7 +21,7 @@ namespace Figment
 
         auto entity = m_Scene->CreateEntity("Quad");
         auto &quad = entity.AddComponent<QuadComponent>();
-        auto figmentShader = new WebGPUShader(webGpuWindow->GetContext()->GetDevice(), "assets/shaders/figment.wgsl");
+        auto figmentShader = new WebGPUShader(webGpuWindow->GetContext()->GetDevice(), *Utils::LoadFile2("res/shaders/wgsl/default.wgsl"));
         entity.AddComponent<FigmentComponent>(figmentShader);
 
         SelectEntity(entity);
