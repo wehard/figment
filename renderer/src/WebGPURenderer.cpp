@@ -324,36 +324,11 @@ void WebGPURenderer::ReadPixel(int x, int y, std::function<void(int32_t)> callba
     WGPUQueue queue = wgpuDeviceGetQueue(m_Context.GetDevice());
     wgpuQueueSubmit(queue, 1, &commandBuffer);
 
-    struct BufferMapReadParams
+    m_PixelBuffer->MapReadAsync([callback, x, y](const int32_t *pixels, size_t size)
     {
-        WGPUBuffer Buffer = nullptr;
-        uint32_t Size = 0;
-        glm::ivec2 Position = glm::ivec2(0);
-        std::function<void(int32_t)> Callback;
-    };
-
-    auto *bufferMapReadParams = new BufferMapReadParams();
-    bufferMapReadParams->Buffer = m_PixelBuffer->GetBuffer();
-    bufferMapReadParams->Size = m_PixelBuffer->GetSize();
-    bufferMapReadParams->Position = { x, y };
-    bufferMapReadParams->Callback = std::move(callback);
-
-    wgpuBufferMapAsync(m_PixelBuffer->GetBuffer(), WGPUMapMode_Read, 0, m_PixelBuffer->GetSize(),
-            [](WGPUBufferMapAsyncStatus status, void *userData)
-            {
-                auto *params = (BufferMapReadParams *)userData;
-                if (status != WGPUBufferMapAsyncStatus_Success)
-                {
-                    printf("Buffer map failed with WGPUBufferMapAsyncStatus: %d\n", status);
-                    return;
-                }
-                auto *pixels = (int32_t *)wgpuBufferGetConstMappedRange(params->Buffer, 0,
-                        params->Size);
-                auto id = pixels[params->Position.y * 2048 + params->Position.x];
-                wgpuBufferUnmap(params->Buffer);
-                params->Callback(id);
-                delete params;
-            }, (void *)bufferMapReadParams);
+        auto id = pixels[y * 2048 + x];
+        callback(id);
+    });
 }
 
 void WebGPURenderer::OnResize(uint32_t width, uint32_t height)

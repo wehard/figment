@@ -72,7 +72,7 @@ public:
                     if (status != WGPUBufferMapAsyncStatus_Success)
                     {
                         auto label = params->Buffer->m_Label;
-                        printf("Buffer \"%s\" failed with WGPUBufferMapAsyncStatus: %d\n", label, status);
+                        printf("WebGPUBuffer \"%s\" failed with WGPUBufferMapAsyncStatus: %d\n", label, status);
                         return;
                     }
                     auto *pixels = (T *)wgpuBufferGetConstMappedRange(params->Buffer->GetBuffer(), 0,
