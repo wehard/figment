@@ -111,8 +111,6 @@ private:
             { -0.5, +0.5, 0.0 }
     };
 
-    std::vector<ComputeResultCopyOperation<float>> m_ComputeResultCopyOperations;
-
     WebGPUContext &m_Context;
     WGPUCommandEncoder m_CommandEncoder = {};
     WGPUCommandEncoder m_ComputeCommandEncoder = {};

@@ -23,8 +23,8 @@ namespace Figment
         auto figmentShader = new WebGPUShader(webGpuWindow->GetContext()->GetDevice(), *Utils::LoadFile2("res/shaders/wgsl/figment.wgsl"));
         auto computeShader = new WebGPUShader(webGpuWindow->GetContext()->GetDevice(), *Utils::LoadFile2("res/shaders/wgsl/compute.wgsl"));
         auto &figment = entity.AddComponent<FigmentComponent>(*figmentShader, *computeShader);
-        figment.Buffer = new WebGPUBuffer<float>(webGpuWindow->GetContext()->GetDevice(), "FigmentBuffer", 256 * sizeof(float), WGPUBufferUsage_Storage | WGPUBufferUsage_CopySrc);
-        figment.MapBuffer = new WebGPUBuffer<float>(webGpuWindow->GetContext()->GetDevice(), "FigmentMapBuffer", 256 * sizeof(float), WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead);
+        figment.Buffer = new WebGPUBuffer<float>(webGpuWindow->GetContext()->GetDevice(), "FigmentBuffer", 8 * sizeof(float), WGPUBufferUsage_Storage | WGPUBufferUsage_CopySrc);
+        figment.MapBuffer = new WebGPUBuffer<float>(webGpuWindow->GetContext()->GetDevice(), "FigmentMapBuffer", 8 * sizeof(float), WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead);
         SelectEntity(entity);
     }
 
@@ -202,7 +202,17 @@ namespace Figment
         ImGui::Text("Figment %s", figment.ComputeShader.GetShaderSource().c_str());
         ImGui::Button("Edit source", ImVec2(100, 20));
         ImGui::SameLine();
-        ImGui::Button("Reload", ImVec2(100, 20));
+        if(ImGui::Button("Read", ImVec2(100, 20)))
+        {
+            figment.MapBuffer->MapReadAsync([](const float *data, size_t size)
+            {
+                for (int i = 0; i < size / sizeof(float); i++)
+                {
+                    printf("%f ", data[i]);
+                }
+                printf("\nRead %zu bytes\n", size);
+            });
+        }
     }
 
     static void DrawEntityInspectorPanel(Entity entity)

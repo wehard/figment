@@ -449,31 +449,24 @@ void WebGPURenderer::Compute(WebGPUShader &computeShader, WebGPUBuffer<float> &b
     uint32_t workgroupSize = 32;
     uint32_t workgroupCount = (invocationCount + workgroupSize - 1) / workgroupSize;
     wgpuComputePassEncoderDispatchWorkgroups(m_ComputePass, workgroupCount, 1, 1);
-    ComputeResultCopyOperation<float> operation = {
-            .From = buffer,
-            .To = mapBuffer,
-            .Size = buffer.GetSize()
-    };
-    m_ComputeResultCopyOperations.emplace_back(operation);
+
+    mapBuffer.Unmap();
+
+    WGPUCommandEncoderDescriptor commandEncoderDesc = {};
+    commandEncoderDesc.nextInChain = nullptr;
+    commandEncoderDesc.label = "ComputeCopyCommandEncoder";
+    WGPUCommandEncoder commandEncoder = wgpuDeviceCreateCommandEncoder(m_Context.GetDevice(), &commandEncoderDesc);
+
+    wgpuCommandEncoderCopyBufferToBuffer(commandEncoder, buffer.GetBuffer(), 0, mapBuffer.GetBuffer(), 0, buffer.GetSize());
+
+    auto commandBuffer = wgpuCommandEncoderFinish(commandEncoder, nullptr);
+    WGPUQueue queue = wgpuDeviceGetQueue(m_Context.GetDevice());
+    wgpuQueueSubmit(queue, 1, &commandBuffer);
 }
 
 void WebGPURenderer::EndComputePass()
 {
     wgpuComputePassEncoderEnd(m_ComputePass);
-
-    for (auto &op : m_ComputeResultCopyOperations)
-    {
-        if (op.To.GetMapState() == WGPUBufferMapState_Mapped)
-        {
-            printf("Buffer is already mapped\n");
-            break;
-        }
-
-        // wgpuCommandEncoderCopyBufferToBuffer(m_ComputeCommandEncoder, op.From.GetBuffer(), 0, op.To.GetBuffer(), 0, op.Size);
-        // op.To.MapReadAsync([](const float* data, size_t size) {
-        //     printf("MapReadAsyncCallback called with float pointer: %p\n", data);
-        // });
-    }
 
     WGPUCommandBufferDescriptor commandBufferDesc = {};
     WGPUCommandBuffer commandBuffer = wgpuCommandEncoderFinish(m_ComputeCommandEncoder, &commandBufferDesc);
@@ -484,8 +477,6 @@ void WebGPURenderer::EndComputePass()
     m_ComputeCommandEncoder = nullptr;
     wgpuComputePassEncoderRelease(m_ComputePass);
     m_ComputePass = nullptr;
-
-    m_ComputeResultCopyOperations.clear();
 }
 
 

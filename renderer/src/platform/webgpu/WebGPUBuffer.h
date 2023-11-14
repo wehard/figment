@@ -63,40 +63,32 @@ public:
             return;
         }
 
-        struct CallbackData
-        {
-            MapReadAsyncCallbackFn Callback;
-            WebGPUBuffer<T> *Buffer;
-        };
-
-        auto callbackData = new CallbackData();
-        callbackData->Callback = callback;
-        callbackData->Buffer = this;
+        m_MapReadParams = { callback, this };
 
         wgpuBufferMapAsync(m_Buffer, WGPUMapMode_Read, 0, m_Size,
                 [](WGPUBufferMapAsyncStatus status, void *userData)
                 {
-                    auto callbackData = (CallbackData *)userData;
-                    if (callbackData->Buffer == nullptr)
-                    {
-                        printf("Buffer is null\n");
-                        return;
-                    }
+                    auto params = (MapReadParams *)userData;
                     if (status != WGPUBufferMapAsyncStatus_Success)
                     {
                         printf("Buffer map failed with WGPUBufferMapAsyncStatus: %d\n", status);
                         return;
                     }
-                    auto *pixels = (T *)wgpuBufferGetConstMappedRange(callbackData->Buffer->GetBuffer(), 0,
-                            callbackData->Buffer->GetSize());
-                    wgpuBufferUnmap(callbackData->Buffer->GetBuffer());
-                    callbackData->Callback(pixels, callbackData->Buffer->GetSize());
-                    delete callbackData;
-                }, (void *)&callbackData);
+                    auto *pixels = (T *)wgpuBufferGetConstMappedRange(params->Buffer->GetBuffer(), 0,
+                            params->Buffer->GetSize());
+                    wgpuBufferUnmap(params->Buffer->GetBuffer());
+                    params->Callback(pixels, params->Buffer->GetSize());
+                }, (void*)&m_MapReadParams);
     }
 
 
 private:
+    struct MapReadParams
+    {
+        MapReadAsyncCallbackFn Callback;
+        WebGPUBuffer<T> *Buffer;
+    };
+    MapReadParams m_MapReadParams;
     WGPUDevice m_Device;
     WGPUBuffer m_Buffer;
     uint32_t m_Size;

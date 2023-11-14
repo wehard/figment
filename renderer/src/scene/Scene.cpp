@@ -74,19 +74,18 @@ Entity Scene::GetHoveredEntity()
 
 void Scene::OnUpdate(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportSize)
 {
-    // m_Renderer->BeginComputePass();
-    // auto figments = m_Registry.view<FigmentComponent>();
-    // for (auto e : figments)
-    // {
-    //     Entity entity = { e, this };
-    //     if (entity.HasComponent<FigmentComponent>())
-    //     {
-    //         auto &figment = entity.GetComponent<FigmentComponent>();
-    //         m_Renderer->Compute(figment.ComputeShader, *figment.Buffer, *figment.MapBuffer);
-    //
-    //     }
-    // }
-    // m_Renderer->EndComputePass();
+    m_Renderer->BeginComputePass();
+    auto figments = m_Registry.view<FigmentComponent>();
+    for (auto e : figments)
+    {
+        Entity entity = { e, this };
+        if (entity.HasComponent<FigmentComponent>())
+        {
+            auto &figment = entity.GetComponent<FigmentComponent>();
+            m_Renderer->Compute(figment.ComputeShader, *figment.Buffer, *figment.MapBuffer);
+        }
+    }
+    m_Renderer->EndComputePass();
 
     m_Renderer->Begin(*m_CameraController->GetCamera()); // TODO: Make static
     m_CameraController->Update(deltaTime);
