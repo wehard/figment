@@ -18,15 +18,19 @@ namespace Figment
 
         m_Scene = new Scene(webGpuWindow->GetFramebufferWidth(), webGpuWindow->GetFramebufferHeight());
 
-        auto entity = m_Scene->CreateEntity("Quad");
-        auto &quad = entity.AddComponent<QuadComponent>();
+        auto figmentEntity = m_Scene->CreateEntity("Figment");
+        // auto &quad = figmentEntity.AddComponent<QuadComponent>();
         auto figmentShader = new WebGPUShader(webGpuWindow->GetContext()->GetDevice(), *Utils::LoadFile2("res/shaders/wgsl/figment.wgsl"));
         auto computeShader = new WebGPUShader(webGpuWindow->GetContext()->GetDevice(), *Utils::LoadFile2("res/shaders/wgsl/compute.wgsl"));
-        auto &figment = entity.AddComponent<FigmentComponent>(*figmentShader, *computeShader);
-        uint64_t size = 32 * 3 * sizeof(float);
-        figment.Buffer = new WebGPUBuffer<float>(webGpuWindow->GetContext()->GetDevice(), "FigmentBuffer", size, WGPUBufferUsage_Storage | WGPUBufferUsage_CopySrc);
-        figment.MapBuffer = new WebGPUBuffer<float>(webGpuWindow->GetContext()->GetDevice(), "FigmentMapBuffer", size, WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead);
-        SelectEntity(entity);
+        auto &figment = figmentEntity.AddComponent<FigmentComponent>(*figmentShader, *computeShader);
+        uint64_t count = 64;
+        uint64_t size = count * sizeof(glm::vec4);
+        figment.Buffer = new WebGPUBuffer<glm::vec4>(webGpuWindow->GetContext()->GetDevice(), "FigmentBuffer", size, WGPUBufferUsage_Storage | WGPUBufferUsage_CopySrc);
+        figment.MapBuffer = new WebGPUBuffer<glm::vec4>(webGpuWindow->GetContext()->GetDevice(), "FigmentMapBuffer", size, WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead);
+
+        auto quad = m_Scene->CreateEntity("Quad");
+        quad.AddComponent<QuadComponent>();
+        SelectEntity(figmentEntity);
     }
 
     EditorLayer::~EditorLayer()
@@ -200,24 +204,19 @@ namespace Figment
     static void DrawFigmentComponent(FigmentComponent &figment)
     {
         ImGui::Separator();
-        ImGui::Text("Figment %s", figment.ComputeShader.GetShaderSource().c_str());
+        ImGui::Text("Figment\n%s", figment.ComputeShader.GetShaderSource().c_str());
         ImGui::Button("Edit source", ImVec2(100, 20));
         ImGui::SameLine();
         if(ImGui::Button("Read", ImVec2(100, 20)))
         {
-            figment.MapBuffer->MapReadAsync([](const float *data, size_t size)
-            {
-                for (int i = 0; i < size / sizeof(float); i++)
-                {
-                    printf("%f ", data[i]);
-                }
-                printf("\nRead %zu bytes\n", size);
-            });
         }
         ImGui::Separator();
-        for (int i = 0; i < figment.Buffer->GetSize() / sizeof(float); i += 3)
+        if (figment.Data != nullptr)
         {
-            ImGui::Text("%f %f %f", figment.Data[i], figment.Data[i + 1], figment.Data[i + 2]);
+            for (int i = 0; i < figment.Buffer->GetSize() / sizeof(glm::vec4); i++)
+            {
+                ImGui::Text("%f %f %f", figment.Data[i].x, figment.Data[i].y, figment.Data[i].z);
+            }
         }
     }
 

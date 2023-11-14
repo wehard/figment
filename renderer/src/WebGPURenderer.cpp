@@ -377,7 +377,7 @@ static WGPUBindGroupLayoutEntry GetDefaultWGPUBindGroupLayoutEntry()
     return bindingLayout;
 }
 
-void WebGPURenderer::Compute(WebGPUShader &computeShader, WebGPUBuffer<float> &buffer, WebGPUBuffer<float> &mapBuffer)
+void WebGPURenderer::Compute(WebGPUShader &computeShader, WebGPUBuffer<glm::vec4> &buffer, WebGPUBuffer<glm::vec4> &mapBuffer)
 {
     WGPUBindGroupLayoutEntry bindGroupLayoutEntry = GetDefaultWGPUBindGroupLayoutEntry();
     bindGroupLayoutEntry.nextInChain = nullptr;
@@ -421,7 +421,7 @@ void WebGPURenderer::Compute(WebGPUShader &computeShader, WebGPUBuffer<float> &b
     wgpuComputePassEncoderSetPipeline(m_ComputePass, pipeline);
     wgpuComputePassEncoderSetBindGroup(m_ComputePass, 0, bindGroup, 0, nullptr);
 
-    uint32_t invocationCount = buffer.GetSize() / sizeof(float);
+    uint32_t invocationCount = buffer.GetSize() / sizeof(glm::vec4);
     uint32_t workgroupSize = 32;
     uint32_t workgroupCount = (invocationCount + workgroupSize - 1) / workgroupSize;
     wgpuComputePassEncoderDispatchWorkgroups(m_ComputePass, workgroupCount, 1, 1);

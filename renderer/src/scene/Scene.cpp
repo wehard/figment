@@ -83,12 +83,9 @@ void Scene::OnUpdate(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewpor
         {
             auto &figment = entity.GetComponent<FigmentComponent>();
             m_Renderer->Compute(figment.ComputeShader, *figment.Buffer, *figment.MapBuffer);
-            figment.MapBuffer->MapReadAsync([&figment](const float *data, size_t size)
+            figment.MapBuffer->MapReadAsync([&figment](const glm::vec4 *data, size_t size)
             {
-                // delete[] figment.Data;
-                figment.Data = (float*)data;// new float[figment.Buffer->GetSize()/sizeof(float)];
-                // memcpy(figment.Data, data, figment.Buffer->GetSize());
-                // delete data;
+                figment.Data = (glm::vec4*)data;
             });
         }
     }
@@ -136,13 +133,13 @@ void Scene::OnUpdate(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewpor
         Entity entity = { e, this };
         auto &figment = entity.GetComponent<FigmentComponent>();
         auto &transform = entity.GetComponent<TransformComponent>();
-        auto &quad = entity.GetComponent<QuadComponent>();
+        // auto &quad = entity.GetComponent<QuadComponent>();
         if (figment.Data == nullptr)
             continue;
-        for (int i = 0; i < figment.Buffer->GetSize() / sizeof(float); i += 3)
+        for (int i = 0; i < figment.Buffer->GetSize() / sizeof(glm::vec4); i++)
         {
-            m_Renderer->DrawCircle(transform.Position + glm::vec3(figment.Data[i], figment.Data[i + 1], figment.Data[i + 2]), transform.Scale,
-                    quad.Color, (int)entity.GetHandle());
+            m_Renderer->DrawCircle(transform.Position + glm::vec3(figment.Data[i].x, figment.Data[i].y, figment.Data[i].z), transform.Scale,
+                    glm::vec4(1.0), (int)entity.GetHandle());
         }
     }
 

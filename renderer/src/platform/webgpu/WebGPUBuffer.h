@@ -75,10 +75,10 @@ public:
                         printf("WebGPUBuffer \"%s\" failed with WGPUBufferMapAsyncStatus: %d\n", label, status);
                         return;
                     }
-                    auto *pixels = (T *)wgpuBufferGetConstMappedRange(params->Buffer->GetBuffer(), 0,
+                    auto *data = (T *)wgpuBufferGetConstMappedRange(params->Buffer->GetBuffer(), 0,
                             params->Buffer->GetSize());
+                    params->Callback(data, params->Buffer->GetSize());
                     wgpuBufferUnmap(params->Buffer->GetBuffer());
-                    params->Callback(pixels, params->Buffer->GetSize());
                 }, (void*)&m_MapReadParams);
     }
 
