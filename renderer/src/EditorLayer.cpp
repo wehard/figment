@@ -23,8 +23,9 @@ namespace Figment
         auto figmentShader = new WebGPUShader(webGpuWindow->GetContext()->GetDevice(), *Utils::LoadFile2("res/shaders/wgsl/figment.wgsl"));
         auto computeShader = new WebGPUShader(webGpuWindow->GetContext()->GetDevice(), *Utils::LoadFile2("res/shaders/wgsl/compute.wgsl"));
         auto &figment = entity.AddComponent<FigmentComponent>(*figmentShader, *computeShader);
-        figment.Buffer = new WebGPUBuffer<float>(webGpuWindow->GetContext()->GetDevice(), "FigmentBuffer", 8 * sizeof(float), WGPUBufferUsage_Storage | WGPUBufferUsage_CopySrc);
-        figment.MapBuffer = new WebGPUBuffer<float>(webGpuWindow->GetContext()->GetDevice(), "FigmentMapBuffer", 8 * sizeof(float), WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead);
+        uint64_t size = 512 * sizeof(float);
+        figment.Buffer = new WebGPUBuffer<float>(webGpuWindow->GetContext()->GetDevice(), "FigmentBuffer", size, WGPUBufferUsage_Storage | WGPUBufferUsage_CopySrc);
+        figment.MapBuffer = new WebGPUBuffer<float>(webGpuWindow->GetContext()->GetDevice(), "FigmentMapBuffer", size, WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead);
         SelectEntity(entity);
     }
 
