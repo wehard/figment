@@ -50,7 +50,7 @@ std::vector<Entity> Scene::GetEntities()
     std::vector<Entity> entities;
     for (auto e : view)
     {
-        entities.emplace_back( e, this );
+        entities.emplace_back(e, this);
     }
     return entities;
 }
@@ -83,6 +83,13 @@ void Scene::OnUpdate(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewpor
         {
             auto &figment = entity.GetComponent<FigmentComponent>();
             m_Renderer->Compute(figment.ComputeShader, *figment.Buffer, *figment.MapBuffer);
+            figment.MapBuffer->MapReadAsync([&figment](const float *data, size_t size)
+            {
+                // delete[] figment.Data;
+                figment.Data = (float*)data;// new float[figment.Buffer->GetSize()/sizeof(float)];
+                // memcpy(figment.Data, data, figment.Buffer->GetSize());
+                // delete data;
+            });
         }
     }
     m_Renderer->EndComputePass();
@@ -91,7 +98,8 @@ void Scene::OnUpdate(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewpor
     m_CameraController->Update(deltaTime);
 
     glm::vec2 normalized = glm::vec2(mousePosition.x / viewportSize.x, mousePosition.y / viewportSize.y);
-    if (m_CameraController->IsFpsCamera() || normalized.x < -1.0 || normalized.x > 1.0 || normalized.y < -1.0 || normalized.y > 1.0)
+    if (m_CameraController->IsFpsCamera() || normalized.x < -1.0 || normalized.x > 1.0 || normalized.y < -1.0
+            || normalized.y > 1.0)
     {
         m_HoveredId = -1;
     }
@@ -103,8 +111,8 @@ void Scene::OnUpdate(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewpor
         });
     }
 
-    auto view = m_Registry.view<TransformComponent>();
-    for (auto e : view)
+    auto entities = m_Registry.view<TransformComponent>();
+    for (auto e : entities)
     {
         Entity entity = { e, this };
         auto &transform = entity.GetComponent<TransformComponent>();
@@ -119,6 +127,22 @@ void Scene::OnUpdate(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewpor
             auto &quad = entity.GetComponent<QuadComponent>();
             auto color = entity.GetHandle() == m_HoveredId ? glm::vec4(1.0, 1.0, 1.0, 1.0) : quad.Color;
             m_Renderer->DrawQuad(transform.Position, transform.Scale, color, (int)entity.GetHandle());
+        }
+    }
+
+    auto view = m_Registry.view<FigmentComponent>();
+    for (auto &e : view)
+    {
+        Entity entity = { e, this };
+        auto &figment = entity.GetComponent<FigmentComponent>();
+        auto &transform = entity.GetComponent<TransformComponent>();
+        auto &quad = entity.GetComponent<QuadComponent>();
+        if (figment.Data == nullptr)
+            continue;
+        for (int i = 0; i < figment.Buffer->GetSize() / sizeof(float); i += 3)
+        {
+            m_Renderer->DrawCircle(transform.Position + glm::vec3(figment.Data[i], figment.Data[i + 1], figment.Data[i + 2]), transform.Scale,
+                    quad.Color, (int)entity.GetHandle());
         }
     }
 

@@ -75,11 +75,13 @@ struct FigmentComponent
     WebGPUShader &ComputeShader;
     WebGPUBuffer<float> *Buffer;
     WebGPUBuffer<float> *MapBuffer;
+    float *Data = nullptr;
 
     FigmentComponent(WebGPUShader &shader, WebGPUShader &computeShader) : Shader(shader), ComputeShader(computeShader) {}
     ~FigmentComponent()
     {
         delete Buffer;
         delete MapBuffer;
+        delete Data;
     }
 };

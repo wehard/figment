@@ -420,6 +420,7 @@ void WebGPURenderer::Compute(WebGPUShader &computeShader, WebGPUBuffer<float> &b
     auto bindGroup = wgpuDeviceCreateBindGroup(m_Context.GetDevice(), &bindGroupDesc);
     wgpuComputePassEncoderSetPipeline(m_ComputePass, pipeline);
     wgpuComputePassEncoderSetBindGroup(m_ComputePass, 0, bindGroup, 0, nullptr);
+
     uint32_t invocationCount = buffer.GetSize() / sizeof(float);
     uint32_t workgroupSize = 32;
     uint32_t workgroupCount = (invocationCount + workgroupSize - 1) / workgroupSize;

@@ -23,7 +23,7 @@ namespace Figment
         auto figmentShader = new WebGPUShader(webGpuWindow->GetContext()->GetDevice(), *Utils::LoadFile2("res/shaders/wgsl/figment.wgsl"));
         auto computeShader = new WebGPUShader(webGpuWindow->GetContext()->GetDevice(), *Utils::LoadFile2("res/shaders/wgsl/compute.wgsl"));
         auto &figment = entity.AddComponent<FigmentComponent>(*figmentShader, *computeShader);
-        uint64_t size = 512 * sizeof(float);
+        uint64_t size = 32 * 3 * sizeof(float);
         figment.Buffer = new WebGPUBuffer<float>(webGpuWindow->GetContext()->GetDevice(), "FigmentBuffer", size, WGPUBufferUsage_Storage | WGPUBufferUsage_CopySrc);
         figment.MapBuffer = new WebGPUBuffer<float>(webGpuWindow->GetContext()->GetDevice(), "FigmentMapBuffer", size, WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead);
         SelectEntity(entity);
@@ -213,6 +213,11 @@ namespace Figment
                 }
                 printf("\nRead %zu bytes\n", size);
             });
+        }
+        ImGui::Separator();
+        for (int i = 0; i < figment.Buffer->GetSize() / sizeof(float); i += 3)
+        {
+            ImGui::Text("%f %f %f", figment.Data[i], figment.Data[i + 1], figment.Data[i + 2]);
         }
     }
 
