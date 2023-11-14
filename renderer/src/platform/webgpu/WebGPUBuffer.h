@@ -9,7 +9,7 @@ class WebGPUBuffer
 {
 public:
     WebGPUBuffer(WGPUDevice device, const char *label, uint64_t size, WGPUBufferUsageFlags usage)
-            : m_Device(device), m_Size(size)
+            : m_Device(device), m_Size(size), m_Label(label)
     {
         WGPUBufferDescriptor pixelBufferDesc = {};
         pixelBufferDesc.nextInChain = nullptr;
@@ -71,7 +71,8 @@ public:
                     auto params = (MapReadParams *)userData;
                     if (status != WGPUBufferMapAsyncStatus_Success)
                     {
-                        printf("Buffer map failed with WGPUBufferMapAsyncStatus: %d\n", status);
+                        auto label = params->Buffer->m_Label;
+                        printf("Buffer \"%s\" failed with WGPUBufferMapAsyncStatus: %d\n", label, status);
                         return;
                     }
                     auto *pixels = (T *)wgpuBufferGetConstMappedRange(params->Buffer->GetBuffer(), 0,
@@ -92,4 +93,5 @@ private:
     WGPUDevice m_Device;
     WGPUBuffer m_Buffer;
     uint32_t m_Size;
+    const char *m_Label;
 };
