@@ -85,6 +85,7 @@ class WebGPURenderer
 public:
     explicit WebGPURenderer(WebGPUContext &context);
     ~WebGPURenderer();
+    void InitShaders();
     WGPURenderPassEncoder Begin(Camera &camera);
     void End();
     void BeginComputePass();

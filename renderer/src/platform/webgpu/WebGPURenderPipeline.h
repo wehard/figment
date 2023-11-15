@@ -12,12 +12,12 @@ public:
     { }
     ~WebGPURenderPipelineBuilder();
 
-    void SetVertexBufferLayout(std::vector<WGPUVertexAttribute> attributes, uint64_t stride,
-            WGPUVertexStepMode stepMode);
+    // void SetVertexBufferLayout(std::vector<WGPUVertexAttribute> attributes, uint64_t stride,
+    //         WGPUVertexStepMode stepMode);
     void SetPrimitiveState(WGPUPrimitiveTopology topology, WGPUIndexFormat stripIndexFormat, WGPUFrontFace frontFace,
             WGPUCullMode cullMode);
-    void AddColorTargetState(uint32_t index, WGPUTextureFormat format, WGPUColorWriteMask writeMask,
-            bool noBlend = false);
+    // void AddColorTargetState(uint32_t index, WGPUTextureFormat format, WGPUColorWriteMask writeMask,
+    //         bool noBlend = false);
     void SetDepthStencilState(WGPUTextureFormat format, WGPUCompareFunction compareFunction, bool depthWriteEnabled);
     void AddBindGroupLayoutEntry(uint32_t binding, WGPUBufferBindingType type, WGPUShaderStageFlags visibility,
             uint64_t minBindingSize);
@@ -32,11 +32,10 @@ private:
     WebGPUShader &m_Shader;
     WGPURenderPipeline m_Pipeline = {};
     WGPUBindGroup m_BindGroup = {};
-    WGPUVertexBufferLayout m_VertexBufferLayout = {};
-    std::vector<WGPUVertexAttribute> m_VertexAttributes;
+    // WGPUVertexBufferLayout m_VertexBufferLayout = {};
+    // std::vector<WGPUVertexAttribute> m_VertexAttributes;
     WGPUPrimitiveState m_PrimitiveState = {};
     WGPUDepthStencilState m_DepthStencilState = {};
-    std::vector<WGPUColorTargetState> m_ColorTargetStates;
     std::vector<WGPUBlendState> m_BlendStates;
     std::vector<WGPUBindGroupLayoutEntry> m_BindGroupLayoutEntries;
     std::vector<WGPUBindGroupEntry> m_BindGroupEntries;

@@ -14,17 +14,6 @@ RendererStats WebGPURenderer::s_Stats = {};
 WebGPURenderer::WebGPURenderer(WebGPUContext &context)
         : m_Context(context)
 {
-    m_CircleShader = new WebGPUShader(context.GetDevice(), *Utils::LoadFile2("res/shaders/wgsl/circle.wgsl"));
-    m_QuadShader = new WebGPUShader(context.GetDevice(), *Utils::LoadFile2("res/shaders/wgsl/quad.wgsl"));
-
-    std::vector<float> data = { -0.5, -0.5, 0.0,
-                                +0.5, -0.5, 0.0,
-                                -0.5, +0.5, 0.0,
-                                +0.5, -0.5, 0.0,
-                                +0.5, +0.5, 0.0,
-                                -0.5, +0.5, 0.0
-    };
-
     m_IdTexture = new WebGPUTexture(context.GetDevice(), WGPUTextureFormat_R32Sint, context.GetSwapChainWidth(),
             context.GetSwapChainHeight());
 
@@ -33,6 +22,8 @@ WebGPURenderer::WebGPURenderer(WebGPUContext &context)
 
     m_DepthTexture = WebGPUTexture::CreateDepthTexture(context.GetDevice(), WGPUTextureFormat_Depth24Plus,
             context.GetSwapChainWidth(), context.GetSwapChainHeight());
+
+    InitShaders();
 
     m_RendererData.Init();
 
@@ -54,6 +45,52 @@ WebGPURenderer::~WebGPURenderer()
     delete m_CircleShader;
     delete m_QuadShader;
     delete m_CameraDataUniformBuffer;
+}
+
+void WebGPURenderer::InitShaders()
+{
+    auto vertexAttributes = std::vector<WGPUVertexAttribute>({
+            {
+                    .format = WGPUVertexFormat_Float32x3,
+                    .offset = 0,
+                    .shaderLocation = 0,
+            },
+            {
+                    .format = WGPUVertexFormat_Float32x3,
+                    .offset = 3 * sizeof(float),
+                    .shaderLocation = 1,
+            },
+            {
+                    .format = WGPUVertexFormat_Float32x4,
+                    .offset = 6 * sizeof(float),
+                    .shaderLocation = 2,
+            },
+            {
+                    .format = WGPUVertexFormat_Sint32,
+                    .offset = 10 * sizeof(float),
+                    .shaderLocation = 3,
+            }
+    });
+
+    auto colorTargetStates = std::vector<WGPUColorTargetState>({
+            {
+                    .format = m_Context.GetTextureFormat(),
+                    .blend = nullptr,
+                    .writeMask = WGPUColorWriteMask_All
+            },
+            {
+                    .format = m_IdTexture->GetTextureFormat(),
+                    .blend = nullptr,
+                    .writeMask = WGPUColorWriteMask_All
+            }
+    });
+    m_CircleShader = new WebGPUShader(m_Context.GetDevice(), *Utils::LoadFile2("res/shaders/wgsl/circle.wgsl"));
+    m_CircleShader->SetVertexBufferLayout(vertexAttributes, sizeof(CircleVertex), WGPUVertexStepMode_Vertex);
+    m_CircleShader->SetColorTargetStates(colorTargetStates);
+
+    m_QuadShader = new WebGPUShader(m_Context.GetDevice(), *Utils::LoadFile2("res/shaders/wgsl/quad.wgsl"));
+    m_QuadShader->SetVertexBufferLayout(vertexAttributes, sizeof(QuadVertex), WGPUVertexStepMode_Vertex);
+    m_QuadShader->SetColorTargetStates(colorTargetStates);
 }
 
 WGPURenderPassEncoder WebGPURenderer::Begin(Camera &camera)
@@ -134,38 +171,11 @@ void WebGPURenderer::DrawCircles()
     if (m_RendererData.CircleVertexCount == 0)
         return;
 
-    // auto cameraDataBuffer = new WebGPUUniformBuffer<CameraData>(m_Context.GetDevice(), &m_CameraData,
-    //         sizeof(m_CameraData));
-
     m_CircleVertexBuffer->SetData(m_RendererData.CircleVertices.data(),
             m_RendererData.CircleVertexCount * sizeof(CircleVertex));
 
     auto pipelineBuilder = WebGPURenderPipelineBuilder(m_Context, *m_CircleShader);
-    pipelineBuilder.SetVertexBufferLayout({
-            {
-                    .format = WGPUVertexFormat_Float32x3,
-                    .offset = 0,
-                    .shaderLocation = 0,
-            },
-            {
-                    .format = WGPUVertexFormat_Float32x3,
-                    .offset = 3 * sizeof(float),
-                    .shaderLocation = 1,
-            },
-            {
-                    .format = WGPUVertexFormat_Float32x4,
-                    .offset = 6 * sizeof(float),
-                    .shaderLocation = 2,
-            },
-            {
-                    .format = WGPUVertexFormat_Sint32,
-                    .offset = 10 * sizeof(float),
-                    .shaderLocation = 3,
-            }
-    }, sizeof(CircleVertex), WGPUVertexStepMode_Vertex);
 
-    pipelineBuilder.AddColorTargetState(0, m_Context.GetTextureFormat(), WGPUColorWriteMask_All, false);
-    pipelineBuilder.AddColorTargetState(1, m_IdTexture->GetTextureFormat(), WGPUColorWriteMask_All, true);
     pipelineBuilder.SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined, WGPUFrontFace_CCW,
             WGPUCullMode_None);
 
@@ -195,31 +205,7 @@ void WebGPURenderer::DrawQuads()
             m_RendererData.QuadVertexCount * sizeof(QuadVertex));
 
     auto pipelineBuilder = WebGPURenderPipelineBuilder(m_Context, *m_QuadShader);
-    pipelineBuilder.SetVertexBufferLayout({
-            {
-                    .format = WGPUVertexFormat_Float32x3,
-                    .offset = 0,
-                    .shaderLocation = 0,
-            },
-            {
-                    .format = WGPUVertexFormat_Float32x3,
-                    .offset = 3 * sizeof(float),
-                    .shaderLocation = 1,
-            },
-            {
-                    .format = WGPUVertexFormat_Float32x4,
-                    .offset = 6 * sizeof(float),
-                    .shaderLocation = 2,
-            },
-            {
-                    .format = WGPUVertexFormat_Sint32,
-                    .offset = 10 * sizeof(float),
-                    .shaderLocation = 3,
-            }
-    }, sizeof(CircleVertex), WGPUVertexStepMode_Vertex);
 
-    pipelineBuilder.AddColorTargetState(0, m_Context.GetTextureFormat(), WGPUColorWriteMask_All, false);
-    pipelineBuilder.AddColorTargetState(1, m_IdTexture->GetTextureFormat(), WGPUColorWriteMask_All, true);
     pipelineBuilder.SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined, WGPUFrontFace_CCW,
             WGPUCullMode_None);
 
@@ -377,7 +363,8 @@ static WGPUBindGroupLayoutEntry GetDefaultWGPUBindGroupLayoutEntry()
     return bindingLayout;
 }
 
-void WebGPURenderer::Compute(WebGPUShader &computeShader, WebGPUBuffer<glm::vec4> &buffer, WebGPUBuffer<glm::vec4> &mapBuffer)
+void WebGPURenderer::Compute(WebGPUShader &computeShader, WebGPUBuffer<glm::vec4> &buffer,
+        WebGPUBuffer<glm::vec4> &mapBuffer)
 {
     WGPUBindGroupLayoutEntry bindGroupLayoutEntry = GetDefaultWGPUBindGroupLayoutEntry();
     bindGroupLayoutEntry.nextInChain = nullptr;
@@ -433,7 +420,8 @@ void WebGPURenderer::Compute(WebGPUShader &computeShader, WebGPUBuffer<glm::vec4
     commandEncoderDesc.label = "ComputeCopyCommandEncoder";
     WGPUCommandEncoder commandEncoder = wgpuDeviceCreateCommandEncoder(m_Context.GetDevice(), &commandEncoderDesc);
 
-    wgpuCommandEncoderCopyBufferToBuffer(commandEncoder, buffer.GetBuffer(), 0, mapBuffer.GetBuffer(), 0, buffer.GetSize());
+    wgpuCommandEncoderCopyBufferToBuffer(commandEncoder, buffer.GetBuffer(), 0, mapBuffer.GetBuffer(), 0,
+            buffer.GetSize());
 
     auto commandBuffer = wgpuCommandEncoderFinish(commandEncoder, nullptr);
     WGPUQueue queue = wgpuDeviceGetQueue(m_Context.GetDevice());
@@ -454,5 +442,6 @@ void WebGPURenderer::EndComputePass()
     wgpuComputePassEncoderRelease(m_ComputePass);
     m_ComputePass = nullptr;
 }
+
 
 

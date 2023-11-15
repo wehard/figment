@@ -6,16 +6,6 @@ WebGPURenderPipelineBuilder::~WebGPURenderPipelineBuilder()
     wgpuBindGroupRelease(m_BindGroup);
 }
 
-void WebGPURenderPipelineBuilder::SetVertexBufferLayout(std::vector<WGPUVertexAttribute> attributes, uint64_t stride,
-        WGPUVertexStepMode stepMode)
-{
-    m_VertexAttributes = attributes;
-    m_VertexBufferLayout.attributeCount = m_VertexAttributes.size();
-    m_VertexBufferLayout.attributes = m_VertexAttributes.data();
-    m_VertexBufferLayout.arrayStride = stride;
-    m_VertexBufferLayout.stepMode = stepMode;
-}
-
 void WebGPURenderPipelineBuilder::SetPrimitiveState(WGPUPrimitiveTopology topology, WGPUIndexFormat stripIndexFormat, WGPUFrontFace frontFace, WGPUCullMode cullMode)
 {
     m_PrimitiveState = {
@@ -24,26 +14,6 @@ void WebGPURenderPipelineBuilder::SetPrimitiveState(WGPUPrimitiveTopology topolo
             .stripIndexFormat = stripIndexFormat,
             .frontFace = frontFace,
             .cullMode = cullMode
-    };
-}
-
-void WebGPURenderPipelineBuilder::AddColorTargetState(uint32_t index, WGPUTextureFormat format, WGPUColorWriteMask writeMask, bool noBlend)
-{
-    if (m_ColorTargetStates.size() <= index)
-        m_ColorTargetStates.resize(index + 1);
-
-    m_BlendState.color.srcFactor = WGPUBlendFactor_SrcAlpha;
-    m_BlendState.color.dstFactor = WGPUBlendFactor_OneMinusSrcAlpha;
-    m_BlendState.color.operation = WGPUBlendOperation_Add;
-    m_BlendState.alpha.srcFactor = WGPUBlendFactor_One;
-    m_BlendState.alpha.dstFactor = WGPUBlendFactor_One;
-    m_BlendState.alpha.operation = WGPUBlendOperation_Add;
-
-    m_ColorTargetStates[index] = {
-            .nextInChain = nullptr,
-            .format = format,
-            .blend = noBlend ? nullptr : &m_BlendState,
-            .writeMask = writeMask
     };
 }
 
@@ -134,21 +104,10 @@ void WebGPURenderPipelineBuilder::Build()
 {
     WGPURenderPipelineDescriptor desc = {};
     desc.nextInChain = nullptr;
-    desc.vertex = {
-            .module = m_Shader.GetShaderModule(),
-            .entryPoint = "vs_main",
-            .constantCount = 0,
-            .constants = nullptr,
-    };
-    desc.vertex.bufferCount = 1;
-    desc.vertex.buffers = &m_VertexBufferLayout;
+    desc.vertex = m_Shader.GetVertexState();
     desc.primitive = m_PrimitiveState;
 
-    WGPUFragmentState fragmentState = {};
-    fragmentState.module = m_Shader.GetShaderModule();
-    fragmentState.entryPoint = "fs_main";
-    fragmentState.targetCount = m_ColorTargetStates.size();
-    fragmentState.targets = m_ColorTargetStates.data();
+    WGPUFragmentState fragmentState = m_Shader.GetFragmentState();
     desc.fragment = &fragmentState;
     desc.depthStencil = &m_DepthStencilState;
 

@@ -11,10 +11,13 @@ public:
 
     WGPUShaderModule GetShaderModule() { return m_ShaderModule; }
     std::string GetShaderSource() { return m_ShaderSource; }
-    WGPUVertexState GetVertexStage();
-    WGPUFragmentState GetFragmentStage(WGPUTextureFormat textureFormat, WGPUTextureFormat idFormat);
-    WGPUPipelineLayout GetPipelineLayout(uint64_t uniformSize);
-    const WGPUDepthStencilState GetDepthStencilState(WGPUTextureFormat depthFormat);
+
+    void SetVertexBufferLayout(std::vector<WGPUVertexAttribute> attributes, uint64_t stride,
+            WGPUVertexStepMode stepMode);
+    WGPUVertexState GetVertexState();
+    WGPUFragmentState GetFragmentState();
+    void SetColorTargetStates(std::vector<WGPUColorTargetState> colorTargetStates);
+
 private:
     WGPUDevice m_Device;
     WGPUShaderModule m_ShaderModule;
@@ -25,5 +28,10 @@ private:
     WGPUColorTargetState m_ColorTargets[2] = {};
     WGPUBlendState m_BlendState = {};
     WGPUDepthStencilState m_DepthStencilState = {};
+
+    const char *m_VertexEntryPoint = "vs_main";
+    const char *m_FragmentEntryPoint = "fs_main";
+    std::vector<WGPUVertexAttribute> m_VertexAttributes;
+    std::vector<WGPUColorTargetState> m_ColorTargetStates;
 };
 

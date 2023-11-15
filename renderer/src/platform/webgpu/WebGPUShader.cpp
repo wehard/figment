@@ -18,83 +18,6 @@ static void CompilationInfoCallback(WGPUCompilationInfoRequestStatus status, con
     }
 }
 
-WebGPUShader::WebGPUShader(WGPUDevice device, const std::string &shaderSource, const char *label)
-        : m_Device(device), m_ShaderSource(shaderSource)
-{
-    WGPUShaderModuleWGSLDescriptor shaderCodeDesc = {};
-    shaderCodeDesc.chain.next = nullptr;
-    shaderCodeDesc.chain.sType = WGPUSType_ShaderModuleWGSLDescriptor;
-    shaderCodeDesc.code = shaderSource.c_str();
-
-    WGPUShaderModuleDescriptor shaderDesc = {};
-    shaderDesc.nextInChain = &shaderCodeDesc.chain;
-
-    m_ShaderModule = wgpuDeviceCreateShaderModule(device, &shaderDesc);
-
-    wgpuShaderModuleSetLabel(m_ShaderModule, label);
-
-    // wgpuShaderModuleGetCompilationInfo(m_ShaderModule, CompilationInfoCallback, nullptr);
-}
-
-WebGPUShader::~WebGPUShader()
-{
-    wgpuShaderModuleRelease(m_ShaderModule);
-}
-
-WGPUVertexState WebGPUShader::GetVertexStage()
-{
-    m_VertexAttribute.shaderLocation = 0;
-    m_VertexAttribute.format = WGPUVertexFormat_Float32x3;
-    m_VertexAttribute.offset = 0;
-
-    m_VertexBufferLayout.attributeCount = 1;
-    m_VertexBufferLayout.attributes = &m_VertexAttribute;
-    m_VertexBufferLayout.arrayStride = 3 * sizeof(float);
-    m_VertexBufferLayout.stepMode = WGPUVertexStepMode_Vertex;
-
-    WGPUVertexState vertexState = {};
-    vertexState.bufferCount = 1;
-    vertexState.buffers = &m_VertexBufferLayout;
-
-    vertexState.module = m_ShaderModule;
-    vertexState.entryPoint = "vs_main";
-    vertexState.constantCount = 0;
-    vertexState.constants = nullptr;
-
-    return vertexState;
-}
-
-WGPUFragmentState WebGPUShader::GetFragmentStage(WGPUTextureFormat textureFormat, WGPUTextureFormat idFormat)
-{
-    m_BlendState.color.srcFactor = WGPUBlendFactor_SrcAlpha;
-    m_BlendState.color.dstFactor = WGPUBlendFactor_OneMinusSrcAlpha;
-    m_BlendState.color.operation = WGPUBlendOperation_Add;
-
-    m_BlendState.alpha.srcFactor = WGPUBlendFactor_One;
-    m_BlendState.alpha.dstFactor = WGPUBlendFactor_One;
-    m_BlendState.alpha.operation = WGPUBlendOperation_Add;
-
-    m_ColorTargets[0].nextInChain = nullptr;
-    m_ColorTargets[0].format = textureFormat;
-    m_ColorTargets[0].blend = &m_BlendState;
-    m_ColorTargets[0].writeMask = WGPUColorWriteMask_All;
-
-    m_ColorTargets[1].nextInChain = nullptr;
-    m_ColorTargets[1].format = idFormat;
-    m_ColorTargets[1].blend = nullptr;
-    m_ColorTargets[1].writeMask = WGPUColorWriteMask_All;
-
-    WGPUFragmentState fragmentState = {};
-    fragmentState.module = m_ShaderModule;
-    fragmentState.entryPoint = "fs_main";
-    fragmentState.constantCount = 0;
-    fragmentState.constants = nullptr;
-    fragmentState.targetCount = 2;
-    fragmentState.targets = m_ColorTargets;
-
-    return fragmentState;
-}
-
 static WGPUBindGroupLayoutEntry GetDefaultWGPUBindGroupLayoutEntry()
 {
     WGPUBindGroupLayoutEntry bindingLayout = {};
@@ -119,30 +42,7 @@ static WGPUBindGroupLayoutEntry GetDefaultWGPUBindGroupLayoutEntry()
     return bindingLayout;
 }
 
-WGPUPipelineLayout WebGPUShader::GetPipelineLayout(uint64_t uniformSize)
-{
-    WGPUBindGroupLayoutEntry bindGroupLayoutEntry = GetDefaultWGPUBindGroupLayoutEntry();
-    bindGroupLayoutEntry.binding = 0;
-    bindGroupLayoutEntry.visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
-    bindGroupLayoutEntry.buffer.type = WGPUBufferBindingType_Uniform;
-    bindGroupLayoutEntry.buffer.minBindingSize = uniformSize;
-
-    WGPUBindGroupLayoutDescriptor bindGroupLayoutDesc = {};
-    bindGroupLayoutDesc.nextInChain = nullptr;
-    bindGroupLayoutDesc.entryCount = 1;
-    bindGroupLayoutDesc.entries = &bindGroupLayoutEntry;
-    WGPUBindGroupLayout bindGroupLayout = wgpuDeviceCreateBindGroupLayout(m_Device, &bindGroupLayoutDesc);
-
-    WGPUPipelineLayoutDescriptor layoutDesc = {};
-    layoutDesc.nextInChain = nullptr;
-    layoutDesc.bindGroupLayoutCount = 1;
-    layoutDesc.bindGroupLayouts = &bindGroupLayout;
-    WGPUPipelineLayout layout = wgpuDeviceCreatePipelineLayout(m_Device, &layoutDesc);
-
-    return layout;
-}
-
-static WGPUDepthStencilState GetDefaultDepthStencilState()
+static WGPUDepthStencilState GetDefaultWebGPUDepthStencilState()
 {
     WGPUDepthStencilState depthStencilState = {};
     depthStencilState.nextInChain = nullptr;
@@ -169,13 +69,59 @@ static WGPUDepthStencilState GetDefaultDepthStencilState()
     return depthStencilState;
 }
 
-const WGPUDepthStencilState WebGPUShader::GetDepthStencilState(WGPUTextureFormat depthFormat)
+WebGPUShader::WebGPUShader(WGPUDevice device, const std::string &shaderSource, const char *label)
+        : m_Device(device), m_ShaderSource(shaderSource)
 {
-    m_DepthStencilState = GetDefaultDepthStencilState();
-    m_DepthStencilState.depthCompare = WGPUCompareFunction_Less;
-    m_DepthStencilState.depthWriteEnabled = true;
-    m_DepthStencilState.format = depthFormat;
-    m_DepthStencilState.stencilReadMask = 0;
-    m_DepthStencilState.stencilWriteMask = 0;
-    return m_DepthStencilState;
+    WGPUShaderModuleWGSLDescriptor shaderCodeDesc = {};
+    shaderCodeDesc.chain.next = nullptr;
+    shaderCodeDesc.chain.sType = WGPUSType_ShaderModuleWGSLDescriptor;
+    shaderCodeDesc.code = shaderSource.c_str();
+
+    WGPUShaderModuleDescriptor shaderDesc = {};
+    shaderDesc.nextInChain = &shaderCodeDesc.chain;
+
+    m_ShaderModule = wgpuDeviceCreateShaderModule(device, &shaderDesc);
+    wgpuShaderModuleSetLabel(m_ShaderModule, label);
+}
+
+WebGPUShader::~WebGPUShader()
+{
+    wgpuShaderModuleRelease(m_ShaderModule);
+}
+
+void WebGPUShader::SetVertexBufferLayout(std::vector<WGPUVertexAttribute> attributes, uint64_t stride,
+        WGPUVertexStepMode stepMode)
+{
+    m_VertexAttributes = attributes;
+    m_VertexBufferLayout.attributeCount = m_VertexAttributes.size();
+    m_VertexBufferLayout.attributes = m_VertexAttributes.data();
+    m_VertexBufferLayout.arrayStride = stride; // TODO: stride should be calculated from attributes
+    m_VertexBufferLayout.stepMode = stepMode;
+}
+
+WGPUVertexState WebGPUShader::GetVertexState()
+{
+    return {
+            .module = m_ShaderModule,
+            .entryPoint = m_VertexEntryPoint,
+            .constantCount = 0, // TODO: add support for constants
+            .constants = nullptr,
+            .bufferCount = 1,
+            .buffers = &m_VertexBufferLayout
+    };
+}
+
+WGPUFragmentState WebGPUShader::GetFragmentState()
+{
+    return {
+            .module = m_ShaderModule,
+            .entryPoint = m_FragmentEntryPoint,
+            .targetCount = m_ColorTargetStates.size(),
+            .targets = m_ColorTargetStates.data(),
+    };
+}
+
+void WebGPUShader::SetColorTargetStates(std::vector<WGPUColorTargetState> colorTargetStates)
+{
+    m_ColorTargetStates = colorTargetStates;
 }
