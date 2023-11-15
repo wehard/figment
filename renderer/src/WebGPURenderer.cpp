@@ -31,8 +31,8 @@ WebGPURenderer::WebGPURenderer(WebGPUContext &context)
             MaxCircleVertexCount * sizeof(CircleVertex), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex);
     m_QuadVertexBuffer = new WebGPUBuffer<QuadVertex>(m_Context.GetDevice(), "QuadVertexBuffer",
             MaxQuadVertexCount * sizeof(QuadVertex), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex);
-    m_CameraDataUniformBuffer = new WebGPUBuffer<CameraData>(m_Context.GetDevice(), "CameraDataUniformBuffer",
-            sizeof(CameraData), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+    m_CameraDataUniformBuffer = new WebGPUUniformBuffer<CameraData>(m_Context.GetDevice(), "CameraDataUniformBuffer",
+            sizeof(CameraData));
 }
 
 WebGPURenderer::~WebGPURenderer()
@@ -181,9 +181,7 @@ void WebGPURenderer::DrawCircles()
 
     pipelineBuilder.SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
 
-    pipelineBuilder.AddBinding(0, m_CameraDataUniformBuffer->GetBuffer(), 0, m_CameraDataUniformBuffer->GetSize());
-    pipelineBuilder.AddBindGroupLayoutEntry(0, WGPUBufferBindingType_Uniform,
-            WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, m_CameraDataUniformBuffer->GetSize());
+    pipelineBuilder.Bind(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(), m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
 
     pipelineBuilder.Build();
 
@@ -211,10 +209,8 @@ void WebGPURenderer::DrawQuads()
 
     pipelineBuilder.SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
 
-    pipelineBuilder.AddBinding(0, m_CameraDataUniformBuffer->GetBuffer(), 0, m_CameraDataUniformBuffer->GetSize());
-    pipelineBuilder.AddBindGroupLayoutEntry(0, WGPUBufferBindingType_Uniform,
-            WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, m_CameraDataUniformBuffer->GetSize());
 
+    pipelineBuilder.Bind(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(), m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
     pipelineBuilder.Build();
 
     wgpuRenderPassEncoderSetPipeline(m_RenderPass, pipelineBuilder.GetPipeline());
@@ -337,30 +333,6 @@ void WebGPURenderer::BeginComputePass()
     computePassDesc.timestampWrites = nullptr;
 
     m_ComputePass = wgpuCommandEncoderBeginComputePass(m_ComputeCommandEncoder, &computePassDesc);
-}
-
-static WGPUBindGroupLayoutEntry GetDefaultWGPUBindGroupLayoutEntry()
-{
-    WGPUBindGroupLayoutEntry bindingLayout = {};
-
-    bindingLayout.buffer.nextInChain = nullptr;
-    bindingLayout.buffer.type = WGPUBufferBindingType_Undefined;
-    bindingLayout.buffer.hasDynamicOffset = false;
-
-    bindingLayout.sampler.nextInChain = nullptr;
-    bindingLayout.sampler.type = WGPUSamplerBindingType_Undefined;
-
-    bindingLayout.storageTexture.nextInChain = nullptr;
-    bindingLayout.storageTexture.access = WGPUStorageTextureAccess_Undefined;
-    bindingLayout.storageTexture.format = WGPUTextureFormat_Undefined;
-    bindingLayout.storageTexture.viewDimension = WGPUTextureViewDimension_Undefined;
-
-    bindingLayout.texture.nextInChain = nullptr;
-    bindingLayout.texture.multisampled = false;
-    bindingLayout.texture.sampleType = WGPUTextureSampleType_Undefined;
-    bindingLayout.texture.viewDimension = WGPUTextureViewDimension_Undefined;
-
-    return bindingLayout;
 }
 
 void WebGPURenderer::Compute(WebGPUShader &computeShader, WebGPUBuffer<glm::vec4> &buffer,

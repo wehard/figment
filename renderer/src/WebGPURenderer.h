@@ -121,7 +121,7 @@ private:
     WebGPUBuffer<CircleVertex> *m_CircleVertexBuffer;
     WebGPUBuffer<QuadVertex> *m_QuadVertexBuffer;
     WebGPUBuffer<int32_t> *m_PixelBuffer;
-    WebGPUBuffer<CameraData> *m_CameraDataUniformBuffer;
+    WebGPUUniformBuffer<CameraData> *m_CameraDataUniformBuffer;
     WebGPUShader *m_CircleShader;
     WebGPUShader *m_QuadShader;
     WebGPUTexture *m_DepthTexture;

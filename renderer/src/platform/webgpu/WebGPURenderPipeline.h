@@ -2,7 +2,9 @@
 
 #include "WebGPUContext.h"
 #include "WebGPUShader.h"
+#include "WebGPUBuffer.h"
 #include "webgpu/webgpu.h"
+#include "WebGPURenderer.h"
 
 class WebGPURenderPipelineBuilder
 {
@@ -22,6 +24,7 @@ public:
     void AddBindGroupLayoutEntry(uint32_t binding, WGPUBufferBindingType type, WGPUShaderStageFlags visibility,
             uint64_t minBindingSize);
     void AddBinding(uint32_t binding, WGPUBuffer buffer, uint64_t offset, uint64_t size);
+    void Bind(WGPUBindGroupLayoutEntry layoutEntry, WGPUBindGroupEntry bindGroupEntry);
     void Build();
     WGPURenderPipeline GetPipeline()
     { return m_Pipeline; }

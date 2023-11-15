@@ -52,7 +52,7 @@ public:
         return m_Size;
     }
 
-    using MapReadAsyncCallbackFn = std::function<void(const T*, size_t size)>;
+    using MapReadAsyncCallbackFn = std::function<void(const T *, size_t size)>;
 
     void MapReadAsync(MapReadAsyncCallbackFn callback)
     {
@@ -79,9 +79,8 @@ public:
                             params->Buffer->GetSize());
                     params->Callback(data, params->Buffer->GetSize());
                     wgpuBufferUnmap(params->Buffer->GetBuffer());
-                }, (void*)&m_MapReadParams);
+                }, (void *)&m_MapReadParams);
     }
-
 
 private:
     struct MapReadParams
@@ -94,4 +93,61 @@ private:
     WGPUBuffer m_Buffer;
     uint32_t m_Size;
     const char *m_Label;
+};
+
+static WGPUBindGroupLayoutEntry GetDefaultWGPUBindGroupLayoutEntry()
+{
+    WGPUBindGroupLayoutEntry bindingLayout = {};
+
+    bindingLayout.buffer.nextInChain = nullptr;
+    bindingLayout.buffer.type = WGPUBufferBindingType_Undefined;
+    bindingLayout.buffer.hasDynamicOffset = false;
+
+    bindingLayout.sampler.nextInChain = nullptr;
+    bindingLayout.sampler.type = WGPUSamplerBindingType_Undefined;
+
+    bindingLayout.storageTexture.nextInChain = nullptr;
+    bindingLayout.storageTexture.access = WGPUStorageTextureAccess_Undefined;
+    bindingLayout.storageTexture.format = WGPUTextureFormat_Undefined;
+    bindingLayout.storageTexture.viewDimension = WGPUTextureViewDimension_Undefined;
+
+    bindingLayout.texture.nextInChain = nullptr;
+    bindingLayout.texture.multisampled = false;
+    bindingLayout.texture.sampleType = WGPUTextureSampleType_Undefined;
+    bindingLayout.texture.viewDimension = WGPUTextureViewDimension_Undefined;
+
+    return bindingLayout;
+}
+
+template<typename T>
+class WebGPUUniformBuffer : public WebGPUBuffer<T>
+{
+public:
+    WebGPUUniformBuffer(WGPUDevice device, const char *label, uint64_t size) : WebGPUBuffer<T>(device, label, size,
+            WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform)
+    { };
+
+    WGPUBindGroupEntry GetBindGroupEntry(uint32_t binding, uint32_t offset)
+    {
+        WGPUBindGroupEntry entry = {
+                .nextInChain = nullptr,
+                .binding = binding,
+                .buffer = this->GetBuffer(),
+                .offset = offset,
+                .size = this->GetSize(),
+                .sampler = nullptr,
+                .textureView = nullptr,
+        };
+        return entry;
+    }
+
+    WGPUBindGroupLayoutEntry GetBindGroupLayoutEntry(
+            WGPUShaderStageFlags visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment)
+    {
+        WGPUBindGroupLayoutEntry entry = GetDefaultWGPUBindGroupLayoutEntry();
+        entry.buffer.type = WGPUBufferBindingType_Uniform;
+        entry.buffer.minBindingSize = this->GetSize();
+        entry.visibility = visibility;
+        return entry;
+    }
 };

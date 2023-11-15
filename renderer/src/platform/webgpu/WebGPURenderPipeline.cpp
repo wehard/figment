@@ -6,7 +6,8 @@ WebGPURenderPipelineBuilder::~WebGPURenderPipelineBuilder()
     wgpuBindGroupRelease(m_BindGroup);
 }
 
-void WebGPURenderPipelineBuilder::SetPrimitiveState(WGPUPrimitiveTopology topology, WGPUIndexFormat stripIndexFormat, WGPUFrontFace frontFace, WGPUCullMode cullMode)
+void WebGPURenderPipelineBuilder::SetPrimitiveState(WGPUPrimitiveTopology topology, WGPUIndexFormat stripIndexFormat,
+        WGPUFrontFace frontFace, WGPUCullMode cullMode)
 {
     m_PrimitiveState = {
             .nextInChain = nullptr,
@@ -44,7 +45,8 @@ static WGPUDepthStencilState GetDefaultDepthStencilState()
     return depthStencilState;
 }
 
-void WebGPURenderPipelineBuilder::SetDepthStencilState(WGPUTextureFormat format, WGPUCompareFunction compareFunction, bool depthWriteEnabled)
+void WebGPURenderPipelineBuilder::SetDepthStencilState(WGPUTextureFormat format, WGPUCompareFunction compareFunction,
+        bool depthWriteEnabled)
 {
     m_DepthStencilState = GetDefaultDepthStencilState();
     m_DepthStencilState.depthCompare = compareFunction;
@@ -54,31 +56,8 @@ void WebGPURenderPipelineBuilder::SetDepthStencilState(WGPUTextureFormat format,
     m_DepthStencilState.stencilWriteMask = 0;
 }
 
-static WGPUBindGroupLayoutEntry GetDefaultWGPUBindGroupLayoutEntry()
-{
-    WGPUBindGroupLayoutEntry bindingLayout = {};
-
-    bindingLayout.buffer.nextInChain = nullptr;
-    bindingLayout.buffer.type = WGPUBufferBindingType_Undefined;
-    bindingLayout.buffer.hasDynamicOffset = false;
-
-    bindingLayout.sampler.nextInChain = nullptr;
-    bindingLayout.sampler.type = WGPUSamplerBindingType_Undefined;
-
-    bindingLayout.storageTexture.nextInChain = nullptr;
-    bindingLayout.storageTexture.access = WGPUStorageTextureAccess_Undefined;
-    bindingLayout.storageTexture.format = WGPUTextureFormat_Undefined;
-    bindingLayout.storageTexture.viewDimension = WGPUTextureViewDimension_Undefined;
-
-    bindingLayout.texture.nextInChain = nullptr;
-    bindingLayout.texture.multisampled = false;
-    bindingLayout.texture.sampleType = WGPUTextureSampleType_Undefined;
-    bindingLayout.texture.viewDimension = WGPUTextureViewDimension_Undefined;
-
-    return bindingLayout;
-}
-
-void WebGPURenderPipelineBuilder::AddBindGroupLayoutEntry(uint32_t binding, WGPUBufferBindingType type, WGPUShaderStageFlags visibility, uint64_t minBindingSize)
+void WebGPURenderPipelineBuilder::AddBindGroupLayoutEntry(uint32_t binding, WGPUBufferBindingType type,
+        WGPUShaderStageFlags visibility, uint64_t minBindingSize)
 {
     auto entry = GetDefaultWGPUBindGroupLayoutEntry();
     entry.binding = binding;
@@ -129,7 +108,7 @@ void WebGPURenderPipelineBuilder::Build()
 
     desc.layout = wgpuDeviceCreatePipelineLayout(m_Context.GetDevice(), &layoutDesc);
 
-    m_Pipeline =  wgpuDeviceCreateRenderPipeline(m_Context.GetDevice(), &desc);
+    m_Pipeline = wgpuDeviceCreateRenderPipeline(m_Context.GetDevice(), &desc);
 
     WGPUBindGroupDescriptor bindGroupDesc = {
             .nextInChain = nullptr,
@@ -140,4 +119,8 @@ void WebGPURenderPipelineBuilder::Build()
     m_BindGroup = wgpuDeviceCreateBindGroup(m_Context.GetDevice(), &bindGroupDesc);
 }
 
-
+void WebGPURenderPipelineBuilder::Bind(WGPUBindGroupLayoutEntry bindGroupLayoutEntry, WGPUBindGroupEntry bindGroupEntry)
+{
+    m_BindGroupLayoutEntries.emplace_back(bindGroupLayoutEntry);
+    m_BindGroupEntries.emplace_back(bindGroupEntry);
+}
