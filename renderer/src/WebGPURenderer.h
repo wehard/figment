@@ -7,6 +7,7 @@
 #include "Camera.h"
 #include "webgpu/webgpu.h"
 #include "glm/glm.hpp"
+#include "WebGPURenderPipeline.h"
 
 struct CameraData
 {
@@ -125,6 +126,9 @@ private:
     WebGPUShader *m_CircleShader;
     WebGPUShader *m_QuadShader;
     WebGPUTexture *m_DepthTexture;
+
+    WebGPURenderPipeline *m_QuadPipeline;
+    WebGPURenderPipeline *m_CirclePipeline;
 
     RendererData m_RendererData;
     static RendererStats s_Stats;

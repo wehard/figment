@@ -1,12 +1,16 @@
 #include "WebGPURenderPipeline.h"
 
-WebGPURenderPipelineBuilder::~WebGPURenderPipelineBuilder()
+WebGPURenderPipeline::WebGPURenderPipeline(WebGPUContext &context, WebGPUShader &shader)
+        : m_Context(context), m_Shader(shader)
+{ }
+
+WebGPURenderPipeline::~WebGPURenderPipeline()
 {
     wgpuRenderPipelineRelease(m_Pipeline);
     wgpuBindGroupRelease(m_BindGroup);
 }
 
-void WebGPURenderPipelineBuilder::SetPrimitiveState(WGPUPrimitiveTopology topology, WGPUIndexFormat stripIndexFormat,
+void WebGPURenderPipeline::SetPrimitiveState(WGPUPrimitiveTopology topology, WGPUIndexFormat stripIndexFormat,
         WGPUFrontFace frontFace, WGPUCullMode cullMode)
 {
     m_PrimitiveState = {
@@ -45,7 +49,7 @@ static WGPUDepthStencilState GetDefaultDepthStencilState()
     return depthStencilState;
 }
 
-void WebGPURenderPipelineBuilder::SetDepthStencilState(WGPUTextureFormat format, WGPUCompareFunction compareFunction,
+void WebGPURenderPipeline::SetDepthStencilState(WGPUTextureFormat format, WGPUCompareFunction compareFunction,
         bool depthWriteEnabled)
 {
     m_DepthStencilState = GetDefaultDepthStencilState();
@@ -56,30 +60,13 @@ void WebGPURenderPipelineBuilder::SetDepthStencilState(WGPUTextureFormat format,
     m_DepthStencilState.stencilWriteMask = 0;
 }
 
-void WebGPURenderPipelineBuilder::AddBindGroupLayoutEntry(uint32_t binding, WGPUBufferBindingType type,
-        WGPUShaderStageFlags visibility, uint64_t minBindingSize)
+void WebGPURenderPipeline::SetBinding(WGPUBindGroupLayoutEntry bindGroupLayoutEntry, WGPUBindGroupEntry bindGroupEntry)
 {
-    auto entry = GetDefaultWGPUBindGroupLayoutEntry();
-    entry.binding = binding;
-    entry.visibility = visibility;
-    entry.buffer.type = type;
-    entry.buffer.minBindingSize = minBindingSize;
-    m_BindGroupLayoutEntries.push_back(entry);
+    m_BindGroupLayoutEntries.emplace_back(bindGroupLayoutEntry);
+    m_BindGroupEntries.emplace_back(bindGroupEntry);
 }
 
-void WebGPURenderPipelineBuilder::AddBinding(uint32_t binding, WGPUBuffer buffer, uint64_t offset, uint64_t size)
-{
-    WGPUBindGroupEntry entry = {
-            .nextInChain = nullptr,
-            .binding = binding,
-            .buffer = buffer,
-            .offset = offset,
-            .size = size
-    };
-    m_BindGroupEntries.push_back(entry);
-}
-
-void WebGPURenderPipelineBuilder::Build()
+void WebGPURenderPipeline::Build()
 {
     WGPURenderPipelineDescriptor desc = {};
     desc.nextInChain = nullptr;
@@ -117,10 +104,8 @@ void WebGPURenderPipelineBuilder::Build()
             .entries = m_BindGroupEntries.data()
     };
     m_BindGroup = wgpuDeviceCreateBindGroup(m_Context.GetDevice(), &bindGroupDesc);
+    wgpuBindGroupLayoutRelease(bindGroupLayout);
 }
 
-void WebGPURenderPipelineBuilder::Bind(WGPUBindGroupLayoutEntry bindGroupLayoutEntry, WGPUBindGroupEntry bindGroupEntry)
-{
-    m_BindGroupLayoutEntries.emplace_back(bindGroupLayoutEntry);
-    m_BindGroupEntries.emplace_back(bindGroupEntry);
-}
+
+

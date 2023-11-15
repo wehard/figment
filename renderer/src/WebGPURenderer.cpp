@@ -33,6 +33,22 @@ WebGPURenderer::WebGPURenderer(WebGPUContext &context)
             MaxQuadVertexCount * sizeof(QuadVertex), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex);
     m_CameraDataUniformBuffer = new WebGPUUniformBuffer<CameraData>(m_Context.GetDevice(), "CameraDataUniformBuffer",
             sizeof(CameraData));
+
+    m_QuadPipeline = new WebGPURenderPipeline(m_Context, *m_QuadShader);
+    m_QuadPipeline->SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined, WGPUFrontFace_CCW,
+            WGPUCullMode_None);
+    m_QuadPipeline->SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
+    m_QuadPipeline->SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(),
+            m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
+    m_QuadPipeline->Build();
+
+    m_CirclePipeline = new WebGPURenderPipeline(m_Context, *m_CircleShader);
+    m_CirclePipeline->SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined, WGPUFrontFace_CCW,
+            WGPUCullMode_None);
+    m_CirclePipeline->SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
+    m_CirclePipeline->SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(),
+            m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
+    m_CirclePipeline->Build();
 }
 
 WebGPURenderer::~WebGPURenderer()
@@ -45,6 +61,8 @@ WebGPURenderer::~WebGPURenderer()
     delete m_CircleShader;
     delete m_QuadShader;
     delete m_CameraDataUniformBuffer;
+    delete m_QuadPipeline;
+    delete m_CirclePipeline;
 }
 
 void WebGPURenderer::InitShaders()
@@ -174,21 +192,10 @@ void WebGPURenderer::DrawCircles()
     m_CircleVertexBuffer->SetData(m_RendererData.CircleVertices.data(),
             m_RendererData.CircleVertexCount * sizeof(CircleVertex));
 
-    auto pipelineBuilder = WebGPURenderPipelineBuilder(m_Context, *m_CircleShader);
-
-    pipelineBuilder.SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined, WGPUFrontFace_CCW,
-            WGPUCullMode_None);
-
-    pipelineBuilder.SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
-
-    pipelineBuilder.Bind(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(), m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
-
-    pipelineBuilder.Build();
-
-    wgpuRenderPassEncoderSetPipeline(m_RenderPass, pipelineBuilder.GetPipeline());
+    wgpuRenderPassEncoderSetPipeline(m_RenderPass, m_CirclePipeline->GetPipeline());
     wgpuRenderPassEncoderSetVertexBuffer(m_RenderPass, 0, m_CircleVertexBuffer->GetBuffer(), 0,
             m_RendererData.CircleVertexCount * sizeof(CircleVertex));
-    wgpuRenderPassEncoderSetBindGroup(m_RenderPass, 0, pipelineBuilder.GetBindGroup(), 0, nullptr);
+    wgpuRenderPassEncoderSetBindGroup(m_RenderPass, 0, m_CirclePipeline->GetBindGroup(), 0, nullptr);
     wgpuRenderPassEncoderDraw(m_RenderPass, m_RendererData.CircleVertexCount, 1, 0, 0);
 
     s_Stats.DrawCalls++;
@@ -202,21 +209,10 @@ void WebGPURenderer::DrawQuads()
     m_QuadVertexBuffer->SetData(m_RendererData.QuadVertices.data(),
             m_RendererData.QuadVertexCount * sizeof(QuadVertex));
 
-    auto pipelineBuilder = WebGPURenderPipelineBuilder(m_Context, *m_QuadShader);
-
-    pipelineBuilder.SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined, WGPUFrontFace_CCW,
-            WGPUCullMode_None);
-
-    pipelineBuilder.SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
-
-
-    pipelineBuilder.Bind(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(), m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
-    pipelineBuilder.Build();
-
-    wgpuRenderPassEncoderSetPipeline(m_RenderPass, pipelineBuilder.GetPipeline());
+    wgpuRenderPassEncoderSetPipeline(m_RenderPass, m_QuadPipeline->GetPipeline());
     wgpuRenderPassEncoderSetVertexBuffer(m_RenderPass, 0, m_QuadVertexBuffer->GetBuffer(), 0,
             m_RendererData.QuadVertexCount * sizeof(QuadVertex));
-    wgpuRenderPassEncoderSetBindGroup(m_RenderPass, 0, pipelineBuilder.GetBindGroup(), 0, nullptr);
+    wgpuRenderPassEncoderSetBindGroup(m_RenderPass, 0, m_QuadPipeline->GetBindGroup(), 0, nullptr);
     wgpuRenderPassEncoderDraw(m_RenderPass, m_RendererData.QuadVertexCount, 1, 0, 0);
 
     s_Stats.DrawCalls++;
