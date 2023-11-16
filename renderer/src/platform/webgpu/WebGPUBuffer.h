@@ -151,3 +151,28 @@ public:
         return entry;
     }
 };
+
+template<typename T>
+class WebGPUVertexBuffer : public WebGPUBuffer<T>
+{
+public:
+    WebGPUVertexBuffer(WGPUDevice device, const char *label, uint64_t size) : WebGPUBuffer<T>(device, label, size,
+            WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex)
+    { };
+    void SetVertexLayout(std::vector<WGPUVertexAttribute> vertexAttributes, uint64_t stride,
+            WGPUVertexStepMode stepMode)
+    {
+        m_VertexAttributes = vertexAttributes;
+        m_VertexBufferLayout.attributeCount = m_VertexAttributes.size();
+        m_VertexBufferLayout.attributes = m_VertexAttributes.data();
+        m_VertexBufferLayout.arrayStride = stride; // TODO: stride should be calculated from attributes
+        m_VertexBufferLayout.stepMode = stepMode;
+    }
+    WGPUVertexBufferLayout GetVertexLayout()
+    {
+        return m_VertexBufferLayout;
+    }
+private:
+    std::vector<WGPUVertexAttribute> m_VertexAttributes;
+    WGPUVertexBufferLayout m_VertexBufferLayout;
+};
