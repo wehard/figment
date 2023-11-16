@@ -2,7 +2,10 @@
 
 @compute @workgroup_size(32, 1, 1)
 fn main(@builtin(global_invocation_id) id: vec3<u32>) {
-//    outputBuffer[id.x] = vec4<f32>(f32(id.x), f32(id.x), 0.0, 1.0);
-outputBuffer[id.x] = vec4<f32>(f32(id.x), f32(id.x), 0.0, 1.0);
+    let angle = radians((f32(id.x) / f32(64)) * 360.0);
+    let x = f32(0) + 10.8 * cos(angle);
+    let y = f32(0) + 10.8 * sin(angle);
+    let z = f32(0);
+    outputBuffer[id.x] = vec4<f32>(x, y, z, 1.0);
 }
 
