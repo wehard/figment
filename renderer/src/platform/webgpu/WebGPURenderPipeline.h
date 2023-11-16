@@ -11,11 +11,11 @@ public:
     WebGPURenderPipeline(WebGPUContext &context, WebGPUShader &shader, WGPUVertexBufferLayout vertexBufferLayout);
     ~WebGPURenderPipeline();
 
-    void SetPrimitiveState(WGPUPrimitiveTopology topology, WGPUIndexFormat stripIndexFormat, WGPUFrontFace frontFace,
+    WebGPURenderPipeline &SetPrimitiveState(WGPUPrimitiveTopology topology, WGPUIndexFormat stripIndexFormat, WGPUFrontFace frontFace,
             WGPUCullMode cullMode);
-    void SetDepthStencilState(WGPUTextureFormat format, WGPUCompareFunction compareFunction, bool depthWriteEnabled);
-    void SetBinding(WGPUBindGroupLayoutEntry layoutEntry, WGPUBindGroupEntry bindGroupEntry);
-    void SetColorTargetStates(std::vector<WGPUColorTargetState> colorTargetStates);
+    WebGPURenderPipeline &SetDepthStencilState(WGPUTextureFormat format, WGPUCompareFunction compareFunction, bool depthWriteEnabled);
+    WebGPURenderPipeline &SetBinding(WGPUBindGroupLayoutEntry layoutEntry, WGPUBindGroupEntry bindGroupEntry);
+    WebGPURenderPipeline &SetColorTargetStates(std::vector<WGPUColorTargetState> colorTargetStates);
     void Build();
     WGPURenderPipeline GetPipeline()
     { return m_Pipeline; }

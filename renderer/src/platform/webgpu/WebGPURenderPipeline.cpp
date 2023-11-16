@@ -10,7 +10,7 @@ WebGPURenderPipeline::~WebGPURenderPipeline()
     wgpuBindGroupRelease(m_BindGroup);
 }
 
-void WebGPURenderPipeline::SetPrimitiveState(WGPUPrimitiveTopology topology, WGPUIndexFormat stripIndexFormat,
+WebGPURenderPipeline &WebGPURenderPipeline::SetPrimitiveState(WGPUPrimitiveTopology topology, WGPUIndexFormat stripIndexFormat,
         WGPUFrontFace frontFace, WGPUCullMode cullMode)
 {
     m_PrimitiveState = {
@@ -20,6 +20,7 @@ void WebGPURenderPipeline::SetPrimitiveState(WGPUPrimitiveTopology topology, WGP
             .frontFace = frontFace,
             .cullMode = cullMode
     };
+    return *this;
 }
 
 static WGPUDepthStencilState GetDefaultDepthStencilState()
@@ -49,7 +50,7 @@ static WGPUDepthStencilState GetDefaultDepthStencilState()
     return depthStencilState;
 }
 
-void WebGPURenderPipeline::SetDepthStencilState(WGPUTextureFormat format, WGPUCompareFunction compareFunction,
+WebGPURenderPipeline &WebGPURenderPipeline::SetDepthStencilState(WGPUTextureFormat format, WGPUCompareFunction compareFunction,
         bool depthWriteEnabled)
 {
     m_DepthStencilState = GetDefaultDepthStencilState();
@@ -58,12 +59,20 @@ void WebGPURenderPipeline::SetDepthStencilState(WGPUTextureFormat format, WGPUCo
     m_DepthStencilState.format = format;
     m_DepthStencilState.stencilReadMask = 0;
     m_DepthStencilState.stencilWriteMask = 0;
+    return *this;
 }
 
-void WebGPURenderPipeline::SetBinding(WGPUBindGroupLayoutEntry bindGroupLayoutEntry, WGPUBindGroupEntry bindGroupEntry)
+WebGPURenderPipeline &WebGPURenderPipeline::SetBinding(WGPUBindGroupLayoutEntry bindGroupLayoutEntry, WGPUBindGroupEntry bindGroupEntry)
 {
     m_BindGroupLayoutEntries.emplace_back(bindGroupLayoutEntry);
     m_BindGroupEntries.emplace_back(bindGroupEntry);
+    return *this;
+}
+
+WebGPURenderPipeline &WebGPURenderPipeline::SetColorTargetStates(std::vector<WGPUColorTargetState> colorTargetStates)
+{
+    m_ColorTargetStates = colorTargetStates;
+    return *this;
 }
 
 void WebGPURenderPipeline::Build()
@@ -123,11 +132,3 @@ void WebGPURenderPipeline::Build()
     m_BindGroup = wgpuDeviceCreateBindGroup(m_Context.GetDevice(), &bindGroupDesc);
     wgpuBindGroupLayoutRelease(bindGroupLayout);
 }
-
-void WebGPURenderPipeline::SetColorTargetStates(std::vector<WGPUColorTargetState> colorTargetStates)
-{
-    m_ColorTargetStates = colorTargetStates;
-}
-
-
-
