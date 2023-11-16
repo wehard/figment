@@ -205,6 +205,7 @@ namespace Figment
     {
         ImGui::Separator();
         ImGui::Text("Figment\n%s", figment.ComputeShader.GetShaderSource().c_str());
+        ImGui::ColorEdit4("Color", (float *)&figment.Color);
         ImGui::Button("Edit source", ImVec2(100, 20));
         ImGui::SameLine();
         if(ImGui::Button("Read", ImVec2(100, 20)))

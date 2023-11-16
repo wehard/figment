@@ -139,7 +139,7 @@ void Scene::OnUpdate(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewpor
         for (int i = 0; i < figment.Buffer->GetSize() / sizeof(glm::vec4); i++)
         {
             m_Renderer->DrawCircle(transform.Position + glm::vec3(figment.Data[i].x, figment.Data[i].y, figment.Data[i].z), transform.Scale,
-                    glm::vec4(1.0), (int)entity.GetHandle());
+                    figment.Color, (int)entity.GetHandle());
         }
     }
 

@@ -76,6 +76,7 @@ struct FigmentComponent
     WebGPUBuffer<glm::vec4> *Buffer = nullptr;
     WebGPUBuffer<glm::vec4> *MapBuffer = nullptr;
     glm::vec4 *Data = nullptr;
+    glm::vec4 Color = glm::vec4(1.0);
 
     FigmentComponent(WebGPUShader &shader, WebGPUShader &computeShader) : Shader(shader), ComputeShader(computeShader) {}
     ~FigmentComponent()
