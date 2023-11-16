@@ -99,9 +99,6 @@ public:
     void ReadPixel(int x, int y, std::function<void(int32_t)> callback);
     void OnResize(uint32_t width, uint32_t height);
 
-    template<typename T>
-    void CopyBufferToBuffer(WebGPUBuffer<T> &from, WebGPUBuffer<T> &to, uint64_t size);
-
     static RendererStats GetStats() { return s_Stats; }
 private:
     void DrawCircles();

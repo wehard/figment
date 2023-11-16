@@ -1,10 +1,10 @@
 #include "WebGPURenderer.h"
+#include "WebGPUCommand.h"
 #include "WebGPUBuffer.h"
 #include "WebGPUTexture.h"
 #include "WebGPUShader.h"
 #include "WebGPURenderPipeline.h"
 #include "Utils.h"
-#include <utility>
 #include <vector>
 
 #define MEM_ALIGN(_SIZE, _ALIGN)        (((_SIZE) + ((_ALIGN) - 1)) & ~((_ALIGN) - 1))
@@ -82,7 +82,8 @@ WebGPURenderer::WebGPURenderer(WebGPUContext &context)
     m_QuadPipeline->Build();
 
     m_CirclePipeline = new WebGPURenderPipeline(m_Context, *m_CircleShader, m_CircleVertexBuffer->GetVertexLayout());
-    m_CirclePipeline->SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined, WGPUFrontFace_CCW,
+    m_CirclePipeline->SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined,
+            WGPUFrontFace_CCW,
             WGPUCullMode_None);
     m_CirclePipeline->SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
     m_CirclePipeline->SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(),
@@ -383,7 +384,7 @@ void WebGPURenderer::Compute(WebGPUShader &computeShader, WebGPUBuffer<glm::vec4
 
     mapBuffer.Unmap();
 
-    CopyBufferToBuffer(buffer, mapBuffer, buffer.GetSize());
+    WebGPUCommand::CopyBufferToBuffer(m_Context.GetDevice(), buffer, mapBuffer, buffer.GetSize());
 }
 
 void WebGPURenderer::EndComputePass()
@@ -400,27 +401,3 @@ void WebGPURenderer::EndComputePass()
     wgpuComputePassEncoderRelease(m_ComputePass);
     m_ComputePass = nullptr;
 }
-
-template<typename T>
-void WebGPURenderer::CopyBufferToBuffer(WebGPUBuffer<T> &from, WebGPUBuffer<T> &to, uint64_t size)
-{
-    WGPUCommandEncoderDescriptor commandEncoderDesc = {};
-    commandEncoderDesc.nextInChain = nullptr;
-    commandEncoderDesc.label = "CopyCommandEncoder";
-    WGPUCommandEncoder commandEncoder = wgpuDeviceCreateCommandEncoder(m_Context.GetDevice(), &commandEncoderDesc);
-
-    wgpuCommandEncoderCopyBufferToBuffer(commandEncoder, from.GetBuffer(), 0, to.GetBuffer(), 0, size);
-
-    WGPUCommandBufferDescriptor commandBufferDesc = {};
-    commandBufferDesc.nextInChain = nullptr;
-    commandBufferDesc.label = "CopyCommandBuffer";
-
-    auto commandBuffer = wgpuCommandEncoderFinish(commandEncoder, &commandBufferDesc);
-    WGPUQueue queue = wgpuDeviceGetQueue(m_Context.GetDevice());
-    wgpuQueueSubmit(queue, 1, &commandBuffer);
-
-    wgpuCommandEncoderRelease(commandEncoder);
-}
-
-
-
