@@ -27,46 +27,6 @@ WebGPURenderer::WebGPURenderer(WebGPUContext &context)
 
     m_RendererData.Init();
 
-    m_CircleVertexBuffer = new WebGPUBuffer<CircleVertex>(m_Context.GetDevice(), "CircleVertexBuffer",
-            MaxCircleVertexCount * sizeof(CircleVertex), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex);
-    m_QuadVertexBuffer = new WebGPUBuffer<QuadVertex>(m_Context.GetDevice(), "QuadVertexBuffer",
-            MaxQuadVertexCount * sizeof(QuadVertex), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex);
-    m_CameraDataUniformBuffer = new WebGPUUniformBuffer<CameraData>(m_Context.GetDevice(), "CameraDataUniformBuffer",
-            sizeof(CameraData));
-
-    m_QuadPipeline = new WebGPURenderPipeline(m_Context, *m_QuadShader);
-    m_QuadPipeline->SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined, WGPUFrontFace_CCW,
-            WGPUCullMode_None);
-    m_QuadPipeline->SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
-    m_QuadPipeline->SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(),
-            m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
-    m_QuadPipeline->Build();
-
-    m_CirclePipeline = new WebGPURenderPipeline(m_Context, *m_CircleShader);
-    m_CirclePipeline->SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined, WGPUFrontFace_CCW,
-            WGPUCullMode_None);
-    m_CirclePipeline->SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
-    m_CirclePipeline->SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(),
-            m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
-    m_CirclePipeline->Build();
-}
-
-WebGPURenderer::~WebGPURenderer()
-{
-    delete m_IdTexture;
-    delete m_DepthTexture;
-    delete m_CircleVertexBuffer;
-    delete m_QuadVertexBuffer;
-    delete m_PixelBuffer;
-    delete m_CircleShader;
-    delete m_QuadShader;
-    delete m_CameraDataUniformBuffer;
-    delete m_QuadPipeline;
-    delete m_CirclePipeline;
-}
-
-void WebGPURenderer::InitShaders()
-{
     auto vertexAttributes = std::vector<WGPUVertexAttribute>({
             {
                     .format = WGPUVertexFormat_Float32x3,
@@ -102,13 +62,53 @@ void WebGPURenderer::InitShaders()
                     .writeMask = WGPUColorWriteMask_All
             }
     });
-    m_CircleShader = new WebGPUShader(m_Context.GetDevice(), *Utils::LoadFile2("res/shaders/wgsl/circle.wgsl"));
-    m_CircleShader->SetVertexBufferLayout(vertexAttributes, sizeof(CircleVertex), WGPUVertexStepMode_Vertex);
-    m_CircleShader->SetColorTargetStates(colorTargetStates);
 
+    m_CircleVertexBuffer = new WebGPUVertexBuffer<CircleVertex>(m_Context.GetDevice(), "CircleVertexBuffer",
+            MaxCircleVertexCount * sizeof(CircleVertex));
+    m_CircleVertexBuffer->SetVertexLayout(vertexAttributes, sizeof(CircleVertex), WGPUVertexStepMode_Vertex);
+    m_QuadVertexBuffer = new WebGPUVertexBuffer<QuadVertex>(m_Context.GetDevice(), "QuadVertexBuffer",
+            MaxQuadVertexCount * sizeof(QuadVertex));
+    m_QuadVertexBuffer->SetVertexLayout(vertexAttributes, sizeof(QuadVertex), WGPUVertexStepMode_Vertex);
+    m_CameraDataUniformBuffer = new WebGPUUniformBuffer<CameraData>(m_Context.GetDevice(), "CameraDataUniformBuffer",
+            sizeof(CameraData));
+
+    m_QuadPipeline = new WebGPURenderPipeline(m_Context, *m_QuadShader, m_QuadVertexBuffer->GetVertexLayout());
+    m_QuadPipeline->SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined, WGPUFrontFace_CCW,
+            WGPUCullMode_None);
+    m_QuadPipeline->SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
+    m_QuadPipeline->SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(),
+            m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
+    m_QuadPipeline->SetColorTargetStates(colorTargetStates);
+    m_QuadPipeline->Build();
+
+    m_CirclePipeline = new WebGPURenderPipeline(m_Context, *m_CircleShader, m_CircleVertexBuffer->GetVertexLayout());
+    m_CirclePipeline->SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined, WGPUFrontFace_CCW,
+            WGPUCullMode_None);
+    m_CirclePipeline->SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
+    m_CirclePipeline->SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(),
+            m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
+    m_CirclePipeline->SetColorTargetStates(colorTargetStates);
+    m_CirclePipeline->Build();
+}
+
+WebGPURenderer::~WebGPURenderer()
+{
+    delete m_IdTexture;
+    delete m_DepthTexture;
+    delete m_CircleVertexBuffer;
+    delete m_QuadVertexBuffer;
+    delete m_PixelBuffer;
+    delete m_CircleShader;
+    delete m_QuadShader;
+    delete m_CameraDataUniformBuffer;
+    delete m_QuadPipeline;
+    delete m_CirclePipeline;
+}
+
+void WebGPURenderer::InitShaders()
+{
+    m_CircleShader = new WebGPUShader(m_Context.GetDevice(), *Utils::LoadFile2("res/shaders/wgsl/circle.wgsl"));
     m_QuadShader = new WebGPUShader(m_Context.GetDevice(), *Utils::LoadFile2("res/shaders/wgsl/quad.wgsl"));
-    m_QuadShader->SetVertexBufferLayout(vertexAttributes, sizeof(QuadVertex), WGPUVertexStepMode_Vertex);
-    m_QuadShader->SetColorTargetStates(colorTargetStates);
 }
 
 WGPURenderPassEncoder WebGPURenderer::Begin(Camera &camera)

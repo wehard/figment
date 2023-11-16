@@ -70,7 +70,7 @@ static WGPUDepthStencilState GetDefaultWebGPUDepthStencilState()
 }
 
 WebGPUShader::WebGPUShader(WGPUDevice device, const std::string &shaderSource, const char *label)
-        : m_Device(device), m_ShaderSource(shaderSource)
+        : m_ShaderSource(shaderSource)
 {
     WGPUShaderModuleWGSLDescriptor shaderCodeDesc = {};
     shaderCodeDesc.chain.next = nullptr;
@@ -87,41 +87,4 @@ WebGPUShader::WebGPUShader(WGPUDevice device, const std::string &shaderSource, c
 WebGPUShader::~WebGPUShader()
 {
     wgpuShaderModuleRelease(m_ShaderModule);
-}
-
-void WebGPUShader::SetVertexBufferLayout(std::vector<WGPUVertexAttribute> attributes, uint64_t stride,
-        WGPUVertexStepMode stepMode)
-{
-    m_VertexAttributes = attributes;
-    m_VertexBufferLayout.attributeCount = m_VertexAttributes.size();
-    m_VertexBufferLayout.attributes = m_VertexAttributes.data();
-    m_VertexBufferLayout.arrayStride = stride; // TODO: stride should be calculated from attributes
-    m_VertexBufferLayout.stepMode = stepMode;
-}
-
-WGPUVertexState WebGPUShader::GetVertexState()
-{
-    return {
-            .module = m_ShaderModule,
-            .entryPoint = m_VertexEntryPoint,
-            .constantCount = 0, // TODO: add support for constants
-            .constants = nullptr,
-            .bufferCount = 1,
-            .buffers = &m_VertexBufferLayout
-    };
-}
-
-WGPUFragmentState WebGPUShader::GetFragmentState()
-{
-    return {
-            .module = m_ShaderModule,
-            .entryPoint = m_FragmentEntryPoint,
-            .targetCount = m_ColorTargetStates.size(),
-            .targets = m_ColorTargetStates.data(),
-    };
-}
-
-void WebGPUShader::SetColorTargetStates(std::vector<WGPUColorTargetState> colorTargetStates)
-{
-    m_ColorTargetStates = colorTargetStates;
 }

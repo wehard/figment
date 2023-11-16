@@ -119,8 +119,8 @@ private:
     WGPURenderPassEncoder m_RenderPass = {};
     WGPUComputePassEncoder m_ComputePass = {};
     WebGPUTexture *m_IdTexture;
-    WebGPUBuffer<CircleVertex> *m_CircleVertexBuffer;
-    WebGPUBuffer<QuadVertex> *m_QuadVertexBuffer;
+    WebGPUVertexBuffer<CircleVertex> *m_CircleVertexBuffer;
+    WebGPUVertexBuffer<QuadVertex> *m_QuadVertexBuffer;
     WebGPUBuffer<int32_t> *m_PixelBuffer;
     WebGPUUniformBuffer<CameraData> *m_CameraDataUniformBuffer;
     WebGPUShader *m_CircleShader;

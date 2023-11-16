@@ -1,7 +1,7 @@
 #include "WebGPURenderPipeline.h"
 
-WebGPURenderPipeline::WebGPURenderPipeline(WebGPUContext &context, WebGPUShader &shader)
-        : m_Context(context), m_Shader(shader)
+WebGPURenderPipeline::WebGPURenderPipeline(WebGPUContext &context, WebGPUShader &shader, WGPUVertexBufferLayout vertexBufferLayout)
+        : m_Context(context), m_Shader(shader), m_VertexBufferLayout(vertexBufferLayout)
 { }
 
 WebGPURenderPipeline::~WebGPURenderPipeline()
@@ -68,12 +68,29 @@ void WebGPURenderPipeline::SetBinding(WGPUBindGroupLayoutEntry bindGroupLayoutEn
 
 void WebGPURenderPipeline::Build()
 {
+    WGPUVertexState vertexState = {};
+    vertexState.nextInChain = nullptr;
+    vertexState.entryPoint = m_Shader.GetVertexEntryPoint();
+    vertexState.module = m_Shader.GetShaderModule();
+    vertexState.constantCount = 0; // TODO: add support for constants
+    vertexState.constants = nullptr;
+    vertexState.bufferCount = 1;
+    vertexState.buffers = &m_VertexBufferLayout;
+
     WGPURenderPipelineDescriptor desc = {};
     desc.nextInChain = nullptr;
-    desc.vertex = m_Shader.GetVertexState();
+    desc.vertex = vertexState;
     desc.primitive = m_PrimitiveState;
 
-    WGPUFragmentState fragmentState = m_Shader.GetFragmentState();
+    WGPUFragmentState fragmentState = {};
+    fragmentState.nextInChain = nullptr;
+    fragmentState.entryPoint = m_Shader.GetFragmentEntryPoint();
+    fragmentState.module = m_Shader.GetShaderModule();
+    fragmentState.constantCount = 0; // TODO: add support for constants
+    fragmentState.constants = nullptr;
+    fragmentState.targetCount = m_ColorTargetStates.size();
+    fragmentState.targets = m_ColorTargetStates.data();
+
     desc.fragment = &fragmentState;
     desc.depthStencil = &m_DepthStencilState;
 
@@ -105,6 +122,11 @@ void WebGPURenderPipeline::Build()
     };
     m_BindGroup = wgpuDeviceCreateBindGroup(m_Context.GetDevice(), &bindGroupDesc);
     wgpuBindGroupLayoutRelease(bindGroupLayout);
+}
+
+void WebGPURenderPipeline::SetColorTargetStates(std::vector<WGPUColorTargetState> colorTargetStates)
+{
+    m_ColorTargetStates = colorTargetStates;
 }
 
 

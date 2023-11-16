@@ -8,13 +8,14 @@
 class WebGPURenderPipeline
 {
 public:
-    WebGPURenderPipeline(WebGPUContext &context, WebGPUShader &shader);
+    WebGPURenderPipeline(WebGPUContext &context, WebGPUShader &shader, WGPUVertexBufferLayout vertexBufferLayout);
     ~WebGPURenderPipeline();
 
     void SetPrimitiveState(WGPUPrimitiveTopology topology, WGPUIndexFormat stripIndexFormat, WGPUFrontFace frontFace,
             WGPUCullMode cullMode);
     void SetDepthStencilState(WGPUTextureFormat format, WGPUCompareFunction compareFunction, bool depthWriteEnabled);
     void SetBinding(WGPUBindGroupLayoutEntry layoutEntry, WGPUBindGroupEntry bindGroupEntry);
+    void SetColorTargetStates(std::vector<WGPUColorTargetState> colorTargetStates);
     void Build();
     WGPURenderPipeline GetPipeline()
     { return m_Pipeline; }
@@ -30,4 +31,6 @@ private:
     std::vector<WGPUBlendState> m_BlendStates;
     std::vector<WGPUBindGroupLayoutEntry> m_BindGroupLayoutEntries;
     std::vector<WGPUBindGroupEntry> m_BindGroupEntries;
+    WGPUVertexBufferLayout m_VertexBufferLayout = {};
+    std::vector<WGPUColorTargetState> m_ColorTargetStates;
 };
