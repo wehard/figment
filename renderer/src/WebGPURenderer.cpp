@@ -383,17 +383,7 @@ void WebGPURenderer::Compute(WebGPUShader &computeShader, WebGPUBuffer<glm::vec4
 
     mapBuffer.Unmap();
 
-    WGPUCommandEncoderDescriptor commandEncoderDesc = {};
-    commandEncoderDesc.nextInChain = nullptr;
-    commandEncoderDesc.label = "ComputeCopyCommandEncoder";
-    WGPUCommandEncoder commandEncoder = wgpuDeviceCreateCommandEncoder(m_Context.GetDevice(), &commandEncoderDesc);
-
-    wgpuCommandEncoderCopyBufferToBuffer(commandEncoder, buffer.GetBuffer(), 0, mapBuffer.GetBuffer(), 0,
-            buffer.GetSize());
-
-    auto commandBuffer = wgpuCommandEncoderFinish(commandEncoder, nullptr);
-    WGPUQueue queue = wgpuDeviceGetQueue(m_Context.GetDevice());
-    wgpuQueueSubmit(queue, 1, &commandBuffer);
+    CopyBufferToBuffer(buffer, mapBuffer, buffer.GetSize());
 }
 
 void WebGPURenderer::EndComputePass()
@@ -409,6 +399,27 @@ void WebGPURenderer::EndComputePass()
     m_ComputeCommandEncoder = nullptr;
     wgpuComputePassEncoderRelease(m_ComputePass);
     m_ComputePass = nullptr;
+}
+
+template<typename T>
+void WebGPURenderer::CopyBufferToBuffer(WebGPUBuffer<T> &from, WebGPUBuffer<T> &to, uint64_t size)
+{
+    WGPUCommandEncoderDescriptor commandEncoderDesc = {};
+    commandEncoderDesc.nextInChain = nullptr;
+    commandEncoderDesc.label = "CopyCommandEncoder";
+    WGPUCommandEncoder commandEncoder = wgpuDeviceCreateCommandEncoder(m_Context.GetDevice(), &commandEncoderDesc);
+
+    wgpuCommandEncoderCopyBufferToBuffer(commandEncoder, from.GetBuffer(), 0, to.GetBuffer(), 0, size);
+
+    WGPUCommandBufferDescriptor commandBufferDesc = {};
+    commandBufferDesc.nextInChain = nullptr;
+    commandBufferDesc.label = "CopyCommandBuffer";
+
+    auto commandBuffer = wgpuCommandEncoderFinish(commandEncoder, &commandBufferDesc);
+    WGPUQueue queue = wgpuDeviceGetQueue(m_Context.GetDevice());
+    wgpuQueueSubmit(queue, 1, &commandBuffer);
+
+    wgpuCommandEncoderRelease(commandEncoder);
 }
 
 
