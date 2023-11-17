@@ -171,7 +171,7 @@ void WebGPURenderer::End()
 
     wgpuRenderPassEncoderEnd(m_RenderPass);
 
-    auto commandBuffer = WebGPUCommand::CreateCommandBuffer(m_Context.GetDevice(), m_CommandEncoder,
+    auto commandBuffer = WebGPUCommand::CommandEncoderFinish(m_CommandEncoder,
             "RenderCommandBuffer");
 
     WebGPUCommand::SubmitCommandBuffer(m_Context.GetDevice(), commandBuffer);
@@ -358,7 +358,7 @@ void WebGPURenderer::EndComputePass()
 {
     wgpuComputePassEncoderEnd(m_ComputePass);
 
-    auto commandBuffer = WebGPUCommand::CreateCommandBuffer(m_Context.GetDevice(), m_ComputeCommandEncoder,
+    auto commandBuffer = WebGPUCommand::CommandEncoderFinish(m_ComputeCommandEncoder,
             "ComputeCommandBuffer");
     WebGPUCommand::SubmitCommandBuffer(m_Context.GetDevice(), commandBuffer);
 

@@ -13,7 +13,7 @@ public:
     {
         auto commandEncoder = CreateCommandEncoder(device, "CopyCommandEncoder");
         wgpuCommandEncoderCopyBufferToBuffer(commandEncoder, from.GetBuffer(), 0, to.GetBuffer(), 0, size);
-        auto commandBuffer = CreateCommandBuffer(device, commandEncoder, "CopyCommandBuffer");
+        auto commandBuffer = CommandEncoderFinish(commandEncoder, "CopyCommandBuffer");
         SubmitCommandBuffer(device, commandBuffer);
         DestroyCommandEncoder(commandEncoder);
         DestroyCommandBuffer(commandBuffer);
@@ -49,7 +49,7 @@ public:
 
         auto commandEncoder = CreateCommandEncoder(device, "CopyCommandEncoder");
         wgpuCommandEncoderCopyTextureToBuffer(commandEncoder, &imageCopyTexture, &imageCopyBuffer, &copySize);
-        auto commandBuffer = CreateCommandBuffer(device, commandEncoder, "CopyCommandBuffer");
+        auto commandBuffer = CommandEncoderFinish(commandEncoder, "CopyCommandBuffer");
         SubmitCommandBuffer(device, commandBuffer);
         DestroyCommandEncoder(commandEncoder);
         DestroyCommandBuffer(commandBuffer);
@@ -60,7 +60,7 @@ public:
     {
         auto commandEncoder = CreateCommandEncoder(device, "ClearBufferCommandEncoder");
         wgpuCommandEncoderClearBuffer(commandEncoder, buffer.GetBuffer(), 0, buffer.GetSize());
-        auto commandBuffer = CreateCommandBuffer(device, commandEncoder, "ClearBufferCommandBuffer");
+        auto commandBuffer = CommandEncoderFinish(commandEncoder, "ClearBufferCommandBuffer");
         SubmitCommandBuffer(device, commandBuffer);
         DestroyCommandEncoder(commandEncoder);
         DestroyCommandBuffer(commandBuffer);
@@ -80,7 +80,7 @@ public:
         return wgpuDeviceCreateCommandEncoder(device, &commandEncoderDesc);
     }
 
-    static WGPUCommandBuffer CreateCommandBuffer(WGPUDevice device, WGPUCommandEncoder commandEncoder,
+    static WGPUCommandBuffer CommandEncoderFinish(WGPUCommandEncoder commandEncoder,
             const char *label = "CommandBuffer")
     {
         WGPUCommandBufferDescriptor commandBufferDesc = {};
