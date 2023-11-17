@@ -268,20 +268,13 @@ void WebGPURenderer::DrawCircle(glm::vec3 position, glm::vec3 scale, glm::vec4 c
 
 void WebGPURenderer::ReadPixel(int x, int y, const std::function<void(int32_t)>& callback)
 {
-    auto mapState = m_PixelBuffer->GetMapState();
-    if (mapState == WGPUBufferMapState_Mapped)
-    {
-        printf("Buffer is already mapped\n");
-        return;
-    }
-
     m_PixelBuffer->Unmap();
     WebGPUCommand::CopyImageToBuffer(m_Context.GetDevice(), *m_IdTexture, *m_PixelBuffer, 2048, 2048);
-
-    m_PixelBuffer->MapReadAsync([callback, x, y](const int32_t *pixels, size_t size)
+    m_PixelBuffer->MapReadAsync([this, callback, x, y](const int32_t *pixels, size_t size)
     {
         auto id = pixels[y * 2048 + x];
         callback(id);
+        m_PixelBuffer->Unmap();
     });
 }
 
