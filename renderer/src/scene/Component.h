@@ -1,6 +1,7 @@
 #pragma once
 
 #include "UUID.h"
+#include "Camera.h"
 #include "glm/glm.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/euler_angles.hpp>
@@ -85,4 +86,21 @@ struct FigmentComponent
         delete MapBuffer;
         delete Data;
     }
+};
+
+struct CameraComponent
+{
+public:
+    CameraController *Controller;
+
+    explicit CameraComponent(std::shared_ptr<PerspectiveCamera> camera) : Camera(camera)
+    {
+        Controller = new CameraController(Camera);
+    }
+    ~CameraComponent()
+    {
+        delete Controller;
+    }
+private:
+    std::shared_ptr<PerspectiveCamera> Camera;
 };

@@ -30,6 +30,10 @@ namespace Figment
 
         auto quad = m_Scene->CreateEntity("Quad");
         quad.AddComponent<QuadComponent>();
+
+        auto cameraEntity = m_Scene->CreateEntity("Camera");
+        auto &camera = cameraEntity.AddComponent<CameraComponent>(m_Scene->GetCameraController()->GetCamera());
+
         SelectEntity(figmentEntity);
     }
 
@@ -178,9 +182,11 @@ namespace Figment
         }
     }
 
-    static void DrawTransformComponent(TransformComponent &transform)
+    static void DrawTransformComponent(TransformComponent &transform, glm::vec3 *positionOverride = nullptr)
     {
         ImGui::Separator();
+
+        glm::vec3 *position = positionOverride != nullptr ? positionOverride : &transform.Position;
         ImGui::DragFloat3("Position", (float *)&transform.Position.x, 0.1f, 0.0f, 0.0f, "%.2f");
         ImGui::DragFloat3("Rotation", (float *)&transform.Rotation.x, 0.1f, 0.0f, 0.0f, "%.2f");
 
@@ -221,6 +227,15 @@ namespace Figment
         }
     }
 
+    static void DrawCameraComponent(CameraComponent &camera)
+    {
+        ImGui::Separator();
+        ImGui::Text("Camera");
+        ImGui::Text("Aspect: %.2f", camera.Controller->GetCamera()->GetSettings().AspectRatio);
+        ImGui::Text("Near: %.2f", camera.Controller->GetCamera()->GetSettings().NearClip);
+        ImGui::DragFloat3("Position", (float *)camera.Controller->GetCamera()->GetPositionPtr(), 0.1f, 0.0f, 0.0f, "%.2f");
+    }
+
     static void DrawEntityInspectorPanel(Entity entity)
     {
         ImGui::SetNextWindowPos(ImVec2(0, 300), ImGuiCond_Once);
@@ -236,7 +251,7 @@ namespace Figment
         if (entity.HasComponent<InfoComponent>())
             DrawInfoComponent(entity.GetComponent<InfoComponent>());
 
-        if (entity.HasComponent<TransformComponent>())
+        if (entity.HasComponent<TransformComponent>() && !entity.HasComponent<CameraComponent>())
             DrawTransformComponent(entity.GetComponent<TransformComponent>());
 
         if (entity.HasComponent<QuadComponent>())
@@ -247,6 +262,9 @@ namespace Figment
 
         if (entity.HasComponent<FigmentComponent>())
             DrawFigmentComponent(entity.GetComponent<FigmentComponent>());
+
+        if (entity.HasComponent<CameraComponent>())
+            DrawCameraComponent(entity.GetComponent<CameraComponent>());
 
         ImGui::End();
     }
