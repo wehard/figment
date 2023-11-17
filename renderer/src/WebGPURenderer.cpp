@@ -123,8 +123,9 @@ WGPURenderPassEncoder WebGPURenderer::Begin(Camera &camera)
 
     auto device = m_Context.GetDevice();
 
-    WGPUCommandEncoderDescriptor desc = {};
-    m_CommandEncoder = wgpuDeviceCreateCommandEncoder(device, &desc);
+    // WGPUCommandEncoderDescriptor desc = {};
+    // m_CommandEncoder = wgpuDeviceCreateCommandEncoder(device, &desc);
+    m_CommandEncoder = WebGPUCommand::CreateCommandEncoder(device, "RenderCommandEncoder");
 
     WGPURenderPassColorAttachment colorAttachments[2] = {};
 
@@ -170,14 +171,14 @@ void WebGPURenderer::End()
 
     wgpuRenderPassEncoderEnd(m_RenderPass);
 
-    WGPUCommandBufferDescriptor commandBufferDesc = {};
-    WGPUCommandBuffer commandBuffer = wgpuCommandEncoderFinish(m_CommandEncoder, &commandBufferDesc);
-    WGPUQueue queue = wgpuDeviceGetQueue(m_Context.GetDevice());
-    wgpuQueueSubmit(queue, 1, &commandBuffer);
+    auto commandBuffer = WebGPUCommand::CreateCommandBuffer(m_Context.GetDevice(), m_CommandEncoder,
+            "RenderCommandBuffer");
 
-    wgpuCommandEncoderRelease(m_CommandEncoder);
-    m_CommandEncoder = nullptr;
+    WebGPUCommand::SubmitCommandBuffer(m_Context.GetDevice(), commandBuffer);
+    WebGPUCommand::DestroyCommandEncoder(m_CommandEncoder);
+    WebGPUCommand::DestroyCommandBuffer(commandBuffer);
     wgpuRenderPassEncoderRelease(m_RenderPass);
+    m_CommandEncoder = nullptr;
     m_RenderPass = nullptr;
 
     s_Stats.CircleCount = m_RendererData.CircleVertexCount / 6;
@@ -276,10 +277,7 @@ void WebGPURenderer::ReadPixel(int x, int y, std::function<void(int32_t)> callba
 
     m_PixelBuffer->Unmap();
 
-    WGPUCommandEncoderDescriptor commandEncoderDesc = {};
-    commandEncoderDesc.nextInChain = nullptr;
-    commandEncoderDesc.label = "ReadPixelCommandEncoder";
-    WGPUCommandEncoder commandEncoder = wgpuDeviceCreateCommandEncoder(m_Context.GetDevice(), &commandEncoderDesc);
+    auto commandEncoder = WebGPUCommand::CreateCommandEncoder(m_Context.GetDevice(), "ReadPixelCommandEncoder");
 
     WGPUImageCopyTexture imageCopyTexture = {};
     imageCopyTexture.nextInChain = nullptr;
@@ -299,15 +297,17 @@ void WebGPURenderer::ReadPixel(int x, int y, std::function<void(int32_t)> callba
     copySize.depthOrArrayLayers = 1;
     wgpuCommandEncoderCopyTextureToBuffer(commandEncoder, &imageCopyTexture, &imageCopyBuffer, &copySize);
 
-    auto commandBuffer = wgpuCommandEncoderFinish(commandEncoder, nullptr);
-    WGPUQueue queue = wgpuDeviceGetQueue(m_Context.GetDevice());
-    wgpuQueueSubmit(queue, 1, &commandBuffer);
+    auto commandBuffer = WebGPUCommand::CreateCommandBuffer(m_Context.GetDevice(), commandEncoder);
+    WebGPUCommand::SubmitCommandBuffer(m_Context.GetDevice(), commandBuffer);
 
     m_PixelBuffer->MapReadAsync([callback, x, y](const int32_t *pixels, size_t size)
     {
         auto id = pixels[y * 2048 + x];
         callback(id);
     });
+
+    WebGPUCommand::DestroyCommandEncoder(commandEncoder);
+    WebGPUCommand::DestroyCommandBuffer(commandBuffer);
 }
 
 void WebGPURenderer::OnResize(uint32_t width, uint32_t height)
@@ -321,8 +321,7 @@ void WebGPURenderer::OnResize(uint32_t width, uint32_t height)
 
 void WebGPURenderer::BeginComputePass()
 {
-    WGPUCommandEncoderDescriptor desc = {};
-    m_ComputeCommandEncoder = wgpuDeviceCreateCommandEncoder(m_Context.GetDevice(), &desc);
+    m_ComputeCommandEncoder = WebGPUCommand::CreateCommandEncoder(m_Context.GetDevice(), "ComputeCommandEncoder");
 
     WGPUComputePassDescriptor computePassDesc = {};
     computePassDesc.label = "ComputePass";
@@ -391,13 +390,13 @@ void WebGPURenderer::EndComputePass()
 {
     wgpuComputePassEncoderEnd(m_ComputePass);
 
-    WGPUCommandBufferDescriptor commandBufferDesc = {};
-    WGPUCommandBuffer commandBuffer = wgpuCommandEncoderFinish(m_ComputeCommandEncoder, &commandBufferDesc);
-    WGPUQueue queue = wgpuDeviceGetQueue(m_Context.GetDevice());
-    wgpuQueueSubmit(queue, 1, &commandBuffer);
+    auto commandBuffer = WebGPUCommand::CreateCommandBuffer(m_Context.GetDevice(), m_ComputeCommandEncoder,
+            "ComputeCommandBuffer");
+    WebGPUCommand::SubmitCommandBuffer(m_Context.GetDevice(), commandBuffer);
 
-    wgpuCommandEncoderRelease(m_ComputeCommandEncoder);
-    m_ComputeCommandEncoder = nullptr;
+    WebGPUCommand::DestroyCommandEncoder(m_ComputeCommandEncoder);
+    WebGPUCommand::DestroyCommandBuffer(commandBuffer);
     wgpuComputePassEncoderRelease(m_ComputePass);
+    m_ComputeCommandEncoder = nullptr;
     m_ComputePass = nullptr;
 }

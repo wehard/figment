@@ -29,7 +29,7 @@ public:
         DestroyCommandEncoder(commandEncoder);
         DestroyCommandBuffer(commandBuffer);
     }
-private:
+
     static void SubmitCommandBuffer(WGPUDevice device, WGPUCommandBuffer commandBuffer)
     {
         WGPUQueue queue = wgpuDeviceGetQueue(device);
