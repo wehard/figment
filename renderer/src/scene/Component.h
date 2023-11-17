@@ -91,15 +91,11 @@ struct FigmentComponent
 struct CameraComponent
 {
 public:
-    CameraController *Controller;
+    std::shared_ptr<CameraController> Controller;
 
     explicit CameraComponent(std::shared_ptr<PerspectiveCamera> camera) : Camera(camera)
     {
-        Controller = new CameraController(Camera);
-    }
-    ~CameraComponent()
-    {
-        delete Controller;
+        Controller = std::make_shared<CameraController>(Camera);
     }
 private:
     std::shared_ptr<PerspectiveCamera> Camera;

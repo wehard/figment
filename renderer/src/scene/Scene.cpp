@@ -10,9 +10,10 @@
 Scene::Scene(uint32_t width, uint32_t height)
         : m_Width(width), m_Height(height)
 {
-    m_Camera = std::make_shared<PerspectiveCamera>((float)width / (float)height);
-    m_CameraController = std::make_shared<CameraController>(m_Camera);
-    m_Camera->GetPositionPtr()->z = 60.0;
+    m_EditorCamera = std::make_shared<PerspectiveCamera>((float)width / (float)height);
+    m_EditorCameraController = std::make_shared<CameraController>(m_EditorCamera);
+    m_EditorCamera->GetPositionPtr()->z = 60.0;
+    SetActiveCameraController(m_EditorCameraController);
 
     auto m_Window = App::Instance()->GetWindow();
     auto webGpuWindow = std::dynamic_pointer_cast<WebGPUWindow>(m_Window);
@@ -85,17 +86,17 @@ void Scene::OnUpdate(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewpor
             m_Renderer->Compute(figment.ComputeShader, *figment.Buffer, *figment.MapBuffer);
             figment.MapBuffer->MapReadAsync([&figment](const glm::vec4 *data, size_t size)
             {
-                figment.Data = (glm::vec4*)data;
+                figment.Data = (glm::vec4 *)data;
             });
         }
     }
     m_Renderer->EndComputePass();
 
-    m_Renderer->Begin(*m_CameraController->GetCamera()); // TODO: Make static
-    m_CameraController->Update(deltaTime);
+    m_Renderer->Begin(*m_ActiveCameraController->GetCamera()); // TODO: Make static
+    m_ActiveCameraController->Update(deltaTime);
 
     glm::vec2 normalized = glm::vec2(mousePosition.x / viewportSize.x, mousePosition.y / viewportSize.y);
-    if (m_CameraController->IsFpsCamera() || normalized.x < -1.0 || normalized.x > 1.0 || normalized.y < -1.0
+    if (m_ActiveCameraController->IsFpsCamera() || normalized.x < -1.0 || normalized.x > 1.0 || normalized.y < -1.0
             || normalized.y > 1.0)
     {
         m_HoveredId = -1;
@@ -138,7 +139,9 @@ void Scene::OnUpdate(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewpor
             continue;
         for (int i = 0; i < figment.Buffer->GetSize() / sizeof(glm::vec4); i++)
         {
-            m_Renderer->DrawCircle(transform.Position + glm::vec3(figment.Data[i].x, figment.Data[i].y, figment.Data[i].z), transform.Scale,
+            m_Renderer->DrawCircle(
+                    transform.Position + glm::vec3(figment.Data[i].x, figment.Data[i].y, figment.Data[i].z),
+                    transform.Scale,
                     figment.Color, (int)entity.GetHandle());
         }
     }
@@ -146,16 +149,32 @@ void Scene::OnUpdate(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewpor
     m_Renderer->End();
 }
 
-std::shared_ptr<CameraController> Scene::GetCameraController()
+std::shared_ptr<CameraController> Scene::GetEditorCameraController()
 {
-    return m_CameraController;
+    return m_EditorCameraController;
 }
 
 void Scene::OnResize(uint32_t width, uint32_t height)
 {
     m_Width = width;
     m_Height = height;
-    m_Camera->Resize((float)width, (float)height);
+    m_EditorCamera->Resize((float)width, (float)height);
+    auto view = m_Registry.view<CameraComponent>();
+    for (auto e : view)
+    {
+        Entity entity = { e, this };
+        auto &camera = entity.GetComponent<CameraComponent>();
+        camera.Controller->GetCamera()->Resize((float)width, (float)height);
+    }
     m_Renderer->OnResize(width, height);
 }
 
+std::shared_ptr<CameraController> Scene::GetActiveCameraController()
+{
+    return m_ActiveCameraController;
+}
+
+void Scene::SetActiveCameraController(std::shared_ptr<CameraController> controller)
+{
+    m_ActiveCameraController = controller;
+}

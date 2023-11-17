@@ -16,6 +16,8 @@ namespace Figment
     {
         const auto webGpuWindow = std::dynamic_pointer_cast<WebGPUWindow>(App::Instance()->GetWindow());
 
+        auto width = (float)webGpuWindow->GetFramebufferWidth();
+        auto height = (float)webGpuWindow->GetFramebufferHeight();
         m_Scene = new Scene(webGpuWindow->GetFramebufferWidth(), webGpuWindow->GetFramebufferHeight());
 
         auto figmentEntity = m_Scene->CreateEntity("Figment");
@@ -32,7 +34,7 @@ namespace Figment
         quad.AddComponent<QuadComponent>();
 
         auto cameraEntity = m_Scene->CreateEntity("Camera");
-        auto &camera = cameraEntity.AddComponent<CameraComponent>(m_Scene->GetCameraController()->GetCamera());
+        auto &camera = cameraEntity.AddComponent<CameraComponent>(std::make_shared<PerspectiveCamera>(width / height));
 
         SelectEntity(figmentEntity);
     }
@@ -67,7 +69,7 @@ namespace Figment
         {
             Entity e = m_Scene->CreateEntity("New");
             auto &t = e.GetComponent<TransformComponent>();
-            glm::vec3 p = m_Scene->GetCameraController()->GetCamera()->ScreenToWorldSpace(Input::GetMousePosition(),
+            glm::vec3 p = m_Scene->GetActiveCameraController()->GetCamera()->ScreenToWorldSpace(Input::GetMousePosition(),
                     glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
             t.Position = p;
             auto &b = e.AddComponent<VerletBodyComponent>();
@@ -227,16 +229,33 @@ namespace Figment
         }
     }
 
-    static void DrawCameraComponent(CameraComponent &camera)
+    static void DrawCameraComponent(CameraComponent &camera, Scene &scene)
     {
         ImGui::Separator();
-        ImGui::Text("Camera");
+        bool isActive = scene.GetActiveCameraController() == camera.Controller;
+        const char *label = isActive ? "Disable" : "Set Active";
+        if (ImGui::SmallButton(label))
+        {
+            if (isActive)
+            {
+                scene.SetActiveCameraController(scene.GetEditorCameraController());
+            }
+            else
+            {
+                scene.SetActiveCameraController(camera.Controller);
+            }
+        }
+        ImGui::SameLine();
+        ImGui::SmallButton("Remove");
+
+        ImGui::Separator();
         ImGui::Text("Aspect: %.2f", camera.Controller->GetCamera()->GetSettings().AspectRatio);
         ImGui::Text("Near: %.2f", camera.Controller->GetCamera()->GetSettings().NearClip);
         ImGui::DragFloat3("Position", (float *)camera.Controller->GetCamera()->GetPositionPtr(), 0.1f, 0.0f, 0.0f, "%.2f");
+
     }
 
-    static void DrawEntityInspectorPanel(Entity entity)
+    static void DrawEntityInspectorPanel(Entity entity, Scene &scene)
     {
         ImGui::SetNextWindowPos(ImVec2(0, 300), ImGuiCond_Once);
         ImGui::SetNextWindowSize(ImVec2(300, 500), ImGuiCond_Once);
@@ -264,12 +283,15 @@ namespace Figment
             DrawFigmentComponent(entity.GetComponent<FigmentComponent>());
 
         if (entity.HasComponent<CameraComponent>())
-            DrawCameraComponent(entity.GetComponent<CameraComponent>());
+        {
+            auto &camera = entity.GetComponent<CameraComponent>();
+            DrawCameraComponent(camera, scene);
+        }
 
         ImGui::End();
     }
 
-    static void DrawEditorCameraSection(CameraController &cameraController)
+    static void DrawActiveCameraSection(CameraController &cameraController)
     {
         auto cameraSettings = cameraController.GetCamera()->GetSettings();
         ImGui::Text("Speed: %.2f", cameraController.GetSpeed());
@@ -294,7 +316,7 @@ namespace Figment
     {
         auto window = App::Instance()->GetWindow();
 
-        auto cameraController = scene.GetCameraController();
+        auto cameraController = scene.GetActiveCameraController();
         glm::vec2 mousePosition = Input::GetMousePosition();
         glm::vec2 ndc = glm::vec2((mousePosition.x / ((float)window->GetWidth() * 0.5)) - 1.0,
                 (mousePosition.y / ((float)window->GetHeight() * 0.5)) - 1.0);
@@ -323,10 +345,11 @@ namespace Figment
 
             ImGui::TreePop();
         }
-
-        if (ImGui::TreeNode("Camera"))
+        bool isEditorCamera = scene.GetActiveCameraController() == scene.GetEditorCameraController();
+        const char *activeCameraSectionLabel = isEditorCamera ? "Active Camera (Editor)" : "Active Camera (Entity)";
+        if (ImGui::TreeNode(activeCameraSectionLabel))
         {
-            DrawEditorCameraSection(*scene.GetCameraController());
+            DrawActiveCameraSection(*scene.GetActiveCameraController());
             ImGui::TreePop();
         }
 
@@ -407,7 +430,7 @@ namespace Figment
         {
             SelectEntity(entity);
         });
-        DrawEntityInspectorPanel(m_SelectedEntity);
+        DrawEntityInspectorPanel(m_SelectedEntity, *m_Scene);
         // DrawWGSLShaderEditor(*m_Renderer->GetShader());
     }
 

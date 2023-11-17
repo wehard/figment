@@ -24,8 +24,11 @@ public:
     std::vector<Entity> GetEntities();
     Entity GetEntityById(uint32_t id);
     Entity GetHoveredEntity();
-    std::shared_ptr<CameraController> GetCameraController();
+    std::shared_ptr<CameraController> GetEditorCameraController();
     int32_t m_HoveredId = -1;
+
+    std::shared_ptr<CameraController> GetActiveCameraController();
+    void SetActiveCameraController(std::shared_ptr<CameraController> camera);
 
     friend class Entity;
 private:
@@ -34,7 +37,8 @@ private:
     uint32_t m_Height;
     std::shared_ptr<WebGPUContext> m_GfxContext;
     std::unique_ptr<WebGPURenderer> m_Renderer;
-    std::shared_ptr<CameraController> m_CameraController;
-    std::shared_ptr<PerspectiveCamera> m_Camera;
+    std::shared_ptr<CameraController> m_EditorCameraController;
+    std::shared_ptr<PerspectiveCamera> m_EditorCamera;
+    std::shared_ptr<CameraController> m_ActiveCameraController;
     VerletPhysics m_VerletPhysics;
 };
