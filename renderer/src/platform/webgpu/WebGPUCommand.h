@@ -7,12 +7,48 @@ class WebGPUCommand
 public:
     WebGPUCommand() = delete;
     ~WebGPUCommand() = delete;
-    
+
     template<typename T>
     static void CopyBufferToBuffer(WGPUDevice device, WebGPUBuffer<T> &from, WebGPUBuffer<T> &to, uint64_t size)
     {
         auto commandEncoder = CreateCommandEncoder(device, "CopyCommandEncoder");
         wgpuCommandEncoderCopyBufferToBuffer(commandEncoder, from.GetBuffer(), 0, to.GetBuffer(), 0, size);
+        auto commandBuffer = CreateCommandBuffer(device, commandEncoder, "CopyCommandBuffer");
+        SubmitCommandBuffer(device, commandBuffer);
+        DestroyCommandEncoder(commandEncoder);
+        DestroyCommandBuffer(commandBuffer);
+    }
+
+    template<typename T>
+    static void CopyImageToBuffer(WGPUDevice device, WebGPUTexture &texture, WebGPUBuffer<T> &buffer, uint32_t width,
+            uint32_t height)
+    {
+        WGPUImageCopyTexture imageCopyTexture = {
+                .nextInChain = nullptr,
+                .texture = texture.GetTexture(),
+                .mipLevel = 0,
+                .origin = { 0, 0, 0 },
+                .aspect = WGPUTextureAspect_All
+        };
+
+        WGPUImageCopyBuffer imageCopyBuffer = {
+                .nextInChain = nullptr,
+                .layout = {
+                        .nextInChain = nullptr,
+                        .offset = 0,
+                        .bytesPerRow = width * sizeof(int32_t),
+                        .rowsPerImage = height,
+                },
+                .buffer = buffer.GetBuffer(),
+        };
+
+        WGPUExtent3D copySize = {};
+        copySize.width = texture.GetWidth();
+        copySize.height = texture.GetHeight();
+        copySize.depthOrArrayLayers = 1;
+
+        auto commandEncoder = CreateCommandEncoder(device, "CopyCommandEncoder");
+        wgpuCommandEncoderCopyTextureToBuffer(commandEncoder, &imageCopyTexture, &imageCopyBuffer, &copySize);
         auto commandBuffer = CreateCommandBuffer(device, commandEncoder, "CopyCommandBuffer");
         SubmitCommandBuffer(device, commandBuffer);
         DestroyCommandEncoder(commandEncoder);
@@ -44,7 +80,8 @@ public:
         return wgpuDeviceCreateCommandEncoder(device, &commandEncoderDesc);
     }
 
-    static WGPUCommandBuffer CreateCommandBuffer(WGPUDevice device, WGPUCommandEncoder commandEncoder, const char *label = "CommandBuffer")
+    static WGPUCommandBuffer CreateCommandBuffer(WGPUDevice device, WGPUCommandEncoder commandEncoder,
+            const char *label = "CommandBuffer")
     {
         WGPUCommandBufferDescriptor commandBufferDesc = {};
         commandBufferDesc.nextInChain = nullptr;

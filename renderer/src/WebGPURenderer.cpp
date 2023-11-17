@@ -266,7 +266,7 @@ void WebGPURenderer::DrawCircle(glm::vec3 position, glm::vec3 scale, glm::vec4 c
     m_RendererData.CircleVertexCount += 6;
 }
 
-void WebGPURenderer::ReadPixel(int x, int y, std::function<void(int32_t)> callback)
+void WebGPURenderer::ReadPixel(int x, int y, const std::function<void(int32_t)>& callback)
 {
     auto mapState = m_PixelBuffer->GetMapState();
     if (mapState == WGPUBufferMapState_Mapped)
@@ -276,38 +276,13 @@ void WebGPURenderer::ReadPixel(int x, int y, std::function<void(int32_t)> callba
     }
 
     m_PixelBuffer->Unmap();
-
-    auto commandEncoder = WebGPUCommand::CreateCommandEncoder(m_Context.GetDevice(), "ReadPixelCommandEncoder");
-
-    WGPUImageCopyTexture imageCopyTexture = {};
-    imageCopyTexture.nextInChain = nullptr;
-    imageCopyTexture.origin = { 0, 0, 0 };
-    imageCopyTexture.texture = m_IdTexture->GetTexture();
-
-    WGPUImageCopyBuffer imageCopyBuffer = {};
-    imageCopyBuffer.nextInChain = nullptr;
-    imageCopyBuffer.buffer = m_PixelBuffer->GetBuffer();
-    imageCopyBuffer.layout.offset = 0;
-    imageCopyBuffer.layout.bytesPerRow = 2048 * sizeof(int32_t);
-    imageCopyBuffer.layout.rowsPerImage = 2048;
-
-    WGPUExtent3D copySize = {};
-    copySize.width = m_IdTexture->GetWidth();
-    copySize.height = m_IdTexture->GetHeight();
-    copySize.depthOrArrayLayers = 1;
-    wgpuCommandEncoderCopyTextureToBuffer(commandEncoder, &imageCopyTexture, &imageCopyBuffer, &copySize);
-
-    auto commandBuffer = WebGPUCommand::CreateCommandBuffer(m_Context.GetDevice(), commandEncoder);
-    WebGPUCommand::SubmitCommandBuffer(m_Context.GetDevice(), commandBuffer);
+    WebGPUCommand::CopyImageToBuffer(m_Context.GetDevice(), *m_IdTexture, *m_PixelBuffer, 2048, 2048);
 
     m_PixelBuffer->MapReadAsync([callback, x, y](const int32_t *pixels, size_t size)
     {
         auto id = pixels[y * 2048 + x];
         callback(id);
     });
-
-    WebGPUCommand::DestroyCommandEncoder(commandEncoder);
-    WebGPUCommand::DestroyCommandBuffer(commandBuffer);
 }
 
 void WebGPURenderer::OnResize(uint32_t width, uint32_t height)
