@@ -93,6 +93,12 @@ struct CameraComponent
 public:
     std::shared_ptr<CameraController> Controller;
 
+    CameraComponent()
+    {
+        Camera = std::make_shared<PerspectiveCamera>(1.777f);
+        Controller = std::make_shared<CameraController>(Camera);
+    }
+    CameraComponent(const CameraComponent &) = default;
     explicit CameraComponent(std::shared_ptr<PerspectiveCamera> camera) : Camera(camera)
     {
         Controller = std::make_shared<CameraController>(Camera);

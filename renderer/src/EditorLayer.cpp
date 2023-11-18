@@ -147,12 +147,18 @@ namespace Figment
         ImGui::End();
     }
 
-    static void DrawScenePanel(const std::vector<Entity> &entities,
-            const std::function<void(Entity)> &selectEntity = nullptr)
+    void EditorLayer::DrawScenePanel(const std::vector<Entity> &entities,
+            const std::function<void(Entity)> &selectEntity)
     {
         ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Once);
         ImGui::SetNextWindowSize(ImVec2(300, 200), ImGuiCond_Once);
         ImGui::Begin("Scene");
+
+        if (ImGui::Button("Add Entity"))
+            m_Scene->CreateEntity("New");
+
+        ImGui::Separator();
+
         for (auto entity : entities)
         {
             ImGui::PushID((int)entity.GetHandle());
@@ -255,7 +261,7 @@ namespace Figment
 
     }
 
-    static void DrawEntityInspectorPanel(Entity entity, Scene &scene)
+    void EditorLayer::DrawEntityInspectorPanel(Entity entity)
     {
         ImGui::SetNextWindowPos(ImVec2(0, 300), ImGuiCond_Once);
         ImGui::SetNextWindowSize(ImVec2(300, 500), ImGuiCond_Once);
@@ -266,6 +272,21 @@ namespace Figment
             ImGui::End();
             return;
         }
+
+        if (ImGui::Button("Add Component"))
+            ImGui::OpenPopup("#addcomponent");
+
+        if (ImGui::BeginPopup("#addcomponent"))
+        {
+            // DisplayAddComponentEntry<TransformComponent>("Transform");
+            DisplayAddComponentEntry<CameraComponent>("Camera");
+            DisplayAddComponentEntry<QuadComponent>("Quad");
+            DisplayAddComponentEntry<CircleComponent>("Circle");
+            // DisplayAddComponentEntry<FigmentComponent>("Figment");
+            ImGui::EndPopup();
+        }
+
+        ImGui::Separator();
 
         if (entity.HasComponent<InfoComponent>())
             DrawInfoComponent(entity.GetComponent<InfoComponent>());
@@ -285,7 +306,7 @@ namespace Figment
         if (entity.HasComponent<CameraComponent>())
         {
             auto &camera = entity.GetComponent<CameraComponent>();
-            DrawCameraComponent(camera, scene);
+            DrawCameraComponent(camera, *m_Scene);
         }
 
         ImGui::End();
@@ -430,7 +451,7 @@ namespace Figment
         {
             SelectEntity(entity);
         });
-        DrawEntityInspectorPanel(m_SelectedEntity, *m_Scene);
+        DrawEntityInspectorPanel(m_SelectedEntity);
         // DrawWGSLShaderEditor(*m_Renderer->GetShader());
     }
 
@@ -459,6 +480,18 @@ namespace Figment
             break;
         case AppEvent::WindowMoved:
             break;
+        }
+    }
+
+    template<typename T>
+    void EditorLayer::DisplayAddComponentEntry(const std::string &entryName)
+    {
+        if (!m_SelectedEntity.HasComponent<T>())
+        {
+            if (ImGui::MenuItem(entryName.c_str()))
+            {
+                m_SelectedEntity.AddComponent<T>();
+            }
         }
     }
 }

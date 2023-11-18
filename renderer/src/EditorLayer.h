@@ -22,5 +22,10 @@ namespace Figment
         Entity m_SelectedEntity;
 
         void SelectEntity(Entity entity);
+        void DrawEntityInspectorPanel(Entity entity);
+        void DrawScenePanel(const std::vector<Entity> &entities,
+                const std::function<void(Entity)> &selectEntity = nullptr);
+        template<typename T>
+        void DisplayAddComponentEntry(const std::string &entryName);
     };
 }
