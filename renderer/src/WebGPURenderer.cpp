@@ -299,28 +299,17 @@ void WebGPURenderer::BeginComputePass()
     m_ComputePass = wgpuCommandEncoderBeginComputePass(m_ComputeCommandEncoder, &computePassDesc);
 }
 
-struct FigmentData
-{
-    glm::mat4 ViewMatrix;
-    glm::mat4 ProjectionMatrix;
-};
 
-void WebGPURenderer::Compute(WebGPUShader &computeShader, WebGPUBuffer<glm::vec4> &buffer,
-        WebGPUBuffer<glm::vec4> &mapBuffer)
+
+// void WebGPURenderer::Compute(WebGPUShader &computeShader, WebGPUBuffer<glm::vec4> &buffer,
+//         WebGPUBuffer<glm::vec4> &mapBuffer)
+void WebGPURenderer::Compute(FigmentComponent &figment)
 {
     WGPUBindGroupLayoutEntry bindGroupLayoutEntry = GetDefaultWGPUBindGroupLayoutEntry();
     bindGroupLayoutEntry.nextInChain = nullptr;
     bindGroupLayoutEntry.binding = 0;
     bindGroupLayoutEntry.visibility = WGPUShaderStage_Compute;
     bindGroupLayoutEntry.buffer.type = WGPUBufferBindingType_Storage;
-
-    FigmentData fd = {
-            .ViewMatrix = glm::mat4(1.0f),
-            .ProjectionMatrix = glm::mat4(1.0f)
-    };
-
-    auto figmentData = new WebGPUUniformBuffer<FigmentData>(m_Context.GetDevice(), "FigmentData", sizeof(FigmentData));
-    figmentData->SetData(&fd, sizeof(FigmentData));
 
     WGPUBindGroupLayoutEntry figmentBindGroupLayoutEntry = GetDefaultWGPUBindGroupLayoutEntry();
     figmentBindGroupLayoutEntry.nextInChain = nullptr;
@@ -340,15 +329,15 @@ void WebGPURenderer::Compute(WebGPUShader &computeShader, WebGPUBuffer<glm::vec4
 
     WGPUBindGroupEntry bindGroupEntry = {};
     bindGroupEntry.binding = 0;
-    bindGroupEntry.buffer = buffer.GetBuffer();
+    bindGroupEntry.buffer = figment.Result->GetBuffer();
     bindGroupEntry.offset = 0;
-    bindGroupEntry.size = buffer.GetSize();
+    bindGroupEntry.size = figment.Result->GetSize();
 
     WGPUBindGroupEntry figmentBindGroupEntry = {};
     figmentBindGroupEntry.binding = 1;
-    figmentBindGroupEntry.buffer = figmentData->GetBuffer();
+    figmentBindGroupEntry.buffer = figment.UniformBuffer->GetBuffer();
     figmentBindGroupEntry.offset = 0;
-    figmentBindGroupEntry.size = figmentData->GetSize();
+    figmentBindGroupEntry.size = figment.UniformBuffer->GetSize();
 
     std::vector<WGPUBindGroupEntry> bindGroupEntries = { bindGroupEntry, figmentBindGroupEntry };
     WGPUBindGroupDescriptor bindGroupDesc = {};
@@ -366,7 +355,7 @@ void WebGPURenderer::Compute(WebGPUShader &computeShader, WebGPUBuffer<glm::vec4
     WGPUComputePipelineDescriptor computePipelineDesc = {};
     computePipelineDesc.label = "ComputePipeline";
     computePipelineDesc.compute.entryPoint = "main";
-    computePipelineDesc.compute.module = computeShader.GetShaderModule();
+    computePipelineDesc.compute.module = figment.ComputeShader.GetShaderModule();
     computePipelineDesc.layout = pipelineLayout;
 
     auto pipeline = wgpuDeviceCreateComputePipeline(m_Context.GetDevice(), &computePipelineDesc);
@@ -374,14 +363,14 @@ void WebGPURenderer::Compute(WebGPUShader &computeShader, WebGPUBuffer<glm::vec4
     wgpuComputePassEncoderSetPipeline(m_ComputePass, pipeline);
     wgpuComputePassEncoderSetBindGroup(m_ComputePass, 0, bindGroup, 0, nullptr);
 
-    uint32_t invocationCount = buffer.GetSize() / sizeof(glm::vec4);
+    uint32_t invocationCount = figment.Result->GetSize() / sizeof(glm::vec4);
     uint32_t workgroupSize = 32;
     uint32_t workgroupCount = (invocationCount + workgroupSize - 1) / workgroupSize;
     wgpuComputePassEncoderDispatchWorkgroups(m_ComputePass, workgroupCount, 1, 1);
 
-    mapBuffer.Unmap();
+    figment.MapBuffer->Unmap();
 
-    WebGPUCommand::CopyBufferToBuffer(m_Context.GetDevice(), buffer, mapBuffer, buffer.GetSize());
+    WebGPUCommand::CopyBufferToBuffer(m_Context.GetDevice(), *figment.Result, *figment.MapBuffer, figment.Result->GetSize());
 }
 
 void WebGPURenderer::EndComputePass()

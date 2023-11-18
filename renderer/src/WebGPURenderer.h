@@ -8,6 +8,7 @@
 #include "webgpu/webgpu.h"
 #include "glm/glm.hpp"
 #include "WebGPURenderPipeline.h"
+#include "Component.h"
 
 struct CameraData
 {
@@ -91,7 +92,7 @@ public:
     void End();
     void BeginComputePass();
     void EndComputePass();
-    void Compute(WebGPUShader &computeShader, WebGPUBuffer<glm::vec4> &buffer, WebGPUBuffer<glm::vec4> &mapBuffer);
+    void Compute(FigmentComponent &figment);
     void DrawQuad(glm::vec3 position, glm::vec4 color, int32_t id);
     void DrawQuad(glm::vec3 position, glm::vec3 scale, glm::vec4 color, int32_t id);
     void DrawCircle(glm::vec3 position, glm::vec4 color, float radius, int32_t id);

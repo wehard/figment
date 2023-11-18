@@ -27,8 +27,9 @@ namespace Figment
         auto &figment = figmentEntity.AddComponent<FigmentComponent>(*figmentShader, *computeShader);
         uint64_t count = 64;
         uint64_t size = count * sizeof(glm::vec4);
-        figment.Buffer = new WebGPUBuffer<glm::vec4>(webGpuWindow->GetContext()->GetDevice(), "FigmentBuffer", size, WGPUBufferUsage_Storage | WGPUBufferUsage_CopySrc);
+        figment.Result = new WebGPUBuffer<glm::vec4>(webGpuWindow->GetContext()->GetDevice(), "FigmentBuffer", size, WGPUBufferUsage_Storage | WGPUBufferUsage_CopySrc);
         figment.MapBuffer = new WebGPUBuffer<glm::vec4>(webGpuWindow->GetContext()->GetDevice(), "FigmentMapBuffer", size, WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead);
+        figment.UniformBuffer = new WebGPUUniformBuffer<FigmentData>(webGpuWindow->GetContext()->GetDevice(), "FigmentData", sizeof(FigmentData));
 
         auto quad = m_Scene->CreateEntity("Quad");
         quad.AddComponent<QuadComponent>();
@@ -228,7 +229,7 @@ namespace Figment
         ImGui::Separator();
         if (figment.Data != nullptr)
         {
-            for (int i = 0; i < figment.Buffer->GetSize() / sizeof(glm::vec4); i++)
+            for (int i = 0; i < figment.Result->GetSize() / sizeof(glm::vec4); i++)
             {
                 ImGui::Text("%f %f %f", figment.Data[i].x, figment.Data[i].y, figment.Data[i].z);
             }

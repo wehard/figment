@@ -3,6 +3,7 @@
 #include "UUID.h"
 #include "Camera.h"
 #include "glm/glm.hpp"
+#include "CameraController.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/euler_angles.hpp>
 
@@ -70,19 +71,28 @@ struct QuadComponent
     QuadComponent() = default;
 };
 
+struct FigmentData
+{
+    float Time = 0.0;
+};
+
 struct FigmentComponent
 {
     WebGPUShader &Shader;
     WebGPUShader &ComputeShader;
-    WebGPUBuffer<glm::vec4> *Buffer = nullptr;
+    WebGPUUniformBuffer<FigmentData> *UniformBuffer = nullptr;
+    WebGPUBuffer<glm::vec4> *Result = nullptr;
     WebGPUBuffer<glm::vec4> *MapBuffer = nullptr;
     glm::vec4 *Data = nullptr;
     glm::vec4 Color = glm::vec4(1.0);
 
-    FigmentComponent(WebGPUShader &shader, WebGPUShader &computeShader) : Shader(shader), ComputeShader(computeShader) {}
+    FigmentComponent(WebGPUShader &shader, WebGPUShader &computeShader) : Shader(shader), ComputeShader(computeShader)
+    {
+    }
+
     ~FigmentComponent()
     {
-        delete Buffer;
+        delete Result;
         delete MapBuffer;
         delete Data;
     }

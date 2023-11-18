@@ -24,7 +24,7 @@ public:
     void Update();
     std::shared_ptr<Window> GetWindow() { return m_Window; }
     FPSCounter &GetFPSCounter() { return m_FPSCounter; }
-
+    float GetTimeSinceStart() const { return m_TimeSinceStart; }
     static App *Instance() { return s_Instance; }
 private:
     std::shared_ptr<Window> m_Window;
@@ -33,6 +33,7 @@ private:
 
     float m_CurrentTime = 0;
     float m_LastTime = 0;
+    float m_TimeSinceStart = 0;
 
     FPSCounter m_FPSCounter;
 

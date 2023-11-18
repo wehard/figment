@@ -83,7 +83,11 @@ void Scene::OnUpdate(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewpor
         if (entity.HasComponent<FigmentComponent>())
         {
             auto &figment = entity.GetComponent<FigmentComponent>();
-            m_Renderer->Compute(figment.ComputeShader, *figment.Buffer, *figment.MapBuffer);
+            FigmentData data = {
+                    .Time = App::Instance()->GetTimeSinceStart()
+            };
+            figment.UniformBuffer->SetData(&data, sizeof(FigmentData));
+            m_Renderer->Compute(figment);
             figment.MapBuffer->MapReadAsync([&figment](const glm::vec4 *data, size_t size)
             {
                 figment.Data = (glm::vec4 *)data;
@@ -137,7 +141,7 @@ void Scene::OnUpdate(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewpor
         // auto &quad = entity.GetComponent<QuadComponent>();
         if (figment.Data == nullptr)
             continue;
-        for (int i = 0; i < figment.Buffer->GetSize() / sizeof(glm::vec4); i++)
+        for (int i = 0; i < figment.Result->GetSize() / sizeof(glm::vec4); i++)
         {
             m_Renderer->DrawCircle(
                     transform.Position + glm::vec3(figment.Data[i].x, figment.Data[i].y, figment.Data[i].z),
