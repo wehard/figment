@@ -223,17 +223,14 @@ namespace Figment
         ImGui::ColorEdit4("Color", (float *)&figment.Color);
         ImGui::Button("Edit source", ImVec2(100, 20));
         ImGui::SameLine();
-        if(ImGui::Button("Read", ImVec2(100, 20)))
-        {
-        }
-        ImGui::Separator();
-        if (figment.Data != nullptr)
-        {
-            for (int i = 0; i < figment.Result->GetSize() / sizeof(glm::vec4); i++)
-            {
-                ImGui::Text("%f %f %f", figment.Data[i].x, figment.Data[i].y, figment.Data[i].z);
-            }
-        }
+        // ImGui::Separator();
+        // if (figment.Data != nullptr)
+        // {
+        //     for (int i = 0; i < figment.Result->GetSize() / sizeof(glm::vec4); i++)
+        //     {
+        //         ImGui::Text("%f %f %f", figment.Data[i].x, figment.Data[i].y, figment.Data[i].z);
+        //     }
+        // }
     }
 
     static void DrawCameraComponent(CameraComponent &camera, Scene &scene)
