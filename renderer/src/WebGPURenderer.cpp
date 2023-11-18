@@ -355,7 +355,7 @@ void WebGPURenderer::Compute(FigmentComponent &figment)
     WGPUComputePipelineDescriptor computePipelineDesc = {};
     computePipelineDesc.label = "ComputePipeline";
     computePipelineDesc.compute.entryPoint = "main";
-    computePipelineDesc.compute.module = figment.ComputeShader.GetShaderModule();
+    computePipelineDesc.compute.module = figment.ComputeShader->GetShaderModule();
     computePipelineDesc.layout = pipelineLayout;
 
     auto pipeline = wgpuDeviceCreateComputePipeline(m_Context.GetDevice(), &computePipelineDesc);

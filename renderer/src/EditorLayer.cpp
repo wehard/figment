@@ -21,12 +21,11 @@ namespace Figment
         m_Scene = new Scene(webGpuWindow->GetFramebufferWidth(), webGpuWindow->GetFramebufferHeight());
 
         auto figmentEntity = m_Scene->CreateEntity("Figment");
-        // auto &quad = figmentEntity.AddComponent<QuadComponent>();
-        auto figmentShader = new WebGPUShader(webGpuWindow->GetContext()->GetDevice(), *Utils::LoadFile2("res/shaders/wgsl/figment.wgsl"));
-        auto computeShader = new WebGPUShader(webGpuWindow->GetContext()->GetDevice(), *Utils::LoadFile2("res/shaders/wgsl/compute.wgsl"));
-        auto &figment = figmentEntity.AddComponent<FigmentComponent>(*figmentShader, *computeShader);
+        auto &figment = figmentEntity.AddComponent<FigmentComponent>();
         uint64_t count = 64;
         uint64_t size = count * sizeof(glm::vec4);
+        figment.Shader = new WebGPUShader(webGpuWindow->GetContext()->GetDevice(), *Utils::LoadFile2("res/shaders/wgsl/figment.wgsl"));;
+        figment.ComputeShader = new WebGPUShader(webGpuWindow->GetContext()->GetDevice(), *Utils::LoadFile2("res/shaders/wgsl/compute.wgsl"));;
         figment.Result = new WebGPUBuffer<glm::vec4>(webGpuWindow->GetContext()->GetDevice(), "FigmentBuffer", size, WGPUBufferUsage_Storage | WGPUBufferUsage_CopySrc);
         figment.MapBuffer = new WebGPUBuffer<glm::vec4>(webGpuWindow->GetContext()->GetDevice(), "FigmentMapBuffer", size, WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead);
         figment.UniformBuffer = new WebGPUUniformBuffer<FigmentData>(webGpuWindow->GetContext()->GetDevice(), "FigmentData", sizeof(FigmentData));
@@ -191,11 +190,8 @@ namespace Figment
         }
     }
 
-    static void DrawTransformComponent(TransformComponent &transform, glm::vec3 *positionOverride = nullptr)
+    static void DrawTransformComponent(TransformComponent &transform)
     {
-        ImGui::Separator();
-
-        glm::vec3 *position = positionOverride != nullptr ? positionOverride : &transform.Position;
         ImGui::DragFloat3("Position", (float *)&transform.Position.x, 0.1f, 0.0f, 0.0f, "%.2f");
         ImGui::DragFloat3("Rotation", (float *)&transform.Rotation.x, 0.1f, 0.0f, 0.0f, "%.2f");
 
@@ -205,21 +201,18 @@ namespace Figment
 
     static void DrawQuadComponent(QuadComponent &quad)
     {
-        ImGui::Separator();
         ImGui::ColorEdit4("Color", (float *)&quad.Color);
     }
 
     static void DrawCircleComponent(CircleComponent &circle)
     {
-        ImGui::Separator();
         ImGui::ColorEdit4("Color", (float *)&circle.Color);
         ImGui::DragFloat("Radius", &circle.Radius, 0.1f, 0.1f, FLT_MAX, "%.2f");
     }
 
     static void DrawFigmentComponent(FigmentComponent &figment)
     {
-        ImGui::Separator();
-        ImGui::Text("Figment\n%s", figment.ComputeShader.GetShaderSource().c_str());
+        ImGui::Text("Figment\n%s", figment.ComputeShader->GetShaderSource().c_str());
         ImGui::ColorEdit4("Color", (float *)&figment.Color);
         ImGui::Button("Edit source", ImVec2(100, 20));
         ImGui::SameLine();
@@ -235,7 +228,6 @@ namespace Figment
 
     static void DrawCameraComponent(CameraComponent &camera, Scene &scene)
     {
-        ImGui::Separator();
         bool isActive = scene.GetActiveCameraController() == camera.Controller;
         const char *label = isActive ? "Disable" : "Set Active";
         if (ImGui::SmallButton(label))
@@ -259,6 +251,17 @@ namespace Figment
 
     }
 
+    template<typename T, typename DrawFunction>
+    static void DrawComponent(const std::string& name, Entity entity, DrawFunction drawFunction)
+    {
+        if (entity.HasComponent<T>())
+        {
+            ImGui::Separator();
+            auto& component = entity.GetComponent<T>();
+            drawFunction(component);
+        }
+    }
+
     void EditorLayer::DrawEntityInspectorPanel(Entity entity)
     {
         ImGui::SetNextWindowPos(ImVec2(0, 300), ImGuiCond_Once);
@@ -276,36 +279,24 @@ namespace Figment
 
         if (ImGui::BeginPopup("#addcomponent"))
         {
-            // DisplayAddComponentEntry<TransformComponent>("Transform");
+            DisplayAddComponentEntry<TransformComponent>("Transform");
             DisplayAddComponentEntry<CameraComponent>("Camera");
             DisplayAddComponentEntry<QuadComponent>("Quad");
             DisplayAddComponentEntry<CircleComponent>("Circle");
-            // DisplayAddComponentEntry<FigmentComponent>("Figment");
+            DisplayAddComponentEntry<FigmentComponent>("Figment");
             ImGui::EndPopup();
         }
 
-        ImGui::Separator();
+        DrawComponent<InfoComponent>("Info", entity, DrawInfoComponent);
+        DrawComponent<TransformComponent>("Transform", entity, DrawTransformComponent);
+        DrawComponent<QuadComponent>("Quad", entity, DrawQuadComponent);
+        DrawComponent<CircleComponent>("Circle", entity, DrawCircleComponent);
+        DrawComponent<FigmentComponent>("Figment", entity, DrawFigmentComponent);
 
-        if (entity.HasComponent<InfoComponent>())
-            DrawInfoComponent(entity.GetComponent<InfoComponent>());
-
-        if (entity.HasComponent<TransformComponent>() && !entity.HasComponent<CameraComponent>())
-            DrawTransformComponent(entity.GetComponent<TransformComponent>());
-
-        if (entity.HasComponent<QuadComponent>())
-            DrawQuadComponent(entity.GetComponent<QuadComponent>());
-
-        if (entity.HasComponent<CircleComponent>())
-            DrawCircleComponent(entity.GetComponent<CircleComponent>());
-
-        if (entity.HasComponent<FigmentComponent>())
-            DrawFigmentComponent(entity.GetComponent<FigmentComponent>());
-
-        if (entity.HasComponent<CameraComponent>())
+        DrawComponent<CameraComponent>("Camera", entity, [this](auto &component)
         {
-            auto &camera = entity.GetComponent<CameraComponent>();
-            DrawCameraComponent(camera, *m_Scene);
-        }
+            DrawCameraComponent(component, *m_Scene);
+        });
 
         ImGui::End();
     }
