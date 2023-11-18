@@ -299,6 +299,12 @@ void WebGPURenderer::BeginComputePass()
     m_ComputePass = wgpuCommandEncoderBeginComputePass(m_ComputeCommandEncoder, &computePassDesc);
 }
 
+struct FigmentData
+{
+    glm::mat4 ViewMatrix;
+    glm::mat4 ProjectionMatrix;
+};
+
 void WebGPURenderer::Compute(WebGPUShader &computeShader, WebGPUBuffer<glm::vec4> &buffer,
         WebGPUBuffer<glm::vec4> &mapBuffer)
 {
@@ -308,10 +314,27 @@ void WebGPURenderer::Compute(WebGPUShader &computeShader, WebGPUBuffer<glm::vec4
     bindGroupLayoutEntry.visibility = WGPUShaderStage_Compute;
     bindGroupLayoutEntry.buffer.type = WGPUBufferBindingType_Storage;
 
+    FigmentData fd = {
+            .ViewMatrix = glm::mat4(1.0f),
+            .ProjectionMatrix = glm::mat4(1.0f)
+    };
+
+    auto figmentData = new WebGPUUniformBuffer<FigmentData>(m_Context.GetDevice(), "FigmentData", sizeof(FigmentData));
+    figmentData->SetData(&fd, sizeof(FigmentData));
+
+    WGPUBindGroupLayoutEntry figmentBindGroupLayoutEntry = GetDefaultWGPUBindGroupLayoutEntry();
+    figmentBindGroupLayoutEntry.nextInChain = nullptr;
+    figmentBindGroupLayoutEntry.binding = 1;
+    figmentBindGroupLayoutEntry.visibility = WGPUShaderStage_Compute;
+    figmentBindGroupLayoutEntry.buffer.type = WGPUBufferBindingType_Uniform;
+
+    std::vector<WGPUBindGroupLayoutEntry> bindGroupLayoutEntries = { bindGroupLayoutEntry,
+            figmentBindGroupLayoutEntry };
+
     WGPUBindGroupLayoutDescriptor bindGroupLayoutDesc = {};
     bindGroupLayoutDesc.label = "ComputeBindGroupLayout";
-    bindGroupLayoutDesc.entryCount = 1;
-    bindGroupLayoutDesc.entries = &bindGroupLayoutEntry;
+    bindGroupLayoutDesc.entryCount =  bindGroupLayoutEntries.size();
+    bindGroupLayoutDesc.entries = bindGroupLayoutEntries.data();
 
     auto bindGroupLayout = wgpuDeviceCreateBindGroupLayout(m_Context.GetDevice(), &bindGroupLayoutDesc);
 
@@ -321,11 +344,18 @@ void WebGPURenderer::Compute(WebGPUShader &computeShader, WebGPUBuffer<glm::vec4
     bindGroupEntry.offset = 0;
     bindGroupEntry.size = buffer.GetSize();
 
+    WGPUBindGroupEntry figmentBindGroupEntry = {};
+    figmentBindGroupEntry.binding = 1;
+    figmentBindGroupEntry.buffer = figmentData->GetBuffer();
+    figmentBindGroupEntry.offset = 0;
+    figmentBindGroupEntry.size = figmentData->GetSize();
+
+    std::vector<WGPUBindGroupEntry> bindGroupEntries = { bindGroupEntry, figmentBindGroupEntry };
     WGPUBindGroupDescriptor bindGroupDesc = {};
     bindGroupDesc.label = "ComputeBindGroup";
     bindGroupDesc.layout = bindGroupLayout;
-    bindGroupDesc.entryCount = 1;
-    bindGroupDesc.entries = &bindGroupEntry;
+    bindGroupDesc.entryCount = bindGroupEntries.size();
+    bindGroupDesc.entries = bindGroupEntries.data();
 
     WGPUPipelineLayoutDescriptor pipelineLayoutDesc = {};
     pipelineLayoutDesc.label = "ComputePipelineLayout";

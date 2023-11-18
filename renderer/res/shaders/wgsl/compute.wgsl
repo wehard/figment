@@ -1,4 +1,10 @@
+struct FigmentData {
+    view: mat4x4<f32>,
+    proj: mat4x4<f32>,
+};
+
 @group(0) @binding(0) var<storage,read_write> outputBuffer: array<vec4<f32>,64>;
+@group(0) @binding(1) var<uniform> figmentData: FigmentData;
 
 @compute @workgroup_size(32, 1, 1)
 fn main(@builtin(global_invocation_id) id: vec3<u32>) {
