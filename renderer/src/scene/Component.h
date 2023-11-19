@@ -92,6 +92,7 @@ struct FigmentComponent
     WebGPUBuffer<glm::vec4> *MapBuffer = nullptr;
     glm::vec4 *Data = nullptr;
     glm::vec4 Color = glm::vec4(1.0);
+    bool Initialized = false;
 
     FigmentComponent()
     {
@@ -100,6 +101,7 @@ struct FigmentComponent
 
     FigmentComponent(WebGPUShader *shader, WebGPUShader *computeShader) : Shader(shader), ComputeShader(computeShader)
     {
+         Initialized = true;
     }
 
     ~FigmentComponent()
@@ -121,6 +123,7 @@ struct FigmentComponent
         MapBuffer = new WebGPUBuffer<glm::vec4>(device, "FigmentMapBuffer", size,
                 WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead);
         UniformBuffer = new WebGPUUniformBuffer<FigmentData>(device, "FigmentData", sizeof(FigmentData));
+        Initialized = true;
     }
 };
 

@@ -83,6 +83,8 @@ void Scene::OnUpdate(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewpor
         if (entity.HasComponent<FigmentComponent>())
         {
             auto &figment = entity.GetComponent<FigmentComponent>();
+            if (!figment.Initialized)
+                continue;
             FigmentData data = {
                     .Time = App::Instance()->GetTimeSinceStart()
             };

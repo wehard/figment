@@ -18,6 +18,7 @@ namespace Figment
         void OnImGuiRender() override;
         void OnEvent(AppEvent event, void *eventData) override;
     private:
+        std::shared_ptr<WebGPUContext> m_Context;
         Scene *m_Scene;
         Entity m_SelectedEntity;
 

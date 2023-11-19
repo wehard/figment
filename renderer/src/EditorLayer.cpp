@@ -15,6 +15,7 @@ namespace Figment
             : Layer("EditorLayer")
     {
         const auto webGpuWindow = std::dynamic_pointer_cast<WebGPUWindow>(App::Instance()->GetWindow());
+        m_Context = webGpuWindow->GetContext();
 
         auto width = (float)webGpuWindow->GetFramebufferWidth();
         auto height = (float)webGpuWindow->GetFramebufferHeight();
@@ -216,6 +217,12 @@ namespace Figment
         ImGui::ColorEdit4("Color", (float *)&figment.Color);
         ImGui::Button("Edit source", ImVec2(100, 20));
         ImGui::SameLine();
+        if (!figment.Initialized)
+        {
+            if (ImGui::Button("Initialize", ImVec2(100, 20)))
+            {
+            }
+        }
         // ImGui::Separator();
         // if (figment.Data != nullptr)
         // {
@@ -291,7 +298,20 @@ namespace Figment
         DrawComponent<TransformComponent>("Transform", entity, DrawTransformComponent);
         DrawComponent<QuadComponent>("Quad", entity, DrawQuadComponent);
         DrawComponent<CircleComponent>("Circle", entity, DrawCircleComponent);
-        DrawComponent<FigmentComponent>("Figment", entity, DrawFigmentComponent);
+        DrawComponent<FigmentComponent>("Figment", entity, [this](auto &component)
+        {
+            ImGui::Text("Figment\n%s", component.ComputeShader->GetShaderSource().c_str());
+            ImGui::ColorEdit4("Color", (float *)&component.Color);
+            ImGui::Button("Edit source", ImVec2(100, 20));
+            ImGui::SameLine();
+            if (!component.Initialized)
+            {
+                if (ImGui::Button("Initialize", ImVec2(100, 20)))
+                {
+                    component.Init(m_Context->GetDevice());
+                }
+            }
+        });
 
         DrawComponent<CameraComponent>("Camera", entity, [this](auto &component)
         {
@@ -480,6 +500,7 @@ namespace Figment
             if (ImGui::MenuItem(entryName.c_str()))
             {
                 m_SelectedEntity.AddComponent<T>();
+                ImGui::CloseCurrentPopup();
             }
         }
     }
