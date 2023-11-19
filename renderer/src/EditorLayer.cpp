@@ -23,13 +23,7 @@ namespace Figment
 
         auto figmentEntity = m_Scene->CreateEntity("Figment");
         auto &figment = figmentEntity.AddComponent<FigmentComponent>();
-        uint64_t count = 64;
-        uint64_t size = count * sizeof(glm::vec4);
-        figment.Shader = new WebGPUShader(webGpuWindow->GetContext()->GetDevice(), *Utils::LoadFile2("res/shaders/wgsl/figment.wgsl"));;
-        figment.ComputeShader = new WebGPUShader(webGpuWindow->GetContext()->GetDevice(), *Utils::LoadFile2("res/shaders/wgsl/compute.wgsl"));;
-        figment.Result = new WebGPUBuffer<glm::vec4>(webGpuWindow->GetContext()->GetDevice(), "FigmentBuffer", size, WGPUBufferUsage_Storage | WGPUBufferUsage_CopySrc);
-        figment.MapBuffer = new WebGPUBuffer<glm::vec4>(webGpuWindow->GetContext()->GetDevice(), "FigmentMapBuffer", size, WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead);
-        figment.UniformBuffer = new WebGPUUniformBuffer<FigmentData>(webGpuWindow->GetContext()->GetDevice(), "FigmentData", sizeof(FigmentData));
+        figment.Init(m_Context->GetDevice());
 
         auto quad = m_Scene->CreateEntity("Quad");
         quad.AddComponent<QuadComponent>();
@@ -70,7 +64,8 @@ namespace Figment
         {
             Entity e = m_Scene->CreateEntity("New");
             auto &t = e.GetComponent<TransformComponent>();
-            glm::vec3 p = m_Scene->GetActiveCameraController()->GetCamera()->ScreenToWorldSpace(Input::GetMousePosition(),
+            glm::vec3 p = m_Scene->GetActiveCameraController()->GetCamera()->ScreenToWorldSpace(
+                    Input::GetMousePosition(),
                     glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
             t.Position = p;
             auto &b = e.AddComponent<VerletBodyComponent>();
@@ -254,18 +249,32 @@ namespace Figment
         ImGui::Separator();
         ImGui::Text("Aspect: %.2f", camera.Controller->GetCamera()->GetSettings().AspectRatio);
         ImGui::Text("Near: %.2f", camera.Controller->GetCamera()->GetSettings().NearClip);
-        ImGui::DragFloat3("Position", (float *)camera.Controller->GetCamera()->GetPositionPtr(), 0.1f, 0.0f, 0.0f, "%.2f");
+        ImGui::DragFloat3("Position", (float *)camera.Controller->GetCamera()->GetPositionPtr(), 0.1f, 0.0f, 0.0f,
+                "%.2f");
 
     }
 
     template<typename T, typename DrawFunction>
-    static void DrawComponent(const std::string& name, Entity entity, DrawFunction drawFunction)
+    static void DrawComponent(const std::string &name, Entity entity, DrawFunction drawFunction)
     {
         if (entity.HasComponent<T>())
         {
             ImGui::Separator();
-            auto& component = entity.GetComponent<T>();
+            auto &component = entity.GetComponent<T>();
+            ImGui::Text("%s", name.c_str());
+            float lineHeight = ImGui::GetFontSize() + ImGui::GetStyle().FramePadding.y * 2.0f;
+            ImGui::SameLine(ImGui::GetContentRegionAvail().x - lineHeight * 0.5f);
+            bool removeComponent = false;
+            if (ImGui::Button("X", ImVec2(lineHeight, lineHeight)))
+                removeComponent = true;
+
             drawFunction(component);
+
+            if (removeComponent)
+            {
+                entity.RemoveComponent<T>();
+            }
+
         }
     }
 
@@ -300,7 +309,7 @@ namespace Figment
         DrawComponent<CircleComponent>("Circle", entity, DrawCircleComponent);
         DrawComponent<FigmentComponent>("Figment", entity, [this](auto &component)
         {
-            ImGui::Text("Figment\n%s", component.ComputeShader->GetShaderSource().c_str());
+            ImGui::Text("%s", component.ComputeShader->GetShaderSource().c_str());
             ImGui::ColorEdit4("Color", (float *)&component.Color);
             ImGui::Button("Edit source", ImVec2(100, 20));
             ImGui::SameLine();

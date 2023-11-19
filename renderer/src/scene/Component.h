@@ -85,8 +85,8 @@ struct FigmentData
 
 struct FigmentComponent
 {
-    WebGPUShader *Shader;
-    WebGPUShader *ComputeShader;
+    WebGPUShader *Shader = nullptr;
+    WebGPUShader *ComputeShader = nullptr;
     WebGPUUniformBuffer<FigmentData> *UniformBuffer = nullptr;
     WebGPUBuffer<glm::vec4> *Result = nullptr;
     WebGPUBuffer<glm::vec4> *MapBuffer = nullptr;
@@ -94,21 +94,14 @@ struct FigmentComponent
     glm::vec4 Color = glm::vec4(1.0);
     bool Initialized = false;
 
-    FigmentComponent()
-    {
-
-    }
-
-    FigmentComponent(WebGPUShader *shader, WebGPUShader *computeShader) : Shader(shader), ComputeShader(computeShader)
-    {
-         Initialized = true;
-    }
+    FigmentComponent() = default;
 
     ~FigmentComponent()
     {
         delete Result;
         delete MapBuffer;
         delete Data;
+        delete UniformBuffer;
     }
 
     void Init(WGPUDevice device)
@@ -116,8 +109,8 @@ struct FigmentComponent
         uint64_t count = 64;
         uint64_t size = count * sizeof(glm::vec4);
 
-        Shader = new WebGPUShader(device, *Utils::LoadFile2("res/shaders/wgsl/figment.wgsl"));;
-        ComputeShader = new WebGPUShader(device, *Utils::LoadFile2("res/shaders/wgsl/compute.wgsl"));;
+        Shader = new WebGPUShader(device, *Utils::LoadFile2("res/shaders/wgsl/figment.wgsl"), "FigmentShader");
+        ComputeShader = new WebGPUShader(device, *Utils::LoadFile2("res/shaders/wgsl/compute.wgsl"), "ComputeShader");
         Result = new WebGPUBuffer<glm::vec4>(device, "FigmentBuffer", size,
                 WGPUBufferUsage_Storage | WGPUBufferUsage_CopySrc);
         MapBuffer = new WebGPUBuffer<glm::vec4>(device, "FigmentMapBuffer", size,
