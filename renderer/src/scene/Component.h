@@ -85,6 +85,14 @@ struct FigmentData
 
 struct FigmentComponent
 {
+    constexpr static uint32_t MaxShaderSourceSize = 4096;
+    struct InitVariables
+    {
+        int Count = 64;
+        char ComputeShaderSourceBuffer[MaxShaderSourceSize] = "";
+    };
+
+    InitVariables InitVars;
     WebGPUShader *Shader = nullptr;
     WebGPUShader *ComputeShader = nullptr;
     WebGPUUniformBuffer<FigmentData> *UniformBuffer = nullptr;
@@ -106,11 +114,13 @@ struct FigmentComponent
 
     void Init(WGPUDevice device)
     {
-        uint64_t count = 64;
-        uint64_t size = count * sizeof(glm::vec4);
+        uint64_t size = InitVars.Count * sizeof(glm::vec4);
+
+        auto computeShaderSource = Utils::LoadFile2("res/shaders/wgsl/compute.wgsl");
+        std::copy(computeShaderSource->begin(), computeShaderSource->end(), InitVars.ComputeShaderSourceBuffer);
 
         Shader = new WebGPUShader(device, *Utils::LoadFile2("res/shaders/wgsl/figment.wgsl"), "FigmentShader");
-        ComputeShader = new WebGPUShader(device, *Utils::LoadFile2("res/shaders/wgsl/compute.wgsl"), "ComputeShader");
+        ComputeShader = new WebGPUShader(device, *computeShaderSource, "ComputeShader");
         Result = new WebGPUBuffer<glm::vec4>(device, "FigmentBuffer", size,
                 WGPUBufferUsage_Storage | WGPUBufferUsage_CopySrc);
         MapBuffer = new WebGPUBuffer<glm::vec4>(device, "FigmentMapBuffer", size,

@@ -23,7 +23,7 @@ namespace Figment
 
         auto figmentEntity = m_Scene->CreateEntity("Figment");
         auto &figment = figmentEntity.AddComponent<FigmentComponent>();
-        figment.Init(m_Context->GetDevice());
+        // figment.Init(m_Context->GetDevice());
 
         auto quad = m_Scene->CreateEntity("Quad");
         quad.AddComponent<QuadComponent>();
@@ -309,16 +309,33 @@ namespace Figment
         DrawComponent<CircleComponent>("Circle", entity, DrawCircleComponent);
         DrawComponent<FigmentComponent>("Figment", entity, [this](auto &component)
         {
-            ImGui::Text("%s", component.ComputeShader->GetShaderSource().c_str());
             ImGui::ColorEdit4("Color", (float *)&component.Color);
-            ImGui::Button("Edit source", ImVec2(100, 20));
-            ImGui::SameLine();
+            ImGui::InputInt("Count", &component.InitVars.Count);
             if (!component.Initialized)
             {
                 if (ImGui::Button("Initialize", ImVec2(100, 20)))
                 {
                     component.Init(m_Context->GetDevice());
                 }
+            }
+            static bool editSource = false;
+            if (ImGui::Button("Edit source", ImVec2(100, 20)))
+                editSource = true;
+
+            if (editSource)
+            {
+                ImGui::SetNextWindowSize(ImVec2(600, 400), ImGuiCond_Once);
+                ImGui::SetNextWindowPos(ImVec2((ImGui::GetIO().DisplaySize.x - 600) * 0.5f,
+                        (ImGui::GetIO().DisplaySize.y - 400) * 0.5f), ImGuiCond_Once);
+                ImGui::Begin("Compute Shader Editor");
+                ImGui::Button("Save", ImVec2(100, 20));
+                ImGui::SameLine();
+                if (ImGui::Button("Close", ImVec2(100, 20)))
+                    editSource = false;
+                ImGui::InputTextMultiline("##ComputeCode", component.InitVars.ComputeShaderSourceBuffer,
+                        FigmentComponent::MaxShaderSourceSize,
+                        ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y), ImGuiInputTextFlags_AllowTabInput, nullptr, nullptr);
+                ImGui::End();
             }
         });
 
