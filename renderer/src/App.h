@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core.h"
 #include "Entity.h"
 #include "Framebuffer.h"
 #include "Window.h"
@@ -22,14 +23,14 @@ public:
     ~App();
 
     void Update();
-    std::shared_ptr<Window> GetWindow() { return m_Window; }
+    Figment::SharedPtr<Window> GetWindow() { return m_Window; }
     FPSCounter &GetFPSCounter() { return m_FPSCounter; }
     float GetTimeSinceStart() const { return m_TimeSinceStart; }
     static App *Instance() { return s_Instance; }
 private:
-    std::shared_ptr<Window> m_Window;
-    std::unique_ptr<WebGPUGUIContext> m_GUICtx;
-    std::vector<std::unique_ptr<Figment::Layer>> m_Layers;
+    Figment::SharedPtr<Window> m_Window;
+    Figment::UniquePtr<WebGPUGUIContext> m_GUICtx;
+    std::vector<Figment::UniquePtr<Figment::Layer>> m_Layers;
 
     float m_CurrentTime = 0;
     float m_LastTime = 0;

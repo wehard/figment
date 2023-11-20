@@ -2,29 +2,29 @@
 #include "OrthographicCamera.h"
 #include "PerspectiveCamera.h"
 
-std::shared_ptr<Camera> Camera::Create(CameraType cameraType)
+namespace Figment
 {
-    switch (cameraType)
+    Figment::SharedPtr<Camera> Camera::Create(CameraType cameraType)
     {
-    case CameraType::Ortho:
-        return Camera::CreateOrthoCamera(100, 100);
-        break;
-
-    case CameraType::Perspective:
-        return Camera::CreatePerspectiveCamera(1.0);
-        break;
-    default:
-        break;
+        switch (cameraType)
+        {
+        case CameraType::Ortho:
+            return Camera::CreateOrthoCamera(100, 100);
+        case CameraType::Perspective:
+            return Camera::CreatePerspectiveCamera(1.0);
+        default:
+            break;
+        }
+        return Figment::SharedPtr<Camera>();
     }
-    return std::shared_ptr<Camera>();
-}
 
-std::shared_ptr<Camera> Camera::CreateOrthoCamera(float width, float height)
-{
-    return std::make_shared<OrthographicCamera>(width, height);
-}
+    Figment::SharedPtr<Camera> Camera::CreateOrthoCamera(float width, float height)
+    {
+        return Figment::CreateSharedPtr<OrthographicCamera>(width, height);
+    }
 
-std::shared_ptr<Camera> Camera::CreatePerspectiveCamera(float aspectRatio)
-{
-    return std::make_shared<PerspectiveCamera>(aspectRatio);
+    Figment::SharedPtr<Camera> Camera::CreatePerspectiveCamera(float aspectRatio)
+    {
+        return Figment::CreateSharedPtr<PerspectiveCamera>(aspectRatio);
+    }
 }

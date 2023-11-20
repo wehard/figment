@@ -112,7 +112,7 @@ void WebGPURenderer::InitShaders()
     m_QuadShader = new WebGPUShader(m_Context.GetDevice(), *Utils::LoadFile2("res/shaders/wgsl/quad.wgsl"));
 }
 
-WGPURenderPassEncoder WebGPURenderer::Begin(Camera &camera)
+WGPURenderPassEncoder WebGPURenderer::Begin(Figment::Camera &camera)
 {
     CameraData cameraData = {
             .ViewMatrix = camera.GetViewMatrix(),

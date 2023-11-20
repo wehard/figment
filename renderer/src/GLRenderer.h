@@ -13,7 +13,7 @@ class IRenderer
 class GLRenderer
 {
 private:
-	std::shared_ptr<Camera> m_Camera;
+	std::shared_ptr<Figment::Camera> m_Camera;
 	std::shared_ptr<Shader> m_QuadShader;
 	std::shared_ptr<Shader> m_FramebufferShader;
 	std::shared_ptr<Shader> m_CircleShader;
@@ -29,7 +29,7 @@ private:
 public:
 	GLRenderer(uint32_t width, uint32_t height);
 	~GLRenderer();
-	void Begin(std::shared_ptr<Camera> camera, glm::vec4 clearColor);
+	void Begin(std::shared_ptr<Figment::Camera> camera, glm::vec4 clearColor);
 	void End();
 	void DrawCircle(glm::mat4 transform, glm::vec4 color, int id, int hoveredId);
 	void DrawQuad(glm::mat4 transform, glm::vec4 color, int id);

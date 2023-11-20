@@ -26,10 +26,10 @@ App::App(uint32_t width, uint32_t height)
     });
 
     Input::Initialize((GLFWwindow *)m_Window->GetNative());
-    m_GUICtx = std::make_unique<WebGPUGUIContext>();
+    m_GUICtx = Figment::CreateUniquePtr<WebGPUGUIContext>();
     m_GUICtx->Init(m_Window, "glslVersion");
 
-    m_Layers.emplace_back(std::make_unique<Figment::EditorLayer>());
+    m_Layers.emplace_back(Figment::CreateUniquePtr<Figment::EditorLayer>());
 }
 
 App::~App()

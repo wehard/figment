@@ -3,7 +3,7 @@
 #include "Camera.h"
 #include <glm/glm.hpp>
 
-class OrthographicCamera : public Camera
+class OrthographicCamera : public Figment::Camera
 {
 public:
     OrthographicCamera();

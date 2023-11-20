@@ -88,7 +88,7 @@ public:
     explicit WebGPURenderer(WebGPUContext &context);
     ~WebGPURenderer();
     void InitShaders();
-    WGPURenderPassEncoder Begin(Camera &camera);
+    WGPURenderPassEncoder Begin(Figment::Camera &camera);
     void End();
     void BeginComputePass();
     void EndComputePass();

@@ -24,7 +24,7 @@ struct CameraSettings
     float Pitch;
 };
 
-class PerspectiveCamera : public Camera
+class PerspectiveCamera : public Figment::Camera
 {
 public:
 

@@ -35,7 +35,7 @@ GLRenderer::~GLRenderer()
 {
 }
 
-void GLRenderer::Begin(std::shared_ptr<Camera> camera, glm::vec4 clearColor)
+void GLRenderer::Begin(std::shared_ptr<Figment::Camera> camera, glm::vec4 clearColor)
 {
 	m_Camera = camera;
 	glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
