@@ -303,7 +303,7 @@ void WebGPURenderer::BeginComputePass()
 
 // void WebGPURenderer::Compute(WebGPUShader &computeShader, WebGPUBuffer<glm::vec4> &buffer,
 //         WebGPUBuffer<glm::vec4> &mapBuffer)
-void WebGPURenderer::Compute(FigmentComponent &figment)
+void WebGPURenderer::Compute(Figment::FigmentComponent &figment)
 {
     WGPUBindGroupLayoutEntry bindGroupLayoutEntry = GetDefaultWGPUBindGroupLayoutEntry();
     bindGroupLayoutEntry.nextInChain = nullptr;
