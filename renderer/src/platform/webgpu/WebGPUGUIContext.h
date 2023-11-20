@@ -4,16 +4,19 @@
 #include "GUIContext.h"
 #include "WebGPUContext.h"
 
-class WebGPUGUIContext : public GUIContext
+namespace Figment
 {
-private:
-    ImGuiContext *m_Context;
-    WebGPUContext *m_GfxContext;
+    class WebGPUGUIContext : public GUIContext
+    {
+    private:
+        ImGuiContext *m_Context;
+        WebGPUContext *m_GfxContext;
 
-public:
-    WebGPUGUIContext() = default;
-    void Init(std::shared_ptr<Window> window, const char *glslVersion) override;
-    void Render() override;
-    void Shutdown() override;
-    ~WebGPUGUIContext() override = default;
-};
+    public:
+        WebGPUGUIContext() = default;
+        void Init(std::shared_ptr<Window> window, const char *glslVersion) override;
+        void Render() override;
+        void Shutdown() override;
+        ~WebGPUGUIContext() override = default;
+    };
+}

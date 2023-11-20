@@ -9,7 +9,6 @@
 
 namespace Figment
 {
-
     class Entity
     {
     private:

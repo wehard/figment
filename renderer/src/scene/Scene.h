@@ -10,9 +10,10 @@
 #include "entt.hpp"
 #include <vector>
 
-class Entity;
 namespace Figment
 {
+    class Entity;
+
     class Scene
     {
     public:

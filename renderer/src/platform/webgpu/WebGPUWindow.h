@@ -7,29 +7,33 @@
 #include <cstdint>
 #include "webgpu/webgpu.h"
 
-class WebGPUWindow : public Window
+namespace Figment
 {
-public:
-    WebGPUWindow(const std::string &title, uint32_t width, uint32_t height);
-    ~WebGPUWindow() override;
-    void Resize(WindowResizeEventData resizeData);
-    bool ShouldClose() override;
-    uint32_t GetWidth() const override;
-    uint32_t GetHeight() const override;
-    uint32_t GetFramebufferWidth() const override;
-    uint32_t GetFramebufferHeight() const override;
-    void SetResizeEventCallback(ResizeEventCallbackFn callback) override;
-    void *GetNative() override { return m_Window; };
+    class WebGPUWindow : public Window
+    {
+    public:
+        WebGPUWindow(const std::string &title, uint32_t width, uint32_t height);
+        ~WebGPUWindow() override;
+        void Resize(WindowResizeEventData resizeData);
+        bool ShouldClose() override;
+        uint32_t GetWidth() const override;
+        uint32_t GetHeight() const override;
+        uint32_t GetFramebufferWidth() const override;
+        uint32_t GetFramebufferHeight() const override;
+        void SetResizeEventCallback(ResizeEventCallbackFn callback) override;
+        void *GetNative() override
+        { return m_Window; };
 
-    std::shared_ptr<WebGPUContext> &GetContext() { return m_GfxContext; }
+        std::shared_ptr<WebGPUContext> &GetContext()
+        { return m_GfxContext; }
 
-
-private:
-    GLFWwindow *m_Window;
-    std::string m_Title;
-    uint32_t m_Width;
-    uint32_t m_Height;
-    uint32_t m_FramebufferWidth;
-    uint32_t m_FramebufferHeight;
-    std::shared_ptr<WebGPUContext> m_GfxContext;
-};
+    private:
+        GLFWwindow *m_Window;
+        std::string m_Title;
+        uint32_t m_Width;
+        uint32_t m_Height;
+        uint32_t m_FramebufferWidth;
+        uint32_t m_FramebufferHeight;
+        std::shared_ptr<WebGPUContext> m_GfxContext;
+    };
+}

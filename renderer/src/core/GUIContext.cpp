@@ -6,11 +6,14 @@
 #include "WebGPUGUIContext.h"
 #endif
 
-std::unique_ptr<GUIContext> GUIContext::Create()
+namespace Figment
 {
+    std::unique_ptr<GUIContext> GUIContext::Create()
+    {
 #ifdef FIGMENT_MACOS
-    return std::make_unique<OpenGLGUIContext>();
+        return std::make_unique<OpenGLGUIContext>();
 #elif defined(FIGMENT_WEB)
-    return std::make_unique<WebGPUGUIContext>();
+        return std::make_unique<WebGPUGUIContext>();
 #endif
+    }
 }

@@ -502,7 +502,7 @@ namespace Figment
         case AppEvent::WindowResize:
         {
             auto ev = (WindowResizeEventData *)eventData;
-            m_Scene->OnResize(ev->width, ev->height);
+            m_Scene->OnResize(ev->Width, ev->Height);
             break;
         }
         case AppEvent::WindowFocus:

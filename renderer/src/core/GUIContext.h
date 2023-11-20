@@ -4,13 +4,16 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-class GUIContext
+namespace Figment
 {
-public:
-    virtual void Init(std::shared_ptr<Window> window, const char *glslVersion) = 0;
-    virtual void Render() = 0;
-    virtual void Shutdown() = 0;
-    virtual ~GUIContext() = default;
+    class GUIContext
+    {
+    public:
+        virtual void Init(std::shared_ptr<Window> window, const char *glslVersion) = 0;
+        virtual void Render() = 0;
+        virtual void Shutdown() = 0;
+        virtual ~GUIContext() = default;
 
-    static std::unique_ptr<GUIContext> Create();
-};
+        static std::unique_ptr<GUIContext> Create();
+    };
+}

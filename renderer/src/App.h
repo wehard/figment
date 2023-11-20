@@ -16,27 +16,34 @@
 #include <memory>
 #include <vector>
 
-class App
+namespace Figment
 {
-public:
-    App(uint32_t width, uint32_t height);
-    ~App();
+    class App
+    {
+    public:
+        App(uint32_t width, uint32_t height);
+        ~App();
 
-    void Update();
-    Figment::SharedPtr<Window> GetWindow() { return m_Window; }
-    FPSCounter &GetFPSCounter() { return m_FPSCounter; }
-    float GetTimeSinceStart() const { return m_TimeSinceStart; }
-    static App *Instance() { return s_Instance; }
-private:
-    Figment::SharedPtr<Window> m_Window;
-    Figment::UniquePtr<WebGPUGUIContext> m_GUICtx;
-    std::vector<Figment::UniquePtr<Figment::Layer>> m_Layers;
+        void Update();
+        Figment::SharedPtr<Window> GetWindow()
+        { return m_Window; }
+        FPSCounter &GetFPSCounter()
+        { return m_FPSCounter; }
+        float GetTimeSinceStart() const
+        { return m_TimeSinceStart; }
+        static App *Instance()
+        { return s_Instance; }
+    private:
+        Figment::SharedPtr<Window> m_Window;
+        Figment::UniquePtr<WebGPUGUIContext> m_GUICtx;
+        std::vector<Figment::UniquePtr<Figment::Layer>> m_Layers;
 
-    float m_CurrentTime = 0;
-    float m_LastTime = 0;
-    float m_TimeSinceStart = 0;
+        float m_CurrentTime = 0;
+        float m_LastTime = 0;
+        float m_TimeSinceStart = 0;
 
-    FPSCounter m_FPSCounter;
+        FPSCounter m_FPSCounter;
 
-    static App *s_Instance;
-};
+        static App *s_Instance;
+    };
+}

@@ -10,11 +10,6 @@ namespace Figment
         WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved
     };
 
-    struct WindowResizeEventData
-    {
-        uint32_t width, height;
-    };
-
     class Layer
     {
     public:
