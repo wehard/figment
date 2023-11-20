@@ -20,7 +20,7 @@ namespace Figment
         void OnEvent(AppEvent event, void *eventData) override;
     private:
         SharedPtr<WebGPUContext> m_Context;
-        Scene *m_Scene;
+        UniquePtr<Scene> m_Scene;
         Entity m_SelectedEntity;
 
         void SelectEntity(Entity entity);

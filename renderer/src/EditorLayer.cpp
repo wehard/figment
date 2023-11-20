@@ -19,7 +19,7 @@ namespace Figment
 
         auto width = (float)window->GetFramebufferWidth();
         auto height = (float)window->GetFramebufferHeight();
-        m_Scene = new Scene(window->GetFramebufferWidth(), window->GetFramebufferHeight());
+        m_Scene = CreateUniquePtr<Scene>(window->GetFramebufferWidth(), window->GetFramebufferHeight());
 
         auto figmentEntity = m_Scene->CreateEntity("Figment");
         figmentEntity.AddComponent<FigmentComponent>();
@@ -35,7 +35,6 @@ namespace Figment
 
     EditorLayer::~EditorLayer()
     {
-        delete m_Scene;
     }
 
     void EditorLayer::OnAttach()
