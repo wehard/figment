@@ -14,22 +14,21 @@ namespace Figment
     EditorLayer::EditorLayer()
             : Layer("EditorLayer")
     {
-        const auto webGpuWindow = std::dynamic_pointer_cast<WebGPUWindow>(App::Instance()->GetWindow());
-        m_Context = webGpuWindow->GetContext();
+        const auto window = std::dynamic_pointer_cast<WebGPUWindow>(App::Instance()->GetWindow());
+        m_Context = window->GetContext();
 
-        auto width = (float)webGpuWindow->GetFramebufferWidth();
-        auto height = (float)webGpuWindow->GetFramebufferHeight();
-        m_Scene = new Scene(webGpuWindow->GetFramebufferWidth(), webGpuWindow->GetFramebufferHeight());
+        auto width = (float)window->GetFramebufferWidth();
+        auto height = (float)window->GetFramebufferHeight();
+        m_Scene = new Scene(window->GetFramebufferWidth(), window->GetFramebufferHeight());
 
         auto figmentEntity = m_Scene->CreateEntity("Figment");
-        auto &figment = figmentEntity.AddComponent<FigmentComponent>();
-        // figment.Init(m_Context->GetDevice());
+        figmentEntity.AddComponent<FigmentComponent>();
 
         auto quad = m_Scene->CreateEntity("Quad");
         quad.AddComponent<QuadComponent>();
 
         auto cameraEntity = m_Scene->CreateEntity("Camera");
-        auto &camera = cameraEntity.AddComponent<CameraComponent>(std::make_shared<PerspectiveCamera>(width / height));
+        cameraEntity.AddComponent<CameraComponent>(std::make_shared<PerspectiveCamera>(width / height));
 
         SelectEntity(figmentEntity);
     }
@@ -41,12 +40,10 @@ namespace Figment
 
     void EditorLayer::OnAttach()
     {
-
     }
 
     void EditorLayer::OnDetach()
     {
-
     }
 
     void EditorLayer::OnUpdate(float deltaTime)
