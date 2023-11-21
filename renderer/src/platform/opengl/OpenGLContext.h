@@ -4,7 +4,7 @@
 
 struct GLFWwindow;
 
-class OpenGLContext : public GfxContext
+class OpenGLContext : public Figment::GfxContext
 {
 public:
     OpenGLContext(GLFWwindow *window);
