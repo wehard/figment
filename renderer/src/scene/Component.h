@@ -88,13 +88,13 @@ namespace Figment
     struct FigmentComponent
     {
         constexpr static uint32_t MaxShaderSourceSize = 4096;
-        struct InitVariables
+        struct FigmentConfig
         {
             int Count = 64;
             char ComputeShaderSourceBuffer[MaxShaderSourceSize] = "";
         };
 
-        InitVariables InitVars;
+        FigmentConfig Config;
         WebGPUShader *Shader = nullptr;
         WebGPUShader *ComputeShader = nullptr;
         WebGPUUniformBuffer<FigmentData> *UniformBuffer = nullptr;
@@ -116,10 +116,10 @@ namespace Figment
 
         void Init(WGPUDevice device)
         {
-            uint64_t size = InitVars.Count * sizeof(glm::vec4);
+            uint64_t size = Config.Count * sizeof(glm::vec4);
 
             auto computeShaderSource = Utils::LoadFile2("res/shaders/wgsl/compute.wgsl");
-            std::copy(computeShaderSource->begin(), computeShaderSource->end(), InitVars.ComputeShaderSourceBuffer);
+            std::copy(computeShaderSource->begin(), computeShaderSource->end(), Config.ComputeShaderSourceBuffer);
 
             Shader = new WebGPUShader(device, *Utils::LoadFile2("res/shaders/wgsl/figment.wgsl"), "FigmentShader");
             ComputeShader = new WebGPUShader(device, *computeShaderSource, "ComputeShader");
@@ -129,6 +129,15 @@ namespace Figment
                     WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead);
             UniformBuffer = new WebGPUUniformBuffer<FigmentData>(device, "FigmentData", sizeof(FigmentData));
             Initialized = true;
+        }
+
+        void UpdateComputeShader(WGPUDevice device)
+        {
+            if (Initialized)
+            {
+                delete ComputeShader;
+                ComputeShader = new WebGPUShader(device, Config.ComputeShaderSourceBuffer, "ComputeShader");
+            }
         }
     };
 

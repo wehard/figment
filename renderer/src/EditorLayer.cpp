@@ -306,7 +306,7 @@ namespace Figment
         DrawComponent<FigmentComponent>("Figment", entity, [this](auto &component)
         {
             ImGui::ColorEdit4("Color", (float *)&component.Color);
-            ImGui::InputInt("Count", &component.InitVars.Count);
+            ImGui::InputInt("Count", &component.Config.Count);
             if (!component.Initialized)
             {
                 if (ImGui::Button("Initialize", ImVec2(100, 20)))
@@ -324,11 +324,15 @@ namespace Figment
                 ImGui::SetNextWindowPos(ImVec2((ImGui::GetIO().DisplaySize.x - 600) * 0.5f,
                         (ImGui::GetIO().DisplaySize.y - 400) * 0.5f), ImGuiCond_Once);
                 ImGui::Begin("Compute Shader Editor");
-                ImGui::Button("Save", ImVec2(100, 20));
+                if (ImGui::Button("Save", ImVec2(100, 20)))
+                {
+                    component.UpdateComputeShader(m_Context->GetDevice());
+                    editSource = false;
+                }
                 ImGui::SameLine();
                 if (ImGui::Button("Close", ImVec2(100, 20)))
                     editSource = false;
-                ImGui::InputTextMultiline("##ComputeCode", component.InitVars.ComputeShaderSourceBuffer,
+                ImGui::InputTextMultiline("##ComputeCode", component.Config.ComputeShaderSourceBuffer,
                         FigmentComponent::MaxShaderSourceSize,
                         ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y), ImGuiInputTextFlags_AllowTabInput, nullptr, nullptr);
                 ImGui::End();
