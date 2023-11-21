@@ -15,7 +15,8 @@ int main(int argc, char **argv)
 {
     if (argc < 3)
     {
-        printf("Not enough args!\n");
+        printf("Wrong number of arguments\n");
+        return 1;
     }
 	uint32_t width = std::stoul(argv[1]);
 	uint32_t height = std::stoul(argv[2]);
