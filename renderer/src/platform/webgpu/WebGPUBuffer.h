@@ -176,6 +176,18 @@ namespace Figment
         }
     private:
         std::vector<WGPUVertexAttribute> m_VertexAttributes;
+        WGPUVertexBufferLayout m_VertexBufferLayout = {};
+    };
+
+    class WebGPUIndexBuffer : public WebGPUBuffer<uint32_t>
+    {
+    public:
+        WebGPUIndexBuffer(WGPUDevice device, const char *label, uint64_t size) : WebGPUBuffer<uint32_t>(device, label, size,
+                WGPUBufferUsage_CopyDst | WGPUBufferUsage_Index)
+        { };
+
+    private:
+        std::vector<WGPUVertexAttribute> m_VertexAttributes;
         WGPUVertexBufferLayout m_VertexBufferLayout;
     };
 }
