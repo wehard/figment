@@ -96,6 +96,7 @@ namespace Figment
         {
             int Count = 64;
             char ComputeShaderSourceBuffer[MaxShaderSourceSize] = "";
+            char ShaderSourceBuffer[MaxShaderSourceSize] = "";
         };
 
         FigmentConfig Config;
@@ -117,6 +118,9 @@ namespace Figment
             auto computeShaderSource = Utils::LoadFile2("res/shaders/wgsl/compute.wgsl");
             std::copy(computeShaderSource->begin(), computeShaderSource->end(), Config.ComputeShaderSourceBuffer);
 
+            auto shaderSource = Utils::LoadFile2("res/shaders/wgsl/figment.wgsl");
+            std::copy(shaderSource->begin(), shaderSource->end(), Config.ShaderSourceBuffer);
+
             CreateBuffers();
             Init();
         }
@@ -134,7 +138,7 @@ namespace Figment
                 return;
             }
 
-            Shader = CreateSharedPtr<WebGPUShader>(m_Device, *Utils::LoadFile2("res/shaders/wgsl/figment.wgsl"), "FigmentShader");
+            Shader = CreateSharedPtr<WebGPUShader>(m_Device, Config.ShaderSourceBuffer, "FigmentShader");
             ComputeShader = CreateSharedPtr<WebGPUShader>(m_Device, Config.ComputeShaderSourceBuffer, "ComputeShader");
 
             Initialized = true;

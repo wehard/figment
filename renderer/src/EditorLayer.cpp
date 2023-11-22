@@ -116,25 +116,28 @@ namespace Figment
         std::string title = "WebGPU Shader Editor:" + std::to_string((uint64_t)&figment);
 
         ImGui::Begin(title.c_str());
+        if (ImGui::Button("Save", ImVec2(100, 20)))
+        {
+            figment.Init();
+        }
         if (ImGui::BeginTabBar("TabBar"))
         {
             ImVec2 contentSize = ImGui::GetContentRegionAvail();
             if (ImGui::BeginTabItem("Shader"))
             {
+                ImGui::InputTextMultiline("##ShaderCode", figment.Config.ShaderSourceBuffer,
+                        FigmentComponent::MaxShaderSourceSize,
+                        ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y), ImGuiInputTextFlags_AllowTabInput, nullptr, nullptr);
                 ImGui::EndTabItem();
             }
 
             if (ImGui::BeginTabItem("Compute"))
             {
-                if (ImGui::Button("Save", ImVec2(100, 20)))
-                {
-                    figment.Init();
-                }
+
 
                 ImGui::InputTextMultiline("##ComputeCode", figment.Config.ComputeShaderSourceBuffer,
                         FigmentComponent::MaxShaderSourceSize,
                         ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y), ImGuiInputTextFlags_AllowTabInput, nullptr, nullptr);
-                ImGui::End();
                 ImGui::EndTabItem();
             }
 
