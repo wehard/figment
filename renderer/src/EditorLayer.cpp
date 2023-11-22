@@ -22,7 +22,7 @@ namespace Figment
         m_Scene = CreateUniquePtr<Scene>(window->GetFramebufferWidth(), window->GetFramebufferHeight());
 
         auto figmentEntity = m_Scene->CreateEntity("Figment");
-        figmentEntity.AddComponent<FigmentComponent>();
+        figmentEntity.AddComponent<FigmentComponent>(m_Context->GetDevice());
 
         auto quad = m_Scene->CreateEntity("Quad");
         quad.AddComponent<QuadComponent>();
@@ -107,28 +107,34 @@ namespace Figment
         }
     }
 
-    static void DrawWGSLShaderEditor(WebGPUShader &shader)
+    static void DrawWGSLShaderEditor(FigmentComponent &figment)
     {
-        ImGui::SetNextWindowPos(ImVec2(100, 100), ImGuiCond_Once);
-        ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_Once);
-        ImGui::Begin("WebGPU Shader Editor");
+        ImGui::SetNextWindowSize(ImVec2(600, 400), ImGuiCond_Once);
+        ImGui::SetNextWindowPos(ImVec2((ImGui::GetIO().DisplaySize.x - 600) * 0.5f,
+                (ImGui::GetIO().DisplaySize.y - 400) * 0.5f), ImGuiCond_Once);
+
+        std::string title = "WebGPU Shader Editor:" + std::to_string((uint64_t)&figment);
+
+        ImGui::Begin(title.c_str());
         if (ImGui::BeginTabBar("TabBar"))
         {
             ImVec2 contentSize = ImGui::GetContentRegionAvail();
-            if (ImGui::BeginTabItem("WGSL"))
+            if (ImGui::BeginTabItem("Shader"))
             {
-                ImGui::InputTextMultiline("##ShaderCode", shader.GetShaderSource().data(),
-                        shader.GetShaderSource().size(),
-                        contentSize, ImGuiInputTextFlags_AllowTabInput, nullptr, nullptr);
                 ImGui::EndTabItem();
             }
 
-            // Create the second tab
             if (ImGui::BeginTabItem("Compute"))
             {
-                std::string computeShaderSource = "Hello, World!";
-                ImGui::InputTextMultiline("##ComputeCode", computeShaderSource.data(), computeShaderSource.size(),
-                        contentSize);
+                if (ImGui::Button("Save", ImVec2(100, 20)))
+                {
+                    figment.Init();
+                }
+
+                ImGui::InputTextMultiline("##ComputeCode", figment.Config.ComputeShaderSourceBuffer,
+                        FigmentComponent::MaxShaderSourceSize,
+                        ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y), ImGuiInputTextFlags_AllowTabInput, nullptr, nullptr);
+                ImGui::End();
                 ImGui::EndTabItem();
             }
 
@@ -274,6 +280,33 @@ namespace Figment
         }
     }
 
+    template<typename T>
+    void EditorLayer::DisplayAddComponentEntry(const std::string &entryName)
+    {
+        if (!m_SelectedEntity.HasComponent<T>())
+        {
+            if (ImGui::MenuItem(entryName.c_str()))
+            {
+                m_SelectedEntity.AddComponent<T>();
+                ImGui::CloseCurrentPopup();
+            }
+        }
+    }
+
+    // Specialize the template for FigmentComponent
+    template<>
+    void EditorLayer::DisplayAddComponentEntry<FigmentComponent>(const std::string &entryName)
+    {
+        if (!m_SelectedEntity.HasComponent<FigmentComponent>())
+        {
+            if (ImGui::MenuItem(entryName.c_str()))
+            {
+                m_SelectedEntity.AddComponent<FigmentComponent>(m_Context->GetDevice());
+                ImGui::CloseCurrentPopup();
+            }
+        }
+    }
+
     void EditorLayer::DrawEntityInspectorPanel(Entity entity)
     {
         ImGui::SetNextWindowPos(ImVec2(0, 300), ImGuiCond_Once);
@@ -311,31 +344,17 @@ namespace Figment
             {
                 if (ImGui::Button("Initialize", ImVec2(100, 20)))
                 {
-                    component.Init(m_Context->GetDevice());
+                    component.Init();
                 }
             }
-            static bool editSource = false;
-            if (ImGui::Button("Edit source", ImVec2(100, 20)))
-                editSource = true;
+            static bool openSourceEditor = false;
+            const char *label = openSourceEditor ? "Close" : "Edit source";
+            if (ImGui::Button(label, ImVec2(100, 20)))
+                openSourceEditor = !openSourceEditor;
 
-            if (editSource)
+            if (openSourceEditor)
             {
-                ImGui::SetNextWindowSize(ImVec2(600, 400), ImGuiCond_Once);
-                ImGui::SetNextWindowPos(ImVec2((ImGui::GetIO().DisplaySize.x - 600) * 0.5f,
-                        (ImGui::GetIO().DisplaySize.y - 400) * 0.5f), ImGuiCond_Once);
-                ImGui::Begin("Compute Shader Editor");
-                if (ImGui::Button("Save", ImVec2(100, 20)))
-                {
-                    component.UpdateComputeShader(m_Context->GetDevice());
-                    editSource = false;
-                }
-                ImGui::SameLine();
-                if (ImGui::Button("Close", ImVec2(100, 20)))
-                    editSource = false;
-                ImGui::InputTextMultiline("##ComputeCode", component.Config.ComputeShaderSourceBuffer,
-                        FigmentComponent::MaxShaderSourceSize,
-                        ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y), ImGuiInputTextFlags_AllowTabInput, nullptr, nullptr);
-                ImGui::End();
+                DrawWGSLShaderEditor(component);
             }
         });
 
@@ -518,18 +537,7 @@ namespace Figment
         }
     }
 
-    template<typename T>
-    void EditorLayer::DisplayAddComponentEntry(const std::string &entryName)
-    {
-        if (!m_SelectedEntity.HasComponent<T>())
-        {
-            if (ImGui::MenuItem(entryName.c_str()))
-            {
-                m_SelectedEntity.AddComponent<T>();
-                ImGui::CloseCurrentPopup();
-            }
-        }
-    }
+
 }
 
 

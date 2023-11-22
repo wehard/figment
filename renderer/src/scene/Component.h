@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core.h"
 #include "UUID.h"
 #include "Camera.h"
 #include "glm/glm.hpp"
@@ -80,13 +81,16 @@ namespace Figment
         QuadComponent() = default;
     };
 
-    struct FigmentData
-    {
-        float Time = 0.0;
-    };
+
 
     struct FigmentComponent
     {
+    public:
+        struct FigmentData
+        {
+            float Time = 0.0;
+        };
+
         constexpr static uint32_t MaxShaderSourceSize = 4096;
         struct FigmentConfig
         {
@@ -95,68 +99,74 @@ namespace Figment
         };
 
         FigmentConfig Config;
-        WebGPUShader *Shader = nullptr;
-        WebGPUShader *ComputeShader = nullptr;
-        WebGPUUniformBuffer<FigmentData> *UniformBuffer = nullptr;
-        WebGPUBuffer<glm::vec4> *Result = nullptr;
-        WebGPUBuffer<glm::vec4> *MapBuffer = nullptr;
+        SharedPtr<WebGPUShader> Shader = nullptr;
+        SharedPtr<WebGPUShader> ComputeShader = nullptr;
+        SharedPtr<WebGPUUniformBuffer<FigmentData>> UniformBuffer = nullptr;
+        SharedPtr<WebGPUBuffer<glm::vec4>> Result = nullptr;
+        SharedPtr<WebGPUBuffer<glm::vec4>> MapBuffer = nullptr;
         glm::vec4 *Data = nullptr;
         glm::vec4 Color = glm::vec4(1.0);
         bool Initialized = false;
 
         FigmentComponent() = default;
-
-        ~FigmentComponent()
+        explicit FigmentComponent(WGPUDevice device) : m_Device(device)
         {
-            delete Result;
-            delete MapBuffer;
-            delete Data;
-            delete UniformBuffer;
-        }
-
-        void Init(WGPUDevice device)
-        {
-            uint64_t size = Config.Count * sizeof(glm::vec4);
-
             auto computeShaderSource = Utils::LoadFile2("res/shaders/wgsl/compute.wgsl");
             std::copy(computeShaderSource->begin(), computeShaderSource->end(), Config.ComputeShaderSourceBuffer);
 
-            Shader = new WebGPUShader(device, *Utils::LoadFile2("res/shaders/wgsl/figment.wgsl"), "FigmentShader");
-            ComputeShader = new WebGPUShader(device, *computeShaderSource, "ComputeShader");
-            Result = new WebGPUBuffer<glm::vec4>(device, "FigmentBuffer", size,
-                    WGPUBufferUsage_Storage | WGPUBufferUsage_CopySrc);
-            MapBuffer = new WebGPUBuffer<glm::vec4>(device, "FigmentMapBuffer", size,
-                    WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead);
-            UniformBuffer = new WebGPUUniformBuffer<FigmentData>(device, "FigmentData", sizeof(FigmentData));
+            CreateBuffers();
+            Init();
+        }
+
+        ~FigmentComponent()
+        {
+            delete Data;
+        }
+
+        void Init()
+        {
+            if (m_Device == nullptr)
+            {
+                printf("FigmentComponent::Init: m_Device is null\n");
+                return;
+            }
+
+            Shader = CreateSharedPtr<WebGPUShader>(m_Device, *Utils::LoadFile2("res/shaders/wgsl/figment.wgsl"), "FigmentShader");
+            ComputeShader = CreateSharedPtr<WebGPUShader>(m_Device, Config.ComputeShaderSourceBuffer, "ComputeShader");
+
             Initialized = true;
         }
 
-        void UpdateComputeShader(WGPUDevice device)
+        void CreateBuffers()
         {
-            if (Initialized)
-            {
-                delete ComputeShader;
-                ComputeShader = new WebGPUShader(device, Config.ComputeShaderSourceBuffer, "ComputeShader");
-            }
+            uint64_t size = Config.Count * sizeof(glm::vec4);
+            Result = CreateSharedPtr<WebGPUBuffer<glm::vec4>>(m_Device, "FigmentBuffer", size,
+                    WGPUBufferUsage_Storage | WGPUBufferUsage_CopySrc);
+            MapBuffer = CreateSharedPtr<WebGPUBuffer<glm::vec4>>(m_Device, "FigmentMapBuffer", size,
+                    WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead);
+            UniformBuffer = CreateSharedPtr<WebGPUUniformBuffer<FigmentData>>(m_Device, "FigmentData", sizeof(FigmentData));
         }
+
+    private:
+        WGPUDevice m_Device;
     };
 
     struct CameraComponent
     {
     public:
-        std::shared_ptr<CameraController> Controller;
+        SharedPtr<CameraController> Controller;
 
         CameraComponent()
         {
-            Camera = std::make_shared<PerspectiveCamera>(1.777f);
-            Controller = std::make_shared<CameraController>(Camera);
+            Camera = CreateSharedPtr<PerspectiveCamera>(1.777f);
+            Controller = CreateSharedPtr<CameraController>(Camera);
         }
         CameraComponent(const CameraComponent &) = default;
-        explicit CameraComponent(std::shared_ptr<PerspectiveCamera> camera) : Camera(camera)
+        explicit CameraComponent(SharedPtr<PerspectiveCamera> camera) : Camera(camera)
         {
-            Controller = std::make_shared<CameraController>(Camera);
+            Controller = CreateSharedPtr<CameraController>(Camera);
         }
     private:
-        std::shared_ptr<PerspectiveCamera> Camera;
+        SharedPtr<PerspectiveCamera> Camera;
     };
 }
