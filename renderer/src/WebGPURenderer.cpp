@@ -258,8 +258,8 @@ namespace Figment
 
 
         wgpuRenderPassEncoderSetIndexBuffer(m_RenderPass, figment.IndexBuffer->GetBuffer(), WGPUIndexFormat_Uint32, 0, sizeof (uint32_t) * 6);
-        wgpuRenderPassEncoderSetVertexBuffer(m_RenderPass, 0, figment.VertexBuffer->GetBuffer(), 0,
-                sizeof(glm::vec3) * 4);
+        wgpuRenderPassEncoderSetVertexBuffer(m_RenderPass, 0, figment.Result->GetBuffer(), 0,
+                sizeof(glm::vec4) * 4);
         wgpuRenderPassEncoderSetPipeline(m_RenderPass, pipeline->GetPipeline());
         wgpuRenderPassEncoderSetBindGroup(m_RenderPass, 0, pipeline->GetBindGroup(), 0, nullptr);
         wgpuRenderPassEncoderDrawIndexed(m_RenderPass, 6, 1, 0, 0, 0);

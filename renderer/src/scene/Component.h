@@ -148,7 +148,7 @@ namespace Figment
         {
             uint64_t size = Config.Count * sizeof(glm::vec4);
             Result = CreateSharedPtr<WebGPUBuffer<glm::vec4>>(m_Device, "FigmentBuffer", size,
-                    WGPUBufferUsage_Storage | WGPUBufferUsage_CopySrc);
+                    WGPUBufferUsage_Storage | WGPUBufferUsage_CopySrc | WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex);
             MapBuffer = CreateSharedPtr<WebGPUBuffer<glm::vec4>>(m_Device, "FigmentMapBuffer", size,
                     WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead);
             UniformBuffer = CreateSharedPtr<WebGPUUniformBuffer<FigmentData>>(m_Device, "FigmentData", sizeof(FigmentData));
