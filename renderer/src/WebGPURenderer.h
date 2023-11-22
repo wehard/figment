@@ -18,8 +18,8 @@ namespace Figment
         glm::mat4 ProjectionMatrix;
     };
 
-    constexpr uint32_t MaxCircleCount = 30000;
-    constexpr uint32_t MaxQuadCount = 30000;
+    constexpr uint32_t MaxCircleCount = 1000000;
+    constexpr uint32_t MaxQuadCount = 1000000;
     constexpr uint32_t MaxCircleVertexCount = MaxCircleCount * 6;
     constexpr uint32_t MaxQuadVertexCount = MaxQuadCount * 6;
 
