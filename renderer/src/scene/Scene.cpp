@@ -84,17 +84,19 @@ namespace Figment
             Entity entity = { e, this };
             if (entity.HasComponent<FigmentComponent>())
             {
-                auto &figment = entity.GetComponent<FigmentComponent>();
+                auto &&figment = entity.GetComponent<FigmentComponent>();
                 if (!figment.Initialized)
                     continue;
-                FigmentData data = {
+                FigmentComponent::FigmentData data = {
                         .Time = App::Instance()->GetTimeSinceStart()
                 };
-                figment.UniformBuffer->SetData(&data, sizeof(FigmentData));
+                figment.UniformBuffer->SetData(&data, sizeof(data));
                 m_Renderer->Compute(figment);
                 figment.MapBuffer->MapReadAsync([&figment](const glm::vec4 *data, size_t size)
                 {
-                    figment.Data = (glm::vec4 *)data;
+                    if (figment.Data == nullptr)
+                        figment.Data = new glm::vec4[figment.Config.Count];
+                    memcpy(figment.Data, data, size);
                 });
             }
         }
