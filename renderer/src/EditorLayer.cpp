@@ -401,7 +401,7 @@ namespace Figment
         ImGui::SetNextWindowPos(ImVec2(window->GetWidth() - 400, 0), ImGuiCond_Always);
         ImGui::SetNextWindowSize(ImVec2(400, 0), ImGuiCond_Always);
         ImGui::Begin("Info");
-        if (ImGui::TreeNode("Window"))
+        if (ImGui::TreeNodeEx("Window", ImGuiTreeNodeFlags_DefaultOpen))
         {
             if (ImGui::BeginTable("My Table", 2))
             {
@@ -422,13 +422,13 @@ namespace Figment
         }
         bool isEditorCamera = scene.GetActiveCameraController() == scene.GetEditorCameraController();
         const char *activeCameraSectionLabel = isEditorCamera ? "Active Camera (Editor)" : "Active Camera (Entity)";
-        if (ImGui::TreeNode(activeCameraSectionLabel))
+        if (ImGui::TreeNodeEx(activeCameraSectionLabel, ImGuiTreeNodeFlags_DefaultOpen))
         {
             DrawActiveCameraSection(*scene.GetActiveCameraController());
             ImGui::TreePop();
         }
 
-        if (ImGui::TreeNode("Input"))
+        if (ImGui::TreeNodeEx("Input", ImGuiTreeNodeFlags_DefaultOpen))
         {
             if (ImGui::BeginTable("Mouse", 2))
             {
@@ -476,7 +476,7 @@ namespace Figment
             ImGui::TreePop();
         }
 
-        if (ImGui::TreeNode("Renderer"))
+        if (ImGui::TreeNodeEx("Renderer", ImGuiTreeNodeFlags_DefaultOpen))
         {
             auto stats = WebGPURenderer::GetStats();
             ImGui::Text("Draw calls: %d", stats.DrawCalls);
