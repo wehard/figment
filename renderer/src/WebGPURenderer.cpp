@@ -216,6 +216,8 @@ namespace Figment
         m_QuadVertexBuffer->SetData(m_RendererData.QuadVertices.data(),
                 m_RendererData.QuadVertexCount * sizeof(QuadVertex));
 
+
+
         wgpuRenderPassEncoderSetPipeline(m_RenderPass, m_QuadPipeline->GetPipeline());
         wgpuRenderPassEncoderSetVertexBuffer(m_RenderPass, 0, m_QuadVertexBuffer->GetBuffer(), 0,
                 m_RendererData.QuadVertexCount * sizeof(QuadVertex));
@@ -223,6 +225,44 @@ namespace Figment
         wgpuRenderPassEncoderDraw(m_RenderPass, m_RendererData.QuadVertexCount, 1, 0, 0);
 
         s_Stats.DrawCalls++;
+    }
+
+    void WebGPURenderer::DrawFigment(FigmentComponent &figment)
+    {
+        auto indices = std::vector<uint32_t>({0, 1, 2, 2, 3, 0 });
+        figment.IndexBuffer->SetData(indices.data(), indices.size() * sizeof(uint32_t));
+        figment.VertexBuffer->SetData(const_cast<glm::vec<3, float> *>(m_FigmentQuadVertices), sizeof(glm::vec3) * 4);
+
+        // TODO: Cache pipeline
+        auto pipeline = new WebGPURenderPipeline(m_Context, *figment.Shader, figment.VertexBuffer->GetVertexLayout());
+        pipeline->SetPrimitiveState(WGPUPrimitiveTopology_TriangleStrip, WGPUIndexFormat_Uint32,
+                WGPUFrontFace_CCW,
+                WGPUCullMode_None);
+        pipeline->SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
+        pipeline->SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(),
+                m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
+        auto colorTargetStates = std::vector<WGPUColorTargetState>({
+                {
+                        .format = m_Context.GetTextureFormat(),
+                        .blend = nullptr,
+                        .writeMask = WGPUColorWriteMask_All
+                },
+                {
+                        .format = m_IdTexture->GetTextureFormat(),
+                        .blend = nullptr,
+                        .writeMask = WGPUColorWriteMask_All
+                }
+        });
+        pipeline->SetColorTargetStates(colorTargetStates);
+        pipeline->Build();
+
+
+        wgpuRenderPassEncoderSetIndexBuffer(m_RenderPass, figment.IndexBuffer->GetBuffer(), WGPUIndexFormat_Uint32, 0, sizeof (uint32_t) * 6);
+        wgpuRenderPassEncoderSetVertexBuffer(m_RenderPass, 0, figment.VertexBuffer->GetBuffer(), 0,
+                sizeof(glm::vec3) * 4);
+        wgpuRenderPassEncoderSetPipeline(m_RenderPass, pipeline->GetPipeline());
+        wgpuRenderPassEncoderSetBindGroup(m_RenderPass, 0, pipeline->GetBindGroup(), 0, nullptr);
+        wgpuRenderPassEncoderDrawIndexed(m_RenderPass, 6, 1, 0, 0, 0);
     }
 
     void WebGPURenderer::DrawQuad(glm::vec3 position, glm::vec4 color, int32_t id)

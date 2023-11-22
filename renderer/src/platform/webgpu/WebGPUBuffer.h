@@ -179,7 +179,8 @@ namespace Figment
         WGPUVertexBufferLayout m_VertexBufferLayout = {};
     };
 
-    class WebGPUIndexBuffer : public WebGPUBuffer<uint32_t>
+    template<typename T>
+    class WebGPUIndexBuffer : public WebGPUBuffer<T>
     {
     public:
         WebGPUIndexBuffer(WGPUDevice device, const char *label, uint64_t size) : WebGPUBuffer<uint32_t>(device, label, size,

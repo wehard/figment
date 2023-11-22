@@ -104,6 +104,9 @@ namespace Figment
         SharedPtr<WebGPUUniformBuffer<FigmentData>> UniformBuffer = nullptr;
         SharedPtr<WebGPUBuffer<glm::vec4>> Result = nullptr;
         SharedPtr<WebGPUBuffer<glm::vec4>> MapBuffer = nullptr;
+        SharedPtr<WebGPUIndexBuffer<uint32_t>> IndexBuffer = nullptr;
+        SharedPtr<WebGPUVertexBuffer<glm::vec3>> VertexBuffer = nullptr;
+
         glm::vec4 *Data = nullptr;
         glm::vec4 Color = glm::vec4(1.0);
         bool Initialized = false;
@@ -145,6 +148,15 @@ namespace Figment
             MapBuffer = CreateSharedPtr<WebGPUBuffer<glm::vec4>>(m_Device, "FigmentMapBuffer", size,
                     WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead);
             UniformBuffer = CreateSharedPtr<WebGPUUniformBuffer<FigmentData>>(m_Device, "FigmentData", sizeof(FigmentData));
+            IndexBuffer = CreateSharedPtr<WebGPUIndexBuffer<uint32_t>>(m_Device, "FigmentIndexBuffer", 6 * sizeof(uint32_t));
+            VertexBuffer = CreateSharedPtr<WebGPUVertexBuffer<glm::vec3>>(m_Device, "FigmentVertexBuffer", 4 * sizeof(glm::vec3));
+            VertexBuffer->SetVertexLayout({
+                    {
+                            .format = WGPUVertexFormat_Float32x3,
+                            .offset = 0,
+                            .shaderLocation = 0,
+                    },
+            }, sizeof(glm::vec3), WGPUVertexStepMode_Vertex);
         }
 
     private:

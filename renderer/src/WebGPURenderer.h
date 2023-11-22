@@ -99,6 +99,7 @@ namespace Figment
         void DrawQuad(glm::vec3 position, glm::vec3 scale, glm::vec4 color, int32_t id);
         void DrawCircle(glm::vec3 position, glm::vec4 color, float radius, int32_t id);
         void DrawCircle(glm::vec3 position, glm::vec3 scale, glm::vec4 color, int32_t id);
+        void DrawFigment(Figment::FigmentComponent &figment);
         void ReadPixel(int x, int y, const std::function<void(int32_t)> &callback);
         void OnResize(uint32_t width, uint32_t height);
 
@@ -115,6 +116,13 @@ namespace Figment
                 { +0.5, -0.5, 0.0 },
                 { +0.5, +0.5, 0.0 },
                 { -0.5, +0.5, 0.0 }
+        };
+
+        static constexpr glm::vec3 m_FigmentQuadVertices[] = {
+                { -0.5, -0.5, 0.0 },
+                { -0.5, +0.5, 0.0 },
+                { +0.5, +0.5, 0.0 },
+                { +0.5, -0.5, 0.0 },
         };
 
         WebGPUContext &m_Context;
