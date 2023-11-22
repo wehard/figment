@@ -188,7 +188,7 @@ namespace Figment
 
         s_Stats.CircleCount = m_RendererData.CircleVertexCount / 6;
         s_Stats.QuadCount = m_RendererData.QuadVertexCount / 6;
-        s_Stats.VertexCount = m_RendererData.CircleVertexCount + m_RendererData.QuadVertexCount;
+        s_Stats.VertexCount += m_RendererData.CircleVertexCount + m_RendererData.QuadVertexCount;
     }
 
     void WebGPURenderer::DrawCircles()
@@ -263,6 +263,9 @@ namespace Figment
         wgpuRenderPassEncoderSetPipeline(m_RenderPass, pipeline->GetPipeline());
         wgpuRenderPassEncoderSetBindGroup(m_RenderPass, 0, pipeline->GetBindGroup(), 0, nullptr);
         wgpuRenderPassEncoderDrawIndexed(m_RenderPass, 6, 1, 0, 0, 0);
+
+        s_Stats.VertexCount += figment.VertexBuffer->GetSize() / sizeof(glm::vec3);
+        s_Stats.DrawCalls++;
     }
 
     void WebGPURenderer::DrawQuad(glm::vec3 position, glm::vec4 color, int32_t id)

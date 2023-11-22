@@ -147,14 +147,14 @@ namespace Figment
             // auto &quad = entity.GetComponent<QuadComponent>();
             if (figment.Data == nullptr)
                 continue;
-            for (int i = 0; i < figment.Result->GetSize() / sizeof(glm::vec4); i++)
-            {
+            // for (int i = 0; i < figment.Result->GetSize() / sizeof(glm::vec4); i++)
+            // {
                 // m_Renderer->DrawCircle(
                 //         transform.Position + glm::vec3(figment.Data[i].x, figment.Data[i].y, figment.Data[i].z),
                 //         transform.Scale,
                 //         figment.Color, (int)entity.GetHandle());
-                m_Renderer->DrawFigment(figment);
-            }
+            // }
+            m_Renderer->DrawFigment(figment);
         }
 
         m_Renderer->End();
