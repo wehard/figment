@@ -231,7 +231,7 @@ namespace Figment
     {
         auto indices = std::vector<uint32_t>({0, 1, 2, 2, 3, 0 });
         figment.IndexBuffer->SetData(indices.data(), indices.size() * sizeof(uint32_t));
-        figment.VertexBuffer->SetData(const_cast<glm::vec<3, float> *>(m_FigmentQuadVertices), sizeof(glm::vec3) * 4);
+        // figment.VertexBuffer->SetData(const_cast<glm::vec<3, float> *>(m_FigmentQuadVertices), sizeof(glm::vec3) * 4);
 
         // TODO: Cache pipeline
         auto pipeline = new WebGPURenderPipeline(m_Context, *figment.Shader, figment.VertexBuffer->GetVertexLayout());
@@ -258,8 +258,8 @@ namespace Figment
 
 
         wgpuRenderPassEncoderSetIndexBuffer(m_RenderPass, figment.IndexBuffer->GetBuffer(), WGPUIndexFormat_Uint32, 0, sizeof (uint32_t) * 6);
-        wgpuRenderPassEncoderSetVertexBuffer(m_RenderPass, 0, figment.Result->GetBuffer(), 0,
-                sizeof(glm::vec4) * 4);
+        wgpuRenderPassEncoderSetVertexBuffer(m_RenderPass, 0, figment.VertexBuffer->GetBuffer(), 0,
+                figment.VertexBuffer->GetSize());
         wgpuRenderPassEncoderSetPipeline(m_RenderPass, pipeline->GetPipeline());
         wgpuRenderPassEncoderSetBindGroup(m_RenderPass, 0, pipeline->GetBindGroup(), 0, nullptr);
         wgpuRenderPassEncoderDrawIndexed(m_RenderPass, 6, 1, 0, 0, 0);
@@ -375,9 +375,9 @@ namespace Figment
 
         WGPUBindGroupEntry bindGroupEntry = {};
         bindGroupEntry.binding = 0;
-        bindGroupEntry.buffer = figment.Result->GetBuffer();
+        bindGroupEntry.buffer = figment.VertexBuffer->GetBuffer();
         bindGroupEntry.offset = 0;
-        bindGroupEntry.size = figment.Result->GetSize();
+        bindGroupEntry.size = figment.VertexBuffer->GetSize();
 
         WGPUBindGroupEntry figmentBindGroupEntry = {};
         figmentBindGroupEntry.binding = 1;
@@ -409,15 +409,15 @@ namespace Figment
         wgpuComputePassEncoderSetPipeline(m_ComputePass, pipeline);
         wgpuComputePassEncoderSetBindGroup(m_ComputePass, 0, bindGroup, 0, nullptr);
 
-        uint32_t invocationCount = figment.Result->GetSize() / sizeof(glm::vec4);
+        uint32_t invocationCount = figment.VertexBuffer->GetSize() / sizeof(glm::vec4);
         uint32_t workgroupSize = 32;
         uint32_t workgroupCount = (invocationCount + workgroupSize - 1) / workgroupSize;
         wgpuComputePassEncoderDispatchWorkgroups(m_ComputePass, workgroupCount, 1, 1);
 
-        figment.MapBuffer->Unmap();
-
-        WebGPUCommand::CopyBufferToBuffer(m_Context.GetDevice(), *figment.Result, *figment.MapBuffer,
-                figment.Result->GetSize());
+        // figment.MapBuffer->Unmap();
+        //
+        // WebGPUCommand::CopyBufferToBuffer(m_Context.GetDevice(), *figment.Result, *figment.MapBuffer,
+        //         figment.Result->GetSize());
     }
 
     void WebGPURenderer::EndComputePass()

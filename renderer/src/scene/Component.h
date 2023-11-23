@@ -81,8 +81,6 @@ namespace Figment
         QuadComponent() = default;
     };
 
-
-
     struct FigmentComponent
     {
     public:
@@ -92,6 +90,7 @@ namespace Figment
         };
 
         constexpr static uint32_t MaxShaderSourceSize = 4096;
+
         struct FigmentConfig
         {
             int Count = 64;
@@ -99,21 +98,63 @@ namespace Figment
             char ShaderSourceBuffer[MaxShaderSourceSize] = "";
         };
 
+        struct Vertex
+        {
+            glm::vec3 Position;
+            glm::vec3 Normal;
+            glm::vec2 TexCoord;
+            glm::vec4 Color;
+            uint32_t _Padding[4];
+
+            static uint32_t Size()
+            {
+                return sizeof(Vertex);
+            }
+
+            std::vector<WGPUVertexAttribute> Layout()
+            {
+                return std::vector<WGPUVertexAttribute>({
+                        {
+                            .format = WGPUVertexFormat_Float32x3,
+                            .offset = 0,
+                            .shaderLocation = 0,
+                        },
+                        {
+                            .format = WGPUVertexFormat_Float32x3,
+                            .offset = sizeof(glm::vec3),
+                            .shaderLocation = 1,
+                        },
+                        {
+                            .format = WGPUVertexFormat_Float32x2,
+                            .offset = sizeof(glm::vec3) + sizeof(glm::vec3),
+                            .shaderLocation = 2,
+                        },
+                        {
+                            .format = WGPUVertexFormat_Float32x4,
+                            .offset = sizeof(glm::vec3) + sizeof(glm::vec3) + sizeof(glm::vec2),
+                            .shaderLocation = 3,
+                        },
+                });
+            }
+        };
+
         FigmentConfig Config;
         SharedPtr<WebGPUShader> Shader = nullptr;
         SharedPtr<WebGPUShader> ComputeShader = nullptr;
         SharedPtr<WebGPUUniformBuffer<FigmentData>> UniformBuffer = nullptr;
-        SharedPtr<WebGPUBuffer<glm::vec4>> Result = nullptr;
+        // SharedPtr<WebGPUBuffer<glm::vec4>> Result = nullptr;
         SharedPtr<WebGPUBuffer<glm::vec4>> MapBuffer = nullptr;
         SharedPtr<WebGPUIndexBuffer<uint32_t>> IndexBuffer = nullptr;
-        SharedPtr<WebGPUVertexBuffer<glm::vec3>> VertexBuffer = nullptr;
+        SharedPtr<WebGPUVertexBuffer<Vertex>> VertexBuffer = nullptr;
 
         glm::vec4 *Data = nullptr;
         glm::vec4 Color = glm::vec4(1.0);
         bool Initialized = false;
 
         FigmentComponent() = default;
-        explicit FigmentComponent(WGPUDevice device) : m_Device(device)
+        explicit FigmentComponent(WGPUDevice
+        device) :
+                m_Device(device)
         {
             auto computeShaderSource = Utils::LoadFile2("res/shaders/wgsl/compute.wgsl");
             std::copy(computeShaderSource->begin(), computeShaderSource->end(), Config.ComputeShaderSourceBuffer);
@@ -139,28 +180,34 @@ namespace Figment
             }
 
             Shader = CreateSharedPtr<WebGPUShader>(m_Device, Config.ShaderSourceBuffer, "FigmentShader");
-            ComputeShader = CreateSharedPtr<WebGPUShader>(m_Device, Config.ComputeShaderSourceBuffer, "ComputeShader");
+            ComputeShader = CreateSharedPtr<WebGPUShader>(m_Device, Config.ComputeShaderSourceBuffer,
+                    "ComputeShader");
 
             Initialized = true;
         }
 
         void CreateBuffers()
         {
-            uint64_t size = Config.Count * sizeof(glm::vec4);
-            Result = CreateSharedPtr<WebGPUBuffer<glm::vec4>>(m_Device, "FigmentBuffer", size,
-                    WGPUBufferUsage_Storage | WGPUBufferUsage_CopySrc | WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex);
+            uint64_t size = Config.Count * Vertex::Size();
+            // Result = CreateSharedPtr<WebGPUBuffer<glm::vec4>>(m_Device, "FigmentBuffer", size,
+            //         WGPUBufferUsage_Storage | WGPUBufferUsage_CopySrc | WGPUBufferUsage_CopyDst
+            //                 | WGPUBufferUsage_Vertex);
             MapBuffer = CreateSharedPtr<WebGPUBuffer<glm::vec4>>(m_Device, "FigmentMapBuffer", size,
                     WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead);
-            UniformBuffer = CreateSharedPtr<WebGPUUniformBuffer<FigmentData>>(m_Device, "FigmentData", sizeof(FigmentData));
-            IndexBuffer = CreateSharedPtr<WebGPUIndexBuffer<uint32_t>>(m_Device, "FigmentIndexBuffer", 6 * sizeof(uint32_t));
-            VertexBuffer = CreateSharedPtr<WebGPUVertexBuffer<glm::vec3>>(m_Device, "FigmentVertexBuffer", 4 * sizeof(glm::vec3));
-            VertexBuffer->SetVertexLayout({
-                    {
-                            .format = WGPUVertexFormat_Float32x3,
-                            .offset = 0,
-                            .shaderLocation = 0,
-                    },
-            }, sizeof(glm::vec3), WGPUVertexStepMode_Vertex);
+            UniformBuffer = CreateSharedPtr<WebGPUUniformBuffer<FigmentData>>(m_Device, "FigmentData",
+                    sizeof(FigmentData));
+            IndexBuffer = CreateSharedPtr<WebGPUIndexBuffer<uint32_t>>(m_Device, "FigmentIndexBuffer",
+                    6 * sizeof(uint32_t));
+            VertexBuffer = CreateSharedPtr<WebGPUVertexBuffer<Vertex>>(m_Device, "FigmentVertexBuffer",
+                    size);
+            // VertexBuffer->SetVertexLayout({
+            //         {
+            //                 .format = WGPUVertexFormat_Float32x3,
+            //                 .offset = 0,
+            //                 .shaderLocation = 0,
+            //         },
+            // }, sizeof(glm::vec3), WGPUVertexStepMode_Vertex);
+            VertexBuffer->SetVertexLayout(Vertex().Layout(), Vertex::Size(), WGPUVertexStepMode_Vertex);
         }
 
     private:

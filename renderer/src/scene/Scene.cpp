@@ -92,12 +92,12 @@ namespace Figment
                 };
                 figment.UniformBuffer->SetData(&data, sizeof(data));
                 m_Renderer->Compute(figment);
-                figment.MapBuffer->MapReadAsync([&figment](const glm::vec4 *data, size_t size)
-                {
-                    if (figment.Data == nullptr)
-                        figment.Data = new glm::vec4[figment.Config.Count];
-                    memcpy(figment.Data, data, size);
-                });
+                // figment.MapBuffer->MapReadAsync([&figment](const glm::vec4 *data, size_t size)
+                // {
+                //     if (figment.Data == nullptr)
+                //         figment.Data = new glm::vec4[figment.Config.Count];
+                //     memcpy(figment.Data, data, size);
+                // });
             }
         }
         m_Renderer->EndComputePass();
@@ -145,8 +145,8 @@ namespace Figment
             auto &figment = entity.GetComponent<FigmentComponent>();
             auto &transform = entity.GetComponent<TransformComponent>();
             // auto &quad = entity.GetComponent<QuadComponent>();
-            if (figment.Data == nullptr)
-                continue;
+            // if (figment.Data == nullptr)
+            //     continue;
             // for (int i = 0; i < figment.Result->GetSize() / sizeof(glm::vec4); i++)
             // {
                 // m_Renderer->DrawCircle(

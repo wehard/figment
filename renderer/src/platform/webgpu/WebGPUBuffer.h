@@ -159,7 +159,8 @@ namespace Figment
     {
     public:
         WebGPUVertexBuffer(WGPUDevice device, const char *label, uint64_t size) : WebGPUBuffer<T>(device, label, size,
-                WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex)
+                WGPUBufferUsage_Storage | WGPUBufferUsage_CopySrc | WGPUBufferUsage_CopyDst
+                        | WGPUBufferUsage_Vertex)
         { };
         void SetVertexLayout(std::vector<WGPUVertexAttribute> vertexAttributes, uint64_t stride,
                 WGPUVertexStepMode stepMode)
