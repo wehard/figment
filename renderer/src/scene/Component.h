@@ -186,14 +186,15 @@ namespace Figment
 
         void CreateBuffers()
         {
-            uint64_t size = Config.Count * Vertex::Size();
+            uint64_t vertexBufferSize = Config.Count * Vertex::Size();
+            uint64_t indexBufferSize = Config.Count / 4 * 6 * sizeof(uint32_t);
 
             UniformBuffer = CreateSharedPtr<WebGPUUniformBuffer<FigmentData>>(m_Device, "FigmentData",
                     sizeof(FigmentData));
             IndexBuffer = CreateSharedPtr<WebGPUIndexBuffer<uint32_t>>(m_Device, "FigmentIndexBuffer",
-                    96 * sizeof(uint32_t));
+                    indexBufferSize);
             VertexBuffer = CreateSharedPtr<WebGPUVertexBuffer<Vertex>>(m_Device, "FigmentVertexBuffer",
-                    size);
+                    vertexBufferSize);
             VertexBuffer->SetVertexLayout(Vertex().Layout(), Vertex::Size(), WGPUVertexStepMode_Vertex);
         }
 
