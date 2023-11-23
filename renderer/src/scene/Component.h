@@ -142,8 +142,6 @@ namespace Figment
         SharedPtr<WebGPUShader> Shader = nullptr;
         SharedPtr<WebGPUShader> ComputeShader = nullptr;
         SharedPtr<WebGPUUniformBuffer<FigmentData>> UniformBuffer = nullptr;
-        // SharedPtr<WebGPUBuffer<glm::vec4>> Result = nullptr;
-        SharedPtr<WebGPUBuffer<glm::vec4>> MapBuffer = nullptr;
         SharedPtr<WebGPUIndexBuffer<uint32_t>> IndexBuffer = nullptr;
         SharedPtr<WebGPUVertexBuffer<Vertex>> VertexBuffer = nullptr;
 
@@ -189,24 +187,13 @@ namespace Figment
         void CreateBuffers()
         {
             uint64_t size = Config.Count * Vertex::Size();
-            // Result = CreateSharedPtr<WebGPUBuffer<glm::vec4>>(m_Device, "FigmentBuffer", size,
-            //         WGPUBufferUsage_Storage | WGPUBufferUsage_CopySrc | WGPUBufferUsage_CopyDst
-            //                 | WGPUBufferUsage_Vertex);
-            MapBuffer = CreateSharedPtr<WebGPUBuffer<glm::vec4>>(m_Device, "FigmentMapBuffer", size,
-                    WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead);
+
             UniformBuffer = CreateSharedPtr<WebGPUUniformBuffer<FigmentData>>(m_Device, "FigmentData",
                     sizeof(FigmentData));
             IndexBuffer = CreateSharedPtr<WebGPUIndexBuffer<uint32_t>>(m_Device, "FigmentIndexBuffer",
-                    6 * sizeof(uint32_t));
+                    96 * sizeof(uint32_t));
             VertexBuffer = CreateSharedPtr<WebGPUVertexBuffer<Vertex>>(m_Device, "FigmentVertexBuffer",
                     size);
-            // VertexBuffer->SetVertexLayout({
-            //         {
-            //                 .format = WGPUVertexFormat_Float32x3,
-            //                 .offset = 0,
-            //                 .shaderLocation = 0,
-            //         },
-            // }, sizeof(glm::vec3), WGPUVertexStepMode_Vertex);
             VertexBuffer->SetVertexLayout(Vertex().Layout(), Vertex::Size(), WGPUVertexStepMode_Vertex);
         }
 

@@ -229,9 +229,17 @@ namespace Figment
 
     void WebGPURenderer::DrawFigment(FigmentComponent &figment)
     {
-        auto indices = std::vector<uint32_t>({0, 1, 2, 2, 3, 0 });
-        figment.IndexBuffer->SetData(indices.data(), indices.size() * sizeof(uint32_t));
-        // figment.VertexBuffer->SetData(const_cast<glm::vec<3, float> *>(m_FigmentQuadVertices), sizeof(glm::vec3) * 4);
+        auto indices = std::vector<uint32_t>();
+        for (int i = 0; i < 96; i += 6)
+        {
+            indices.push_back(i + 0);
+            indices.push_back(i + 1);
+            indices.push_back(i + 2);
+            indices.push_back(i + 2);
+            indices.push_back(i + 3);
+            indices.push_back(i + 0);
+        }
+        figment.IndexBuffer->SetData(indices.data(), figment.IndexBuffer->GetSize());
 
         // TODO: Cache pipeline
         auto pipeline = new WebGPURenderPipeline(m_Context, *figment.Shader, figment.VertexBuffer->GetVertexLayout());
@@ -257,14 +265,14 @@ namespace Figment
         pipeline->Build();
 
 
-        wgpuRenderPassEncoderSetIndexBuffer(m_RenderPass, figment.IndexBuffer->GetBuffer(), WGPUIndexFormat_Uint32, 0, sizeof (uint32_t) * 6);
+        wgpuRenderPassEncoderSetIndexBuffer(m_RenderPass, figment.IndexBuffer->GetBuffer(), WGPUIndexFormat_Uint32, 0, figment.IndexBuffer->GetSize());
         wgpuRenderPassEncoderSetVertexBuffer(m_RenderPass, 0, figment.VertexBuffer->GetBuffer(), 0,
                 figment.VertexBuffer->GetSize());
         wgpuRenderPassEncoderSetPipeline(m_RenderPass, pipeline->GetPipeline());
         wgpuRenderPassEncoderSetBindGroup(m_RenderPass, 0, pipeline->GetBindGroup(), 0, nullptr);
-        wgpuRenderPassEncoderDrawIndexed(m_RenderPass, 6, 1, 0, 0, 0);
+        wgpuRenderPassEncoderDrawIndexed(m_RenderPass, indices.size(), 1, 0, 0, 0);
 
-        s_Stats.VertexCount += figment.VertexBuffer->GetSize() / sizeof(glm::vec3);
+        s_Stats.VertexCount += figment.VertexBuffer->GetSize() / FigmentComponent::Vertex::Size();
         s_Stats.DrawCalls++;
     }
 
