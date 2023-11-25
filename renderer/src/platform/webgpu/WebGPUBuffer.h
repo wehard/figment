@@ -143,13 +143,14 @@ namespace Figment
             return entry;
         }
 
-        WGPUBindGroupLayoutEntry GetBindGroupLayoutEntry(
+        WGPUBindGroupLayoutEntry GetBindGroupLayoutEntry(uint32_t binding,
                 WGPUShaderStageFlags visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment)
         {
             WGPUBindGroupLayoutEntry entry = GetDefaultWGPUBindGroupLayoutEntry();
             entry.buffer.type = WGPUBufferBindingType_Uniform;
             entry.buffer.minBindingSize = this->GetSize();
             entry.visibility = visibility;
+            entry.binding = binding;
             return entry;
         }
     };
