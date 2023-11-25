@@ -23,7 +23,6 @@ namespace Figment
 
         auto figmentEntity = m_Scene->CreateEntity("Figment");
         figmentEntity.AddComponent<FigmentComponent>(m_Context->GetDevice());
-
         auto quad = m_Scene->CreateEntity("Quad");
         quad.AddComponent<QuadComponent>();
 
@@ -107,19 +106,22 @@ namespace Figment
         }
     }
 
-    static void DrawWGSLShaderEditor(FigmentComponent &figment)
+    static void DrawFigmentEditor(FigmentComponent &figment, bool *editFigment)
     {
         ImGui::SetNextWindowSize(ImVec2(600, 400), ImGuiCond_Once);
         ImGui::SetNextWindowPos(ImVec2((ImGui::GetIO().DisplaySize.x - 600) * 0.5f,
                 (ImGui::GetIO().DisplaySize.y - 400) * 0.5f), ImGuiCond_Once);
 
-        std::string title = "WebGPU Shader Editor:" + std::to_string((uint64_t)&figment);
+        std::string title = "Figment Editor:" + std::to_string((uint64_t)&figment);
 
         ImGui::Begin(title.c_str());
         if (ImGui::Button("Save", ImVec2(100, 20)))
-        {
             figment.Init();
-        }
+        ImGui::SameLine();
+        // Draw next button aligned to the right of window
+        ImGui::SetCursorPosX(ImGui::GetWindowContentRegionWidth() - 100);
+        if (ImGui::Button("Close", ImVec2(100, 20)))
+            *editFigment = !*editFigment;
         if (ImGui::BeginTabBar("TabBar"))
         {
             ImVec2 contentSize = ImGui::GetContentRegionAvail();
@@ -133,18 +135,13 @@ namespace Figment
 
             if (ImGui::BeginTabItem("Compute"))
             {
-
-
                 ImGui::InputTextMultiline("##ComputeCode", figment.Config.ComputeShaderSourceBuffer,
                         FigmentComponent::MaxShaderSourceSize,
                         ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y), ImGuiInputTextFlags_AllowTabInput, nullptr, nullptr);
                 ImGui::EndTabItem();
             }
-
-            // End the tab bar
             ImGui::EndTabBar();
         }
-
         ImGui::End();
     }
 
@@ -350,14 +347,14 @@ namespace Figment
                     component.Init();
                 }
             }
-            static bool openSourceEditor = false;
-            const char *label = openSourceEditor ? "Close" : "Edit source";
+            static bool editFigment = false;
+            const char *label = editFigment ? "Close" : "Edit";
             if (ImGui::Button(label, ImVec2(100, 20)))
-                openSourceEditor = !openSourceEditor;
+                editFigment = !editFigment;
 
-            if (openSourceEditor)
+            if (editFigment)
             {
-                DrawWGSLShaderEditor(component);
+                DrawFigmentEditor(component, &editFigment);
             }
         });
 

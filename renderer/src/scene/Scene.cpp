@@ -14,7 +14,7 @@ namespace Figment
     {
         m_EditorCamera = CreateSharedPtr<PerspectiveCamera>((float)width / (float)height);
         m_EditorCameraController = CreateSharedPtr<CameraController>(m_EditorCamera);
-        m_EditorCamera->GetPositionPtr()->z = 60.0;
+        m_EditorCamera->GetPositionPtr()->z = 10.0;
         SetActiveCameraController(m_EditorCameraController);
 
         auto m_Window = App::Instance()->GetWindow();
@@ -87,9 +87,10 @@ namespace Figment
                 auto &&figment = entity.GetComponent<FigmentComponent>();
                 FigmentComponent::FigmentData data = {
                         .Time = App::Instance()->GetTimeSinceStart(),
+                        .Id = (int32_t)entity.GetHandle(),
                         .Model = entity.GetComponent<TransformComponent>().GetTransform(),
                 };
-                figment.UniformBuffer->SetData(&data, sizeof(data));
+                figment.UniformBuffer->SetData(&data, figment.UniformBuffer->GetSize());
 
                 if (!figment.Initialized)
                     continue;
@@ -146,17 +147,6 @@ namespace Figment
         {
             Entity entity = { handle, this };
             auto &figment = entity.GetComponent<FigmentComponent>();
-            auto &transform = entity.GetComponent<TransformComponent>();
-            // auto &quad = entity.GetComponent<QuadComponent>();
-            // if (figment.Data == nullptr)
-            //     continue;
-            // for (int i = 0; i < figment.Result->GetSize() / sizeof(glm::vec4); i++)
-            // {
-                // m_Renderer->DrawCircle(
-                //         transform.Position + glm::vec3(figment.Data[i].x, figment.Data[i].y, figment.Data[i].z),
-                //         transform.Scale,
-                //         figment.Color, (int)entity.GetHandle());
-            // }
             m_Renderer->DrawFigment(figment, (int32_t)entity.GetHandle());
         }
 

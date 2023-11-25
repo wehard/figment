@@ -1,5 +1,6 @@
 struct FigmentData {
     time: f32,
+    id: i32,
     model: mat4x4<f32>,
 };
 
@@ -22,8 +23,8 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
         y = 1.0;
     }
     let z = 0.0;
-    let pos = vec3<f32>(x, y, z);
-    let vertex = Vertex(pos, vec3<f32>(0.0, 0.0, 1.0), vec2<f32>(0.0, 0.0), vec4<f32>(1.0));
+    let pos = vec4<f32>(x - 0.5, y - 0.5, z, 1.0);
+    let vertex = Vertex(vec3<f32>(pos.x, pos.y, pos.z), vec3<f32>(0.0, 0.0, 1.0), vec2<f32>(0.0, 0.0), vec4<f32>(1.0));
     vertexBuffer[id.x] = vertex;
 }
 
