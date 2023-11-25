@@ -189,7 +189,7 @@ namespace Figment
             uint64_t vertexBufferSize = Config.Count * Vertex::Size();
             uint64_t indexBufferSize = Config.Count * 6 * sizeof(uint32_t);
 
-            UniformBuffer = CreateSharedPtr<WebGPUUniformBuffer<FigmentData>>(m_Device, "FigmentData",
+            UniformBuffer = CreateSharedPtr<WebGPUUniformBuffer<FigmentData>>(m_Device, "FigmentDataUniformBuffer",
                     sizeof(FigmentData));
             IndexBuffer = CreateSharedPtr<WebGPUIndexBuffer<uint32_t>>(m_Device, "FigmentIndexBuffer",
                     indexBufferSize);

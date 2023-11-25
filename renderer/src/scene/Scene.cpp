@@ -139,9 +139,9 @@ namespace Figment
         }
 
         auto view = m_Registry.view<FigmentComponent>();
-        for (auto &e : view)
+        for (auto &handle : view)
         {
-            Entity entity = { e, this };
+            Entity entity = { handle, this };
             auto &figment = entity.GetComponent<FigmentComponent>();
             auto &transform = entity.GetComponent<TransformComponent>();
             // auto &quad = entity.GetComponent<QuadComponent>();
@@ -154,7 +154,7 @@ namespace Figment
                 //         transform.Scale,
                 //         figment.Color, (int)entity.GetHandle());
             // }
-            m_Renderer->DrawFigment(figment);
+            m_Renderer->DrawFigment(figment, transform.GetTransform(), (int32_t)entity.GetHandle());
         }
 
         m_Renderer->End();

@@ -80,7 +80,7 @@ namespace Figment
                 WGPUFrontFace_CCW,
                 WGPUCullMode_None);
         m_QuadPipeline->SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
-        m_QuadPipeline->SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(),
+        m_QuadPipeline->SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(0),
                 m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
         m_QuadPipeline->SetColorTargetStates(colorTargetStates);
         m_QuadPipeline->Build();
@@ -91,7 +91,7 @@ namespace Figment
                 WGPUFrontFace_CCW,
                 WGPUCullMode_None);
         m_CirclePipeline->SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
-        m_CirclePipeline->SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(),
+        m_CirclePipeline->SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(0),
                 m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
         m_CirclePipeline->SetColorTargetStates(colorTargetStates);
         m_CirclePipeline->Build();
@@ -227,7 +227,7 @@ namespace Figment
         s_Stats.DrawCalls++;
     }
 
-    void WebGPURenderer::DrawFigment(FigmentComponent &figment)
+    void WebGPURenderer::DrawFigment(FigmentComponent &figment, glm::mat4 transform, int32_t id)
     {
         auto indices = std::vector<uint32_t>();
         for (int i = 0; i < (figment.Config.Count / 4) * 6; i += 6)
@@ -247,8 +247,9 @@ namespace Figment
                 WGPUFrontFace_CCW,
                 WGPUCullMode_None);
         pipeline->SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
-        pipeline->SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(),
+        pipeline->SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(0),
                 m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
+        pipeline->SetBinding(figment.UniformBuffer->GetBindGroupLayoutEntry(1),  figment.UniformBuffer->GetBindGroupEntry(1, 0));
         auto colorTargetStates = std::vector<WGPUColorTargetState>({
                 {
                         .format = m_Context.GetTextureFormat(),

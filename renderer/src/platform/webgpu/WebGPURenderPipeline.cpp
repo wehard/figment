@@ -122,7 +122,7 @@ namespace Figment
 
         WGPUPipelineLayoutDescriptor layoutDesc = {
                 .nextInChain = nullptr,
-                .bindGroupLayoutCount = m_BindGroupLayoutEntries.size(),
+                .bindGroupLayoutCount = 1,
                 .bindGroupLayouts = &bindGroupLayout
         };
 
