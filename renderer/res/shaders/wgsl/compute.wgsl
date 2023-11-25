@@ -10,16 +10,18 @@ struct Vertex
     color: vec4f
 };
 
-@group(0) @binding(0) var<storage,read_write> vertexBuffer: array<Vertex,64>;
+@group(0) @binding(0) var<storage,read_write> vertexBuffer: array<Vertex,4>;
 @group(0) @binding(1) var<uniform> figmentData: FigmentData;
 
 @compute @workgroup_size(32, 1, 1)
 fn main(@builtin(global_invocation_id) id: vec3<u32>) {
-    let angle = radians((f32(id.x) / f32(64)) * 360.0);
-    let x = f32(0) + 10.8 * cos(angle) + sin(f32(id.x) + figmentData.time * 2.0) * 2.8;
-    let y = f32(0) + 10.8 * sin(angle) + cos(f32(id.x) + figmentData.time) * 1.8;
-    let z = f32(0) + cos(f32(id.x) + figmentData.time) * 0.8;
-    let vertex = Vertex(vec3<f32>(x, y, z), vec3<f32>(0.0, 0.0, 1.0), vec2<f32>(0.0, 0.0), vec4<f32>(1.0));
+    let x = f32(id.x % 2);
+    var y = 0.0;
+    if (id.x >= 2) {
+        y = 1.0;
+    }
+    let z = 0.0;
+    let vertex = Vertex(vec3<f32>(x + sin(figmentData.time), y, z), vec3<f32>(0.0, 0.0, 1.0), vec2<f32>(0.0, 0.0), vec4<f32>(1.0));
     vertexBuffer[id.x] = vertex;
 }
 

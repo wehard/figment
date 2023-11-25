@@ -230,14 +230,14 @@ namespace Figment
     void WebGPURenderer::DrawFigment(FigmentComponent &figment)
     {
         auto indices = std::vector<uint32_t>();
-        for (int i = 0; i < 96; i += 6)
+        for (int i = 0; i < (figment.Config.Count / 4) * 6; i += 6)
         {
             indices.push_back(i + 0);
             indices.push_back(i + 1);
             indices.push_back(i + 2);
-            indices.push_back(i + 2);
+            indices.push_back(i + 1);
             indices.push_back(i + 3);
-            indices.push_back(i + 0);
+            indices.push_back(i + 2);
         }
         figment.IndexBuffer->SetData(indices.data(), figment.IndexBuffer->GetSize());
 
@@ -417,7 +417,7 @@ namespace Figment
         wgpuComputePassEncoderSetPipeline(m_ComputePass, pipeline);
         wgpuComputePassEncoderSetBindGroup(m_ComputePass, 0, bindGroup, 0, nullptr);
 
-        uint32_t invocationCount = figment.VertexBuffer->GetSize() / sizeof(glm::vec4);
+        uint32_t invocationCount = figment.VertexBuffer->GetSize() / FigmentComponent::Vertex::Size();
         uint32_t workgroupSize = 32;
         uint32_t workgroupCount = (invocationCount + workgroupSize - 1) / workgroupSize;
         wgpuComputePassEncoderDispatchWorkgroups(m_ComputePass, workgroupCount, 1, 1);

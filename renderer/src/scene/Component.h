@@ -93,7 +93,7 @@ namespace Figment
 
         struct FigmentConfig
         {
-            int Count = 64;
+            int Count = 4;
             char ComputeShaderSourceBuffer[MaxShaderSourceSize] = "";
             char ShaderSourceBuffer[MaxShaderSourceSize] = "";
         };
@@ -111,7 +111,7 @@ namespace Figment
                 return sizeof(Vertex);
             }
 
-            std::vector<WGPUVertexAttribute> Layout()
+            static std::vector<WGPUVertexAttribute> Layout()
             {
                 return std::vector<WGPUVertexAttribute>({
                         {
@@ -187,7 +187,7 @@ namespace Figment
         void CreateBuffers()
         {
             uint64_t vertexBufferSize = Config.Count * Vertex::Size();
-            uint64_t indexBufferSize = Config.Count / 4 * 6 * sizeof(uint32_t);
+            uint64_t indexBufferSize = Config.Count * 6 * sizeof(uint32_t);
 
             UniformBuffer = CreateSharedPtr<WebGPUUniformBuffer<FigmentData>>(m_Device, "FigmentData",
                     sizeof(FigmentData));
@@ -195,7 +195,7 @@ namespace Figment
                     indexBufferSize);
             VertexBuffer = CreateSharedPtr<WebGPUVertexBuffer<Vertex>>(m_Device, "FigmentVertexBuffer",
                     vertexBufferSize);
-            VertexBuffer->SetVertexLayout(Vertex().Layout(), Vertex::Size(), WGPUVertexStepMode_Vertex);
+            VertexBuffer->SetVertexLayout(Vertex::Layout(), Vertex::Size(), WGPUVertexStepMode_Vertex);
         }
 
     private:
