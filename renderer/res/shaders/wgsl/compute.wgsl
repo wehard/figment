@@ -21,7 +21,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
         y = 1.0;
     }
     let z = 0.0;
-    let vertex = Vertex(vec3<f32>(x + sin(figmentData.time), y, z), vec3<f32>(0.0, 0.0, 1.0), vec2<f32>(0.0, 0.0), vec4<f32>(1.0));
+    let vertex = Vertex(vec3<f32>(x + sin(figmentData.time), y + cos(figmentData.time), z) - 0.5, vec3<f32>(0.0, 0.0, 1.0), vec2<f32>(0.0, 0.0), vec4<f32>(1.0));
     vertexBuffer[id.x] = vertex;
 }
 
