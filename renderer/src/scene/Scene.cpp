@@ -79,18 +79,21 @@ namespace Figment
     {
         m_Renderer->BeginComputePass();
         auto figments = m_Registry.view<FigmentComponent>();
-        for (auto e : figments)
+        for (auto handle : figments)
         {
-            Entity entity = { e, this };
+            Entity entity = { handle, this };
             if (entity.HasComponent<FigmentComponent>())
             {
                 auto &&figment = entity.GetComponent<FigmentComponent>();
-                if (!figment.Initialized)
-                    continue;
                 FigmentComponent::FigmentData data = {
-                        .Time = App::Instance()->GetTimeSinceStart()
+                        .Time = App::Instance()->GetTimeSinceStart(),
+                        .Model = entity.GetComponent<TransformComponent>().GetTransform(),
                 };
                 figment.UniformBuffer->SetData(&data, sizeof(data));
+
+                if (!figment.Initialized)
+                    continue;
+
                 m_Renderer->Compute(figment);
                 // figment.MapBuffer->MapReadAsync([&figment](const glm::vec4 *data, size_t size)
                 // {
@@ -154,7 +157,7 @@ namespace Figment
                 //         transform.Scale,
                 //         figment.Color, (int)entity.GetHandle());
             // }
-            m_Renderer->DrawFigment(figment, transform.GetTransform(), (int32_t)entity.GetHandle());
+            m_Renderer->DrawFigment(figment, (int32_t)entity.GetHandle());
         }
 
         m_Renderer->End();

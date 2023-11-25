@@ -227,7 +227,7 @@ namespace Figment
         s_Stats.DrawCalls++;
     }
 
-    void WebGPURenderer::DrawFigment(FigmentComponent &figment, glm::mat4 transform, int32_t id)
+    void WebGPURenderer::DrawFigment(FigmentComponent &figment, int32_t id)
     {
         auto indices = std::vector<uint32_t>();
         for (int i = 0; i < (figment.Config.Count / 4) * 6; i += 6)
