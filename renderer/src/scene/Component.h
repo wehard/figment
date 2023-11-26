@@ -88,8 +88,8 @@ namespace Figment
         {
             float Time = 0.0;
             int32_t Id = -1;
+            uint32_t _Padding[2]; // WGSL requires alignment: https://gpuweb.github.io/gpuweb/wgsl/#alignment-and-size https://www.w3.org/TR/WGSL/#alignment-and-size
             glm::mat4 Model = glm::mat4(1.0);
-            uint32_t _Padding[6];
         };
 
         constexpr static uint32_t MaxShaderSourceSize = 4096;

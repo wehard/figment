@@ -14,7 +14,7 @@ struct FigmentData {
 
 @vertex
 fn vs_main(@location(0) in_vertex_position: vec3f) -> @builtin(position) vec4f {
-    return cameraData.proj * cameraData.view * vec4<f32>(in_vertex_position, 1.0);
+    return cameraData.proj * cameraData.view * figmentData.model * vec4<f32>(in_vertex_position, 1.0);
 }
 
 struct FragmentOutput {
