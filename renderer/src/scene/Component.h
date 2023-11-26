@@ -101,7 +101,7 @@ namespace Figment
             char ShaderSourceBuffer[MaxShaderSourceSize] = "";
         };
 
-        struct Vertex
+        struct Vertex // TODO: Verify alignment
         {
             glm::vec3 Position;
             glm::vec3 Normal;
