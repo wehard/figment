@@ -11,7 +11,6 @@ namespace Figment
 
     static void glfwWindowSizeCallback(GLFWwindow *window, int width, int height)
     {
-        printf("glfwWindowSizeCallback: %d x %d\n", width, height);
         auto *webGpuWindow = (WebGPUWindow *)glfwGetWindowUserPointer(window);
         webGpuWindow->Resize({
                 .Width = width,
@@ -22,7 +21,6 @@ namespace Figment
 
     static void glfwFramebufferSizeCallback(GLFWwindow *window, int width, int height)
     {
-        printf("glfwFramebufferSizeCallback: %d x %d\n", width, height);
         auto *webGpuWindow = (WebGPUWindow *)glfwGetWindowUserPointer(window);
         webGpuWindow->Resize({
                 .Width = static_cast<int>(webGpuWindow->GetWidth()),
