@@ -25,7 +25,7 @@ struct FragmentOutput {
 @fragment
 fn fs_main() -> FragmentOutput {
         var output : FragmentOutput;
-        output.color = vec4<f32>(figmentData.time, 0.0, 0.0, 1.0);
+        output.color = vec4<f32>(1.0 - sin(figmentData.time), 1.0 - cos(figmentData.time), 0.5, 1.0);
         output.id = figmentData.id;
         return output;
 }

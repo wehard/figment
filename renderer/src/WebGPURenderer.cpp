@@ -230,20 +230,24 @@ namespace Figment
     void WebGPURenderer::DrawFigment(FigmentComponent &figment, int32_t id)
     {
         auto indices = std::vector<uint32_t>();
-        for (int i = 0; i < (figment.Config.Count / 4) * 6; i += 6)
+        for (int i = 0; i < (figment.Config.Count / 4) * 6; i += 10)
         {
             indices.push_back(i + 0);
             indices.push_back(i + 1);
-            indices.push_back(i + 2);
             indices.push_back(i + 1);
-            indices.push_back(i + 3);
             indices.push_back(i + 2);
+            indices.push_back(i + 2);
+            indices.push_back(i + 0);
+            indices.push_back(i + 2);
+            indices.push_back(i + 3);
+            indices.push_back(i + 3);
+            indices.push_back(i + 1);
         }
         figment.IndexBuffer->SetData(indices.data(), figment.IndexBuffer->GetSize());
 
         // TODO: Cache pipeline
         auto pipeline = new WebGPURenderPipeline(m_Context, *figment.Shader, figment.VertexBuffer->GetVertexLayout());
-        pipeline->SetPrimitiveState(WGPUPrimitiveTopology_TriangleStrip, WGPUIndexFormat_Uint32,
+        pipeline->SetPrimitiveState(WGPUPrimitiveTopology_LineStrip, WGPUIndexFormat_Uint32,
                 WGPUFrontFace_CCW,
                 WGPUCullMode_None);
         pipeline->SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
