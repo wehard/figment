@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Log.h"
 #include <webgpu/webgpu.h>
 #include <vector>
 #include <iostream>
@@ -74,7 +75,7 @@ namespace Figment
                         if (status != WGPUBufferMapAsyncStatus_Success)
                         {
                             auto label = params->Buffer->m_Label;
-                            printf("WebGPUBuffer \"%s\" failed with WGPUBufferMapAsyncStatus: %d\n", label, status);
+                            FIG_LOG_WARN("WebGPUBuffer \"%s\" failed with WGPUBufferMapAsyncStatus: %d", label, status);
                             return;
                         }
                         auto *data = (T *)wgpuBufferGetConstMappedRange(params->Buffer->GetBuffer(), 0,

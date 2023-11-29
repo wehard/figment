@@ -1,4 +1,5 @@
 #include "Core.h"
+#include "Log.h"
 #include "App.h"
 #include "Input.h"
 
@@ -16,6 +17,7 @@ namespace Figment
     App::App(uint32_t width, uint32_t height)
     {
         s_Instance = this;
+        Log::Init();
         m_Window = Window::Create("Figment C++", width, height);
         m_Window->SetResizeEventCallback([this](WindowResizeEventData eventData)
         {
@@ -30,11 +32,13 @@ namespace Figment
         m_GUICtx->Init(m_Window, "glslVersion");
 
         m_Layers.emplace_back(Figment::CreateUniquePtr<Figment::EditorLayer>());
+        FIG_LOG_INFO("App initialized");
     }
 
     App::~App()
     {
         m_GUICtx->Shutdown();
+        // Log::Shutdown();
     }
 
     void App::Update()

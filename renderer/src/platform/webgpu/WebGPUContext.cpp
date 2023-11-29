@@ -1,4 +1,5 @@
 #include "WebGPUContext.h"
+#include "Log.h"
 
 #include <emscripten/html5_webgpu.h>
 #include <webgpu/webgpu.h>
@@ -69,19 +70,18 @@ namespace Figment
         m_Instance = wgpuCreateInstance(&instance_desc);
         if (!m_Instance)
         {
-            printf("Failed to create WebGPU instance!\n");
+            FIG_LOG_ERROR("Failed to create WebGPU instance!");
         }
 
         m_WebGPUSurface = wgpuInstanceCreateSurface(m_Instance, &surfaceDesc);
         if (!m_WebGPUSurface)
         {
-            printf("Failed to create WebGPU surface!\n");
+            FIG_LOG_ERROR("Failed to create WebGPU surface!");
         }
-        printf("Initialized WebGPU context\n");
 
         m_TextureFormat = WGPUTextureFormat_BGRA8Unorm;
-
         CreateSwapChain(width, height);
+        FIG_LOG_INFO("WebGPU context initialized");
     }
 
     void WebGPUContext::CreateSwapChain(uint32_t width, uint32_t height)

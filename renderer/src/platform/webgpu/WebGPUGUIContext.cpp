@@ -1,4 +1,5 @@
 #include "WebGPUGUIContext.h"
+#include "Log.h"
 #include "WebGPUWindow.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_wgpu.h"
@@ -32,7 +33,7 @@ namespace Figment
         ImGui_ImplWGPU_InvalidateDeviceObjects();
         ImGui_ImplWGPU_CreateDeviceObjects();
 
-        printf("WebGPUGUIContext created\n");
+        FIG_LOG_INFO("WebGPU GUIContext initialized");
     }
 
     void WebGPUGUIContext::Render()

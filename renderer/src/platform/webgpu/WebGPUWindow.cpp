@@ -1,4 +1,5 @@
 #include "WebGPUWindow.h"
+#include "Log.h"
 #include <iostream>
 #include <emscripten/html5.h>
 
@@ -63,18 +64,18 @@ namespace Figment
             exit(EXIT_FAILURE);
         }
 
-        printf("Initialized WebGPU window (%dx%d)\n", width, height);
+        FIG_LOG_INFO("Initialized WebGPU window (%dx%d)", width, height);
 
         m_GfxContext = std::make_shared<WebGPUContext>();
         m_GfxContext->Init(m_Width, m_Height);
 
         int w, h;
         glfwGetWindowSize(m_Window, &w, &h);
-        std::cout << "GLFW window created: " << w << " x " << h << std::endl;
+        FIG_LOG_INFO("GLFW window size: %dx%d", w, h);
 
         int fw, fh;
         glfwGetFramebufferSize(m_Window, &fw, &fh);
-        std::cout << "GLFW framebuffer size: " << fw << " x " << fh << std::endl;
+        FIG_LOG_INFO("GLFW framebuffer size: %dx%d", fw, fh);
         m_FramebufferWidth = (uint32_t)fw;
         m_FramebufferHeight = (uint32_t)fh;
 
