@@ -23,8 +23,6 @@ namespace Figment
 
         auto figmentEntity = m_Scene->CreateEntity("Figment");
         figmentEntity.AddComponent<FigmentComponent>(m_Context->GetDevice());
-        auto quad = m_Scene->CreateEntity("Quad");
-        quad.AddComponent<QuadComponent>();
 
         auto cameraEntity = m_Scene->CreateEntity("Camera");
         cameraEntity.AddComponent<CameraComponent>(std::make_shared<PerspectiveCamera>(width / height));

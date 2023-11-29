@@ -96,7 +96,7 @@ namespace Figment
 
         struct FigmentConfig
         {
-            int Count = 4;
+            int Count = 4096;
             char ComputeShaderSourceBuffer[MaxShaderSourceSize] = "";
             char ShaderSourceBuffer[MaxShaderSourceSize] = "";
         };
@@ -104,10 +104,12 @@ namespace Figment
         struct Vertex // TODO: Verify alignment
         {
             glm::vec3 Position;
+            uint32_t _Padding[1];
             glm::vec3 Normal;
+            uint32_t _Padding2[1];
             glm::vec2 TexCoord;
+            uint32_t _Padding3[2];
             glm::vec4 Color;
-            uint32_t _Padding[4];
 
             static uint32_t Size()
             {

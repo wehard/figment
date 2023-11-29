@@ -229,21 +229,29 @@ namespace Figment
 
     void WebGPURenderer::DrawFigment(FigmentComponent &figment, int32_t id)
     {
-        auto indices = std::vector<uint32_t>();
-        for (int i = 0; i < (figment.Config.Count / 4) * 6; i += 10)
-        {
-            indices.push_back(i + 0);
-            indices.push_back(i + 1);
-            indices.push_back(i + 2);
-            indices.push_back(i + 1);
-            indices.push_back(i + 3);
-            indices.push_back(i + 2);
-        }
-        figment.IndexBuffer->SetData(indices.data(), figment.IndexBuffer->GetSize());
+        // auto indices = std::vector<uint32_t>();
+        // int m = 8;
+        // int n = 8;
+        // for (int i = 0; i < (m - 1); i++) {
+        //     for (int j = 0; j < (n - 1); j++) {
+        //         int vertexIndex = i * n + j;
+        //
+        //         // First triangle forming the quad
+        //         indices.push_back(vertexIndex);                        // Top-left vertex
+        //         indices.push_back(vertexIndex + 1);                    // Top-right vertex
+        //         indices.push_back(vertexIndex + n);                    // Bottom-left vertex
+        //
+        //         // Second triangle forming the quad
+        //         indices.push_back(vertexIndex + n);                    // Bottom-left vertex
+        //         indices.push_back(vertexIndex + 1);                    // Top-right vertex
+        //         indices.push_back(vertexIndex + n + 1);                // Bottom-right vertex
+        //     }
+        // }
+        // figment.IndexBuffer->SetData(indices.data(), figment.IndexBuffer->GetSize());
 
         // TODO: Cache pipeline
         auto pipeline = new WebGPURenderPipeline(m_Context, *figment.Shader, figment.VertexBuffer->GetVertexLayout());
-        pipeline->SetPrimitiveState(WGPUPrimitiveTopology_TriangleStrip, WGPUIndexFormat_Uint32,
+        pipeline->SetPrimitiveState(WGPUPrimitiveTopology_PointList, WGPUIndexFormat_Undefined,
                 WGPUFrontFace_CCW,
                 WGPUCullMode_None);
         pipeline->SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
@@ -266,12 +274,13 @@ namespace Figment
         pipeline->Build();
 
 
-        wgpuRenderPassEncoderSetIndexBuffer(m_RenderPass, figment.IndexBuffer->GetBuffer(), WGPUIndexFormat_Uint32, 0, figment.IndexBuffer->GetSize());
+        // wgpuRenderPassEncoderSetIndexBuffer(m_RenderPass, figment.IndexBuffer->GetBuffer(), WGPUIndexFormat_Uint32, 0, figment.IndexBuffer->GetSize());
         wgpuRenderPassEncoderSetVertexBuffer(m_RenderPass, 0, figment.VertexBuffer->GetBuffer(), 0,
                 figment.VertexBuffer->GetSize());
         wgpuRenderPassEncoderSetPipeline(m_RenderPass, pipeline->GetPipeline());
         wgpuRenderPassEncoderSetBindGroup(m_RenderPass, 0, pipeline->GetBindGroup(), 0, nullptr);
-        wgpuRenderPassEncoderDrawIndexed(m_RenderPass, indices.size(), 1, 0, 0, 0);
+        // wgpuRenderPassEncoderDrawIndexed(m_RenderPass, indices.size(), 1, 0, 0, 0);
+        wgpuRenderPassEncoderDraw(m_RenderPass, figment.Config.Count, 1, 0, 0);
 
         s_Stats.VertexCount += figment.VertexBuffer->GetSize() / FigmentComponent::Vertex::Size();
         s_Stats.DrawCalls++;
