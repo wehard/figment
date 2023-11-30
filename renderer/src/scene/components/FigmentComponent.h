@@ -83,7 +83,6 @@ namespace Figment
         SharedPtr<WebGPUIndexBuffer < uint32_t>> IndexBuffer = nullptr;
         SharedPtr<WebGPUVertexBuffer < Vertex>> VertexBuffer = nullptr;
 
-        glm::vec4 *Data = nullptr;
         glm::vec4 Color = glm::vec4(1.0);
         bool Initialized = false;
 
@@ -104,7 +103,6 @@ namespace Figment
 
         ~FigmentComponent()
         {
-            delete Data;
         }
 
         void Init()
