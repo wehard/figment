@@ -14,7 +14,7 @@ namespace Figment
     {
         m_EditorCamera = CreateSharedPtr<PerspectiveCamera>((float)width / (float)height);
         m_EditorCameraController = CreateSharedPtr<CameraController>(m_EditorCamera);
-        m_EditorCamera->GetPositionPtr()->z = 10.0;
+        m_EditorCamera->GetPositionPtr()->z = 15.0;
         SetActiveCameraController(m_EditorCameraController);
 
         auto m_Window = App::Instance()->GetWindow();

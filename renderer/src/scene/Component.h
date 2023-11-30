@@ -96,7 +96,7 @@ namespace Figment
 
         struct FigmentConfig
         {
-            int Count = 4096;
+            int Count = 16384;
             char ComputeShaderSourceBuffer[MaxShaderSourceSize] = "";
             char ShaderSourceBuffer[MaxShaderSourceSize] = "";
         };
@@ -126,17 +126,17 @@ namespace Figment
                         },
                         {
                             .format = WGPUVertexFormat_Float32x3,
-                            .offset = sizeof(glm::vec3),
+                            .offset = 16,
                             .shaderLocation = 1,
                         },
                         {
                             .format = WGPUVertexFormat_Float32x2,
-                            .offset = sizeof(glm::vec3) + sizeof(glm::vec3),
+                            .offset = 32,
                             .shaderLocation = 2,
                         },
                         {
                             .format = WGPUVertexFormat_Float32x4,
-                            .offset = sizeof(glm::vec3) + sizeof(glm::vec3) + sizeof(glm::vec2),
+                            .offset = 48,
                             .shaderLocation = 3,
                         },
                 });

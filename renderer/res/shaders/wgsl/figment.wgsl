@@ -12,9 +12,21 @@ struct FigmentData {
 @binding(0) @group(0) var<uniform> cameraData: CameraData;
 @binding(1) @group(0) var<uniform> figmentData: FigmentData;
 
+struct VertexOutput {
+    @builtin(position) pos: vec4<f32>,
+    @location(0) normal: vec3<f32>,
+    @location(1) uv: vec2<f32>,
+    @location(2) color: vec4<f32>
+};
+
 @vertex
-fn vs_main(@location(0) in_vertex_position: vec3f) -> @builtin(position) vec4f {
-    return cameraData.proj * cameraData.view * figmentData.model * vec4<f32>(in_vertex_position, 1.0);
+fn vs_main(@location(0) in_position: vec3f, @location(1) in_normal: vec3f, @location(2) in_uv: vec2f, @location(3) in_color: vec4f) -> VertexOutput {
+    var output : VertexOutput;
+    output.pos = cameraData.proj * cameraData.view * figmentData.model * vec4<f32>(in_position, 1.0);
+    output.normal = in_normal;
+    output.uv = in_uv;
+    output.color = in_color;
+    return output;
 }
 
 struct FragmentOutput {
@@ -23,9 +35,9 @@ struct FragmentOutput {
 };
 
 @fragment
-fn fs_main() -> FragmentOutput {
+fn fs_main(input: VertexOutput) -> FragmentOutput {
         var output : FragmentOutput;
-        output.color = vec4<f32>(1.0 - sin(figmentData.time), 1.0 - cos(figmentData.time), 0.5, 1.0);
+        output.color = vec4<f32>(input.color.xyz, 1.0);
         output.id = figmentData.id;
         return output;
 }
