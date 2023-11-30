@@ -339,7 +339,7 @@ namespace Figment
         DrawComponent<FigmentComponent>("Figment", entity, [this](auto &component)
         {
             ImGui::ColorEdit4("Color", (float *)&component.Color);
-            ImGui::InputInt("Count", &component.Config.Count);
+            // ImGui::InputInt("Count", &component.Config.Count);
             if (!component.Initialized)
             {
                 if (ImGui::Button("Initialize", ImVec2(100, 20)))

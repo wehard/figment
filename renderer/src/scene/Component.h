@@ -96,9 +96,16 @@ namespace Figment
 
         struct FigmentConfig
         {
-            int Count = 16384;
+            // int Count = 1024;
+            int Width = 32;
+            int Height = 32;
             char ComputeShaderSourceBuffer[MaxShaderSourceSize] = "";
             char ShaderSourceBuffer[MaxShaderSourceSize] = "";
+
+            int Count() const
+            {
+                return Width * Height;
+            }
         };
 
         struct Vertex // TODO: Verify alignment
@@ -191,8 +198,8 @@ namespace Figment
 
         void CreateBuffers()
         {
-            uint64_t vertexBufferSize = Config.Count * Vertex::Size();
-            uint64_t indexBufferSize = Config.Count * 6 * sizeof(uint32_t);
+            uint64_t vertexBufferSize = Config.Count() * Vertex::Size();
+            uint64_t indexBufferSize = Config.Count() * 6 * sizeof(uint32_t);
 
             UniformBuffer = CreateSharedPtr<WebGPUUniformBuffer<FigmentData>>(m_Device, "FigmentDataUniformBuffer",
                     sizeof(FigmentData));
