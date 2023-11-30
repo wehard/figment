@@ -317,7 +317,7 @@ namespace Figment
             {
                 auto &transform = m_SelectedEntity.GetComponent<TransformComponent>();
                 auto &animate = m_SelectedEntity.AddComponent<AnimateComponent>();
-                animate.Set(&transform.Position.x);
+                animate.Set(&transform.Rotation.z);
                 ImGui::CloseCurrentPopup();
             }
         }
