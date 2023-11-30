@@ -37,7 +37,7 @@ struct FragmentOutput {
 @fragment
 fn fs_main(input: VertexOutput) -> FragmentOutput {
         var output : FragmentOutput;
-        output.color = vec4<f32>(input.color.xyz, 1.0);
+        output.color = vec4<f32>(input.uv, 0.0, 1.0);
         output.id = figmentData.id;
         return output;
 }
