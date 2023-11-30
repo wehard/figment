@@ -13,6 +13,7 @@ target_include_directories(figment PRIVATE
         lib/entt
         src/core
         src/scene
+        src/scene/components
         src/physics
         src/platform/opengl
         src/scripting
@@ -118,6 +119,7 @@ target_include_directories(figment_wasm
         src
         src/core
         src/scene
+        src/scene/components
         src/physics
         src/platform/opengl
         src/platform/webgpu/
