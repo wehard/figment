@@ -1,11 +1,10 @@
 #pragma once
 
 #include "Utils.h"
-#include <glm/gtx/transform.hpp>
 #include "WebGPUShader.h"
 #include "WebGPUBuffer.h"
-
 #include <string>
+
 namespace Figment
 {
     struct FigmentComponent
@@ -27,6 +26,7 @@ namespace Figment
             int Height = 32;
             char ComputeShaderSourceBuffer[MaxShaderSourceSize] = "";
             char ShaderSourceBuffer[MaxShaderSourceSize] = "";
+            glm::vec4 Color = glm::vec4(1.0);
 
             int Count() const
             {
@@ -79,11 +79,10 @@ namespace Figment
         FigmentConfig Config;
         SharedPtr<WebGPUShader> Shader = nullptr;
         SharedPtr<WebGPUShader> ComputeShader = nullptr;
-        SharedPtr<WebGPUUniformBuffer < FigmentData>> UniformBuffer = nullptr;
-        SharedPtr<WebGPUIndexBuffer < uint32_t>> IndexBuffer = nullptr;
-        SharedPtr<WebGPUVertexBuffer < Vertex>> VertexBuffer = nullptr;
+        SharedPtr<WebGPUUniformBuffer<FigmentData>> UniformBuffer = nullptr;
+        SharedPtr<WebGPUIndexBuffer<uint32_t>> IndexBuffer = nullptr;
+        SharedPtr<WebGPUVertexBuffer<Vertex>> VertexBuffer = nullptr;
 
-        glm::vec4 Color = glm::vec4(1.0);
         bool Initialized = false;
 
         FigmentComponent() = default;
@@ -109,7 +108,7 @@ namespace Figment
         {
             if (m_Device == nullptr)
             {
-                printf("FigmentComponent::Init: m_Device is null\n");
+                FIG_LOG_ERROR("FigmentComponent::Init: m_Device is null");
                 return;
             }
 
@@ -125,15 +124,15 @@ namespace Figment
             uint64_t vertexBufferSize = Config.Count() * Vertex::Size();
             uint64_t indexBufferSize = Config.Count() * 6 * sizeof(uint32_t);
 
-            UniformBuffer = CreateSharedPtr<WebGPUUniformBuffer < FigmentData>>
-            (m_Device, "FigmentDataUniformBuffer",
-                    sizeof(FigmentData));
-            IndexBuffer = CreateSharedPtr<WebGPUIndexBuffer < uint32_t>>
-            (m_Device, "FigmentIndexBuffer",
-                    indexBufferSize);
-            VertexBuffer = CreateSharedPtr<WebGPUVertexBuffer < Vertex>>
-            (m_Device, "FigmentVertexBuffer",
-                    vertexBufferSize);
+            UniformBuffer = CreateSharedPtr<WebGPUUniformBuffer<FigmentData>>
+                    (m_Device, "FigmentDataUniformBuffer",
+                            sizeof(FigmentData));
+            IndexBuffer = CreateSharedPtr<WebGPUIndexBuffer<uint32_t>>
+                    (m_Device, "FigmentIndexBuffer",
+                            indexBufferSize);
+            VertexBuffer = CreateSharedPtr<WebGPUVertexBuffer<Vertex>>
+                    (m_Device, "FigmentVertexBuffer",
+                            vertexBufferSize);
             VertexBuffer->SetVertexLayout(Vertex::Layout(), Vertex::Size(), WGPUVertexStepMode_Vertex);
         }
 

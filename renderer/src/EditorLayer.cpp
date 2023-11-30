@@ -211,7 +211,7 @@ namespace Figment
     static void DrawFigmentComponent(FigmentComponent &figment)
     {
         ImGui::Text("Figment\n%s", figment.ComputeShader->GetShaderSource().c_str());
-        ImGui::ColorEdit4("Color", (float *)&figment.Color);
+        ImGui::ColorEdit4("Color", (float *)&figment.Config.Color);
         ImGui::Button("Edit source", ImVec2(100, 20));
         ImGui::SameLine();
         if (!figment.Initialized)
@@ -338,7 +338,7 @@ namespace Figment
         DrawComponent<CircleComponent>("Circle", entity, DrawCircleComponent);
         DrawComponent<FigmentComponent>("Figment", entity, [this](auto &component)
         {
-            ImGui::ColorEdit4("Color", (float *)&component.Color);
+            ImGui::ColorEdit4("Color", (float *)&component.Config.Color);
             // ImGui::InputInt("Count", &component.Config.Count);
             if (!component.Initialized)
             {
