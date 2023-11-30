@@ -101,5 +101,17 @@ namespace Figment
         {
             wgpuCommandBufferRelease(commandBuffer);
         }
+
+        template<typename T>
+        static void DrawIndexed(WGPURenderPassEncoder renderPass, WGPURenderPipeline pipeline, WGPUBindGroup bindGroup,
+                WebGPUIndexBuffer<uint32_t> &indexBuffer, WebGPUVertexBuffer<T> &vertexBuffer, uint32_t indexCount)
+        {
+            wgpuRenderPassEncoderSetIndexBuffer(renderPass, indexBuffer.GetBuffer(), WGPUIndexFormat_Uint32, 0,
+                    indexBuffer.GetSize());
+            wgpuRenderPassEncoderSetVertexBuffer(renderPass, 0, vertexBuffer.GetBuffer(), 0, vertexBuffer.GetSize());
+            wgpuRenderPassEncoderSetPipeline(renderPass, pipeline);
+            wgpuRenderPassEncoderSetBindGroup(renderPass, 0, bindGroup, 0, nullptr);
+            wgpuRenderPassEncoderDrawIndexed(renderPass, indexCount, 1, 0, 0, 0);
+        }
     };
 }

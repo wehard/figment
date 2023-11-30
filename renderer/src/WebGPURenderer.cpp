@@ -216,8 +216,6 @@ namespace Figment
         m_QuadVertexBuffer->SetData(m_RendererData.QuadVertices.data(),
                 m_RendererData.QuadVertexCount * sizeof(QuadVertex));
 
-
-
         wgpuRenderPassEncoderSetPipeline(m_RenderPass, m_QuadPipeline->GetPipeline());
         wgpuRenderPassEncoderSetVertexBuffer(m_RenderPass, 0, m_QuadVertexBuffer->GetBuffer(), 0,
                 m_RendererData.QuadVertexCount * sizeof(QuadVertex));
@@ -232,15 +230,17 @@ namespace Figment
         auto indices = std::vector<uint32_t>();
         int width = figment.Config.Width;
         int height = figment.Config.Height;
-        for (int y = 0; y < (height - 1); y++) {
-            for (int x = 0; x < (width - 1); x++) {
-                int i = x + y * width;
-                indices.push_back(i);
-                indices.push_back(i + 1);
-                indices.push_back(i + width);
-                indices.push_back(i + 1);
-                indices.push_back(i + width + 1);
-                indices.push_back(i + width);
+        for (int y = 0; y < (height - 1); y++)
+        {
+            for (int x = 0; x < (width - 1); x++)
+            {
+                int vertexIndex = x + y * width;
+                indices.push_back(vertexIndex);
+                indices.push_back(vertexIndex + 1);
+                indices.push_back(vertexIndex + width);
+                indices.push_back(vertexIndex + 1);
+                indices.push_back(vertexIndex + width + 1);
+                indices.push_back(vertexIndex + width);
             }
         }
         figment.IndexBuffer->SetData(indices.data(), figment.IndexBuffer->GetSize());
@@ -253,7 +253,8 @@ namespace Figment
         pipeline->SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
         pipeline->SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(0),
                 m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
-        pipeline->SetBinding(figment.UniformBuffer->GetBindGroupLayoutEntry(1),  figment.UniformBuffer->GetBindGroupEntry(1, 0));
+        pipeline->SetBinding(figment.UniformBuffer->GetBindGroupLayoutEntry(1),
+                figment.UniformBuffer->GetBindGroupEntry(1, 0));
         auto colorTargetStates = std::vector<WGPUColorTargetState>({
                 {
                         .format = m_Context.GetTextureFormat(),
@@ -269,14 +270,10 @@ namespace Figment
         pipeline->SetColorTargetStates(colorTargetStates);
         pipeline->Build();
 
+        WebGPUCommand::DrawIndexed(m_RenderPass, pipeline->GetPipeline(), pipeline->GetBindGroup(),
+                *figment.IndexBuffer, *figment.VertexBuffer, indices.size());
 
-        wgpuRenderPassEncoderSetIndexBuffer(m_RenderPass, figment.IndexBuffer->GetBuffer(), WGPUIndexFormat_Uint32, 0, figment.IndexBuffer->GetSize());
-        wgpuRenderPassEncoderSetVertexBuffer(m_RenderPass, 0, figment.VertexBuffer->GetBuffer(), 0,
-                figment.VertexBuffer->GetSize());
-        wgpuRenderPassEncoderSetPipeline(m_RenderPass, pipeline->GetPipeline());
-        wgpuRenderPassEncoderSetBindGroup(m_RenderPass, 0, pipeline->GetBindGroup(), 0, nullptr);
-        wgpuRenderPassEncoderDrawIndexed(m_RenderPass, indices.size(), 1, 0, 0, 0);
-        // wgpuRenderPassEncoderDraw(m_RenderPass, figment.Config.Count, 1, 0, 0);
+        delete pipeline;
 
         s_Stats.VertexCount += figment.VertexBuffer->GetSize() / FigmentComponent::Vertex::Size();
         s_Stats.DrawCalls++;
