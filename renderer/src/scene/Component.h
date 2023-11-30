@@ -82,8 +82,6 @@ namespace Figment
         QuadComponent() = default;
     };
 
-
-
     struct CameraComponent
     {
     public:
@@ -101,5 +99,111 @@ namespace Figment
         }
     private:
         SharedPtr<PerspectiveCamera> Camera;
+    };
+
+    struct AnimateComponent
+    {
+    public:
+        enum class MotionType
+        {
+            PingPong,
+            Loop,
+            Once,
+            OnceAndBack,
+        };
+
+        MotionType Type = MotionType::OnceAndBack;
+        float Speed = 1.0f;
+        float Min = 0.0f;
+        float Max = 1.0f;
+
+        AnimateComponent() = default;
+        AnimateComponent(const AnimateComponent &) = default;
+
+        void Update(float deltaTime)
+        {
+            if (m_Value == nullptr)
+                return;
+
+            switch (Type)
+            {
+                case MotionType::PingPong:
+                    UpdatePingPong(deltaTime);
+                    break;
+                case MotionType::Loop:
+                    UpdateLoop(deltaTime);
+                    break;
+                case MotionType::Once:
+                    UpdateOnce(deltaTime);
+                    break;
+                case MotionType::OnceAndBack:
+                    UpdateOnceAndBack(deltaTime);
+                    break;
+            }
+
+            *m_Value += Speed * deltaTime;
+        }
+
+        void Set(float *value)
+        {
+            m_Value = value;
+        }
+
+        static std::vector<const char *> GetMotionTypeLabels()
+        {
+            return {
+                    "PingPong",
+                    "Loop",
+                    "Once",
+                    "OnceAndBack"
+            };
+        }
+
+    private:
+        float *m_Value = nullptr;
+
+        void UpdatePingPong(float deltaTime)
+        {
+            if (*m_Value >= Max)
+            {
+                Speed = -Speed;
+                *m_Value = Max;
+            }
+            else if (*m_Value <= Min)
+            {
+                Speed = -Speed;
+                *m_Value = Min;
+            }
+        }
+
+        void UpdateLoop(float deltaTime)
+        {
+            if (*m_Value >= Max)
+                *m_Value = Min;
+            else if (*m_Value <= Min)
+                *m_Value = Max;
+        }
+
+        void UpdateOnce(float deltaTime)
+        {
+            if (*m_Value >= Max)
+                *m_Value = Max;
+            else if (*m_Value <= Min)
+                *m_Value = Min;
+        }
+
+        void UpdateOnceAndBack(float deltaTime)
+        {
+            if (*m_Value >= Max)
+            {
+                Speed = -Speed;
+                *m_Value = Max;
+            }
+            else if (*m_Value <= Min)
+            {
+                Speed = -Speed;
+                *m_Value = Min;
+            }
+        }
     };
 }

@@ -96,12 +96,6 @@ namespace Figment
                     continue;
 
                 m_Renderer->Compute(figment);
-                // figment.MapBuffer->MapReadAsync([&figment](const glm::vec4 *data, size_t size)
-                // {
-                //     if (figment.Data == nullptr)
-                //         figment.Data = new glm::vec4[figment.Config.Count];
-                //     memcpy(figment.Data, data, size);
-                // });
             }
         }
         m_Renderer->EndComputePass();
@@ -121,6 +115,13 @@ namespace Figment
             {
                 m_HoveredId = id;
             });
+        }
+
+        for (auto &e : m_Registry.view<AnimateComponent>())
+        {
+            Entity entity = { e, this };
+            auto &animate = entity.GetComponent<AnimateComponent>();
+            animate.Update(deltaTime);
         }
 
         auto entities = m_Registry.view<TransformComponent>();

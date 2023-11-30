@@ -307,6 +307,22 @@ namespace Figment
         }
     }
 
+    // Specialize the template for AnimateComponent
+    template<>
+    void EditorLayer::DisplayAddComponentEntry<AnimateComponent>(const std::string &entryName)
+    {
+        if (!m_SelectedEntity.HasComponent<AnimateComponent>())
+        {
+            if (ImGui::MenuItem(entryName.c_str()))
+            {
+                auto &transform = m_SelectedEntity.GetComponent<TransformComponent>();
+                auto &animate = m_SelectedEntity.AddComponent<AnimateComponent>();
+                animate.Set(&transform.Position.x);
+                ImGui::CloseCurrentPopup();
+            }
+        }
+    }
+
     void EditorLayer::DrawEntityInspectorPanel(Entity entity)
     {
         ImGui::SetNextWindowPos(ImVec2(0, 300), ImGuiCond_Once);
@@ -328,6 +344,7 @@ namespace Figment
             DisplayAddComponentEntry<CameraComponent>("Camera");
             DisplayAddComponentEntry<QuadComponent>("Quad");
             DisplayAddComponentEntry<CircleComponent>("Circle");
+            DisplayAddComponentEntry<AnimateComponent>("Animate");
             DisplayAddComponentEntry<FigmentComponent>("Figment");
             ImGui::EndPopup();
         }
@@ -363,6 +380,17 @@ namespace Figment
             DrawCameraComponent(component, *m_Scene);
         });
 
+        DrawComponent<AnimateComponent>("Animate", entity, [](auto &component)
+        {
+            // Draw dropdown for selecting motion type
+            static const char *motionTypes[] = {"PingPong", "Loop", "Once", "OnceAndBack"};
+            static int motionTypeIndex = 0;
+            ImGui::Combo("Motion Type", &motionTypeIndex, component.GetMotionTypeLabels().data(), IM_ARRAYSIZE(motionTypes));
+            component.Type = (AnimateComponent::MotionType)motionTypeIndex;
+            // draw range slider
+            ImGui::DragFloatRange2("Range", &component.Min, &component.Max, 0.1f, 0.0f, 0.0f, "%.2f");
+            ImGui::DragFloat("Speed", &component.Speed, 0.1f, 0.0f, 0.0f, "%.2f");
+        });
         ImGui::End();
     }
 
