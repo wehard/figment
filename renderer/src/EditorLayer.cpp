@@ -380,16 +380,32 @@ namespace Figment
             DrawCameraComponent(component, *m_Scene);
         });
 
-        DrawComponent<AnimateComponent>("Animate", entity, [](auto &component)
+        DrawComponent<AnimateComponent>("Animate", entity, [this](auto &component)
         {
             // Draw dropdown for selecting motion type
             static const char *motionTypes[] = {"PingPong", "Loop", "Once", "OnceAndBack"};
             static int motionTypeIndex = 0;
             ImGui::Combo("Motion Type", &motionTypeIndex, component.GetMotionTypeLabels().data(), IM_ARRAYSIZE(motionTypes));
             component.Type = (AnimateComponent::MotionType)motionTypeIndex;
-            // draw range slider
             ImGui::DragFloatRange2("Range", &component.Min, &component.Max, 0.1f, 0.0f, 0.0f, "%.2f");
             ImGui::DragFloat("Speed", &component.Speed, 0.1f, 0.0f, 0.0f, "%.2f");
+            // Draw dropdown for selecting target
+            static const char *targets[] = {"Position", "Rotation", "Scale"};
+            static int targetIndex = 0;
+            ImGui::Combo("Target", &targetIndex, targets, IM_ARRAYSIZE(targets));
+            auto &transform = m_SelectedEntity.GetComponent<TransformComponent>();
+            switch (targetIndex)
+            {
+            case 0:
+                component.Set(&transform.Position.x);
+                break;
+            case 1:
+                component.Set(&transform.Rotation.z);
+                break;
+            case 2:
+                component.Set(&transform.Scale.x);
+                break;
+            }
         });
         ImGui::End();
     }
