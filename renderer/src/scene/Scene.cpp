@@ -133,13 +133,13 @@ namespace Figment
             {
                 auto &circle = entity.GetComponent<CircleComponent>();
                 auto color = entity.GetHandle() == m_HoveredId ? glm::vec4(1.0, 1.0, 1.0, 1.0) : circle.Color;
-                m_Renderer->DrawCircle(transform.Position, transform.Scale, color, (int)entity.GetHandle());
+                m_Renderer->SubmitCircle(transform.Position, transform.Scale, color, (int)entity.GetHandle());
             }
             if (entity.HasComponent<QuadComponent>())
             {
                 auto &quad = entity.GetComponent<QuadComponent>();
                 auto color = entity.GetHandle() == m_HoveredId ? glm::vec4(1.0, 1.0, 1.0, 1.0) : quad.Color;
-                m_Renderer->DrawQuad(transform.Position, transform.Scale, color, (int)entity.GetHandle());
+                m_Renderer->SubmitQuad(transform.Position, transform.Scale, color, (int)entity.GetHandle());
             }
         }
 

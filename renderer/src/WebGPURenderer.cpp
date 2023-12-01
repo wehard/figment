@@ -225,11 +225,9 @@ namespace Figment
         s_Stats.DrawCalls++;
     }
 
-    void WebGPURenderer::DrawFigment(FigmentComponent &figment, int32_t id)
+    static std::vector<uint32_t> GenerateIndices(int width, int height)
     {
         auto indices = std::vector<uint32_t>();
-        int width = figment.Config.Width;
-        int height = figment.Config.Height;
         for (int y = 0; y < (height - 1); y++)
         {
             for (int x = 0; x < (width - 1); x++)
@@ -243,11 +241,20 @@ namespace Figment
                 indices.push_back(vertexIndex + width);
             }
         }
-        figment.IndexBuffer->SetData(indices.data(), figment.IndexBuffer->GetSize());
+        return indices;
+    }
+
+    void WebGPURenderer::DrawFigment(FigmentComponent &figment, int32_t id)
+    {
+        // auto indices = GenerateIndices(figment.Config.Width, figment.Config.Height);
+        // figment.IndexBuffer->SetData(indices.data(), figment.IndexBuffer->GetSize());
 
         // TODO: Cache pipeline
         auto pipeline = new WebGPURenderPipeline(m_Context, *figment.Shader, figment.VertexBuffer->GetVertexLayout());
-        pipeline->SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined,
+        // pipeline->SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined,
+        //         WGPUFrontFace_CCW,
+        //         WGPUCullMode_None);
+        pipeline->SetPrimitiveState(WGPUPrimitiveTopology_PointList, WGPUIndexFormat_Undefined,
                 WGPUFrontFace_CCW,
                 WGPUCullMode_None);
         pipeline->SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
@@ -270,8 +277,11 @@ namespace Figment
         pipeline->SetColorTargetStates(colorTargetStates);
         pipeline->Build();
 
-        WebGPUCommand::DrawIndexed(m_RenderPass, pipeline->GetPipeline(), pipeline->GetBindGroup(),
-                *figment.IndexBuffer, *figment.VertexBuffer, indices.size());
+        // WebGPUCommand::DrawIndexed(m_RenderPass, pipeline->GetPipeline(), pipeline->GetBindGroup(),
+        //         *figment.IndexBuffer, *figment.VertexBuffer, indices.size());
+
+        WebGPUCommand::DrawVertices(m_RenderPass, pipeline->GetPipeline(), pipeline->GetBindGroup(),
+                *figment.VertexBuffer, figment.Config.Count());
 
         delete pipeline;
 
@@ -279,12 +289,12 @@ namespace Figment
         s_Stats.DrawCalls++;
     }
 
-    void WebGPURenderer::DrawQuad(glm::vec3 position, glm::vec4 color, int32_t id)
+    void WebGPURenderer::SubmitQuad(glm::vec3 position, glm::vec4 color, int32_t id)
     {
-        DrawQuad(position, glm::vec3(1.0f), color, id);
+        SubmitQuad(position, glm::vec3(1.0f), color, id);
     }
 
-    void WebGPURenderer::DrawQuad(glm::vec3 position, glm::vec3 scale, glm::vec4 color, int32_t id)
+    void WebGPURenderer::SubmitQuad(glm::vec3 position, glm::vec3 scale, glm::vec4 color, int32_t id)
     {
         if (m_RendererData.QuadVertexCount >= MaxQuadVertexCount)
             return;
@@ -302,12 +312,12 @@ namespace Figment
         m_RendererData.QuadVertexCount += 6;
     }
 
-    void WebGPURenderer::DrawCircle(glm::vec3 position, glm::vec4 color, float radius, int32_t id)
+    void WebGPURenderer::SubmitCircle(glm::vec3 position, glm::vec4 color, float radius, int32_t id)
     {
-        DrawCircle(position, glm::vec3(radius), color, id);
+        SubmitCircle(position, glm::vec3(radius), color, id);
     }
 
-    void WebGPURenderer::DrawCircle(glm::vec3 position, glm::vec3 scale, glm::vec4 color, int32_t id)
+    void WebGPURenderer::SubmitCircle(glm::vec3 position, glm::vec3 scale, glm::vec4 color, int32_t id)
     {
         if (m_RendererData.CircleVertexCount >= MaxCircleVertexCount)
             return;
@@ -358,9 +368,7 @@ namespace Figment
         m_ComputePass = wgpuCommandEncoderBeginComputePass(m_ComputeCommandEncoder, &computePassDesc);
     }
 
-// void WebGPURenderer::Compute(WebGPUShader &computeShader, WebGPUBuffer<glm::vec4> &buffer,
-//         WebGPUBuffer<glm::vec4> &mapBuffer)
-    void WebGPURenderer::Compute(Figment::FigmentComponent &figment)
+    void WebGPURenderer::Compute(FigmentComponent &figment)
     {
         WGPUBindGroupLayoutEntry bindGroupLayoutEntry = GetDefaultWGPUBindGroupLayoutEntry();
         bindGroupLayoutEntry.nextInChain = nullptr;
@@ -424,11 +432,6 @@ namespace Figment
         uint32_t workgroupSize = 32;
         uint32_t workgroupCount = (invocationCount + workgroupSize - 1) / workgroupSize;
         wgpuComputePassEncoderDispatchWorkgroups(m_ComputePass, workgroupCount, 1, 1);
-
-        // figment.MapBuffer->Unmap();
-        //
-        // WebGPUCommand::CopyBufferToBuffer(m_Context.GetDevice(), *figment.Result, *figment.MapBuffer,
-        //         figment.Result->GetSize());
     }
 
     void WebGPURenderer::EndComputePass()

@@ -113,5 +113,15 @@ namespace Figment
             wgpuRenderPassEncoderSetBindGroup(renderPass, 0, bindGroup, 0, nullptr);
             wgpuRenderPassEncoderDrawIndexed(renderPass, indexCount, 1, 0, 0, 0);
         }
+
+        template<typename T>
+        static void DrawVertices(WGPURenderPassEncoder renderPass, WGPURenderPipeline pipeline, WGPUBindGroup bindGroup,
+                WebGPUVertexBuffer<T> &vertexBuffer, uint32_t vertexCount)
+        {
+            wgpuRenderPassEncoderSetVertexBuffer(renderPass, 0, vertexBuffer.GetBuffer(), 0, vertexBuffer.GetSize());
+            wgpuRenderPassEncoderSetPipeline(renderPass, pipeline);
+            wgpuRenderPassEncoderSetBindGroup(renderPass, 0, bindGroup, 0, nullptr);
+            wgpuRenderPassEncoderDraw(renderPass, vertexCount, 1, 0, 0);
+        }
     };
 }

@@ -90,16 +90,16 @@ namespace Figment
         explicit WebGPURenderer(WebGPUContext &context);
         ~WebGPURenderer();
         void InitShaders();
-        WGPURenderPassEncoder Begin(Figment::Camera &camera);
+        WGPURenderPassEncoder Begin(Camera &camera);
         void End();
         void BeginComputePass();
         void EndComputePass();
-        void Compute(Figment::FigmentComponent &figment);
-        void DrawQuad(glm::vec3 position, glm::vec4 color, int32_t id);
-        void DrawQuad(glm::vec3 position, glm::vec3 scale, glm::vec4 color, int32_t id);
-        void DrawCircle(glm::vec3 position, glm::vec4 color, float radius, int32_t id);
-        void DrawCircle(glm::vec3 position, glm::vec3 scale, glm::vec4 color, int32_t id);
-        void DrawFigment(Figment::FigmentComponent &figment, int32_t id);
+        void Compute(FigmentComponent &figment);
+        void SubmitQuad(glm::vec3 position, glm::vec4 color, int32_t id);
+        void SubmitQuad(glm::vec3 position, glm::vec3 scale, glm::vec4 color, int32_t id);
+        void SubmitCircle(glm::vec3 position, glm::vec4 color, float radius, int32_t id);
+        void SubmitCircle(glm::vec3 position, glm::vec3 scale, glm::vec4 color, int32_t id);
+        void DrawFigment(FigmentComponent &figment, int32_t id);
         void ReadPixel(int x, int y, const std::function<void(int32_t)> &callback);
         void OnResize(uint32_t width, uint32_t height);
 
