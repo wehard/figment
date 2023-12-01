@@ -246,17 +246,23 @@ namespace Figment
 
     void WebGPURenderer::DrawFigment(FigmentComponent &figment, int32_t id)
     {
-        // auto indices = GenerateIndices(figment.Config.Width, figment.Config.Height);
-        // figment.IndexBuffer->SetData(indices.data(), figment.IndexBuffer->GetSize());
+        auto indices = GenerateIndices(figment.Config.Width, figment.Config.Height);
+        figment.IndexBuffer->SetData(indices.data(), figment.IndexBuffer->GetSize());
 
         // TODO: Cache pipeline
         auto pipeline = new WebGPURenderPipeline(m_Context, *figment.Shader, figment.VertexBuffer->GetVertexLayout());
-        // pipeline->SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined,
-        //         WGPUFrontFace_CCW,
-        //         WGPUCullMode_None);
-        pipeline->SetPrimitiveState(WGPUPrimitiveTopology_PointList, WGPUIndexFormat_Undefined,
-                WGPUFrontFace_CCW,
-                WGPUCullMode_None);
+        if (figment.Config.DrawPoints)
+        {
+            pipeline->SetPrimitiveState(WGPUPrimitiveTopology_PointList, WGPUIndexFormat_Undefined,
+                    WGPUFrontFace_CCW,
+                    WGPUCullMode_None);
+        }
+        else
+        {
+            pipeline->SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined,
+                    WGPUFrontFace_CCW,
+                    WGPUCullMode_None);
+        }
         pipeline->SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
         pipeline->SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(0),
                 m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
@@ -277,11 +283,16 @@ namespace Figment
         pipeline->SetColorTargetStates(colorTargetStates);
         pipeline->Build();
 
-        // WebGPUCommand::DrawIndexed(m_RenderPass, pipeline->GetPipeline(), pipeline->GetBindGroup(),
-        //         *figment.IndexBuffer, *figment.VertexBuffer, indices.size());
-
-        WebGPUCommand::DrawVertices(m_RenderPass, pipeline->GetPipeline(), pipeline->GetBindGroup(),
-                *figment.VertexBuffer, figment.Config.Count());
+        if (figment.Config.DrawPoints)
+        {
+            WebGPUCommand::DrawVertices(m_RenderPass, pipeline->GetPipeline(), pipeline->GetBindGroup(),
+                    *figment.VertexBuffer, figment.Config.Count());
+        }
+        else
+        {
+            WebGPUCommand::DrawIndexed(m_RenderPass, pipeline->GetPipeline(), pipeline->GetBindGroup(),
+                    *figment.IndexBuffer, *figment.VertexBuffer, indices.size());
+        }
 
         delete pipeline;
 

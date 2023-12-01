@@ -27,6 +27,7 @@ namespace Figment
             char ComputeShaderSourceBuffer[MaxShaderSourceSize] = "";
             char ShaderSourceBuffer[MaxShaderSourceSize] = "";
             glm::vec4 Color = glm::vec4(1.0);
+            bool DrawPoints = false;
 
             int Count() const
             {

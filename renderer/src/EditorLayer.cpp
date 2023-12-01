@@ -356,6 +356,7 @@ namespace Figment
         DrawComponent<FigmentComponent>("Figment", entity, [this](auto &component)
         {
             ImGui::ColorEdit4("Color", (float *)&component.Config.Color);
+            ImGui::Checkbox("Draw Points", &component.Config.DrawPoints);
             // ImGui::InputInt("Count", &component.Config.Count);
             if (!component.Initialized)
             {
