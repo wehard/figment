@@ -8,7 +8,6 @@
 
 #include "imgui_impl_wgpu.h"
 #include "WebGPUWindow.h"
-#include "EditorLayer.h"
 
 namespace Figment
 {
