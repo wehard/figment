@@ -24,6 +24,8 @@ namespace Figment
         App(uint32_t width, uint32_t height);
         ~App();
 
+        void AddLayer(Figment::UniquePtr<Figment::Layer> layer)
+        { m_Layers.emplace_back(std::move(layer)); }
         void Update();
         Figment::SharedPtr<Window> GetWindow()
         { return m_Window; }

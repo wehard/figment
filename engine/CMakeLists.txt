@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 project(engine)
 
-add_executable(engine "")
+add_library(engine STATIC)
 
 target_compile_definitions(engine PRIVATE GL_SILENCE_DEPRECATION)
 target_compile_definitions(engine PRIVATE WEBGPU_BACKEND_EMSCRIPTEN)
@@ -64,33 +64,33 @@ set_target_properties(engine PROPERTIES LINK_FLAGS "\
         --shell-file ${CMAKE_CURRENT_SOURCE_DIR}/index.html\
 ")
 
-add_custom_target(cleanup
-        COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_BINARY_DIR}/engine.data
-        COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_BINARY_DIR}/engine.wasm
-        COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_BINARY_DIR}/engine.js
-        COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_BINARY_DIR}/index.html
-        COMMENT "Removed ems files."
-)
-
-add_dependencies(engine cleanup)
-
-add_custom_command(
-        TARGET engine
-        PRE_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/res ${CMAKE_BINARY_DIR}/res
-        COMMENT "Copied resources to ${CMAKE_BINARY_DIR}"
-)
-
-add_custom_command(TARGET engine POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/index.html ${CMAKE_CURRENT_BINARY_DIR}/index.html
-        COMMENT "Copied shell file to: ${CMAKE_CURRENT_BINARY_DIR}"
-)
-
-add_custom_command(TARGET engine POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/engine.wasm ${CMAKE_CURRENT_SOURCE_DIR}/../app/src/renderer/engine.wasm
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/engine.js ${CMAKE_CURRENT_SOURCE_DIR}/../app/src/renderer/engine.js
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/engine.data ${CMAKE_CURRENT_SOURCE_DIR}/../app/public/engine.data
-        COMMENT "Copied build files to app."
-)
+#add_custom_target(cleanup
+#        COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_BINARY_DIR}/engine.data
+#        COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_BINARY_DIR}/engine.wasm
+#        COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_BINARY_DIR}/engine.js
+#        COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_BINARY_DIR}/index.html
+#        COMMENT "Removed ems files."
+#)
+#
+#add_dependencies(engine cleanup)
+#
+#add_custom_command(
+#        TARGET engine
+#        PRE_BUILD
+#        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/res ${CMAKE_BINARY_DIR}/res
+#        COMMENT "Copied resources to ${CMAKE_BINARY_DIR}"
+#)
+#
+#add_custom_command(TARGET engine POST_BUILD
+#        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/index.html ${CMAKE_CURRENT_BINARY_DIR}/index.html
+#        COMMENT "Copied shell file to: ${CMAKE_CURRENT_BINARY_DIR}"
+#)
+#
+#add_custom_command(TARGET engine POST_BUILD
+#        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/engine.wasm ${CMAKE_CURRENT_SOURCE_DIR}/../app/src/renderer/engine.wasm
+#        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/engine.js ${CMAKE_CURRENT_SOURCE_DIR}/../app/src/renderer/engine.js
+#        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/engine.data ${CMAKE_CURRENT_SOURCE_DIR}/../app/public/engine.data
+#        COMMENT "Copied build files to app."
+#)
 
 

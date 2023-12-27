@@ -31,7 +31,6 @@ namespace Figment
         m_GUICtx = Figment::CreateUniquePtr<WebGPUGUIContext>();
         m_GUICtx->Init(m_Window, "glslVersion");
 
-        m_Layers.emplace_back(Figment::CreateUniquePtr<Figment::EditorLayer>());
         FIG_LOG_INFO("App initialized");
     }
 
