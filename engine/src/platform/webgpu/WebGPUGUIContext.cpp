@@ -36,6 +36,13 @@ namespace Figment
         FIG_LOG_INFO("WebGPU GUIContext initialized");
     }
 
+    void WebGPUGUIContext::Begin()
+    {
+        ImGui_ImplWGPU_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+    }
+
     void WebGPUGUIContext::Render()
     {
         WGPUCommandEncoderDescriptor desc = {};

@@ -15,6 +15,7 @@ namespace Figment
     public:
         WebGPUGUIContext() = default;
         void Init(std::shared_ptr<Window> window, const char *glslVersion) override;
+        void Begin();
         void Render() override;
         void Shutdown() override;
         ~WebGPUGUIContext() override = default;

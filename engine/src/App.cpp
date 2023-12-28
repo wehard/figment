@@ -59,6 +59,7 @@ namespace Figment
             layer->OnUpdate(deltaTime);
         }
 
+        m_GUICtx->Begin();
         for (auto &layer : m_Layers)
         {
             layer->OnImGuiRender();

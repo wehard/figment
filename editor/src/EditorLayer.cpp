@@ -540,10 +540,6 @@ namespace Figment
 
     void EditorLayer::OnImGuiRender()
     {
-        ImGui_ImplWGPU_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
         DrawInfoPanel(*m_Scene, m_SelectedEntity);
 
         DrawScenePanel(m_Scene->GetEntities(), [this](Entity entity)
