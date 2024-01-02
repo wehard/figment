@@ -4,6 +4,7 @@
 #include <webgpu/webgpu.h>
 #include <vector>
 #include <iostream>
+#include <functional>
 
 namespace Figment
 {

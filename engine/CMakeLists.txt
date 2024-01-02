@@ -3,6 +3,7 @@ project(engine)
 
 add_library(engine STATIC)
 
+
 target_compile_definitions(engine PRIVATE GL_SILENCE_DEPRECATION)
 target_compile_definitions(engine PRIVATE WEBGPU_BACKEND_EMSCRIPTEN)
 target_compile_options(engine PRIVATE -Wno-deprecated-literal-operator)

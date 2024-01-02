@@ -373,7 +373,6 @@ namespace Figment
 
         WGPUComputePassDescriptor computePassDesc = {};
         computePassDesc.label = "ComputePass";
-        computePassDesc.timestampWriteCount = 0;
         computePassDesc.timestampWrites = nullptr;
 
         m_ComputePass = wgpuCommandEncoderBeginComputePass(m_ComputeCommandEncoder, &computePassDesc);
