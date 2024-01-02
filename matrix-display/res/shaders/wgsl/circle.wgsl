@@ -30,11 +30,12 @@ struct FragmentOutput {
 @fragment
 fn fs_main(@location(0) color: vec4<f32>, @location(1) uv: vec2<f32>, @location(2)  @interpolate(flat) id: i32) -> FragmentOutput {
     var output: FragmentOutput;
-    if(abs(length(uv)) > 0.5) {
+    var len: f32 = abs(length(uv));
+    if(len > 0.5) {
         discard;
     }
 
-    output.color = color;
+    output.color = color * (1.0 - len);
     output.id = id;
     return output;
 }
