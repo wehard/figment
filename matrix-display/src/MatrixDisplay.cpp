@@ -12,6 +12,7 @@ MatrixDisplay::MatrixDisplay(float windowWidth, float windowHeight)
 
     Clear();
     PutPixel(10, 10, glm::vec4(1.0, 0.0, 0.0, 1.0));
+    PutPixel(20, 10, glm::vec4(0.0, 1.0, 0.0, 1.0));
 }
 
 void MatrixDisplay::OnAttach()
@@ -50,7 +51,10 @@ void MatrixDisplay::OnImGuiRender()
 
 void MatrixDisplay::OnEvent(Figment::AppEvent event, void *eventData)
 {
+    auto ev = (Figment::WindowResizeEventData *)eventData;
 
+    m_Camera->Resize((float)ev->Width, (float)ev->Height);
+    m_Renderer->OnResize(ev->Width, ev->Height);
 }
 
 void MatrixDisplay::PutPixel(uint32_t x, uint32_t y, glm::vec4 color)
