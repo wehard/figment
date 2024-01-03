@@ -89,6 +89,7 @@ void MatrixDisplay::OnEvent(Figment::AppEvent event, void *eventData)
 {
     auto ev = (Figment::WindowResizeEventData *)eventData;
 
+    m_WindowSize = glm::vec2(ev->Width, ev->Height);
     m_Camera->Resize((float)ev->Width, (float)ev->Height);
     m_Renderer->OnResize(ev->Width, ev->Height);
 }
