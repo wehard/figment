@@ -22,5 +22,8 @@ private:
     Figment::UniquePtr<Figment::Scene> m_Scene;
     glm::vec4 m_Matrix[m_Width * m_Height];
     Figment::UniquePtr<Figment::WebGPURenderer> m_Renderer;
-    Figment::UniquePtr<Figment::PerspectiveCamera> m_Camera;
+    Figment::UniquePtr<Figment::OrthographicCamera> m_Camera;
+    glm::vec2 m_MousePosition;
+    glm::vec2 m_MousePositionWorldSpace;
+    glm::vec2 m_WindowSize;
 };

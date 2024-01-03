@@ -23,6 +23,10 @@ namespace Figment
         { return m_Position; }
         glm::vec3 ScreenToWorldSpace(glm::vec2 screenPosition, glm::vec2 viewportSize) override;
 
+        void SetPosition(const glm::vec3 &position)
+        { m_Position = position; UpdateViewMatrix(); }
+        void SetZoom(float zoom)
+        { m_Zoom = zoom; SetProjection(-m_AspectRatio * m_Zoom, m_AspectRatio * m_Zoom, -m_Zoom, m_Zoom); UpdateViewMatrix(); }
     private:
         glm::mat4 m_ProjectionMatrix;
         glm::mat4 m_ViewMatrix;
