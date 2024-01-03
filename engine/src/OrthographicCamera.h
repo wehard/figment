@@ -27,6 +27,8 @@ namespace Figment
         { m_Position = position; UpdateViewMatrix(); }
         void SetZoom(float zoom)
         { m_Zoom = zoom; SetProjection(-m_AspectRatio * m_Zoom, m_AspectRatio * m_Zoom, -m_Zoom, m_Zoom); UpdateViewMatrix(); }
+        void BeginPan(glm::vec2 mousePosition);
+        void EndPan();
     private:
         glm::mat4 m_ProjectionMatrix;
         glm::mat4 m_ViewMatrix;

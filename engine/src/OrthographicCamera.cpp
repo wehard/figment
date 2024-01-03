@@ -58,6 +58,7 @@ namespace Figment
             newPosition.y = m_Position.y - delta.y;
 
             m_Position = newPosition;
+            UpdateViewMatrix();
         }
     }
 
@@ -74,15 +75,15 @@ namespace Figment
         return { worldPos.x, worldPos.y, 0.0f };
     }
 
-//void OrthographicCamera::BeginPan(glm::vec2 mousePosition)
-//{
-//    m_IsPanning = true;
-//    glm::vec3 world = ScreenToWorldSpace(mousePosition, glm::vec2(m_ViewportWidth, m_ViewportHeight));
-//    m_InitialMousePosition = glm::vec2(world.x, world.y);
-//}
-//
-//void OrthographicCamera::EndPan()
-//{
-//    m_IsPanning = false;
-//}
+    void OrthographicCamera::BeginPan(glm::vec2 mousePosition)
+    {
+        m_IsPanning = true;
+        glm::vec3 world = ScreenToWorldSpace(mousePosition, glm::vec2(m_ViewportWidth, m_ViewportHeight));
+        m_InitialMousePosition = glm::vec2(world.x, world.y);
+    }
+
+    void OrthographicCamera::EndPan()
+    {
+        m_IsPanning = false;
+    }
 }

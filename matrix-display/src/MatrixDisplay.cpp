@@ -9,13 +9,9 @@ MatrixDisplay::MatrixDisplay(float windowWidth, float windowHeight) : m_WindowSi
     auto m_Window = Figment::App::Instance()->GetWindow();
     auto webGpuWindow = std::dynamic_pointer_cast<Figment::WebGPUWindow>(m_Window);
     m_Renderer = Figment::CreateUniquePtr<Figment::WebGPURenderer>(*webGpuWindow->GetContext());
-    m_Camera = Figment::CreateUniquePtr<Figment::OrthographicCamera>(windowWidth/5, windowHeight/5);
+    m_Camera = Figment::CreateUniquePtr<Figment::OrthographicCamera>(windowWidth, windowHeight);
     m_Camera->SetPosition(glm::vec3(32, 16, 0.0));
     m_Camera->SetZoom(20.0);
-//    auto cameraPosition = m_Camera->GetPositionPtr();
-//    cameraPosition->x = m_Width / 2.0;
-//    cameraPosition->y = m_Height / 2.0;
-//    cameraPosition->z = 10.0;
 
     Clear();
     PutPixel(10, 10, glm::vec4(1.0, 0.0, 0.0, 1.0));
@@ -34,7 +30,18 @@ void MatrixDisplay::OnDetach()
 
 void MatrixDisplay::OnUpdate(float deltaTime)
 {
+    if (Figment::Input::GetButtonDown(2))
+    {
+        m_Camera->BeginPan(m_MousePosition);
+    }
+    if (Figment::Input::GetButtonUp(2))
+    {
+        m_Camera->EndPan();
+    }
+
     m_Camera->Update();
+
+
 
     m_MousePosition = Figment::Input::GetMousePosition();
     m_MousePositionWorldSpace = m_Camera->ScreenToWorldSpace(m_MousePosition, m_WindowSize);
@@ -43,7 +50,7 @@ void MatrixDisplay::OnUpdate(float deltaTime)
 
     if (Figment::Input::GetButton(0))
     {
-        PutPixel(mx, my, glm::vec4(0.0, 0.0, 1.0, 1.0));
+        PutPixel(mx, my, m_DrawColor);
     }
 
     m_Renderer->Begin(*m_Camera);
@@ -55,7 +62,7 @@ void MatrixDisplay::OnUpdate(float deltaTime)
 
             if (mx == x && my == y)
             {
-                color = glm::vec4(1.0, 1.0, 1.0, 1.0);
+                color = m_DrawColor;
             }
             m_Renderer->SubmitCircle(glm::vec3(x, y, 0), glm::vec3(1.0), color, 1);
         }
@@ -65,10 +72,16 @@ void MatrixDisplay::OnUpdate(float deltaTime)
 
 void MatrixDisplay::OnImGuiRender()
 {
-    ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(300, 200), ImGuiCond_FirstUseEver);
     ImGui::Begin("Matrix Display");
+    if (ImGui::Button("Fill"))
+        Fill(m_DrawColor);
+    ImGui::SameLine();
     if (ImGui::Button("Clear"))
         Clear();
+    ImGui::Separator();
+    ImGui::ColorEdit3("Draw Color", &m_DrawColor.x);
     ImGui::End();
 }
 
@@ -94,5 +107,13 @@ void MatrixDisplay::Clear()
     for (auto & i : m_Matrix)
     {
         i = m_BackgroundColor;
+    }
+}
+
+void MatrixDisplay::Fill(glm::vec4 color)
+{
+    for (auto & i : m_Matrix)
+    {
+        i = color;
     }
 }
