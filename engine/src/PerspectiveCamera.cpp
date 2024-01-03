@@ -11,7 +11,8 @@ namespace Figment
             m_WorldUp(up),
             m_Yaw(yaw),
             m_Pitch(pitch),
-            m_Forward(glm::vec3(0.0f, 0.0f, -1.0f))
+            m_Forward(glm::vec3(0.0f, 0.0f, -1.0f)),
+            Camera(CameraType::Perspective)
     {
         UpdateViewMatrix();
         UpdateProjectionMatrix();

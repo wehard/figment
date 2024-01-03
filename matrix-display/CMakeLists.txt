@@ -24,6 +24,7 @@ target_include_directories(matrix-display
         ../engine/src
         ../engine/src/core
         ../engine/src/scene
+        ../engine/src/debug
         ../engine/src/scene/components
         ../engine/src/physics
         ../engine/src/renderer

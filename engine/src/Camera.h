@@ -8,14 +8,15 @@
 
 namespace Figment
 {
+    enum class CameraType
+    {
+        Undefined,
+        Orthographic,
+        Perspective
+    };
+
     class Camera
     {
-        enum class CameraType
-        {
-            Ortho,
-            Perspective
-        };
-
         enum class CameraDirection
         {
             Forward,
@@ -25,9 +26,12 @@ namespace Figment
         };
 
     public:
+        Camera(CameraType cameraType) : m_CameraType(cameraType)
+        {
+        }
         virtual ~Camera() = default;
         static Figment::SharedPtr<Camera> Create(CameraType cameraType);
-        static Figment::SharedPtr<Camera> CreateOrthoCamera(float width, float height);
+        static Figment::SharedPtr<Camera> CreateOrthographicCamera(float width, float height);
         static Figment::SharedPtr<Camera> CreatePerspectiveCamera(float aspectRatio);
 
         virtual void Update() = 0;
@@ -37,5 +41,9 @@ namespace Figment
         virtual float GetAspectRatio() = 0;
         virtual glm::vec3 GetPosition() = 0;
         virtual glm::vec3 ScreenToWorldSpace(glm::vec2 screenPosition, glm::vec2 viewportSize) = 0;
+        CameraType GetType() const
+        { return m_CameraType; }
+    private:
+        CameraType m_CameraType = CameraType::Undefined;
     };
 }

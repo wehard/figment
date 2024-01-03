@@ -2,9 +2,11 @@
 #include "App.h"
 #include "WebGPUWindow.h"
 #include "Input.h"
+#include "DebugPanel.h"
 #include <cmath>
 
-MatrixDisplay::MatrixDisplay(uint32_t width, uint32_t height, float windowWidth, float windowHeight) : m_Width(width), m_Height(height), m_WindowSize(windowWidth, windowHeight)
+MatrixDisplay::MatrixDisplay(uint32_t width, uint32_t height, float windowWidth, float windowHeight) : m_Width(width),
+        m_Height(height), m_WindowSize(windowWidth, windowHeight)
 {
     auto m_Window = Figment::App::Instance()->GetWindow();
     auto webGpuWindow = std::dynamic_pointer_cast<Figment::WebGPUWindow>(m_Window);
@@ -87,13 +89,6 @@ void MatrixDisplay::OnUpdate(float deltaTime)
         }
     }
     m_Renderer->End();
-
-    if (Figment::Input::GetKeyDown(GLFW_KEY_S))
-    {
-        auto data = SerializeMatrix(m_Matrix, m_Width * m_Height);
-        printf("Saving matrix to file\n");
-        printf("Matrix size: %u\n", m_Width * m_Height);
-    }
 }
 
 void MatrixDisplay::OnImGuiRender()
@@ -109,6 +104,8 @@ void MatrixDisplay::OnImGuiRender()
     ImGui::Separator();
     ImGui::ColorEdit3("Draw Color", &m_DrawColor.x);
     ImGui::End();
+
+    Figment::DrawDebugPanel(*m_Camera);
 }
 
 void MatrixDisplay::OnEvent(Figment::AppEvent event, void *eventData)

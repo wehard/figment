@@ -8,8 +8,8 @@ namespace Figment
     {
         switch (cameraType)
         {
-        case CameraType::Ortho:
-            return Camera::CreateOrthoCamera(100, 100);
+        case CameraType::Orthographic:
+            return Camera::CreateOrthographicCamera(100, 100);
         case CameraType::Perspective:
             return Camera::CreatePerspectiveCamera(1.0);
         default:
@@ -18,7 +18,7 @@ namespace Figment
         return Figment::SharedPtr<Camera>();
     }
 
-    Figment::SharedPtr<Camera> Camera::CreateOrthoCamera(float width, float height)
+    Figment::SharedPtr<Camera> Camera::CreateOrthographicCamera(float width, float height)
     {
         return Figment::CreateSharedPtr<OrthographicCamera>(width, height);
     }
