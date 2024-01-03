@@ -4,7 +4,7 @@
 #include "Input.h"
 #include <cmath>
 
-MatrixDisplay::MatrixDisplay(float windowWidth, float windowHeight) : m_WindowSize(windowWidth, windowHeight)
+MatrixDisplay::MatrixDisplay(uint32_t width, uint32_t height, float windowWidth, float windowHeight) : m_Width(width), m_Height(height), m_WindowSize(windowWidth, windowHeight)
 {
     auto m_Window = Figment::App::Instance()->GetWindow();
     auto webGpuWindow = std::dynamic_pointer_cast<Figment::WebGPUWindow>(m_Window);
@@ -13,9 +13,16 @@ MatrixDisplay::MatrixDisplay(float windowWidth, float windowHeight) : m_WindowSi
     m_Camera->SetPosition(glm::vec3(32, 16, 0.0));
     m_Camera->SetZoom(20.0);
 
+    m_Matrix = new glm::vec4[m_Width * m_Height];
+
     Clear();
     PutPixel(10, 10, glm::vec4(1.0, 0.0, 0.0, 1.0));
     PutPixel(20, 10, glm::vec4(0.0, 1.0, 0.0, 1.0));
+}
+
+MatrixDisplay::~MatrixDisplay()
+{
+    delete[] m_Matrix;
 }
 
 void MatrixDisplay::OnAttach()
@@ -26,6 +33,20 @@ void MatrixDisplay::OnAttach()
 void MatrixDisplay::OnDetach()
 {
 
+}
+
+static uint32_t *SerializeMatrix(glm::vec4 *matrix, size_t size)
+{
+    auto *result = new uint32_t[size];
+    for (size_t i = 0; i < size; ++i)
+    {
+        auto r = (uint32_t)(matrix[i].r * 255.0);
+        auto g = (uint32_t)(matrix[i].g * 255.0);
+        auto b = (uint32_t)(matrix[i].b * 255.0);
+        auto a = (uint32_t)(matrix[i].a * 255.0);
+        result[i] = (r << 24) | (g << 16) | (b << 8) | a;
+    }
+    return result;
 }
 
 void MatrixDisplay::OnUpdate(float deltaTime)
@@ -40,8 +61,6 @@ void MatrixDisplay::OnUpdate(float deltaTime)
     }
 
     m_Camera->Update();
-
-
 
     m_MousePosition = Figment::Input::GetMousePosition();
     m_MousePositionWorldSpace = m_Camera->ScreenToWorldSpace(m_MousePosition, m_WindowSize);
@@ -68,6 +87,13 @@ void MatrixDisplay::OnUpdate(float deltaTime)
         }
     }
     m_Renderer->End();
+
+    if (Figment::Input::GetKeyDown(GLFW_KEY_S))
+    {
+        auto data = SerializeMatrix(m_Matrix, m_Width * m_Height);
+        printf("Saving matrix to file\n");
+        printf("Matrix size: %u\n", m_Width * m_Height);
+    }
 }
 
 void MatrixDisplay::OnImGuiRender()
@@ -89,31 +115,31 @@ void MatrixDisplay::OnEvent(Figment::AppEvent event, void *eventData)
 {
     auto ev = (Figment::WindowResizeEventData *)eventData;
 
+    m_WindowSize = glm::vec2(ev->Width, ev->Height);
     m_Camera->Resize((float)ev->Width, (float)ev->Height);
     m_Renderer->OnResize(ev->Width, ev->Height);
 }
 
 void MatrixDisplay::PutPixel(uint32_t x, uint32_t y, glm::vec4 color)
 {
-    if (x >= m_Width || y >= m_Height)
-    {
+    if (x >= m_Width || y >= m_Height || m_Matrix == nullptr)
         return;
-    }
+
     m_Matrix[y * m_Width + x] = color;
 }
 
 void MatrixDisplay::Clear()
 {
-    for (auto & i : m_Matrix)
-    {
-        i = m_BackgroundColor;
-    }
+    Fill(m_BackgroundColor);
 }
 
 void MatrixDisplay::Fill(glm::vec4 color)
 {
-    for (auto & i : m_Matrix)
-    {
-        i = color;
-    }
+    if (m_Matrix == nullptr)
+        return;
+
+    for (int i = 0; i < m_Width * m_Height; ++i)
+        m_Matrix[i] = color;
+
 }
+
