@@ -28,13 +28,13 @@ namespace Figment
         m_ViewMatrix = glm::inverse(transform);
     }
 
-//void OrthographicCamera::Zoom(float delta, glm::vec2 mousePosition)
-//{
-//    float zoomFactor = 1.0 + 0.05 * delta;
-//    m_Zoom *= zoomFactor;
-//    SetProjection(-m_AspectRatio * m_Zoom, m_AspectRatio * m_Zoom, -m_Zoom, m_Zoom);
-//    UpdateViewMatrix();
-//}
+    void OrthographicCamera::Zoom(float delta, glm::vec2 mousePosition)
+    {
+        auto zoomFactor = 1.0f + 0.05f * delta;
+        m_Zoom *= zoomFactor;
+        SetProjection(-m_AspectRatio * m_Zoom, m_AspectRatio * m_Zoom, -m_Zoom, m_Zoom);
+        UpdateViewMatrix();
+    }
 
     void OrthographicCamera::Resize(float w, float h)
     {

@@ -92,6 +92,13 @@ namespace Figment
                 ImGui::Text("World");
                 ImGui::TableSetColumnIndex(1);
                 ImGui::Text("%.2f %.2f %.2f", mw.x, mw.y, mw.z);
+
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("Scroll");
+                ImGui::TableSetColumnIndex(1);
+                ImGui::Text("%.2f", Input::GetScrollDelta().y);
+
                 ImGui::EndTable();
             }
             ImGui::TreePop();
