@@ -28,20 +28,20 @@ namespace Figment
         m_ViewMatrix = glm::inverse(transform);
     }
 
-    void OrthographicCamera::Zoom(float delta, glm::vec2 mousePosition)
+    void OrthographicCamera::Zoom(float amount, glm::vec2 screenPosition)
     {
-        glm::vec3 mouseWorld = ScreenToWorldSpace(mousePosition, glm::vec2(m_ViewportWidth, m_ViewportHeight));
-        glm::vec2 deltaMouse = (glm::vec2(mouseWorld.x, mouseWorld.y) - mousePosition);
+        glm::vec3 worldPosition = ScreenToWorldSpace(screenPosition, glm::vec2(m_ViewportWidth, m_ViewportHeight));
+        glm::vec2 positionDelta = (glm::vec2(worldPosition.x, worldPosition.y) - screenPosition);
 
-        float zoomFactor = 1.0f + delta * 0.1f;
+        float zoomFactor = 1.0f + amount * 0.1f;
         m_Zoom *= zoomFactor;
         SetProjection(-m_AspectRatio * m_Zoom, m_AspectRatio * m_Zoom, -m_Zoom, m_Zoom);
 
-        glm::vec3 mouseWorldAfterZoom = ScreenToWorldSpace(mousePosition, glm::vec2(m_ViewportWidth, m_ViewportHeight));
-        glm::vec2 deltaMouseAfterZoom = (glm::vec2(mouseWorldAfterZoom.x, mouseWorldAfterZoom.y) - mousePosition);
+        glm::vec3 worldPositionAfterZoom = ScreenToWorldSpace(screenPosition, glm::vec2(m_ViewportWidth, m_ViewportHeight));
+        glm::vec2 positionDeltaAfterZoom = (glm::vec2(worldPositionAfterZoom.x, worldPositionAfterZoom.y) - screenPosition);
 
-        m_Position.x -= deltaMouseAfterZoom.x - deltaMouse.x;
-        m_Position.y -= deltaMouseAfterZoom.y - deltaMouse.y;
+        m_Position.x -= positionDeltaAfterZoom.x - positionDelta.x;
+        m_Position.y -= positionDeltaAfterZoom.y - positionDelta.y;
 
         UpdateViewMatrix();
     }
