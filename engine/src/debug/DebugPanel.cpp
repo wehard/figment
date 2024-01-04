@@ -41,13 +41,14 @@ namespace Figment
         }
         if (ImGui::TreeNodeEx("Camera", ImGuiTreeNodeFlags_DefaultOpen))
         {
+            auto isOrthographic = camera.GetType() == CameraType::Orthographic;
             if (ImGui::BeginTable("Camera", 2))
             {
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
                 ImGui::Text("Type");
                 ImGui::TableSetColumnIndex(1);
-                ImGui::Text("%s", camera.GetType() == CameraType::Orthographic ? "Orthographic" : "Perspective");
+                ImGui::Text("%s", isOrthographic ? "Orthographic" : "Perspective");
 
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
@@ -60,6 +61,17 @@ namespace Figment
                 ImGui::Text("Position");
                 ImGui::TableSetColumnIndex(1);
                 ImGui::Text("%.2f %.2f %.2f", camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z);
+
+                if (isOrthographic)
+                {
+                    auto orthoCamera = dynamic_cast<OrthographicCamera *>(&camera);
+                    ImGui::TableNextRow();
+                    ImGui::TableSetColumnIndex(0);
+                    ImGui::Text("Zoom");
+                    ImGui::TableSetColumnIndex(1);
+                    ImGui::Text("%.2f", orthoCamera->GetZoom());
+                }
+
                 ImGui::EndTable();
             }
             ImGui::TreePop();

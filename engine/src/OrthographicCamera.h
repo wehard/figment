@@ -30,6 +30,8 @@ namespace Figment
         void BeginPan(glm::vec2 mousePosition);
         void EndPan();
         void Zoom(float amount, glm::vec2 screenPosition);
+        float GetZoom() const
+        { return m_Zoom; }
     private:
         glm::mat4 m_ProjectionMatrix;
         glm::mat4 m_ViewMatrix;
