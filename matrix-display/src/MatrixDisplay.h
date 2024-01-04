@@ -7,7 +7,8 @@
 class MatrixDisplay : public Figment::Layer
 {
 public:
-    MatrixDisplay(float windowWidth, float windowHeight);
+    MatrixDisplay(uint32_t width, uint32_t height, float windowWidth, float windowHeight);
+    ~MatrixDisplay() override;
     void OnAttach() override;
     void OnDetach() override;
     void OnUpdate(float deltaTime) override;
@@ -18,10 +19,10 @@ public:
     void Fill(glm::vec4 color);
 private:
     static constexpr glm::vec4 m_BackgroundColor = glm::vec4(0.1, 0.1, 0.1, 1.0);
-    static constexpr uint32_t m_Width = 64;
-    static constexpr uint32_t m_Height = 32;
+    uint32_t m_Width = 64;
+    uint32_t m_Height = 32;
     Figment::UniquePtr<Figment::Scene> m_Scene;
-    glm::vec4 m_Matrix[m_Width * m_Height];
+    glm::vec4 *m_Matrix = nullptr;
     Figment::UniquePtr<Figment::WebGPURenderer> m_Renderer;
     Figment::UniquePtr<Figment::OrthographicCamera> m_Camera;
     glm::vec2 m_MousePosition;

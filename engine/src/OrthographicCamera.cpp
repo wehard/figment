@@ -4,12 +4,12 @@
 
 namespace Figment
 {
-    OrthographicCamera::OrthographicCamera()
+    OrthographicCamera::OrthographicCamera() : Camera(CameraType::Orthographic)
     {
     }
 
     OrthographicCamera::OrthographicCamera(float width, float height) : m_ViewportWidth(width),
-            m_ViewportHeight(height), m_AspectRatio(m_ViewportWidth / m_ViewportHeight)
+            m_ViewportHeight(height), m_AspectRatio(m_ViewportWidth / m_ViewportHeight), Camera(CameraType::Orthographic)
     {
         SetProjection(-m_AspectRatio * m_Zoom, m_AspectRatio * m_Zoom, -m_Zoom, m_Zoom);
         UpdateViewMatrix();
