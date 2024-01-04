@@ -61,6 +61,11 @@ void MatrixDisplay::OnUpdate(float deltaTime)
     {
         m_Camera->EndPan();
     }
+    auto mouseScrollDelta = Figment::Input::GetScrollDelta().y;
+    if (mouseScrollDelta != 0.0)
+    {
+        m_Camera->Zoom(mouseScrollDelta * 0.5, m_MousePosition);
+    }
 
     m_Camera->Update();
 
