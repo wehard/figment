@@ -30,9 +30,19 @@ namespace Figment
 
     void OrthographicCamera::Zoom(float delta, glm::vec2 mousePosition)
     {
-        auto zoomFactor = 1.0f + 0.05f * delta;
+        glm::vec3 mouseWorld = ScreenToWorldSpace(mousePosition, glm::vec2(m_ViewportWidth, m_ViewportHeight));
+        glm::vec2 deltaMouse = (glm::vec2(mouseWorld.x, mouseWorld.y) - mousePosition);
+
+        float zoomFactor = 1.0f + delta * 0.1f;
         m_Zoom *= zoomFactor;
         SetProjection(-m_AspectRatio * m_Zoom, m_AspectRatio * m_Zoom, -m_Zoom, m_Zoom);
+
+        glm::vec3 mouseWorldAfterZoom = ScreenToWorldSpace(mousePosition, glm::vec2(m_ViewportWidth, m_ViewportHeight));
+        glm::vec2 deltaMouseAfterZoom = (glm::vec2(mouseWorldAfterZoom.x, mouseWorldAfterZoom.y) - mousePosition);
+
+        m_Position.x -= deltaMouseAfterZoom.x - deltaMouse.x;
+        m_Position.y -= deltaMouseAfterZoom.y - deltaMouse.y;
+
         UpdateViewMatrix();
     }
 
