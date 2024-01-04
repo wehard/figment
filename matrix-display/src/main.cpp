@@ -3,8 +3,7 @@
 #include <emscripten.h>
 #include <cstdio>
 #include <string>
-#include "WebGPUWindow.h"
-#include "Input.h"
+#include "Log.h"
 #include "MatrixDisplay.h"
 
 Figment::App *app;
@@ -23,7 +22,6 @@ int main(int argc, char **argv)
     }
 	uint32_t width = std::stoul(argv[1]);
 	uint32_t height = std::stoul(argv[2]);
-	printf("%s:%d Initial canvas size %u x %u\n", __FILE__, __LINE__, width, height);
 	app = new Figment::App(width, height);
     app->AddLayer(Figment::CreateUniquePtr<MatrixDisplay>(64, 32, width, height));
 
