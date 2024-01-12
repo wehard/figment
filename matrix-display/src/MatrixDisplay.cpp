@@ -4,6 +4,8 @@
 #include "Input.h"
 #include "DebugPanel.h"
 #include <cmath>
+#include "Image.h"
+#include "WebGPUTexture.h"
 
 MatrixDisplay::MatrixDisplay(uint32_t width, uint32_t height, float windowWidth, float windowHeight) : m_Width(width),
         m_Height(height), m_WindowSize(windowWidth, windowHeight)
@@ -20,6 +22,9 @@ MatrixDisplay::MatrixDisplay(uint32_t width, uint32_t height, float windowWidth,
     Clear();
     PutPixel(10, 10, glm::vec4(1.0, 0.0, 0.0, 1.0));
     PutPixel(20, 10, glm::vec4(0.0, 1.0, 0.0, 1.0));
+
+    auto image = Figment::Image::Load("res/classic_console.png");
+    Figment::WebGPUTexture::Create(webGpuWindow->GetContext()->GetDevice(), image);
 }
 
 MatrixDisplay::~MatrixDisplay()
