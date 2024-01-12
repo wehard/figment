@@ -73,4 +73,40 @@ namespace Figment
         depthTexture->m_TextureFormat = depthTextureFormat;
         return depthTexture;
     }
+
+    WebGPUTexture *WebGPUTexture::Create(WGPUDevice device, Image &image)
+    {
+        WGPUTextureDescriptor textureDescriptor = {};
+        textureDescriptor.nextInChain = nullptr;
+        textureDescriptor.label = "Texture";
+        textureDescriptor.dimension = WGPUTextureDimension_2D;
+        textureDescriptor.format = WGPUTextureFormat_RGBA8Unorm;
+        textureDescriptor.usage = WGPUTextureUsage_CopyDst | WGPUTextureUsage_TextureBinding;
+        textureDescriptor.size = { image.GetWidth(), image.GetHeight(), 1 };
+        textureDescriptor.sampleCount = 1;
+        textureDescriptor.mipLevelCount = 1;
+        textureDescriptor.viewFormatCount = 0;
+        textureDescriptor.viewFormats = nullptr;
+        WGPUTexture texture = wgpuDeviceCreateTexture(device, &textureDescriptor);
+
+        WGPUTextureViewDescriptor textureViewDesc = {};
+        textureViewDesc.nextInChain = nullptr;
+        textureViewDesc.label = "TextureView";
+        textureViewDesc.aspect = WGPUTextureAspect_All;
+        textureViewDesc.baseArrayLayer = 0;
+        textureViewDesc.arrayLayerCount = 1;
+        textureViewDesc.baseMipLevel = 0;
+        textureViewDesc.mipLevelCount = 1;
+        textureViewDesc.dimension = WGPUTextureViewDimension_2D;
+        textureViewDesc.format = textureDescriptor.format;
+        WGPUTextureView textureView = wgpuTextureCreateView(texture, &textureViewDesc);
+
+        auto *webGpuTexture = new WebGPUTexture();
+        webGpuTexture->m_Texture = texture;
+        webGpuTexture->m_TextureView = textureView;
+        webGpuTexture->m_Width = image.GetWidth();
+        webGpuTexture->m_Height = image.GetHeight();
+        webGpuTexture->m_TextureFormat = WGPUTextureFormat_RGBA8Unorm;
+        return webGpuTexture;
+    }
 }

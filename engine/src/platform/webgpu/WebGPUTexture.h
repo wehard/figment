@@ -1,6 +1,7 @@
 #pragma once
 
 #include <webgpu/webgpu.h>
+#include "Image.h"
 
 namespace Figment
 {
@@ -23,6 +24,7 @@ namespace Figment
         { return m_TextureFormat; }
         static WebGPUTexture *CreateDepthTexture(WGPUDevice device, WGPUTextureFormat depthTextureFormat,
                 uint32_t width, uint32_t height);
+        static WebGPUTexture *Create(WGPUDevice device, Image &image);
     private:
         uint32_t m_Width;
         uint32_t m_Height;
