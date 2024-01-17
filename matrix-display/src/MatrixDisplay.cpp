@@ -105,7 +105,7 @@ void MatrixDisplay::OnUpdate(float deltaTime)
 void MatrixDisplay::OnImGuiRender()
 {
     ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(300, 200), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(300, 400), ImGuiCond_FirstUseEver);
     ImGui::Begin("Matrix Display");
     if (ImGui::Button("Fill"))
         Fill(m_DrawColor);
