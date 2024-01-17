@@ -6,6 +6,7 @@
 #include <cmath>
 #include "Image.h"
 #include "WebGPUTexture.h"
+#include "ModelLoader.h"
 
 MatrixDisplay::MatrixDisplay(uint32_t width, uint32_t height, float windowWidth, float windowHeight) : m_Width(width),
         m_Height(height), m_WindowSize(windowWidth, windowHeight)
@@ -25,6 +26,8 @@ MatrixDisplay::MatrixDisplay(uint32_t width, uint32_t height, float windowWidth,
 
     auto image = Figment::Image::Load("res/classic_console.png");
     m_Texture = Figment::WebGPUTexture::Create(webGpuWindow->GetContext()->GetDevice(), image);
+
+    Figment::ModelLoader::LoadGltf("res/cube.gltf");
 }
 
 MatrixDisplay::~MatrixDisplay()
