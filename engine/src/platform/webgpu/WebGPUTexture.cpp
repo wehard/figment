@@ -106,7 +106,24 @@ namespace Figment
         webGpuTexture->m_TextureView = textureView;
         webGpuTexture->m_Width = image.GetWidth();
         webGpuTexture->m_Height = image.GetHeight();
-        webGpuTexture->m_TextureFormat = WGPUTextureFormat_RGBA8Unorm;
+        webGpuTexture->m_TextureFormat = textureDescriptor.format;
+
+        WGPUQueue queue = wgpuDeviceGetQueue(device);
+        WGPUImageCopyTexture imageCopyTexture = {};
+        imageCopyTexture.texture = texture;
+        imageCopyTexture.mipLevel = 0;
+        imageCopyTexture.origin = { 0, 0, 0 };
+        imageCopyTexture.aspect = WGPUTextureAspect_All;
+
+
+        WGPUTextureDataLayout textureDataLayout = {};
+        textureDataLayout.nextInChain = nullptr;
+        textureDataLayout.offset = 0;
+        textureDataLayout.bytesPerRow = image.GetWidth() * 4;
+        textureDataLayout.rowsPerImage = image.GetHeight();
+
+        wgpuQueueWriteTexture(queue, &imageCopyTexture, image.GetData(), image.GetDataSize(), &textureDataLayout,
+                &textureDescriptor.size);
         return webGpuTexture;
     }
 }

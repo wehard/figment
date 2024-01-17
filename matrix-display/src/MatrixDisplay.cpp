@@ -24,12 +24,13 @@ MatrixDisplay::MatrixDisplay(uint32_t width, uint32_t height, float windowWidth,
     PutPixel(20, 10, glm::vec4(0.0, 1.0, 0.0, 1.0));
 
     auto image = Figment::Image::Load("res/classic_console.png");
-    Figment::WebGPUTexture::Create(webGpuWindow->GetContext()->GetDevice(), image);
+    m_Texture = Figment::WebGPUTexture::Create(webGpuWindow->GetContext()->GetDevice(), image);
 }
 
 MatrixDisplay::~MatrixDisplay()
 {
     delete[] m_Matrix;
+    delete m_Texture;
 }
 
 void MatrixDisplay::OnAttach()
@@ -113,6 +114,8 @@ void MatrixDisplay::OnImGuiRender()
         Clear();
     ImGui::Separator();
     ImGui::ColorEdit3("Draw Color", &m_DrawColor.x);
+    ImGui::Separator();
+    ImGui::Image((void *)m_Texture->GetTextureView(), ImVec2(256, 256));
     ImGui::End();
 
     Figment::DrawDebugPanel(*m_Camera);

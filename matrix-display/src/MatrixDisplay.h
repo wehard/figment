@@ -3,6 +3,7 @@
 #include "Layer.h"
 #include "Core.h"
 #include "Scene.h"
+#include "WebGPUTexture.h"
 
 class MatrixDisplay : public Figment::Layer
 {
@@ -29,4 +30,5 @@ private:
     glm::vec2 m_MousePositionWorldSpace;
     glm::vec2 m_WindowSize;
     glm::vec4 m_DrawColor = glm::vec4(1.0, 1.0, 1.0, 1.0);
+    Figment::WebGPUTexture *m_Texture;
 };
