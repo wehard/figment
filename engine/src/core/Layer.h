@@ -24,6 +24,10 @@ namespace Figment
         virtual void OnEvent(AppEvent event, void *eventData) = 0;
         void SetEnabled(bool enabled)
         { m_Enabled = enabled; }
+        bool IsEnabled() const
+        { return m_Enabled; }
+        std::string GetName() const
+        { return m_Name; }
     protected:
         std::string m_Name;
         bool m_Enabled = true;

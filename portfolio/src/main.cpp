@@ -6,35 +6,71 @@
 
 using namespace Figment;
 
-class Cube : public Figment::Layer
+class Mesh : public Layer
 {
 public:
-    Cube(const std::string &name) : Layer(name)
-    {
-
-    }
-    void OnAttach()
+    Mesh() : Layer("Mesh")
     {
 
     }
 
-    void OnDetach()
+    void OnAttach() override
     {
 
     }
 
-    void OnUpdate(float deltaTime)
+    void OnDetach() override
     {
 
     }
 
-    void OnImGuiRender()
+    void OnUpdate(float deltaTime) override
+    {
+
+    }
+
+    void OnImGuiRender() override
     {
         ImGui::Begin(this->m_Name.c_str());
         ImGui::End();
     }
 
-    void OnEvent(Figment::AppEvent event, void *eventData)
+    void OnEvent(Figment::AppEvent event, void *eventData) override
+    {
+
+    }
+};
+
+class Cube : public Layer
+{
+public:
+    Cube() : Layer("Cube")
+    {
+
+    }
+
+    void OnAttach() override
+    {
+
+    }
+
+    void OnDetach() override
+    {
+
+    }
+
+    void OnUpdate(float deltaTime) override
+    {
+
+    }
+
+    void OnImGuiRender() override
+    {
+        ImGui::Begin(this->m_Name.c_str());
+        ImGui::End();
+    }
+
+    void OnEvent(Figment::AppEvent event, void *eventData) override
     {
 
     }
@@ -43,42 +79,49 @@ public:
 class MainLayer : public Figment::Layer
 {
 private:
-    Figment::UniquePtr<Cube> m_Cube;
+    std::vector<Layer *> m_Layers;
 public:
     MainLayer() : Layer("Main")
     {
-        m_Cube = CreateUniquePtr<Cube>("Cube");
-        App::Instance()->AddLayer(m_Cube.get());
-    }
+        m_Layers.push_back(new Cube());
+        m_Layers.push_back(new Mesh());
 
-    void OnAttach()
-    {
-
-    }
-
-    void OnDetach()
-    {
-
-    }
-
-    void OnUpdate(float deltaTime)
-    {
-
-    }
-
-    void OnImGuiRender()
-    {
-        static bool active = true;
-        ImGui::Begin("Demos");
-        if(ImGui::RadioButton("Cube", active))
+        for (auto layer : m_Layers)
         {
-            active = !active;
-            m_Cube->SetEnabled(active);
+            App::Instance()->AddLayer(layer);
+        }
+    }
+
+    void OnAttach() override
+    {
+
+    }
+
+    void OnDetach() override
+    {
+
+    }
+
+    void OnUpdate(float deltaTime) override
+    {
+
+    }
+
+    void OnImGuiRender() override
+    {
+        ImGui::Begin("Demos");
+
+        for (auto layer : m_Layers)
+        {
+            if(ImGui::RadioButton(layer->GetName().c_str(), layer->IsEnabled()))
+            {
+                layer->SetEnabled(!layer->IsEnabled());
+            }
         }
         ImGui::End();
     }
 
-    void OnEvent(Figment::AppEvent event, void *eventData)
+    void OnEvent(Figment::AppEvent event, void *eventData) override
     {
 
     }
