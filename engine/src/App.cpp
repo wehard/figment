@@ -2,6 +2,7 @@
 #include "Log.h"
 #include "App.h"
 #include "Input.h"
+#include "Layer.h"
 
 #include <string>
 #include <GLFW/glfw3.h>
@@ -20,8 +21,10 @@ namespace Figment
         m_Window = Window::Create("Figment C++", width, height);
         m_Window->SetResizeEventCallback([this](WindowResizeEventData eventData)
         {
-            for (auto &layer : m_Layers)
+            for (auto layer : m_LayerStack)
             {
+                if (!layer->m_Enabled)
+                    continue;
                 layer->OnEvent(Figment::AppEvent::WindowResize, (void *)&eventData);
             }
         });
@@ -54,18 +57,34 @@ namespace Figment
             Input::Update();
         }
 
-        for (auto &layer : m_Layers)
+        for (auto layer : m_LayerStack)
         {
+            if (!layer->m_Enabled)
+                continue;
             layer->OnUpdate(deltaTime);
         }
 
         m_GUICtx->Begin();
-        for (auto &layer : m_Layers)
+        for (auto layer : m_LayerStack)
         {
+            if (!layer->m_Enabled)
+                continue;
             layer->OnImGuiRender();
         }
         m_GUICtx->Render();
 
         glfwPollEvents();
+    }
+
+    void App::AddLayer(Layer *layer)
+    {
+        m_LayerStack.AddLayer(layer);
+        layer->OnAttach();
+    }
+
+    void App::AddOverlay(Layer *overlay)
+    {
+        m_LayerStack.AddOverlay(overlay);
+        overlay->OnAttach();
     }
 }

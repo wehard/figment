@@ -11,6 +11,7 @@
 #include "imgui.h"
 #include "WebGPURenderer.h"
 #include "WebGPUGUIContext.h"
+#include "LayerStack.h"
 #include "Layer.h"
 
 #include <memory>
@@ -24,8 +25,8 @@ namespace Figment
         App(uint32_t width, uint32_t height);
         ~App();
 
-        void AddLayer(Figment::UniquePtr<Figment::Layer> layer)
-        { m_Layers.emplace_back(std::move(layer)); }
+        void AddLayer(Layer *layer);
+        void AddOverlay(Layer *overlay);
         void Update();
         Figment::SharedPtr<Window> GetWindow()
         { return m_Window; }
@@ -38,7 +39,7 @@ namespace Figment
     private:
         Figment::SharedPtr<Window> m_Window;
         Figment::UniquePtr<WebGPUGUIContext> m_GUICtx;
-        std::vector<Figment::UniquePtr<Figment::Layer>> m_Layers;
+        LayerStack m_LayerStack;
 
         float m_CurrentTime = 0;
         float m_LastTime = 0;
