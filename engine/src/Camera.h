@@ -40,6 +40,7 @@ namespace Figment
         virtual glm::mat4 GetViewMatrix() = 0;
         virtual float GetAspectRatio() = 0;
         virtual glm::vec3 GetPosition() = 0;
+        virtual void SetPosition(const glm::vec3 &position) = 0;
         virtual glm::vec3 ScreenToWorldSpace(glm::vec2 screenPosition, glm::vec2 viewportSize) = 0;
         CameraType GetType() const
         { return m_CameraType; }

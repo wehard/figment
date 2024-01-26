@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <istream>
 
 class Utils
 {
@@ -42,5 +43,18 @@ public:
         fread(result->data(), 1, size, file);
         fclose(file);
         return result;
+    }
+
+    static void *LoadFileBytes(const char *filePath, size_t *size)
+    {
+        std::ifstream file(filePath, std::ios::in | std::ios::binary);
+        file.seekg(0, std::ios::end);
+        size_t fileSize = file.tellg();
+        *size = fileSize;
+        file.seekg(0, std::ios::beg);
+        char *bytes = new char[fileSize];
+        file.read(bytes, fileSize);
+        file.close();
+        return bytes;
     }
 };

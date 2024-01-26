@@ -47,6 +47,12 @@ namespace Figment
         float GetAspectRatio() override
         { return m_AspectRatio; };
 
+        void SetPosition(const glm::vec3 &position) override
+        {
+            m_Position = position;
+            Update();
+        }
+
         glm::vec3 *GetPositionPtr()
         { return &m_Position; }
 

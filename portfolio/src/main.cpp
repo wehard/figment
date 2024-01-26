@@ -31,6 +31,8 @@ public:
 
     void OnImGuiRender() override
     {
+        ImGui::SetNextWindowPos(ImVec2(500, 500), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(100, 100), ImGuiCond_FirstUseEver);
         ImGui::Begin(this->m_Name.c_str());
         ImGui::End();
     }
@@ -43,10 +45,18 @@ public:
 
 class Cube : public Layer
 {
+private:
+    UniquePtr<WebGPURenderer> m_Renderer;
+    SharedPtr<PerspectiveCamera> m_Camera;
 public:
     Cube() : Layer("Cube")
     {
+        auto m_Window = Figment::App::Instance()->GetWindow();
+        auto webGpuWindow = std::dynamic_pointer_cast<Figment::WebGPUWindow>(m_Window);
+        m_Renderer = Figment::CreateUniquePtr<Figment::WebGPURenderer>(*webGpuWindow->GetContext());
 
+        m_Camera = CreateSharedPtr<PerspectiveCamera>((float)webGpuWindow->GetWidth() / (float)webGpuWindow->GetHeight());
+        m_Camera->SetPosition(glm::vec3(0.0, 0.0, 5.0));
     }
 
     void OnAttach() override
@@ -61,18 +71,19 @@ public:
 
     void OnUpdate(float deltaTime) override
     {
-
+        m_Camera->Update();
+        m_Renderer->Begin(*m_Camera);
+        m_Renderer->SubmitQuad(glm::vec3(0), glm::vec4(1.0, 1.0, 0.0, 1.0), 1);
+        m_Renderer->End();
     }
 
-    void OnImGuiRender() override
-    {
-        ImGui::Begin(this->m_Name.c_str());
-        ImGui::End();
-    }
+    void OnImGuiRender() override {}
 
     void OnEvent(Figment::AppEvent event, void *eventData) override
     {
-
+        auto ev = (Figment::WindowResizeEventData *)eventData;
+        m_Camera->Resize((float)ev->Width, (float)ev->Height);
+        m_Renderer->OnResize(ev->Width, ev->Height);
     }
 };
 
@@ -109,11 +120,43 @@ public:
 
     void OnImGuiRender() override
     {
-        ImGui::Begin("Demos");
+        ImVec2 appWindowSize = ImVec2((float)App::Instance()->GetWindow()->GetWidth(), (float)App::Instance()->GetWindow()->GetHeight());
+        const int padding = 10;
+
+        auto width = appWindowSize.x / 5;
+        auto height = appWindowSize.y / 3;
+
+        // Make window rounded
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 5.0f);
+
+        ImGui::SetNextWindowPos(ImVec2(padding, padding), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(width * 2, height), ImGuiCond_FirstUseEver);
+        ImGui::Begin("Willehard Korander");
+        ImGui::Text("EXPERIENCE");
+        ImGui::Text("[OCT 23 - PRESENT]: Senior Software Engineer, Unity Technologies, Helsinki");
+        ImGui::Text("[APR 21 - OCT 23]:  Software Engineer, Unity Technologies, Helsinki");
+        ImGui::Text("[AUG 20 - APR 21]:  Software Developer Intern, Unity Technologies, Helsinki");
+        ImGui::Spacing();
+        ImGui::Text("EDUCATION");
+        ImGui::Text("[OCT 19 - JUL 20]: Hive Helsinki, Computer Science");
+        ImGui::Text("[2018]:            Introduction to databases, University of Helsinki, Open University");
+        ImGui::Text("[2016]:            Advanced course in programming, University of Helsinki, Open University");
+        ImGui::Text("[2016]:            Introduction to programming, University of Helsinki, Open University");
+        ImGui::Text("[AUG 03 - JUL 07]: Theatre Academy Helsinki, Master of Arts, Acting");
+        ImGui::Spacing();
+        ImGui::Text("SKILLS");
+        ImGui::Text("C, C++, C#, Typescript,\nOpenGL, WebGPU, Vulkan, Unity,\nGit, Linux, macOS, Windows, \nWeb, React, Node.js, GraphQL, REST,\nGCP, Jira, Confluence");
+
+        ImGui::End();
+
+        ImGui::SetNextWindowPos(ImVec2(appWindowSize.x - width - padding, padding), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(width, height), ImGuiCond_FirstUseEver);
+        ImGui::Begin("Layers");
 
         for (auto layer : m_Layers)
         {
-            if(ImGui::RadioButton(layer->GetName().c_str(), layer->IsEnabled()))
+            auto enabled = layer->IsEnabled();
+            if(ImGui::Checkbox(layer->GetName().c_str(), &enabled))
             {
                 layer->SetEnabled(!layer->IsEnabled());
             }

@@ -33,7 +33,7 @@ namespace Figment
         ImGui_ImplWGPU_InvalidateDeviceObjects();
         ImGui_ImplWGPU_CreateDeviceObjects();
 
-        FIG_LOG_INFO("WebGPU GUIContext initialized");
+        FIG_LOG_INFO("WebGPU ImGui initialized");
     }
 
     void WebGPUGUIContext::Begin()
