@@ -15,14 +15,13 @@ private:
     Figment::Mesh *m_Mesh;
     WebGPUShader *m_Shader;
 public:
-    Cube() : Layer("Cube")
+    Cube(SharedPtr<PerspectiveCamera> camera) : Layer("Cube"), m_Camera(camera)
     {
         auto m_Window = Figment::App::Instance()->GetWindow();
         auto webGpuWindow = std::dynamic_pointer_cast<Figment::WebGPUWindow>(m_Window);
         m_Renderer = Figment::CreateUniquePtr<Figment::WebGPURenderer>(*webGpuWindow->GetContext());
 
-        m_Camera = CreateSharedPtr<PerspectiveCamera>((float)webGpuWindow->GetWidth() / (float)webGpuWindow->GetHeight());
-        m_Camera->SetPosition(glm::vec3(0.0, 1.0, 5.0));
+
 
         std::vector<Vertex> vertices = {
                 {{-0.5, -0.5, 0.5}},
@@ -69,7 +68,6 @@ public:
 
     void OnImGuiRender() override
     {
-        Figment::DrawDebugPanel(*m_Camera);
     }
 
     void OnEvent(Figment::AppEvent event, void *eventData) override
@@ -84,10 +82,16 @@ class MainLayer : public Figment::Layer
 {
 private:
     std::vector<Layer *> m_Layers;
+    SharedPtr<PerspectiveCamera> m_Camera;
 public:
     MainLayer() : Layer("Main")
     {
-        m_Layers.push_back(new Cube());
+        auto m_Window = Figment::App::Instance()->GetWindow();
+        auto webGpuWindow = std::dynamic_pointer_cast<Figment::WebGPUWindow>(m_Window);
+        m_Camera = CreateSharedPtr<PerspectiveCamera>((float)webGpuWindow->GetWidth() / (float)webGpuWindow->GetHeight());
+        m_Camera->SetPosition(glm::vec3(0.0, 1.0, 5.0));
+
+        m_Layers.push_back(new Cube(m_Camera));
 
         for (auto layer : m_Layers)
         {
@@ -154,6 +158,8 @@ public:
             }
         }
         ImGui::End();
+
+        Figment::DrawDebugPanel(*m_Camera);
     }
 
     void OnEvent(Figment::AppEvent event, void *eventData) override
