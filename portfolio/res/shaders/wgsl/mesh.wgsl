@@ -3,7 +3,12 @@ struct CameraData {
     proj: mat4x4<f32>,
 };
 
+struct ModelData {
+    model: mat4x4<f32>,
+};
+
 @binding(0) @group(0) var<uniform> cameraData: CameraData;
+@binding(1) @group(0) var<uniform> modelData: ModelData;
 
 struct VertexOutput {
     @builtin(position) pos: vec4<f32>,
@@ -13,7 +18,7 @@ struct VertexOutput {
 @vertex
 fn vs_main(@location(0) pos: vec3f) -> VertexOutput {
     var output: VertexOutput;
-    output.pos = cameraData.proj * cameraData.view * vec4<f32>(pos, 1.0);
+    output.pos = cameraData.proj * cameraData.view * modelData.model * vec4<f32>(pos, 1.0);
     output.id = 1;
     return output;
 }

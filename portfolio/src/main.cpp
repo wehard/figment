@@ -14,6 +14,9 @@ private:
     SharedPtr<PerspectiveCamera> m_Camera;
     Figment::Mesh *m_Mesh;
     WebGPUShader *m_Shader;
+    glm::vec3 m_Position = glm::vec3(0.0);
+    glm::vec3 m_Rotation = glm::vec3(0.0);
+    glm::vec3 m_Scale = glm::vec3(1.0);
 public:
     Cube(SharedPtr<PerspectiveCamera> camera) : Layer("Cube"), m_Camera(camera)
     {
@@ -59,10 +62,18 @@ public:
 
     void OnUpdate(float deltaTime) override
     {
+        m_Rotation.x += 90.0f * deltaTime;
+        m_Rotation.y += 90.0f * deltaTime;
+        m_Rotation.z += 10.0f * deltaTime;
         m_Camera->Update();
         m_Renderer->Begin(*m_Camera);
         m_Renderer->SubmitQuad(glm::vec3(0), glm::vec4(1.0, 1.0, 0.0, 1.0), 1);
-        m_Renderer->Submit(*m_Mesh, glm::mat4(1.0), *m_Shader);
+        glm::mat4 matScale = glm::scale(glm::mat4(1.0f), m_Scale);
+        glm::mat4 matTranslate = glm::translate(glm::mat4(1.0), m_Position);
+        glm::mat4 matRotate = glm::eulerAngleXYZ(glm::radians(m_Rotation.x), glm::radians(m_Rotation.y),
+                glm::radians(m_Rotation.z));
+        glm::mat4 transform = matTranslate * matRotate * matScale;
+        m_Renderer->Submit(*m_Mesh, transform, *m_Shader);
         m_Renderer->End();
     }
 
@@ -89,7 +100,7 @@ public:
         auto m_Window = Figment::App::Instance()->GetWindow();
         auto webGpuWindow = std::dynamic_pointer_cast<Figment::WebGPUWindow>(m_Window);
         m_Camera = CreateSharedPtr<PerspectiveCamera>((float)webGpuWindow->GetWidth() / (float)webGpuWindow->GetHeight());
-        m_Camera->SetPosition(glm::vec3(0.0, 1.0, 5.0));
+        m_Camera->SetPosition(glm::vec3(0.0, 0.0, 3.0));
 
         m_Layers.push_back(new Cube(m_Camera));
 

@@ -19,5 +19,7 @@ namespace Figment
         m_IndexBuffer = new WebGPUIndexBuffer<uint32_t>(device, "MeshIndexBuffer",
                 indices.size() * sizeof(uint32_t));
         m_IndexBuffer->SetData(indices.data(), indices.size() * sizeof(uint32_t));
+
+        m_UniformBuffer = new WebGPUUniformBuffer<glm::mat4>(device, "MeshUniformBuffer", sizeof(glm::mat4));
     }
 }

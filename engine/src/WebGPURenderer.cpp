@@ -227,6 +227,8 @@ namespace Figment
 
     void WebGPURenderer::Submit(Mesh &mesh, glm::mat4 transform, WebGPUShader &shader)
     {
+        mesh.UniformBuffer()->SetData(&transform, sizeof(transform));
+        
         auto pipeline = new WebGPURenderPipeline(m_Context, shader, mesh.VertexBuffer()->GetVertexLayout());
         pipeline->SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined,
                 WGPUFrontFace_CCW,
@@ -234,6 +236,8 @@ namespace Figment
         pipeline->SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
         pipeline->SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(0),
                 m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
+        pipeline->SetBinding(mesh.UniformBuffer()->GetBindGroupLayoutEntry(1),
+                mesh.UniformBuffer()->GetBindGroupEntry(1, 0));
         auto colorTargetStates = std::vector<WGPUColorTargetState>({
                 {
                         .format = m_Context.GetTextureFormat(),
