@@ -225,6 +225,37 @@ namespace Figment
         s_Stats.DrawCalls++;
     }
 
+    void WebGPURenderer::Submit(Mesh &mesh, glm::mat4 transform, WebGPUShader &shader)
+    {
+        auto pipeline = new WebGPURenderPipeline(m_Context, shader, mesh.VertexBuffer()->GetVertexLayout());
+        pipeline->SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined,
+                WGPUFrontFace_CCW,
+                WGPUCullMode_None);
+        pipeline->SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
+        pipeline->SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(0),
+                m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
+        auto colorTargetStates = std::vector<WGPUColorTargetState>({
+                {
+                        .format = m_Context.GetTextureFormat(),
+                        .blend = nullptr,
+                        .writeMask = WGPUColorWriteMask_All
+                },
+                {
+                        .format = m_IdTexture->GetTextureFormat(),
+                        .blend = nullptr,
+                        .writeMask = WGPUColorWriteMask_All
+                }
+        });
+        pipeline->SetColorTargetStates(colorTargetStates);
+        pipeline->Build();
+
+        WebGPUCommand::DrawIndexed(m_RenderPass, pipeline->GetPipeline(), pipeline->GetBindGroup(),
+                *mesh.IndexBuffer(), *mesh.VertexBuffer(), 36);
+
+        delete pipeline;
+        s_Stats.DrawCalls++;
+    }
+
     static std::vector<uint32_t> GenerateIndices(int width, int height)
     {
         auto indices = std::vector<uint32_t>();

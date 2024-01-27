@@ -1,4 +1,5 @@
 #include "Figment.h"
+#include "DebugPanel.h"
 
 #include <emscripten.h>
 #include <cstdio>
@@ -6,48 +7,13 @@
 
 using namespace Figment;
 
-class Mesh : public Layer
-{
-public:
-    Mesh() : Layer("Mesh")
-    {
-
-    }
-
-    void OnAttach() override
-    {
-
-    }
-
-    void OnDetach() override
-    {
-
-    }
-
-    void OnUpdate(float deltaTime) override
-    {
-
-    }
-
-    void OnImGuiRender() override
-    {
-        ImGui::SetNextWindowPos(ImVec2(500, 500), ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSize(ImVec2(100, 100), ImGuiCond_FirstUseEver);
-        ImGui::Begin(this->m_Name.c_str());
-        ImGui::End();
-    }
-
-    void OnEvent(Figment::AppEvent event, void *eventData) override
-    {
-
-    }
-};
-
 class Cube : public Layer
 {
 private:
     UniquePtr<WebGPURenderer> m_Renderer;
     SharedPtr<PerspectiveCamera> m_Camera;
+    Figment::Mesh *m_Mesh;
+    WebGPUShader *m_Shader;
 public:
     Cube() : Layer("Cube")
     {
@@ -56,7 +22,30 @@ public:
         m_Renderer = Figment::CreateUniquePtr<Figment::WebGPURenderer>(*webGpuWindow->GetContext());
 
         m_Camera = CreateSharedPtr<PerspectiveCamera>((float)webGpuWindow->GetWidth() / (float)webGpuWindow->GetHeight());
-        m_Camera->SetPosition(glm::vec3(0.0, 0.0, 5.0));
+        m_Camera->SetPosition(glm::vec3(0.0, 1.0, 5.0));
+
+        std::vector<Vertex> vertices = {
+                {{-0.5, -0.5, 0.5}},
+                {{0.5, -0.5, 0.5}},
+                {{0.5, 0.5, 0.5}},
+                {{-0.5, 0.5, 0.5}},
+                {{-0.5, -0.5, -0.5}},
+                {{0.5, -0.5, -0.5}},
+                {{0.5, 0.5, -0.5}},
+                {{-0.5, 0.5, -0.5}}
+        };
+
+        std::vector<uint32_t> indices = {
+                0, 1, 2, 2, 3, 0,
+                1, 5, 6, 6, 2, 1,
+                7, 6, 5, 5, 4, 7,
+                4, 0, 3, 3, 7, 4,
+                4, 5, 1, 1, 0, 4,
+                3, 2, 6, 6, 7, 3
+        };
+
+        m_Mesh = new Figment::Mesh(webGpuWindow->GetContext()->GetDevice(), vertices, indices );
+        m_Shader = new WebGPUShader(webGpuWindow->GetContext()->GetDevice(), *Utils::LoadFile2("res/shaders/wgsl/mesh.wgsl"));
     }
 
     void OnAttach() override
@@ -74,10 +63,14 @@ public:
         m_Camera->Update();
         m_Renderer->Begin(*m_Camera);
         m_Renderer->SubmitQuad(glm::vec3(0), glm::vec4(1.0, 1.0, 0.0, 1.0), 1);
+        m_Renderer->Submit(*m_Mesh, glm::mat4(1.0), *m_Shader);
         m_Renderer->End();
     }
 
-    void OnImGuiRender() override {}
+    void OnImGuiRender() override
+    {
+        Figment::DrawDebugPanel(*m_Camera);
+    }
 
     void OnEvent(Figment::AppEvent event, void *eventData) override
     {
@@ -95,7 +88,6 @@ public:
     MainLayer() : Layer("Main")
     {
         m_Layers.push_back(new Cube());
-        m_Layers.push_back(new Mesh());
 
         for (auto layer : m_Layers)
         {
