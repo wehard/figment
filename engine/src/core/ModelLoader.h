@@ -1,8 +1,9 @@
 #pragma once
 
 #include <string>
+#include "tiny_gltf.h"
 
 namespace Figment::ModelLoader
 {
-    void LoadGltf(const std::string &path);
+    tinygltf::Model LoadGltf(const std::string &path);
 }

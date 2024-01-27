@@ -3,3 +3,4 @@
 #include "App.h"
 #include "Log.h"
 #include "WebGPUWindow.h"
+#include "ModelLoader.h"

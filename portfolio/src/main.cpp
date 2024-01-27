@@ -198,5 +198,7 @@ int main(int argc, char **argv)
     app = new Figment::App(width, height);
     app->AddLayer(new MainLayer());
 
+    auto model = ModelLoader::LoadGltf("res/box.gltf");
+
     emscripten_set_main_loop_arg(main_loop, app, 0, false);
 }
