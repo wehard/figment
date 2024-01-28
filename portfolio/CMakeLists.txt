@@ -84,3 +84,12 @@ add_custom_command(TARGET portfolio POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/index.html ${CMAKE_CURRENT_BINARY_DIR}/index.html
         COMMENT "Copied shell file to: ${CMAKE_CURRENT_BINARY_DIR}"
 )
+
+add_custom_command(TARGET portfolio POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/app.yaml ${CMAKE_CURRENT_SOURCE_DIR}/dist/app.yaml
+        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/index.html ${CMAKE_CURRENT_SOURCE_DIR}/dist/index.html
+        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/portfolio.js ${CMAKE_CURRENT_SOURCE_DIR}/dist/portfolio.js
+        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/portfolio.data ${CMAKE_CURRENT_SOURCE_DIR}/dist/portfolio.data
+        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/portfolio.wasm ${CMAKE_CURRENT_SOURCE_DIR}/dist/portfolio.wasm
+        COMMENT "Copied files to dist folder"
+)
