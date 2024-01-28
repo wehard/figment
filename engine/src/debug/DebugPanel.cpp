@@ -7,7 +7,7 @@
 
 namespace Figment
 {
-    void DrawDebugPanel(Camera &camera)
+    void DrawDebugPanel(Camera &camera, bool collapsed)
     {
         auto window = App::Instance()->GetWindow();
 
@@ -17,6 +17,7 @@ namespace Figment
         glm::vec3 mw = camera.ScreenToWorldSpace(mousePosition,
                 glm::vec2(window->GetWidth(), window->GetHeight()));
 
+        ImGui::SetNextWindowCollapsed(collapsed, ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowPos(ImVec2(window->GetWidth() - 400, 0), ImGuiCond_Always);
         ImGui::SetNextWindowSize(ImVec2(400, 0), ImGuiCond_Always);
         ImGui::Begin("Debug Info");

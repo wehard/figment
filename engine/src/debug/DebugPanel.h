@@ -4,5 +4,5 @@
 
 namespace Figment
 {
-    void DrawDebugPanel(Camera &camera);
+    void DrawDebugPanel(Camera &camera, bool collapsed = false);
 }

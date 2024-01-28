@@ -67,7 +67,6 @@ public:
         m_Rotation.z += 10.0f * deltaTime;
         m_Camera->Update();
         m_Renderer->Begin(*m_Camera);
-        m_Renderer->SubmitQuad(glm::vec3(0), glm::vec4(1.0, 1.0, 0.0, 1.0), 1);
         glm::mat4 matScale = glm::scale(glm::mat4(1.0f), m_Scale);
         glm::mat4 matTranslate = glm::translate(glm::mat4(1.0), m_Position);
         glm::mat4 matRotate = glm::eulerAngleXYZ(glm::radians(m_Rotation.x), glm::radians(m_Rotation.y),
@@ -149,14 +148,14 @@ public:
         ImGui::Text("[2018]:            Introduction to databases, University of Helsinki, Open University");
         ImGui::Text("[2016]:            Advanced course in programming, University of Helsinki, Open University");
         ImGui::Text("[2016]:            Introduction to programming, University of Helsinki, Open University");
-        ImGui::Text("[AUG 03 - JUL 07]: Theatre Academy Helsinki, Master of Arts, Acting");
+        ImGui::Text("[AUG 03 - JUL 07]: Theatre Academy, Helsinki, Master of Arts in Acting");
         ImGui::Spacing();
         ImGui::Text("SKILLS");
         ImGui::Text("C, C++, C#, Typescript,\nOpenGL, WebGPU, Vulkan, Unity,\nGit, Linux, macOS, Windows, \nWeb, React, Node.js, GraphQL, REST,\nGCP, Jira, Confluence");
 
         ImGui::End();
 
-        ImGui::SetNextWindowPos(ImVec2(appWindowSize.x - width - padding, padding), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowPos(ImVec2(appWindowSize.x - width - padding, padding + 20), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(ImVec2(width, height), ImGuiCond_FirstUseEver);
         ImGui::Begin("Layers");
 
@@ -170,7 +169,7 @@ public:
         }
         ImGui::End();
 
-        Figment::DrawDebugPanel(*m_Camera);
+        Figment::DrawDebugPanel(*m_Camera, true);
     }
 
     void OnEvent(Figment::AppEvent event, void *eventData) override
