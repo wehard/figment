@@ -1,0 +1,18 @@
+runtime: nodejs20
+
+handlers:
+- url: /
+  upload: index.html
+  static_files: index.html
+
+- url: /portfolio.js
+  static_files: portfolio.js
+  upload: portfolio.js
+
+- url: /portfolio.data
+  static_files: portfolio.data
+  upload: portfolio.data
+
+- url: /portfolio.wasm
+  static_files: portfolio.wasm
+  upload: portfolio.wasm
