@@ -254,10 +254,11 @@ namespace Figment
         pipeline->Build();
 
         WebGPUCommand::DrawIndexed(m_RenderPass, pipeline->GetPipeline(), pipeline->GetBindGroup(),
-                *mesh.IndexBuffer(), *mesh.VertexBuffer(), 36);
+                *mesh.IndexBuffer(), *mesh.VertexBuffer(), mesh.IndexCount());
 
         delete pipeline;
         s_Stats.DrawCalls++;
+        s_Stats.VertexCount += mesh.VertexCount();
     }
 
     static std::vector<uint32_t> GenerateIndices(int width, int height)
