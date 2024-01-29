@@ -7,17 +7,15 @@ struct CameraData {
 
 struct VertexOutput {
     @builtin(position) pos: vec4<f32>,
-    @location(0) wp: vec3<f32>,
-    @location(1) color: vec4<f32>,
-    @location(2) uv: vec2<f32>,
-    @location(3) @interpolate(flat) id: i32
+    @location(0) color: vec4<f32>,
+    @location(1) uv: vec2<f32>,
+    @location(2) @interpolate(flat) id: i32
 };
 
 @vertex
 fn vs_main(@location(0) in_world_pos: vec3f, @location(1) in_local_pos: vec3f, @location(2) in_color: vec4f, @location(3) in_id: i32) -> VertexOutput {
     var output: VertexOutput;
     output.pos = cameraData.proj * cameraData.view * vec4<f32>(in_world_pos, 1.0);
-    output.wp = in_world_pos;
     output.uv = in_local_pos.xy;
     output.color = in_color;
     output.id = in_id;
@@ -30,18 +28,13 @@ struct FragmentOutput {
 };
 
 @fragment
-fn fs_main(@location(0) wp: vec3<f32>, @location(1) color: vec4<f32>, @location(2) uv: vec2<f32>, @location(3)  @interpolate(flat) id: i32) -> FragmentOutput {
+fn fs_main(@location(0) color: vec4<f32>, @location(1) uv: vec2<f32>, @location(2)  @interpolate(flat) id: i32) -> FragmentOutput {
     var output: FragmentOutput;
-    var len: f32 = abs(length(uv));
-    if(len > 0.5) {
+    if(abs(length(uv)) > 0.5 || abs(length(uv)) < 0.4) {
         discard;
     }
 
-    var lightDir: vec3<f32> = normalize(vec3<f32>(1.0, 1.0, -1.0));
-    var normal: vec3<f32> = normalize(vec3<f32>(uv, -sqrt(1.0 - dot(uv, uv))));
-    var ndotl: f32 = max(dot(normal, lightDir), 0.25);
-    output.color = color * (1.0 - len * 0.5) * ndotl;
-
+    output.color = color;
     output.id = id;
     return output;
 }
