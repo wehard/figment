@@ -18,17 +18,18 @@ const height: u32 = 32;
 
 @compute @workgroup_size(32, 1, 1)
 fn main(@builtin(global_invocation_id) id: vec3<u32>) {
-    let rowIdx = id.x / width;
-    let colIdx = id.x % height;
-    let x = (f32(colIdx) / f32(width - 1) - 0.5) * 10.0;
-    var y = (f32(rowIdx) / f32(height - 1) - 0.5) * 10.0;
-    let z = sin(x * 0.9) * 0.5 + cos(y * 0.9) * 0.5;
-    var color = vec4<f32>(x * 0.1 + 0.5, y * 0.1 + 0.5, z * 0.1 + 0.5, 1.0);
+    let points_per_ellipse = 1024 / 16;
+    let ellipse_id = id.x / u32(points_per_ellipse);
+    var angle = 2.0 * 3.14159265358979323846 * f32(f32(id.x) % f32(points_per_ellipse)) / f32(points_per_ellipse);
+    let x_radius = 0.05 + f32(ellipse_id) * 0.05;
+    let y_radius = 0.1 + f32(ellipse_id) * 0.1;
+    let x = x_radius * cos(angle);
+    let y = y_radius * sin(angle);
 
-    let u = f32(colIdx) / f32(width - 1);
-    let v = f32(rowIdx) / f32(height - 1);
-    let uv = vec2<f32>(u, v);
+    let rotation_angle = f32(ellipse_id) * 0.1; // adjust as needed
+    let rotated_x = x * cos(rotation_angle) - y * sin(rotation_angle);
+    let rotated_y = x * sin(rotation_angle) + y * cos(rotation_angle);
 
-    vertexBuffer[id.x] = Particle(vec3<f32>(x, y, z));
+    vertexBuffer[id.x] = Particle(vec3<f32>(rotated_x, rotated_y, 0.0));
 }
 

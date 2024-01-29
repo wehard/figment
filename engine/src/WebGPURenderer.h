@@ -10,6 +10,7 @@
 #include "WebGPURenderPipeline.h"
 #include "Component.h"
 #include "Mesh.h"
+#include "WebGPUCommand.h"
 
 namespace Figment
 {
@@ -102,6 +103,37 @@ namespace Figment
         void SubmitCircle(glm::vec3 position, glm::vec3 scale, glm::vec4 color, int32_t id);
         void Submit(Mesh &mesh, glm::mat4 transform, WebGPUShader &shader);
         void DrawFigment(FigmentComponent &figment, int32_t id);
+        template<typename T>
+        void DrawPoints(WebGPUVertexBuffer<T> &vertexBuffer, uint32_t vertexCount, WebGPUShader &shader)
+        {
+            auto pipeline = new WebGPURenderPipeline(m_Context, shader, vertexBuffer.GetVertexLayout());
+            pipeline->SetPrimitiveState(WGPUPrimitiveTopology_PointList, WGPUIndexFormat_Undefined,
+                    WGPUFrontFace_CCW,
+                    WGPUCullMode_None);
+            pipeline->SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
+            pipeline->SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(0),
+                    m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
+            auto colorTargetStates = std::vector<WGPUColorTargetState>({
+                    {
+                            .format = m_Context.GetTextureFormat(),
+                            .blend = nullptr,
+                            .writeMask = WGPUColorWriteMask_All
+                    },
+                    {
+                            .format = m_IdTexture->GetTextureFormat(),
+                            .blend = nullptr,
+                            .writeMask = WGPUColorWriteMask_All
+                    }
+            });
+            pipeline->SetColorTargetStates(colorTargetStates);
+            pipeline->Build();
+
+            WebGPUCommand::DrawVertices<T>(m_RenderPass, pipeline->GetPipeline(), pipeline->GetBindGroup(),
+                    vertexBuffer, vertexCount);
+
+            delete pipeline;
+        }
+
         void ReadPixel(int x, int y, const std::function<void(int32_t)> &callback);
         void OnResize(uint32_t width, uint32_t height);
 

@@ -9,6 +9,8 @@ Particles::Particles(SharedPtr<PerspectiveCamera> camera) : Layer("Particles"), 
     m_Renderer = Figment::CreateUniquePtr<Figment::WebGPURenderer>(*webGpuWindow->GetContext());
     m_Shader = CreateUniquePtr<WebGPUShader>(m_Context->GetDevice(),
             *Utils::LoadFile2("res/shaders/wgsl/particles.wgsl"));
+    m_ParticleShader = CreateUniquePtr<WebGPUShader>(m_Context->GetDevice(),
+            *Utils::LoadFile2("res/shaders/wgsl/particle.wgsl"));
 
     m_VertexBuffer = CreateUniquePtr<WebGPUVertexBuffer<Particle>>
             (m_Context->GetDevice(), "ParticlesBuffer",
@@ -48,7 +50,7 @@ void Particles::OnUpdate(float deltaTime)
     computePass->End();
 
     m_Renderer->Begin(*m_Camera);
-    m_Renderer->SubmitCircle(glm::vec3(0.0), glm::vec3(2.0), glm::vec4(1.0), 42);
+    m_Renderer->DrawPoints(*m_VertexBuffer, 1024, *m_ParticleShader);
     m_Renderer->End();
 }
 

@@ -25,5 +25,6 @@ private:
     SharedPtr<PerspectiveCamera> m_Camera;
     UniquePtr<WebGPURenderer> m_Renderer;
     UniquePtr<WebGPUShader> m_Shader;
+    UniquePtr<WebGPUShader> m_ParticleShader;
     UniquePtr<WebGPUVertexBuffer<Particle>> m_VertexBuffer;
 };
