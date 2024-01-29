@@ -1,5 +1,6 @@
 #include "Figment.h"
 #include "DebugPanel.h"
+#include "Particles.h"
 
 #include <emscripten.h>
 #include <cstdio>
@@ -24,17 +25,15 @@ public:
         auto webGpuWindow = std::dynamic_pointer_cast<Figment::WebGPUWindow>(m_Window);
         m_Renderer = Figment::CreateUniquePtr<Figment::WebGPURenderer>(*webGpuWindow->GetContext());
 
-
-
         std::vector<Vertex> vertices = {
-                {{-0.5, -0.5, 0.5}},
-                {{0.5, -0.5, 0.5}},
-                {{0.5, 0.5, 0.5}},
-                {{-0.5, 0.5, 0.5}},
-                {{-0.5, -0.5, -0.5}},
-                {{0.5, -0.5, -0.5}},
-                {{0.5, 0.5, -0.5}},
-                {{-0.5, 0.5, -0.5}}
+                {{ -0.5, -0.5, 0.5 }},
+                {{ 0.5, -0.5, 0.5 }},
+                {{ 0.5, 0.5, 0.5 }},
+                {{ -0.5, 0.5, 0.5 }},
+                {{ -0.5, -0.5, -0.5 }},
+                {{ 0.5, -0.5, -0.5 }},
+                {{ 0.5, 0.5, -0.5 }},
+                {{ -0.5, 0.5, -0.5 }}
         };
 
         std::vector<uint32_t> indices = {
@@ -46,8 +45,9 @@ public:
                 3, 2, 6, 6, 7, 3
         };
 
-        m_Mesh = new Figment::Mesh(webGpuWindow->GetContext()->GetDevice(), vertices, indices );
-        m_Shader = new WebGPUShader(webGpuWindow->GetContext()->GetDevice(), *Utils::LoadFile2("res/shaders/wgsl/mesh.wgsl"));
+        m_Mesh = new Figment::Mesh(webGpuWindow->GetContext()->GetDevice(), vertices, indices);
+        m_Shader = new WebGPUShader(webGpuWindow->GetContext()->GetDevice(),
+                *Utils::LoadFile2("res/shaders/wgsl/mesh.wgsl"));
     }
 
     void OnAttach() override
@@ -65,7 +65,6 @@ public:
         m_Rotation.x += 90.0f * deltaTime;
         m_Rotation.y += 90.0f * deltaTime;
         m_Rotation.z += 10.0f * deltaTime;
-        m_Camera->Update();
         m_Renderer->Begin(*m_Camera);
         glm::mat4 matScale = glm::scale(glm::mat4(1.0f), m_Scale);
         glm::mat4 matTranslate = glm::translate(glm::mat4(1.0), m_Position);
@@ -83,7 +82,6 @@ public:
     void OnEvent(Figment::AppEvent event, void *eventData) override
     {
         auto ev = (Figment::WindowResizeEventData *)eventData;
-        m_Camera->Resize((float)ev->Width, (float)ev->Height);
         m_Renderer->OnResize(ev->Width, ev->Height);
     }
 };
@@ -98,10 +96,12 @@ public:
     {
         auto m_Window = Figment::App::Instance()->GetWindow();
         auto webGpuWindow = std::dynamic_pointer_cast<Figment::WebGPUWindow>(m_Window);
-        m_Camera = CreateSharedPtr<PerspectiveCamera>((float)webGpuWindow->GetWidth() / (float)webGpuWindow->GetHeight());
+        m_Camera = CreateSharedPtr<PerspectiveCamera>(
+                (float)webGpuWindow->GetWidth() / (float)webGpuWindow->GetHeight());
         m_Camera->SetPosition(glm::vec3(0.0, 0.0, 3.0));
 
         m_Layers.push_back(new Cube(m_Camera));
+        m_Layers.push_back(new Particles(m_Camera));
 
         for (auto layer : m_Layers)
         {
@@ -121,12 +121,13 @@ public:
 
     void OnUpdate(float deltaTime) override
     {
-
+        m_Camera->Update();
     }
 
     void OnImGuiRender() override
     {
-        ImVec2 appWindowSize = ImVec2((float)App::Instance()->GetWindow()->GetWidth(), (float)App::Instance()->GetWindow()->GetHeight());
+        ImVec2 appWindowSize = ImVec2((float)App::Instance()->GetWindow()->GetWidth(),
+                (float)App::Instance()->GetWindow()->GetHeight());
         const int padding = 10;
 
         auto width = appWindowSize.x / 5;
@@ -151,7 +152,8 @@ public:
         ImGui::Text("[AUG 03 - JUL 07]: Theatre Academy, Helsinki, Master of Arts in Acting");
         ImGui::Spacing();
         ImGui::Text("SKILLS");
-        ImGui::Text("C, C++, C#, Typescript,\nOpenGL, WebGPU, Vulkan, Unity,\nGit, Linux, macOS, Windows, \nWeb, React, Node.js, GraphQL, REST,\nGCP, Jira, Confluence");
+        ImGui::Text(
+                "C, C++, C#, Typescript,\nOpenGL, WebGPU, Vulkan, Unity,\nGit, Linux, macOS, Windows, \nWeb, React, Node.js, GraphQL, REST,\nGCP, Jira, Confluence");
 
         ImGui::End();
 
@@ -162,7 +164,7 @@ public:
         for (auto layer : m_Layers)
         {
             auto enabled = layer->IsEnabled();
-            if(ImGui::Checkbox(layer->GetName().c_str(), &enabled))
+            if (ImGui::Checkbox(layer->GetName().c_str(), &enabled))
             {
                 layer->SetEnabled(!layer->IsEnabled());
             }
@@ -174,7 +176,8 @@ public:
 
     void OnEvent(Figment::AppEvent event, void *eventData) override
     {
-
+        auto ev = (Figment::WindowResizeEventData *)eventData;
+        m_Camera->Resize((float)ev->Width, (float)ev->Height);
     }
 };
 
