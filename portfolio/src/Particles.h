@@ -7,6 +7,7 @@ using namespace Figment;
 struct Particle
 {
     glm::vec3 Position;
+    uint32_t _Padding[1];
 };
 
 class Particles : public Layer

@@ -15,8 +15,8 @@ namespace Figment
         void Begin();
         void Dispatch(const std::string &name, uint32_t invocationsX);
         void End();
-        void Bind(WGPUBuffer buffer, uint64_t size);
-        void BindUniform(WGPUBuffer buffer, uint64_t size);
+        void Bind(WGPUBuffer buffer, uint32_t size);
+        void BindUniform(WGPUBuffer buffer, uint32_t size);
     private:
         std::vector<WGPUBindGroupEntry> m_BindGroupEntries;
         std::vector<WGPUBindGroupLayoutEntry> m_BindGroupLayoutEntries;

@@ -41,11 +41,11 @@ void Particles::OnDetach()
 
 void Particles::OnUpdate(float deltaTime)
 {
-    // ComputePass computePass(m_Context->GetDevice(), *m_Shader);
-    // computePass.Begin();
-    // computePass.Bind(m_VertexBuffer->GetBuffer(), m_VertexBuffer->GetSize());
-    // computePass.Dispatch("main", 1024);
-    // computePass.End();
+    auto computePass = new ComputePass(m_Context->GetDevice(), *m_Shader);
+    computePass->Begin();
+    computePass->Bind(m_VertexBuffer->GetBuffer(), m_VertexBuffer->GetSize());
+    computePass->Dispatch("main", 32);
+    computePass->End();
 
     m_Renderer->Begin(*m_Camera);
     m_Renderer->SubmitCircle(glm::vec3(0.0), glm::vec3(2.0), glm::vec4(1.0), 42);

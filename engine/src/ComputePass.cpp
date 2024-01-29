@@ -52,9 +52,7 @@ namespace Figment
         wgpuComputePassEncoderSetPipeline(m_ComputePassEncoder, pipeline);
         wgpuComputePassEncoderSetBindGroup(m_ComputePassEncoder, 0, bindGroup, 0, nullptr);
 
-        uint32_t workgroupSize = 32;
-        uint32_t workgroupCount = (invocationCountX + workgroupSize - 1) / workgroupSize;
-        wgpuComputePassEncoderDispatchWorkgroups(m_ComputePassEncoder, workgroupCount, 1, 1);
+        wgpuComputePassEncoderDispatchWorkgroups(m_ComputePassEncoder, invocationCountX, 1, 1);
     }
 
     void ComputePass::End()
@@ -72,9 +70,10 @@ namespace Figment
         m_ComputePassEncoder = nullptr;
     }
 
-    void ComputePass::Bind(WGPUBuffer buffer, uint64_t size)
+    void ComputePass::Bind(WGPUBuffer buffer, uint32_t size)
     {
         WGPUBindGroupEntry bindGroupEntry = {};
+        bindGroupEntry.nextInChain = nullptr;
         bindGroupEntry.binding = m_BindGroupEntries.size();
         bindGroupEntry.buffer = buffer;
         bindGroupEntry.offset = 0;
@@ -91,7 +90,7 @@ namespace Figment
         m_BindGroupLayoutEntries.emplace_back(bindGroupLayoutEntry);
     }
 
-    void ComputePass::BindUniform(WGPUBuffer buffer, uint64_t size)
+    void ComputePass::BindUniform(WGPUBuffer buffer, uint32_t size)
     {
         WGPUBindGroupEntry bindGroupEntry = {};
         bindGroupEntry.binding = m_BindGroupEntries.size();
