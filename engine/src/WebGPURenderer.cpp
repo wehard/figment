@@ -134,12 +134,12 @@ namespace Figment
 
         WGPURenderPassColorAttachment colorAttachments[2] = {};
 
-        colorAttachments[0].loadOp = WGPULoadOp_Clear;
+        colorAttachments[0].loadOp = WGPULoadOp_Load;
         colorAttachments[0].storeOp = WGPUStoreOp_Store;
         colorAttachments[0].clearValue = { 0.0f, 0.0f, 0.0f, 1.0f };
         colorAttachments[0].view = wgpuSwapChainGetCurrentTextureView(m_Context.GetSwapChain());
 
-        colorAttachments[1].loadOp = WGPULoadOp_Clear;
+        colorAttachments[1].loadOp = WGPULoadOp_Load;
         colorAttachments[1].storeOp = WGPUStoreOp_Store;
         colorAttachments[1].clearValue = { -1.0, -1.0, -1.0, -1.0 };
         colorAttachments[1].view = m_IdTexture->GetTextureView();
@@ -228,7 +228,7 @@ namespace Figment
     void WebGPURenderer::Submit(Mesh &mesh, glm::mat4 transform, WebGPUShader &shader)
     {
         mesh.UniformBuffer()->SetData(&transform, sizeof(transform));
-        
+
         auto pipeline = new WebGPURenderPipeline(m_Context, shader, mesh.VertexBuffer()->GetVertexLayout());
         pipeline->SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined,
                 WGPUFrontFace_CCW,
