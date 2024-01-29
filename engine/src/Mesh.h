@@ -24,6 +24,10 @@ namespace Figment
         { return m_IndexBuffer; }
         WebGPUUniformBuffer<glm::mat4> *UniformBuffer()
         { return m_UniformBuffer; }
+        uint32_t IndexCount()
+        { return m_Indices.size(); }
+        uint32_t VertexCount()
+        { return m_Vertices.size(); }
     private:
         std::vector<Vertex> m_Vertices;
         std::vector<uint32_t> m_Indices;
