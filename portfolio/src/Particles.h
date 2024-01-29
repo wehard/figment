@@ -4,6 +4,11 @@
 
 using namespace Figment;
 
+struct Particle
+{
+    glm::vec3 Position;
+};
+
 class Particles : public Layer
 {
 public:
@@ -15,6 +20,9 @@ public:
     void OnImGuiRender() override;
     void OnEvent(AppEvent event, void *eventData) override;
 private:
+    SharedPtr<WebGPUContext> m_Context;
     SharedPtr<PerspectiveCamera> m_Camera;
     UniquePtr<WebGPURenderer> m_Renderer;
+    UniquePtr<WebGPUShader> m_Shader;
+    UniquePtr<WebGPUVertexBuffer<Particle>> m_VertexBuffer;
 };

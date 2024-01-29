@@ -1,6 +1,7 @@
 #pragma once
 
 #include "WebGPUBuffer.h"
+#include "WebGPUTexture.h"
 
 namespace Figment
 {

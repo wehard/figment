@@ -1,10 +1,27 @@
 #include "Particles.h"
+#include "ComputePass.h"
 
 Particles::Particles(SharedPtr<PerspectiveCamera> camera) : Layer("Particles"), m_Camera(camera)
 {
     auto m_Window = Figment::App::Instance()->GetWindow();
     auto webGpuWindow = std::dynamic_pointer_cast<Figment::WebGPUWindow>(m_Window);
+    m_Context = webGpuWindow->GetContext();
     m_Renderer = Figment::CreateUniquePtr<Figment::WebGPURenderer>(*webGpuWindow->GetContext());
+    m_Shader = CreateUniquePtr<WebGPUShader>(m_Context->GetDevice(),
+            *Utils::LoadFile2("res/shaders/wgsl/particles.wgsl"));
+
+    m_VertexBuffer = CreateUniquePtr<WebGPUVertexBuffer<Particle>>
+            (m_Context->GetDevice(), "ParticlesBuffer",
+                    1024 * sizeof(Particle));
+
+    auto layout = std::vector<WGPUVertexAttribute>({
+            {
+                    .format = WGPUVertexFormat_Float32x3,
+                    .offset = 0,
+                    .shaderLocation = 0,
+            },
+    });
+    m_VertexBuffer->SetVertexLayout(layout, sizeof(Particle), WGPUVertexStepMode_Vertex);
 }
 
 Particles::~Particles()
@@ -24,6 +41,12 @@ void Particles::OnDetach()
 
 void Particles::OnUpdate(float deltaTime)
 {
+    // ComputePass computePass(m_Context->GetDevice(), *m_Shader);
+    // computePass.Begin();
+    // computePass.Bind(m_VertexBuffer->GetBuffer(), m_VertexBuffer->GetSize());
+    // computePass.Dispatch("main", 1024);
+    // computePass.End();
+
     m_Renderer->Begin(*m_Camera);
     m_Renderer->SubmitCircle(glm::vec3(0.0), glm::vec3(2.0), glm::vec4(1.0), 42);
     m_Renderer->End();
