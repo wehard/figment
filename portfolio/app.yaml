@@ -2,17 +2,21 @@ runtime: nodejs20
 
 handlers:
 - url: /
+  secure: always
   upload: index.html
   static_files: index.html
 
 - url: /portfolio.js
+  secure: always
   static_files: portfolio.js
   upload: portfolio.js
 
 - url: /portfolio.data
+  secure: always
   static_files: portfolio.data
   upload: portfolio.data
 
 - url: /portfolio.wasm
+  secure: always
   static_files: portfolio.wasm
   upload: portfolio.wasm
