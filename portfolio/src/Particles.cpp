@@ -8,9 +8,9 @@ Particles::Particles(SharedPtr<PerspectiveCamera> camera) : Layer("Particles"), 
     auto webGpuWindow = std::dynamic_pointer_cast<Figment::WebGPUWindow>(m_Window);
     m_Context = webGpuWindow->GetContext();
     m_Renderer = Figment::CreateUniquePtr<Figment::WebGPURenderer>(*webGpuWindow->GetContext());
-    m_ComputeShader = new WebGPUShader(m_Context->GetDevice(),
+    m_ComputeShader = CreateUniquePtr<WebGPUShader>(m_Context->GetDevice(),
             *Utils::LoadFile2("res/shaders/wgsl/particles.wgsl"), "ParticlesCompute");
-    m_ParticleShader = CreateSharedPtr<WebGPUShader>(m_Context->GetDevice(),
+    m_ParticleShader = CreateUniquePtr<WebGPUShader>(m_Context->GetDevice(),
             *Utils::LoadFile2("res/shaders/wgsl/particle.wgsl"));
 
     m_VertexBuffer = CreateUniquePtr<WebGPUVertexBuffer<Particle>>
@@ -39,7 +39,7 @@ void Particles::OnAttach()
 {
     FIG_LOG_INFO("Particles layer attached");
 
-    ComputePass computePass(m_Context->GetDevice(), m_ComputeShader);
+    ComputePass computePass(m_Context->GetDevice(), m_ComputeShader.get());
     computePass.Begin();
     computePass.Bind(*m_VertexBuffer);
     computePass.Bind(*m_UniformBuffer);
@@ -88,11 +88,10 @@ static void Error(WGPUErrorType type, char const *message, void *userdata)
 void Particles::OnUpdate(float deltaTime)
 {
     ParticlesData d = {};
-    d.mousePosition.x = Figment::Input::GetMouseDelta().x * 0.0001;
-    d.mousePosition.y = Figment::Input::GetMouseDelta().y * 0.0001;
+    d.DeltaTime = deltaTime;
     m_UniformBuffer->SetData(&d, sizeof(ParticlesData));
 
-    auto computePass = new ComputePass(m_Context->GetDevice(), m_ComputeShader);
+    auto computePass = new ComputePass(m_Context->GetDevice(), m_ComputeShader.get());
     computePass->Begin();
     computePass->Bind(*m_VertexBuffer);
     computePass->Bind(*m_UniformBuffer);

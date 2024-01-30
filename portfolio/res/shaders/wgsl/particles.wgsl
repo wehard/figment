@@ -1,5 +1,7 @@
 struct ParticlesData {
-    mouse: vec4f,
+    deltaTime: f32,
+    time: f32,
+    mouse: vec2<f32>,
 };
 
 struct Particle
@@ -32,7 +34,7 @@ fn init(@builtin(global_invocation_id) id: vec3<u32>) {
 @compute @workgroup_size(32, 1, 1)
 fn simulate(@builtin(global_invocation_id) id: vec3<u32>) {
     var p: Particle = vertexBuffer[id.x];
-    p.position.x += data.mouse.x;
-    p.position.y += data.mouse.y;
+    let dir = normalize(p.position);
+    p.position += dir * data.deltaTime * 0.1;
     vertexBuffer[id.x] = p;
 }
