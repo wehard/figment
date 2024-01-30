@@ -34,6 +34,11 @@ Particles::~Particles()
 void Particles::OnAttach()
 {
     FIG_LOG_INFO("Particles layer attached");
+    ComputePass computePass(m_Context->GetDevice(), *m_Shader);
+    computePass.Begin();
+    computePass.Bind(m_VertexBuffer->GetBuffer(), m_VertexBuffer->GetSize());
+    computePass.Dispatch("init", 1024);
+    computePass.End();
 }
 
 void Particles::OnDetach()
@@ -43,12 +48,6 @@ void Particles::OnDetach()
 
 void Particles::OnUpdate(float deltaTime)
 {
-    auto computePass = new ComputePass(m_Context->GetDevice(), *m_Shader);
-    computePass->Begin();
-    computePass->Bind(m_VertexBuffer->GetBuffer(), m_VertexBuffer->GetSize());
-    computePass->Dispatch("init", 1024);
-    computePass->End();
-
     m_Renderer->Begin(*m_Camera);
     m_Renderer->DrawPoints(*m_VertexBuffer, 16384, *m_ParticleShader);
     m_Renderer->End();
