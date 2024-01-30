@@ -46,7 +46,7 @@ void Particles::OnUpdate(float deltaTime)
     auto computePass = new ComputePass(m_Context->GetDevice(), *m_Shader);
     computePass->Begin();
     computePass->Bind(m_VertexBuffer->GetBuffer(), m_VertexBuffer->GetSize());
-    computePass->Dispatch("main", 1024);
+    computePass->Dispatch("init", 1024);
     computePass->End();
 
     m_Renderer->Begin(*m_Camera);

@@ -18,7 +18,7 @@ const ellipse_count: u32 = 16;
 //@group(0) @binding(1) var<uniform> figmentData: FigmentData;
 
 @compute @workgroup_size(32, 1, 1)
-fn main(@builtin(global_invocation_id) id: vec3<u32>) {
+fn init(@builtin(global_invocation_id) id: vec3<u32>) {
     let points_per_ellipse = 16384 / ellipse_count;
     let ellipse_id = id.x / u32(points_per_ellipse);
     var angle = 2.0 * 3.14159265358979323846 * f32(f32(id.x) % f32(points_per_ellipse)) / f32(points_per_ellipse);
@@ -27,7 +27,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     let x = x_radius * cos(angle);
     let y = y_radius * sin(angle);
 
-    let rotation_angle = f32(ellipse_id) * (3.14159265358979323846 / 2.0 / f32(ellipse_count-1));
+    let rotation_angle = f32(ellipse_id) * (3.14159265358979323846 / 2.0 / f32(ellipse_count - 1));
     var rotated_x = x * cos(rotation_angle) - y * sin(rotation_angle);
     var rotated_y = x * sin(rotation_angle) + y * cos(rotation_angle);
 
