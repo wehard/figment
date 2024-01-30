@@ -1,21 +1,16 @@
-//struct FigmentData {
-//    time: f32,
-//    id: i32,
-//    model: mat4x4<f32>,
-//};
+struct ParticlesData {
+    mouse: vec4f,
+};
 
 struct Particle
 {
     position: vec3f,
 };
 
-// width and height constants
-const width: u32 = 32;
-const height: u32 = 32;
 const ellipse_count: u32 = 16;
 
 @group(0) @binding(0) var<storage,read_write> vertexBuffer: array<Particle,16384>;
-//@group(0) @binding(1) var<uniform> figmentData: FigmentData;
+@group(0) @binding(1) var<uniform> data: ParticlesData;
 
 @compute @workgroup_size(32, 1, 1)
 fn init(@builtin(global_invocation_id) id: vec3<u32>) {
@@ -34,3 +29,10 @@ fn init(@builtin(global_invocation_id) id: vec3<u32>) {
     vertexBuffer[id.x] = Particle(vec3<f32>(rotated_x, rotated_y, 0.0));
 }
 
+@compute @workgroup_size(32, 1, 1)
+fn simulate(@builtin(global_invocation_id) id: vec3<u32>) {
+    var p: Particle = vertexBuffer[id.x];
+    p.position.x += data.mouse.x;
+    p.position.y += data.mouse.y;
+    vertexBuffer[id.x] = p;
+}

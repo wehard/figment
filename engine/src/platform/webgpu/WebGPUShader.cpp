@@ -82,6 +82,7 @@ namespace Figment
 
         WGPUShaderModuleDescriptor shaderDesc = {};
         shaderDesc.nextInChain = &shaderCodeDesc.chain;
+        shaderDesc.label = label;
 
         m_ShaderModule = wgpuDeviceCreateShaderModule(device, &shaderDesc);
         wgpuShaderModuleSetLabel(m_ShaderModule, label);

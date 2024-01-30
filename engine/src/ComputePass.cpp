@@ -4,7 +4,7 @@
 namespace Figment
 {
 
-    ComputePass::ComputePass(WGPUDevice device, WebGPUShader &shader) :
+    ComputePass::ComputePass(WGPUDevice device, WebGPUShader *shader) :
             m_Device(device), m_Shader(shader)
     {
     }
@@ -44,7 +44,7 @@ namespace Figment
         WGPUComputePipelineDescriptor computePipelineDesc = {};
         computePipelineDesc.label = "ComputePipeline";
         computePipelineDesc.compute.entryPoint = name.c_str();
-        computePipelineDesc.compute.module = m_Shader.GetShaderModule();
+        computePipelineDesc.compute.module = m_Shader->GetShaderModule();
         computePipelineDesc.layout = pipelineLayout;
 
         auto pipeline = wgpuDeviceCreateComputePipeline(m_Device, &computePipelineDesc);
@@ -53,6 +53,11 @@ namespace Figment
         wgpuComputePassEncoderSetBindGroup(m_ComputePassEncoder, 0, bindGroup, 0, nullptr);
 
         wgpuComputePassEncoderDispatchWorkgroups(m_ComputePassEncoder, invocationCountX, 1, 1);
+
+        wgpuPipelineLayoutRelease(pipelineLayout);
+        wgpuComputePipelineRelease(pipeline);
+        wgpuBindGroupRelease(bindGroup);
+        wgpuBindGroupLayoutRelease(bindGroupLayout);
     }
 
     void ComputePass::End()
@@ -66,31 +71,12 @@ namespace Figment
         WebGPUCommand::DestroyCommandEncoder(m_CommandEncoder);
         WebGPUCommand::DestroyCommandBuffer(commandBuffer);
         wgpuComputePassEncoderRelease(m_ComputePassEncoder);
+
         m_CommandEncoder = nullptr;
         m_ComputePassEncoder = nullptr;
     }
 
-    void ComputePass::Bind(WGPUBuffer buffer, uint32_t size)
-    {
-        WGPUBindGroupEntry bindGroupEntry = {};
-        bindGroupEntry.nextInChain = nullptr;
-        bindGroupEntry.binding = m_BindGroupEntries.size();
-        bindGroupEntry.buffer = buffer;
-        bindGroupEntry.offset = 0;
-        bindGroupEntry.size = size;
-
-        m_BindGroupEntries.emplace_back(bindGroupEntry);
-
-        WGPUBindGroupLayoutEntry bindGroupLayoutEntry = GetDefaultWGPUBindGroupLayoutEntry();
-        bindGroupLayoutEntry.nextInChain = nullptr;
-        bindGroupLayoutEntry.binding = bindGroupEntry.binding;
-        bindGroupLayoutEntry.visibility = WGPUShaderStage_Compute;
-        bindGroupLayoutEntry.buffer.type = WGPUBufferBindingType_Storage;
-
-        m_BindGroupLayoutEntries.emplace_back(bindGroupLayoutEntry);
-    }
-
-    void ComputePass::BindUniform(WGPUBuffer buffer, uint32_t size)
+    void ComputePass::Bind(WGPUBuffer buffer, uint32_t size, WGPUBufferBindingType type)
     {
         WGPUBindGroupEntry bindGroupEntry = {};
         bindGroupEntry.binding = m_BindGroupEntries.size();
@@ -104,7 +90,7 @@ namespace Figment
         bindGroupLayoutEntry.nextInChain = nullptr;
         bindGroupLayoutEntry.binding = bindGroupEntry.binding;
         bindGroupLayoutEntry.visibility = WGPUShaderStage_Compute;
-        bindGroupLayoutEntry.buffer.type = WGPUBufferBindingType_Uniform;
+        bindGroupLayoutEntry.buffer.type = type;
 
         m_BindGroupLayoutEntries.emplace_back(bindGroupLayoutEntry);
     }

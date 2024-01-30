@@ -1,5 +1,6 @@
 #include "Particles.h"
 #include "ComputePass.h"
+#include "Figment.h"
 
 Particles::Particles(SharedPtr<PerspectiveCamera> camera) : Layer("Particles"), m_Camera(camera)
 {
@@ -7,9 +8,9 @@ Particles::Particles(SharedPtr<PerspectiveCamera> camera) : Layer("Particles"), 
     auto webGpuWindow = std::dynamic_pointer_cast<Figment::WebGPUWindow>(m_Window);
     m_Context = webGpuWindow->GetContext();
     m_Renderer = Figment::CreateUniquePtr<Figment::WebGPURenderer>(*webGpuWindow->GetContext());
-    m_Shader = CreateUniquePtr<WebGPUShader>(m_Context->GetDevice(),
-            *Utils::LoadFile2("res/shaders/wgsl/particles.wgsl"));
-    m_ParticleShader = CreateUniquePtr<WebGPUShader>(m_Context->GetDevice(),
+    m_ComputeShader = new WebGPUShader(m_Context->GetDevice(),
+            *Utils::LoadFile2("res/shaders/wgsl/particles.wgsl"), "ParticlesCompute");
+    m_ParticleShader = CreateSharedPtr<WebGPUShader>(m_Context->GetDevice(),
             *Utils::LoadFile2("res/shaders/wgsl/particle.wgsl"));
 
     m_VertexBuffer = CreateUniquePtr<WebGPUVertexBuffer<Particle>>
@@ -24,6 +25,9 @@ Particles::Particles(SharedPtr<PerspectiveCamera> camera) : Layer("Particles"), 
             },
     });
     m_VertexBuffer->SetVertexLayout(layout, sizeof(Particle), WGPUVertexStepMode_Vertex);
+
+    m_UniformBuffer = CreateUniquePtr<WebGPUUniformBuffer<ParticlesData>>(m_Context->GetDevice(),
+            "ParticlesDataUniformBuffer", sizeof(ParticlesData));
 }
 
 Particles::~Particles()
@@ -34,11 +38,16 @@ Particles::~Particles()
 void Particles::OnAttach()
 {
     FIG_LOG_INFO("Particles layer attached");
-    ComputePass computePass(m_Context->GetDevice(), *m_Shader);
+
+    ComputePass computePass(m_Context->GetDevice(), m_ComputeShader);
     computePass.Begin();
-    computePass.Bind(m_VertexBuffer->GetBuffer(), m_VertexBuffer->GetSize());
-    computePass.Dispatch("init", 1024);
+    computePass.Bind(*m_VertexBuffer);
+    computePass.Bind(*m_UniformBuffer);
+    computePass.Dispatch("init", 16384);
     computePass.End();
+
+    // wgpuDevicePushErrorScope(m_Context->GetDevice(), WGPUErrorFilter_OutOfMemory);
+    // wgpuDevicePushErrorScope(m_Context->GetDevice(), WGPUErrorFilter_Validation);
 }
 
 void Particles::OnDetach()
@@ -46,8 +55,52 @@ void Particles::OnDetach()
 
 }
 
+static void Error(WGPUErrorType type, char const *message, void *userdata)
+{
+    const char *errorType = "Unknown";
+    switch (type)
+    {
+    case WGPUErrorType_NoError:
+        errorType = "NoError";
+        break;
+    case WGPUErrorType_Validation:
+        errorType = "Validation";
+        break;
+    case WGPUErrorType_OutOfMemory:
+        errorType = "OutOfMemory";
+        break;
+    case WGPUErrorType_Internal:
+        errorType = "Internal";
+        break;
+    case WGPUErrorType_Unknown:
+        errorType = "Unknown";
+        break;
+    case WGPUErrorType_DeviceLost:
+        errorType = "DeviceLost";
+        break;
+    case WGPUErrorType_Force32:
+        errorType = "Force32";
+        break;
+    }
+    FIG_LOG_ERROR("%s - %s", errorType, message);
+}
+
 void Particles::OnUpdate(float deltaTime)
 {
+    ParticlesData d = {};
+    d.mousePosition.x = Figment::Input::GetMouseDelta().x * 0.0001;
+    d.mousePosition.y = Figment::Input::GetMouseDelta().y * 0.0001;
+    m_UniformBuffer->SetData(&d, sizeof(ParticlesData));
+
+    auto computePass = new ComputePass(m_Context->GetDevice(), m_ComputeShader);
+    computePass->Begin();
+    computePass->Bind(*m_VertexBuffer);
+    computePass->Bind(*m_UniformBuffer);
+    computePass->Dispatch("simulate", 16384);
+    computePass->End();
+
+    wgpuDevicePopErrorScope(m_Context->GetDevice(), &Error, nullptr);
+
     m_Renderer->Begin(*m_Camera);
     m_Renderer->DrawPoints(*m_VertexBuffer, 16384, *m_ParticleShader);
     m_Renderer->End();

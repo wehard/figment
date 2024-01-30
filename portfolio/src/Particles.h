@@ -10,6 +10,11 @@ struct Particle
     uint32_t _Padding[1];
 };
 
+struct ParticlesData
+{
+    glm::vec4 mousePosition;
+};
+
 class Particles : public Layer
 {
 public:
@@ -24,7 +29,8 @@ private:
     SharedPtr<WebGPUContext> m_Context;
     SharedPtr<PerspectiveCamera> m_Camera;
     UniquePtr<WebGPURenderer> m_Renderer;
-    UniquePtr<WebGPUShader> m_Shader;
-    UniquePtr<WebGPUShader> m_ParticleShader;
+    WebGPUShader *m_ComputeShader;
+    SharedPtr<WebGPUShader> m_ParticleShader;
     UniquePtr<WebGPUVertexBuffer<Particle>> m_VertexBuffer;
+    UniquePtr<WebGPUUniformBuffer<ParticlesData>> m_UniformBuffer;
 };
