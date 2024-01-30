@@ -7,7 +7,9 @@ using namespace Figment;
 struct Particle
 {
     glm::vec3 Position;
-    uint32_t _Padding[1];
+    glm::vec3 PrevPosition;
+    glm::vec3 Acceleration;
+    uint32_t _Padding[3];
 };
 
 struct ParticlesData

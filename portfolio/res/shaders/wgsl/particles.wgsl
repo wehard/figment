@@ -7,6 +7,8 @@ struct ParticlesData {
 struct Particle
 {
     position: vec3f,
+    prevPosition: vec3f,
+    acc: vec3f,
 };
 
 const ellipse_count: u32 = 16;
@@ -28,13 +30,39 @@ fn init(@builtin(global_invocation_id) id: vec3<u32>) {
     var rotated_x = x * cos(rotation_angle) - y * sin(rotation_angle);
     var rotated_y = x * sin(rotation_angle) + y * cos(rotation_angle);
 
-    vertexBuffer[id.x] = Particle(vec3<f32>(rotated_x, rotated_y, 0.0));
+    var particle: Particle;
+    particle.position = vec3<f32>(rotated_x, rotated_y, 0.0);
+    // set prev position to to be tangent to the ellipse
+    let prev_rotation_angle = rotation_angle + 0.01;
+    var prev_rotated_x = x * cos(prev_rotation_angle) - y * sin(prev_rotation_angle);
+    var prev_rotated_y = x * sin(prev_rotation_angle) + y * cos(prev_rotation_angle);
+    particle.prevPosition = vec3<f32>(prev_rotated_x, prev_rotated_y, 0.0);
+    particle.acc = vec3<f32>(0.0, 0.0, 0.0);
+    vertexBuffer[id.x] = particle;
 }
 
 @compute @workgroup_size(32, 1, 1)
 fn simulate(@builtin(global_invocation_id) id: vec3<u32>) {
-    var p: Particle = vertexBuffer[id.x];
-    let dir = normalize(p.position);
-    p.position += dir * data.deltaTime * 0.1;
-    vertexBuffer[id.x] = p;
+    var particle: Particle = vertexBuffer[id.x];
+//    let dir = normalize(particle.position);
+//    particle.position += dir * data.deltaTime * 0.1;
+//    particle.prevPosition = particle.position;
+    let x: f32 = 2 * particle.position.x - particle.prevPosition.x + particle.acc.x * data.deltaTime * data.deltaTime;
+    let y: f32 = 2 * particle.position.y - particle.prevPosition.y + particle.acc.y * data.deltaTime * data.deltaTime;
+
+    particle.prevPosition = particle.position;
+
+    particle.position.x = x;
+    particle.position.y = y;
+
+//	float3 dir = gp->xyz - p->pos.xyz;
+//	float dist = length(dir);
+//	float f = G * (gp->w / (dist * dist + 0.006544f));
+//	float3 vel = normalize(dir) * f;
+    let dir = -particle.position;
+    let dist = length(dir);
+    let f = 1.0 * (1.0 / (dist * dist));
+
+    particle.acc = normalize(dir) * 0.3;
+    vertexBuffer[id.x] = particle;
 }
