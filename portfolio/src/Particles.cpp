@@ -39,6 +39,11 @@ void Particles::OnAttach()
 {
     FIG_LOG_INFO("Particles layer attached");
 
+    ParticlesData d = {};
+    d.DeltaTime = 0.0;
+    d.Seed = glm::vec2(1234, 5432);
+    m_UniformBuffer->SetData(&d, sizeof(ParticlesData));
+
     ComputePass computePass(m_Context->GetDevice(), m_ComputeShader.get());
     computePass.Begin();
     computePass.Bind(*m_VertexBuffer);
@@ -89,6 +94,7 @@ void Particles::OnUpdate(float deltaTime)
 {
     ParticlesData d = {};
     d.DeltaTime = deltaTime;
+    d.Seed = glm::vec2(0);
     m_UniformBuffer->SetData(&d, sizeof(ParticlesData));
 
     auto computePass = new ComputePass(m_Context->GetDevice(), m_ComputeShader.get());

@@ -16,7 +16,7 @@ struct ParticlesData
 {
     float DeltaTime;
     float Time;
-    float _Padding[2];
+    glm::vec2 Seed;
 };
 
 class Particles : public Layer

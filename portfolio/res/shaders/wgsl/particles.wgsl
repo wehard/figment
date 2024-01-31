@@ -1,7 +1,7 @@
 struct ParticlesData {
     deltaTime: f32,
     time: f32,
-    mouse: vec2<f32>,
+    seed: vec2<f32>,
 };
 
 struct Particle
@@ -16,13 +16,20 @@ const ellipse_count: u32 = 16;
 @group(0) @binding(0) var<storage,read_write> vertexBuffer: array<Particle,16384>;
 @group(0) @binding(1) var<uniform> data: ParticlesData;
 
+// function to generate a random number between 0 and 1
+fn rand(seed: vec2<f32>) -> f32 {
+    let x = sin(dot(seed, vec2<f32>(12.9898, 78.233))) * 43758.5453;
+    return fract(x);
+}
+
+
 @compute @workgroup_size(32, 1, 1)
 fn init(@builtin(global_invocation_id) id: vec3<u32>) {
     let points_per_ellipse = 16384 / ellipse_count;
     let ellipse_id = id.x / u32(points_per_ellipse);
     var angle = 2.0 * 3.14159265358979323846 * f32(f32(id.x) % f32(points_per_ellipse)) / f32(points_per_ellipse);
-    let x_radius = 0.05 + f32(ellipse_id) * 0.05;
-    let y_radius = 0.1 + f32(ellipse_id) * 0.1;
+    let x_radius = 0.01 + f32(ellipse_id) * 0.02;
+    let y_radius = 0.02 + f32(ellipse_id) * 0.04;
     let x = x_radius * cos(angle);
     let y = y_radius * sin(angle);
 
@@ -32,12 +39,23 @@ fn init(@builtin(global_invocation_id) id: vec3<u32>) {
 
     var particle: Particle;
     particle.position = vec3<f32>(rotated_x, rotated_y, 0.0);
+
+    // offset position randomly
+    let offsetX = rand(data.seed * f32(id.x));
+    let offsetY = rand(data.seed / f32(id.x)) - 0.5;
+    particle.position += vec3<f32>(offsetX * 0.1, offsetY * 0.1, 0.0);
+
+
     // set prev position to to be tangent to the ellipse
     let prev_rotation_angle = rotation_angle + 0.01;
     var prev_rotated_x = x * cos(prev_rotation_angle) - y * sin(prev_rotation_angle);
     var prev_rotated_y = x * sin(prev_rotation_angle) + y * cos(prev_rotation_angle);
     particle.prevPosition = vec3<f32>(prev_rotated_x, prev_rotated_y, 0.0);
     particle.acc = vec3<f32>(0.0, 0.0, 0.0);
+
+    let d = normalize(cross(-particle.position, vec3<f32>(0.0, 0.0, 1.0)));
+    particle.prevPosition = particle.position + d * 0.01;
+
     vertexBuffer[id.x] = particle;
 }
 
@@ -59,7 +77,7 @@ fn simulate(@builtin(global_invocation_id) id: vec3<u32>) {
 //	float dist = length(dir);
 //	float f = G * (gp->w / (dist * dist + 0.006544f));
 //	float3 vel = normalize(dir) * f;
-    let dir = -particle.position;
+    let dir = -particle.prevPosition;
     let dist = length(dir);
     let f = 1.0 * (1.0 / (dist * dist));
 
