@@ -16,7 +16,18 @@ const ellipse_count: u32 = 16;
 @group(0) @binding(0) var<storage,read_write> vertexBuffer: array<Particle,32768>;
 @group(0) @binding(1) var<uniform> data: ParticlesData;
 
-// function to generate a random number between 0 and 1
+fn randUint32(seed: u32) -> u32 {
+    var x = seed;
+    x = x ^ (x << 13);
+    x = x ^ (x >> 17);
+    x = x ^ (x << 5);
+    return x;
+}
+
+fn randFloat01(seed: u32) -> f32 {
+    return f32(randUint32(seed)) / f32(0xffffffff);
+}
+
 fn rand(seed: vec2<f32>) -> f32 {
     let x = sin(dot(seed, vec2<f32>(12.9898, 78.233))) * 43758.5453;
     return fract(x);
@@ -68,11 +79,13 @@ fn init(@builtin(global_invocation_id) id: vec3<u32>) {
 @compute @workgroup_size(32, 1, 1)
 fn init2(@builtin(global_invocation_id) id: vec3<u32>) {
     var particle: Particle;
-    let p = randInsideUnitCircle(data.seed * f32(id.x));
-    particle.position = vec3<f32>(p.x, p.y, 0.0);
+    let x = rand(vec2<f32>(f32(id.x) + data.seed.x, f32(id.x + 1) + data.seed.y)) - 0.5;
+    let y = rand(vec2<f32>(f32(id.x) / data.seed.x, f32(id.x - 1) + data.seed.y)) - 0.5;
+    particle.position = vec3<f32>(x, y, 0.0);
 
-    let d = normalize(cross(particle.position, vec3<f32>(0.0, 0.0, -1.0)));
-    particle.prevPosition = particle.position + d * 0.002;
+//    let d = normalize(cross(particle.position, vec3<f32>(0.0, 0.0, -1.0)));
+//    particle.prevPosition = particle.position + d * 0.002;
+    particle.prevPosition = particle.position;
     particle.acc = vec3<f32>(0.0, 0.0, 0.0);
 
     vertexBuffer[id.x] = particle;

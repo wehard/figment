@@ -82,7 +82,7 @@ void Particles::OnAttach()
     computePass.Begin();
     computePass.Bind(*m_VertexBuffer);
     computePass.Bind(*m_UniformBuffer);
-    computePass.Dispatch("init", 1024);
+    computePass.Dispatch("init", m_VertexBuffer->Count());
     computePass.End();
 
     // wgpuDevicePopErrorScope(m_Context->GetDevice(), &Error, nullptr);
