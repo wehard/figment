@@ -163,8 +163,9 @@ namespace Figment
     public:
         WebGPUVertexBuffer(WGPUDevice device, const char *label, uint64_t size) : WebGPUBuffer<T>(device, label, size,
                 WGPUBufferUsage_Storage | WGPUBufferUsage_CopySrc | WGPUBufferUsage_CopyDst
-                        | WGPUBufferUsage_Vertex)
+                        | WGPUBufferUsage_Vertex), m_Count(size / sizeof(T))
         { };
+
         void SetVertexLayout(std::vector<WGPUVertexAttribute> vertexAttributes, uint64_t stride,
                 WGPUVertexStepMode stepMode)
         {
@@ -174,25 +175,40 @@ namespace Figment
             m_VertexBufferLayout.arrayStride = stride; // TODO: stride should be calculated from attributes
             m_VertexBufferLayout.stepMode = stepMode;
         }
+
         WGPUVertexBufferLayout GetVertexLayout()
         {
             return m_VertexBufferLayout;
         }
+
+        uint32_t Count()
+        {
+            return m_Count;
+        }
+
     private:
         std::vector<WGPUVertexAttribute> m_VertexAttributes;
         WGPUVertexBufferLayout m_VertexBufferLayout = {};
+        uint32_t m_Count;
     };
 
     template<typename T>
     class WebGPUIndexBuffer : public WebGPUBuffer<T>
     {
     public:
-        WebGPUIndexBuffer(WGPUDevice device, const char *label, uint64_t size) : WebGPUBuffer<uint32_t>(device, label, size,
-                WGPUBufferUsage_CopyDst | WGPUBufferUsage_Index)
+        WebGPUIndexBuffer(WGPUDevice device, const char *label, uint64_t size) : WebGPUBuffer<uint32_t>(device, label,
+                size,
+                WGPUBufferUsage_CopyDst | WGPUBufferUsage_Index), m_Count(size / sizeof(T))
         { };
 
+        uint32_t Count()
+        {
+            return m_Count;
+        }
+        
     private:
         std::vector<WGPUVertexAttribute> m_VertexAttributes;
         WGPUVertexBufferLayout m_VertexBufferLayout;
+        uint32_t m_Count;
     };
 }
