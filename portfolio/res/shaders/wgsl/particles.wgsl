@@ -15,30 +15,28 @@ const ellipse_count: u32 = 16;
 
 @group(0) @binding(0) var<storage,read_write> vertexBuffer: array<Particle,32768>;
 @group(0) @binding(1) var<uniform> data: ParticlesData;
+var<private> rng_state: u32 = 0;
 
-fn randUint32(seed: u32) -> u32 {
+fn wang_hash(seed: u32) -> u32 {
     var x = seed;
-    x = x ^ (x << 13);
-    x = x ^ (x >> 17);
-    x = x ^ (x << 5);
+    x = (x ^ 61) ^ (x >> 16);
+    x *= 9;
+    x = x ^ (x >> 4);
+    x *= 0x27d4eb2d;
+    x = x ^ (x >> 15);
     return x;
 }
 
-fn randFloat01(seed: u32) -> f32 {
-    return f32(randUint32(seed)) / f32(0xffffffff);
+fn rand_xorshift() -> u32 {
+    rng_state = rng_state ^ (rng_state << 13);
+    rng_state = rng_state ^ (rng_state >> 17);
+    rng_state = rng_state ^ (rng_state << 5);
+    return rng_state;
 }
 
-fn rand(seed: vec2<f32>) -> f32 {
-    let x = sin(dot(seed, vec2<f32>(12.9898, 78.233))) * 43758.5453;
-    return fract(x);
+fn rand_f32_01() -> f32 {
+    return f32(rand_xorshift()) * (1.0 / 4294967296.0);
 }
-
-fn randInsideUnitCircle(seed: vec2<f32>) -> vec2<f32> {
-    let r = rand(seed);
-    let theta = rand(seed + vec2<f32>(1.0, 1.0)) * 2.0 * 3.14159265358979323846;
-    return vec2<f32>(r * cos(theta), r * sin(theta));
-}
-
 
 @compute @workgroup_size(32, 1, 1)
 fn init(@builtin(global_invocation_id) id: vec3<u32>) {
@@ -57,17 +55,11 @@ fn init(@builtin(global_invocation_id) id: vec3<u32>) {
     var particle: Particle;
     particle.position = vec3<f32>(rotated_x, rotated_y, 0.0);
 
-    // offset position randomly
-    let offsetX = rand(data.seed * f32(id.x)) - 0.5;
-    let offsetY = rand(data.seed / f32(id.x)) - 0.5;
-    particle.position += vec3<f32>(offsetX * 0.1, offsetY * 0.1, 0.0);
+    rng_state = wang_hash(id.x);
+    let rx = rand_f32_01() - 0.5;
+    let ry = rand_f32_01() - 0.5;
 
-
-    // set prev position to to be tangent to the ellipse
-//    let prev_rotation_angle = rotation_angle + 0.01;
-//    var prev_rotated_x = x * cos(prev_rotation_angle) - y * sin(prev_rotation_angle);
-//    var prev_rotated_y = x * sin(prev_rotation_angle) + y * cos(prev_rotation_angle);
-//    particle.prevPosition = vec3<f32>(prev_rotated_x, prev_rotated_y, 0.0);
+    particle.position += vec3<f32>(rx * 0.1, ry * 0.1, 0.0);
 
     let d = normalize(cross(particle.position, vec3<f32>(0.0, 0.0, -1.0)));
     particle.prevPosition = particle.position + d * 0.002;
@@ -79,8 +71,9 @@ fn init(@builtin(global_invocation_id) id: vec3<u32>) {
 @compute @workgroup_size(32, 1, 1)
 fn init2(@builtin(global_invocation_id) id: vec3<u32>) {
     var particle: Particle;
-    let x = rand(vec2<f32>(f32(id.x) + data.seed.x, f32(id.x + 1) + data.seed.y)) - 0.5;
-    let y = rand(vec2<f32>(f32(id.x) / data.seed.x, f32(id.x - 1) + data.seed.y)) - 0.5;
+    rng_state = wang_hash(id.x);
+    let x = rand_f32_01() - 0.5;
+    let y = rand_f32_01() - 0.5;
     particle.position = vec3<f32>(x, y, 0.0);
 
 //    let d = normalize(cross(particle.position, vec3<f32>(0.0, 0.0, -1.0)));
