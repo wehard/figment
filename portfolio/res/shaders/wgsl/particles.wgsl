@@ -13,7 +13,7 @@ struct Particle
 
 const ellipse_count: u32 = 16;
 
-@group(0) @binding(0) var<storage,read_write> vertexBuffer: array<Particle,16384>;
+@group(0) @binding(0) var<storage,read_write> vertexBuffer: array<Particle,32768>;
 @group(0) @binding(1) var<uniform> data: ParticlesData;
 
 // function to generate a random number between 0 and 1
@@ -31,7 +31,7 @@ fn randInsideUnitCircle(seed: vec2<f32>) -> vec2<f32> {
 
 @compute @workgroup_size(32, 1, 1)
 fn init(@builtin(global_invocation_id) id: vec3<u32>) {
-    let points_per_ellipse = 16384 / ellipse_count;
+    let points_per_ellipse = 32768 / ellipse_count;
     let ellipse_id = id.x / u32(points_per_ellipse);
     var angle = 2.0 * 3.14159265358979323846 * f32(f32(id.x) % f32(points_per_ellipse)) / f32(points_per_ellipse);
     let x_radius = 0.04 + f32(ellipse_id) * 0.04;

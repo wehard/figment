@@ -15,7 +15,7 @@ Particles::Particles(SharedPtr<PerspectiveCamera> camera) : Layer("Particles"), 
 
     m_VertexBuffer = CreateUniquePtr<WebGPUVertexBuffer<Particle>>
             (m_Context->GetDevice(), "ParticlesBuffer",
-                    16384 * sizeof(Particle));
+                    32768 * sizeof(Particle));
 
     auto layout = std::vector<WGPUVertexAttribute>({
             {
@@ -82,7 +82,7 @@ void Particles::OnAttach()
     computePass.Begin();
     computePass.Bind(*m_VertexBuffer);
     computePass.Bind(*m_UniformBuffer);
-    computePass.Dispatch("init", 16384);
+    computePass.Dispatch("init", 1024);
     computePass.End();
 
     // wgpuDevicePopErrorScope(m_Context->GetDevice(), &Error, nullptr);
@@ -104,11 +104,11 @@ void Particles::OnUpdate(float deltaTime)
     computePass.Begin();
     computePass.Bind(*m_VertexBuffer);
     computePass.Bind(*m_UniformBuffer);
-    computePass.Dispatch("simulate", 16384);
+    computePass.Dispatch("simulate", m_VertexBuffer->Count());
     computePass.End();
 
     m_Renderer->Begin(*m_Camera);
-    m_Renderer->DrawPoints(*m_VertexBuffer, 16384, *m_ParticleShader);
+    m_Renderer->DrawPoints(*m_VertexBuffer, m_VertexBuffer->Count(), *m_ParticleShader);
     m_Renderer->End();
 
 }
