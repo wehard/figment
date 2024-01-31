@@ -35,31 +35,6 @@ Particles::~Particles()
 
 }
 
-void Particles::OnAttach()
-{
-    FIG_LOG_INFO("Particles layer attached");
-
-    ParticlesData d = {};
-    d.DeltaTime = 0.0;
-    d.Seed = glm::vec2(1234, 5432);
-    m_UniformBuffer->SetData(&d, sizeof(ParticlesData));
-
-    ComputePass computePass(m_Context->GetDevice(), m_ComputeShader.get());
-    computePass.Begin();
-    computePass.Bind(*m_VertexBuffer);
-    computePass.Bind(*m_UniformBuffer);
-    computePass.Dispatch("init", 16384);
-    computePass.End();
-
-    // wgpuDevicePushErrorScope(m_Context->GetDevice(), WGPUErrorFilter_OutOfMemory);
-    // wgpuDevicePushErrorScope(m_Context->GetDevice(), WGPUErrorFilter_Validation);
-}
-
-void Particles::OnDetach()
-{
-
-}
-
 static void Error(WGPUErrorType type, char const *message, void *userdata)
 {
     const char *errorType = "Unknown";
@@ -67,7 +42,7 @@ static void Error(WGPUErrorType type, char const *message, void *userdata)
     {
     case WGPUErrorType_NoError:
         errorType = "NoError";
-        break;
+        return;
     case WGPUErrorType_Validation:
         errorType = "Validation";
         break;
@@ -90,6 +65,34 @@ static void Error(WGPUErrorType type, char const *message, void *userdata)
     FIG_LOG_ERROR("%s - %s", errorType, message);
 }
 
+void Particles::OnAttach()
+{
+    // wgpuDevicePushErrorScope(m_Context->GetDevice(), WGPUErrorFilter_Internal);
+    // wgpuDevicePushErrorScope(m_Context->GetDevice(), WGPUErrorFilter_Validation);
+    // wgpuDevicePushErrorScope(m_Context->GetDevice(), WGPUErrorFilter_OutOfMemory);
+
+    FIG_LOG_INFO("Particles layer attached");
+
+    ParticlesData d = {};
+    d.DeltaTime = 0.0;
+    d.Seed = glm::vec2(1234, 5432);
+    m_UniformBuffer->SetData(&d, sizeof(ParticlesData));
+
+    ComputePass computePass(m_Context->GetDevice(), m_ComputeShader.get());
+    computePass.Begin();
+    computePass.Bind(*m_VertexBuffer);
+    computePass.Bind(*m_UniformBuffer);
+    computePass.Dispatch("init", 16384);
+    computePass.End();
+
+    // wgpuDevicePopErrorScope(m_Context->GetDevice(), &Error, nullptr);
+}
+
+void Particles::OnDetach()
+{
+
+}
+
 void Particles::OnUpdate(float deltaTime)
 {
     ParticlesData d = {};
@@ -97,18 +100,17 @@ void Particles::OnUpdate(float deltaTime)
     d.Seed = glm::vec2(0);
     m_UniformBuffer->SetData(&d, sizeof(ParticlesData));
 
-    auto computePass = new ComputePass(m_Context->GetDevice(), m_ComputeShader.get());
-    computePass->Begin();
-    computePass->Bind(*m_VertexBuffer);
-    computePass->Bind(*m_UniformBuffer);
-    computePass->Dispatch("simulate", 16384);
-    computePass->End();
-
-    wgpuDevicePopErrorScope(m_Context->GetDevice(), &Error, nullptr);
+    ComputePass computePass(m_Context->GetDevice(), m_ComputeShader.get());
+    computePass.Begin();
+    computePass.Bind(*m_VertexBuffer);
+    computePass.Bind(*m_UniformBuffer);
+    computePass.Dispatch("simulate", 16384);
+    computePass.End();
 
     m_Renderer->Begin(*m_Camera);
     m_Renderer->DrawPoints(*m_VertexBuffer, 16384, *m_ParticleShader);
     m_Renderer->End();
+
 }
 
 void Particles::OnImGuiRender()
