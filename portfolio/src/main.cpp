@@ -17,7 +17,7 @@ private:
     WebGPUShader *m_Shader;
     glm::vec3 m_Position = glm::vec3(0.0);
     glm::vec3 m_Rotation = glm::vec3(0.0);
-    glm::vec3 m_Scale = glm::vec3(1.0);
+    glm::vec3 m_Scale = glm::vec3(0.25);
 public:
     Cube(SharedPtr<PerspectiveCamera> camera) : Layer("Cube"), m_Camera(camera)
     {
@@ -101,7 +101,6 @@ public:
         m_Camera->SetPosition(glm::vec3(0.0, 0.0, 3.0));
 
         auto cubeLayer = new Cube(m_Camera);
-        cubeLayer->SetEnabled(false);
         m_Layers.push_back(cubeLayer);
         m_Layers.push_back(new Particles(m_Camera));
 
