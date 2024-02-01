@@ -1,6 +1,7 @@
 #include "Figment.h"
 #include "DebugPanel.h"
 #include "Particles.h"
+#include "WorldMap.h"
 
 #include <emscripten.h>
 #include <cstdio>
@@ -105,6 +106,7 @@ public:
 
         m_Layers.push_back(new Cube(m_Camera, false));
         m_Layers.push_back(new Particles(m_Camera, false));
+        m_Layers.push_back(new WorldMap(m_Camera, true));
 
         for (auto layer : m_Layers)
         {
