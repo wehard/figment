@@ -59,6 +59,13 @@ fn init(@builtin(global_invocation_id) id: vec3<u32>) {
     var particle: Particle;
     particle.position = vec3<f32>(x, y, z);
 
+    // sampe world texture
+    let uv = vec2<f32>(f32(colIdx) / f32(width), f32(rowIdx) / f32(height));
+    let worldColor = textureSampleLevel(worldTexture, sampler1, uv, 0.0);
+
+    particle.position = particle.position * (1.0 + worldColor.b * 0.05);
+
+
     particle.prevPosition = particle.position;
     vertexBuffer[id.x] = particle;
 }

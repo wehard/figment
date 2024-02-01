@@ -29,7 +29,7 @@ namespace Figment
         void Bind(WebGPUTexture &texture)
         {
             BindTexture(texture.GetTextureView(), texture.GetWidth() * texture.GetHeight() * 4);
-            // BindSampler(texture.GetSampler());
+            BindSampler(texture.GetSampler());
         }
     private:
         void Bind(WGPUBuffer buffer, uint32_t size, WGPUBufferBindingType type);
