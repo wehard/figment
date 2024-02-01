@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <vector>
 #include <iostream>
+#include <webgpu/webgpu_cpp.h>
 
 namespace Figment
 {
@@ -67,7 +68,9 @@ namespace Figment
         surfaceDesc.nextInChain = (WGPUChainedStruct *)&htmlSurfaceDesc;
 
         WGPUInstanceDescriptor instance_desc = {};
-        m_Instance = wgpuCreateInstance(&instance_desc);
+        instance_desc.nextInChain = nullptr;
+        wgpu::Instance instance = wgpu::CreateInstance();
+        m_Instance = instance.Get();
         if (!m_Instance)
         {
             FIG_LOG_ERROR("Failed to create WebGPU instance!");
