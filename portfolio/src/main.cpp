@@ -169,13 +169,6 @@ public:
         auto width = appWindowSize.x / 5;
         auto height = appWindowSize.y / 3;
 
-        auto color = ImVec4(0.0f, 1.0f, 1.0f, 1.0f);
-        if (m_BlinkTimer > 1.0f)
-        {
-            color = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
-        }
-
-        // Make window rounded
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 5.0f);
 
         ImGui::SetNextWindowPos(ImVec2(padding, padding), ImGuiCond_FirstUseEver);
