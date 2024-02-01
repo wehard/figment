@@ -144,6 +144,22 @@ public:
         m_Camera->Update();
     }
 
+    static void HyperLink(const char *label, const char *url)
+    {
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.4, 0.4, 1, 1));
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+
+        if (ImGui::Button(label))
+        {
+            std::string openUrl = "window.open('" + std::string(url) + "', '_blank')";
+            emscripten_run_script(openUrl.c_str());
+        }
+        ImGui::PopStyleColor();
+        ImGui::PopStyleColor();
+        ImGui::PopStyleVar();
+    }
+
     void OnImGuiRender() override
     {
         ImVec2 appWindowSize = ImVec2((float)App::Instance()->GetWindow()->GetWidth(),
@@ -163,8 +179,13 @@ public:
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 5.0f);
 
         ImGui::SetNextWindowPos(ImVec2(padding, padding), ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSize(ImVec2(width * 2 + 20, height), ImGuiCond_FirstUseEver);
-        ImGui::Begin("Willehard Korander");
+        ImGui::SetNextWindowSize(ImVec2(width * 2 + 20, height + 50), ImGuiCond_FirstUseEver);
+        ImGui::Begin("Willehard Korander | Software Engineer");
+        ImGui::Text("CONTACT");
+        HyperLink("willehard@gmail.com", "mailto:willehard@gmail.com");
+        HyperLink("https://github.com/wehard", "https://github.com/wehard");
+        HyperLink("https://www.linkedin.com/in/willehard", "https://www.linkedin.com/in/willehard");
+        ImGui::Spacing();
         ImGui::Text("EXPERIENCE");
         ImGui::Text("[OCT 23 - PRESENT]: Senior Software Engineer, Unity Technologies, Helsinki");
         ImGui::Text("[APR 21 - OCT 23]:  Software Engineer, Unity Technologies, Helsinki");
