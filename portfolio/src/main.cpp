@@ -91,6 +91,9 @@ class MainLayer : public Figment::Layer
 private:
     std::vector<Layer *> m_Layers;
     SharedPtr<PerspectiveCamera> m_Camera;
+    float m_BlinkTimer = 0.0f;
+    ImVec4 m_BlinkTextColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+    bool m_SwapColor = false;
 public:
     MainLayer() : Layer("Main")
     {
@@ -122,6 +125,21 @@ public:
 
     void OnUpdate(float deltaTime) override
     {
+        m_BlinkTimer += deltaTime;
+        if (m_BlinkTimer >= 1.0f)
+        {
+            m_SwapColor = !m_SwapColor;
+            if (m_SwapColor)
+            {
+                m_BlinkTextColor = ImVec4(0.0f, 1.0f, 1.0f, 1.0f);
+            }
+            else
+            {
+                m_BlinkTextColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0);
+            }
+            m_BlinkTimer = 0.0f;
+        }
+
         m_Camera->Update();
     }
 
@@ -133,6 +151,12 @@ public:
 
         auto width = appWindowSize.x / 5;
         auto height = appWindowSize.y / 3;
+
+        auto color = ImVec4(0.0f, 1.0f, 1.0f, 1.0f);
+        if (m_BlinkTimer > 1.0f)
+        {
+            color = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
+        }
 
         // Make window rounded
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 5.0f);
@@ -146,7 +170,12 @@ public:
         ImGui::Text("[AUG 20 - APR 21]:  Software Developer Intern, Unity Technologies, Helsinki");
         ImGui::Spacing();
         ImGui::Text("EDUCATION");
-        ImGui::Text("[OCT 19 - JUL 20]: Hive Helsinki, Computer Science");
+        // set color of text
+        ImGui::Text("[OCT 19 - JUL 20]: ");
+        ImGui::SameLine(0.0, 0.0);
+        ImGui::TextColored(m_BlinkTextColor, "Hive Helsinki");
+        ImGui::SameLine(0.0, 0.0);
+        ImGui::Text(", Computer Science");
         ImGui::Text("[2018]:            Introduction to databases, University of Helsinki, Open University");
         ImGui::Text("[2016]:            Advanced course in programming, University of Helsinki, Open University");
         ImGui::Text("[2016]:            Introduction to programming, University of Helsinki, Open University");
