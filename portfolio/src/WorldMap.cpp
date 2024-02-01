@@ -11,22 +11,27 @@ WorldMap::WorldMap(SharedPtr<PerspectiveCamera> camera, bool enabled) : Layer("W
     m_ComputeShader = CreateUniquePtr<WebGPUShader>(m_Context->GetDevice(),
             *Utils::LoadFile2("res/shaders/wgsl/world_compute.wgsl"), "WorldCompute");
     m_ParticleShader = CreateUniquePtr<WebGPUShader>(m_Context->GetDevice(),
-            *Utils::LoadFile2("res/shaders/wgsl/particle.wgsl"), "Particle");
-    m_VertexBuffer = CreateUniquePtr<WebGPUVertexBuffer<Particle>>
+            *Utils::LoadFile2("res/shaders/wgsl/world_particle.wgsl"), "WorldParticle");
+    m_VertexBuffer = CreateUniquePtr<WebGPUVertexBuffer<WorldParticle>>
             (m_Context->GetDevice(), "ParticlesBuffer",
-                    16384 * sizeof(Particle));
+                    262144 * sizeof(WorldParticle));
     auto layout = std::vector<WGPUVertexAttribute>({
             {
                     .format = WGPUVertexFormat_Float32x3,
                     .offset = 0,
                     .shaderLocation = 0,
             },
+            {
+                    .format = WGPUVertexFormat_Float32x4,
+                    .offset = 16,
+                    .shaderLocation = 1,
+            },
     });
-    m_VertexBuffer->SetVertexLayout(layout, sizeof(Particle), WGPUVertexStepMode_Vertex);
+    m_VertexBuffer->SetVertexLayout(layout, sizeof(WorldParticle), WGPUVertexStepMode_Vertex);
     m_UniformBuffer = CreateUniquePtr<WebGPUUniformBuffer<ParticlesData>>(m_Context->GetDevice(),
             "ParticlesDataUniformBuffer", sizeof(ParticlesData));
 
-    auto image = Image::Load("res/2k_earth_daymap.png");
+    auto image = Image::Load("res/classic_console.png");
     m_WorldTexture = WebGPUTexture::Create(m_Context->GetDevice(), image);
 }
 
@@ -47,7 +52,7 @@ void WorldMap::OnAttach()
     computePass.Bind(*m_VertexBuffer);
     computePass.Bind(*m_UniformBuffer);
     computePass.Bind(*m_WorldTexture);
-    computePass.Dispatch("init", m_VertexBuffer->Count());
+    computePass.Dispatch("init", 65535);
     computePass.End();
 }
 

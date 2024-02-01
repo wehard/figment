@@ -7,12 +7,11 @@ struct ParticlesData {
 struct Particle
 {
     position: vec3f,
-    prevPosition: vec3f,
-    acc: vec3f,
+    color: vec4f,
 };
 
 
-@group(0) @binding(0) var<storage,read_write> vertexBuffer: array<Particle, 16384>;
+@group(0) @binding(0) var<storage,read_write> vertexBuffer: array<Particle, 262144>;
 @group(0) @binding(1) var<uniform> data: ParticlesData;
 @group(0) @binding(2) var worldTexture: texture_2d<f32>;
 @group(0) @binding(3) var sampler1: sampler;
@@ -40,8 +39,8 @@ fn rand_f32_01() -> f32 {
     return f32(rand_xorshift()) * (1.0 / 4294967296.0);
 }
 
-const width: u32 = 128;
-const height: u32 = 128;
+const width: u32 = 512;
+const height: u32 = 512;
 const PI = radians(180.0);
 
 @compute @workgroup_size(32, 1, 1)
@@ -59,14 +58,16 @@ fn init(@builtin(global_invocation_id) id: vec3<u32>) {
     var particle: Particle;
     particle.position = vec3<f32>(x, y, z);
 
-    // sampe world texture
     let uv = vec2<f32>(f32(colIdx) / f32(width), f32(rowIdx) / f32(height));
     let worldColor = textureSampleLevel(worldTexture, sampler1, uv, 0.0);
 
-    particle.position = particle.position * (1.0 + worldColor.b * 0.05);
+//    let c = (dot(particle.position, vec3<f32>(0.0, 0.0, -1.0)) + 1.0) / 2.0;
+    if (particle.position.z > 0.0) {
+        particle.color = vec4<f32>(worldColor.r, worldColor.g, worldColor.b, 1.0) * 2.0;
+    } else {
+        particle.color = vec4<f32>(0.0, 0.0, 0.0, 0.0);
+    }
 
-
-    particle.prevPosition = particle.position;
     vertexBuffer[id.x] = particle;
 }
 

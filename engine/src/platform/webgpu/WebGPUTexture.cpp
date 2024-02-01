@@ -112,7 +112,7 @@ namespace Figment
         samplerDesc.minFilter = WGPUFilterMode_Nearest;
         samplerDesc.mipmapFilter = WGPUMipmapFilterMode_Nearest;
         samplerDesc.lodMinClamp = 0;
-        samplerDesc.lodMaxClamp = 32;
+        samplerDesc.lodMaxClamp = 4;
         samplerDesc.compare = WGPUCompareFunction_Undefined;
         samplerDesc.maxAnisotropy = 1;
         WGPUSampler sampler = wgpuDeviceCreateSampler(device, &samplerDesc);
