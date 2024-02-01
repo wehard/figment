@@ -99,6 +99,20 @@ namespace Figment
         const char *m_Label;
     };
 
+    static WGPUBindGroupEntry GetDefaultWGPUBindGroupEntry()
+    {
+        WGPUBindGroupEntry bindingLayout = {};
+        bindingLayout.nextInChain = nullptr;
+        bindingLayout.binding = 0;
+        bindingLayout.buffer = nullptr;
+        bindingLayout.offset = 0;
+        bindingLayout.size = 0;
+        bindingLayout.sampler = nullptr;
+        bindingLayout.textureView = nullptr;
+
+        return bindingLayout;
+    }
+
     static WGPUBindGroupLayoutEntry GetDefaultWGPUBindGroupLayoutEntry()
     {
         WGPUBindGroupLayoutEntry bindingLayout = {};
@@ -205,10 +219,9 @@ namespace Figment
         {
             return m_Count;
         }
-        
+
     private:
         std::vector<WGPUVertexAttribute> m_VertexAttributes;
-        WGPUVertexBufferLayout m_VertexBufferLayout;
         uint32_t m_Count;
     };
 }
