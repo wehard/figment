@@ -120,17 +120,15 @@ namespace Figment
 
     void ComputePass::BindSampler(WGPUSampler sampler)
     {
-        WGPUBindGroupEntry bindGroupEntry = {};
+        WGPUBindGroupEntry bindGroupEntry = GetDefaultWGPUBindGroupEntry();
         bindGroupEntry.binding = m_BindGroupEntries.size();
         bindGroupEntry.sampler = sampler;
-        bindGroupEntry.textureView = nullptr;
-        bindGroupEntry.buffer = nullptr;
 
         m_BindGroupEntries.emplace_back(bindGroupEntry);
 
         WGPUSamplerBindingLayout samplerBindingLayout = {};
         samplerBindingLayout.nextInChain = nullptr;
-        samplerBindingLayout.type = WGPUSamplerBindingType_Undefined;
+        samplerBindingLayout.type = WGPUSamplerBindingType_Filtering;
 
         WGPUBindGroupLayoutEntry bindGroupLayoutEntry = GetDefaultWGPUBindGroupLayoutEntry();
         bindGroupLayoutEntry.nextInChain = nullptr;
