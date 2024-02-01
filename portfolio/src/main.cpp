@@ -19,7 +19,7 @@ private:
     glm::vec3 m_Rotation = glm::vec3(0.0);
     glm::vec3 m_Scale = glm::vec3(0.25);
 public:
-    Cube(SharedPtr<PerspectiveCamera> camera) : Layer("Cube"), m_Camera(camera)
+    Cube(SharedPtr<PerspectiveCamera> camera, bool enabled) : Layer("Cube", enabled), m_Camera(camera)
     {
         auto m_Window = Figment::App::Instance()->GetWindow();
         auto webGpuWindow = std::dynamic_pointer_cast<Figment::WebGPUWindow>(m_Window);
@@ -103,9 +103,8 @@ public:
                 (float)webGpuWindow->GetWidth() / (float)webGpuWindow->GetHeight());
         m_Camera->SetPosition(glm::vec3(0.0, 0.0, 3.0));
 
-        auto cubeLayer = new Cube(m_Camera);
-        m_Layers.push_back(cubeLayer);
-        m_Layers.push_back(new Particles(m_Camera));
+        m_Layers.push_back(new Cube(m_Camera, false));
+        m_Layers.push_back(new Particles(m_Camera, false));
 
         for (auto layer : m_Layers)
         {
@@ -162,7 +161,7 @@ public:
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 5.0f);
 
         ImGui::SetNextWindowPos(ImVec2(padding, padding), ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSize(ImVec2(width * 2, height), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(width * 2 + 20, height), ImGuiCond_FirstUseEver);
         ImGui::Begin("Willehard Korander");
         ImGui::Text("EXPERIENCE");
         ImGui::Text("[OCT 23 - PRESENT]: Senior Software Engineer, Unity Technologies, Helsinki");
@@ -171,19 +170,19 @@ public:
         ImGui::Spacing();
         ImGui::Text("EDUCATION");
         // set color of text
-        ImGui::Text("[OCT 19 - JUL 20]: ");
+        ImGui::Text("[OCT 19 - JUL 20]:  ");
         ImGui::SameLine(0.0, 0.0);
         ImGui::TextColored(m_BlinkTextColor, "Hive Helsinki");
         ImGui::SameLine(0.0, 0.0);
         ImGui::Text(", Computer Science");
-        ImGui::Text("[2018]:            Introduction to databases, University of Helsinki, Open University");
-        ImGui::Text("[2016]:            Advanced course in programming, University of Helsinki, Open University");
-        ImGui::Text("[2016]:            Introduction to programming, University of Helsinki, Open University");
-        ImGui::Text("[AUG 03 - JUL 07]: Theatre Academy, Helsinki, Master of Arts in Acting");
+        ImGui::Text("[2018]:             Introduction to databases, University of Helsinki, Open University");
+        ImGui::Text("[2016]:             Advanced course in programming, University of Helsinki, Open University");
+        ImGui::Text("[2016]:             Introduction to programming, University of Helsinki, Open University");
+        ImGui::Text("[AUG 03 - JUL 07]:  Theatre Academy, Helsinki, Master of Arts in Acting");
         ImGui::Spacing();
         ImGui::Text("SKILLS");
         ImGui::Text(
-                "C, C++, C#, Typescript,\nOpenGL, WebGPU, Vulkan, Unity,\nGit, Linux, macOS, Windows, \nWeb, React, Node.js, GraphQL, REST,\nGCP, Jira, Confluence");
+                "C/C++, C#, JS/TS\nOpenGL, WebGPU, Vulkan, Unity\nGit, Linux, macOS, Windows\nWeb, React, Node.js, GraphQL, REST\nGCP, Jira, Confluence");
 
         ImGui::End();
 

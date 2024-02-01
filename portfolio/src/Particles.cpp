@@ -2,7 +2,7 @@
 #include "ComputePass.h"
 #include "Figment.h"
 
-Particles::Particles(SharedPtr<PerspectiveCamera> camera) : Layer("Particles"), m_Camera(camera)
+Particles::Particles(SharedPtr<PerspectiveCamera> camera, bool enabled) : Layer("Particles", enabled), m_Camera(camera)
 {
     auto m_Window = Figment::App::Instance()->GetWindow();
     auto webGpuWindow = std::dynamic_pointer_cast<Figment::WebGPUWindow>(m_Window);

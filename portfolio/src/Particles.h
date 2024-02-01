@@ -22,7 +22,7 @@ struct ParticlesData
 class Particles : public Layer
 {
 public:
-    Particles(SharedPtr<PerspectiveCamera> camera);
+    Particles(SharedPtr<PerspectiveCamera> camera, bool enabled);
     ~Particles() override;
     void OnAttach() override;
     void OnDetach() override;
