@@ -16,7 +16,7 @@ namespace Figment
         void *GetData() const
         { return m_Data; }
         uint32_t GetDataSize() const
-        { return m_Width * m_Height * m_Channels; }
+        { return m_Width * m_Height * 4; }
         static Image Load(const std::string &path);
     private:
         uint32_t m_Width = 0;

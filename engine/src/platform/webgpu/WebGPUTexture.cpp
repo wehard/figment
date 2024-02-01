@@ -34,6 +34,7 @@ namespace Figment
     WebGPUTexture::~WebGPUTexture()
     {
         wgpuTextureViewRelease(m_TextureView);
+        wgpuSamplerRelease(m_Sampler);
         wgpuTextureDestroy(m_Texture);
         wgpuTextureRelease(m_Texture);
     }
@@ -101,9 +102,25 @@ namespace Figment
         textureViewDesc.format = textureDescriptor.format;
         WGPUTextureView textureView = wgpuTextureCreateView(texture, &textureViewDesc);
 
+        WGPUSamplerDescriptor samplerDesc = {};
+        samplerDesc.nextInChain = nullptr;
+        samplerDesc.label = "Sampler";
+        samplerDesc.addressModeU = WGPUAddressMode_Repeat;
+        samplerDesc.addressModeV = WGPUAddressMode_Repeat;
+        samplerDesc.addressModeW = WGPUAddressMode_Repeat;
+        samplerDesc.magFilter = WGPUFilterMode_Nearest;
+        samplerDesc.minFilter = WGPUFilterMode_Nearest;
+        samplerDesc.mipmapFilter = WGPUMipmapFilterMode_Nearest;
+        samplerDesc.lodMinClamp = 0;
+        samplerDesc.lodMaxClamp = 32;
+        samplerDesc.compare = WGPUCompareFunction_Never;
+        samplerDesc.maxAnisotropy = 1;
+        WGPUSampler sampler = wgpuDeviceCreateSampler(device, &samplerDesc);
+
         auto *webGpuTexture = new WebGPUTexture();
         webGpuTexture->m_Texture = texture;
         webGpuTexture->m_TextureView = textureView;
+        webGpuTexture->m_Sampler = sampler;
         webGpuTexture->m_Width = image.GetWidth();
         webGpuTexture->m_Height = image.GetHeight();
         webGpuTexture->m_TextureFormat = textureDescriptor.format;
@@ -114,7 +131,6 @@ namespace Figment
         imageCopyTexture.mipLevel = 0;
         imageCopyTexture.origin = { 0, 0, 0 };
         imageCopyTexture.aspect = WGPUTextureAspect_All;
-
 
         WGPUTextureDataLayout textureDataLayout = {};
         textureDataLayout.nextInChain = nullptr;

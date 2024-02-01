@@ -22,4 +22,5 @@ private:
     UniquePtr<WebGPUShader> m_ParticleShader;
     UniquePtr<WebGPUVertexBuffer<Particle>> m_VertexBuffer;
     UniquePtr<WebGPUUniformBuffer<ParticlesData>> m_UniformBuffer;
+    WebGPUTexture *m_WorldTexture;
 };

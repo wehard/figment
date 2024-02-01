@@ -94,4 +94,50 @@ namespace Figment
 
         m_BindGroupLayoutEntries.emplace_back(bindGroupLayoutEntry);
     }
+
+    void ComputePass::BindTexture(WGPUTextureView textureView, uint64_t size)
+    {
+        WGPUBindGroupEntry bindGroupEntry = {};
+        bindGroupEntry.size = size;
+        bindGroupEntry.offset = 0;
+        bindGroupEntry.binding = m_BindGroupEntries.size();
+        bindGroupEntry.textureView = textureView;
+        bindGroupEntry.buffer = nullptr;
+        bindGroupEntry.sampler = nullptr;
+
+        m_BindGroupEntries.emplace_back(bindGroupEntry);
+
+        WGPUBindGroupLayoutEntry bindGroupLayoutEntry = GetDefaultWGPUBindGroupLayoutEntry();
+        bindGroupLayoutEntry.nextInChain = nullptr;
+        bindGroupLayoutEntry.binding = bindGroupEntry.binding;
+        bindGroupLayoutEntry.visibility = WGPUShaderStage_Compute;
+        bindGroupLayoutEntry.texture.sampleType = WGPUTextureSampleType_Float;
+        bindGroupLayoutEntry.texture.viewDimension = WGPUTextureViewDimension_2D;
+        bindGroupLayoutEntry.texture.multisampled = false;
+
+        m_BindGroupLayoutEntries.emplace_back(bindGroupLayoutEntry);
+    }
+
+    void ComputePass::BindSampler(WGPUSampler sampler)
+    {
+        WGPUBindGroupEntry bindGroupEntry = {};
+        bindGroupEntry.binding = m_BindGroupEntries.size();
+        bindGroupEntry.sampler = sampler;
+        bindGroupEntry.textureView = nullptr;
+        bindGroupEntry.buffer = nullptr;
+
+        m_BindGroupEntries.emplace_back(bindGroupEntry);
+
+        WGPUSamplerBindingLayout samplerBindingLayout = {};
+        samplerBindingLayout.nextInChain = nullptr;
+        samplerBindingLayout.type = WGPUSamplerBindingType_Undefined;
+
+        WGPUBindGroupLayoutEntry bindGroupLayoutEntry = GetDefaultWGPUBindGroupLayoutEntry();
+        bindGroupLayoutEntry.nextInChain = nullptr;
+        bindGroupLayoutEntry.binding = bindGroupEntry.binding;
+        bindGroupLayoutEntry.visibility = WGPUShaderStage_Compute;
+        bindGroupLayoutEntry.sampler = samplerBindingLayout;
+
+        m_BindGroupLayoutEntries.emplace_back(bindGroupLayoutEntry);
+    }
 }

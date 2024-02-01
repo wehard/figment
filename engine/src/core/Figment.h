@@ -6,3 +6,4 @@
 #include "ModelLoader.h"
 #include "Layer.h"
 #include "Input.h"
+#include "Image.h"

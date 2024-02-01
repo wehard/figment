@@ -16,6 +16,8 @@ namespace Figment
         { return m_Texture; }
         WGPUTextureView GetTextureView()
         { return m_TextureView; }
+        WGPUSampler GetSampler()
+        { return m_Sampler; }
         uint32_t GetWidth()
         { return m_Width; }
         uint32_t GetHeight()
@@ -31,5 +33,6 @@ namespace Figment
         WGPUTextureFormat m_TextureFormat;
         WGPUTexture m_Texture;
         WGPUTextureView m_TextureView;
+        WGPUSampler m_Sampler;
     };
 }
