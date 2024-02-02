@@ -106,7 +106,7 @@ namespace Figment
         template<typename T>
         void DrawPoints(WebGPUVertexBuffer<T> &vertexBuffer, uint32_t vertexCount, WebGPUShader &shader)
         {
-            auto pipeline = new WebGPURenderPipeline(m_Context, shader, vertexBuffer.GetVertexLayout());
+            auto pipeline = new WebGPURenderPipeline(m_Context.GetDevice(), shader, vertexBuffer.GetVertexLayout());
             pipeline->SetPrimitiveState(WGPUPrimitiveTopology_PointList, WGPUIndexFormat_Undefined,
                     WGPUFrontFace_CCW,
                     WGPUCullMode_None);

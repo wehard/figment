@@ -2,9 +2,9 @@
 
 namespace Figment
 {
-    WebGPURenderPipeline::WebGPURenderPipeline(WebGPUContext &context, WebGPUShader &shader,
+    WebGPURenderPipeline::WebGPURenderPipeline(WGPUDevice device, WebGPUShader &shader,
             WGPUVertexBufferLayout vertexBufferLayout)
-            : m_Context(context), m_Shader(shader), m_VertexBufferLayout(vertexBufferLayout)
+            : m_Device(device), m_Shader(shader), m_VertexBufferLayout(vertexBufferLayout)
     { }
 
     WebGPURenderPipeline::~WebGPURenderPipeline()
@@ -118,7 +118,7 @@ namespace Figment
         bindGroupLayoutDesc.nextInChain = nullptr;
         bindGroupLayoutDesc.entryCount = m_BindGroupLayoutEntries.size();
         bindGroupLayoutDesc.entries = m_BindGroupLayoutEntries.data();
-        auto bindGroupLayout = wgpuDeviceCreateBindGroupLayout(m_Context.GetDevice(), &bindGroupLayoutDesc);
+        auto bindGroupLayout = wgpuDeviceCreateBindGroupLayout(m_Device, &bindGroupLayoutDesc);
 
         WGPUPipelineLayoutDescriptor layoutDesc = {
                 .nextInChain = nullptr,
@@ -126,9 +126,9 @@ namespace Figment
                 .bindGroupLayouts = &bindGroupLayout
         };
 
-        desc.layout = wgpuDeviceCreatePipelineLayout(m_Context.GetDevice(), &layoutDesc);
+        desc.layout = wgpuDeviceCreatePipelineLayout(m_Device, &layoutDesc);
 
-        m_Pipeline = wgpuDeviceCreateRenderPipeline(m_Context.GetDevice(), &desc);
+        m_Pipeline = wgpuDeviceCreateRenderPipeline(m_Device, &desc);
 
         WGPUBindGroupDescriptor bindGroupDesc = {
                 .nextInChain = nullptr,
@@ -136,7 +136,7 @@ namespace Figment
                 .entryCount = m_BindGroupEntries.size(),
                 .entries = m_BindGroupEntries.data()
         };
-        m_BindGroup = wgpuDeviceCreateBindGroup(m_Context.GetDevice(), &bindGroupDesc);
+        m_BindGroup = wgpuDeviceCreateBindGroup(m_Device, &bindGroupDesc);
         wgpuBindGroupLayoutRelease(bindGroupLayout);
     }
 }

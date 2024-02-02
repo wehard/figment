@@ -75,7 +75,8 @@ namespace Figment
                 "CameraDataUniformBuffer",
                 sizeof(CameraData));
 
-        m_QuadPipeline = new WebGPURenderPipeline(m_Context, *m_QuadShader, m_QuadVertexBuffer->GetVertexLayout());
+        m_QuadPipeline = new WebGPURenderPipeline(m_Context.GetDevice(), *m_QuadShader,
+                m_QuadVertexBuffer->GetVertexLayout());
         m_QuadPipeline->SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined,
                 WGPUFrontFace_CCW,
                 WGPUCullMode_None);
@@ -85,7 +86,7 @@ namespace Figment
         m_QuadPipeline->SetColorTargetStates(colorTargetStates);
         m_QuadPipeline->Build();
 
-        m_CirclePipeline = new WebGPURenderPipeline(m_Context, *m_CircleShader,
+        m_CirclePipeline = new WebGPURenderPipeline(m_Context.GetDevice(), *m_CircleShader,
                 m_CircleVertexBuffer->GetVertexLayout());
         m_CirclePipeline->SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined,
                 WGPUFrontFace_CCW,
@@ -229,7 +230,7 @@ namespace Figment
     {
         mesh.UniformBuffer()->SetData(&transform, sizeof(transform));
 
-        auto pipeline = new WebGPURenderPipeline(m_Context, shader, mesh.VertexBuffer()->GetVertexLayout());
+        auto pipeline = new WebGPURenderPipeline(m_Context.GetDevice(), shader, mesh.VertexBuffer()->GetVertexLayout());
         pipeline->SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined,
                 WGPUFrontFace_CCW,
                 WGPUCullMode_None);
@@ -286,7 +287,8 @@ namespace Figment
         figment.IndexBuffer->SetData(indices.data(), figment.IndexBuffer->GetSize());
 
         // TODO: Cache pipeline
-        auto pipeline = new WebGPURenderPipeline(m_Context, *figment.Shader, figment.VertexBuffer->GetVertexLayout());
+        auto pipeline = new WebGPURenderPipeline(m_Context.GetDevice(), *figment.Shader,
+                figment.VertexBuffer->GetVertexLayout());
         if (figment.Config.DrawPoints)
         {
             pipeline->SetPrimitiveState(WGPUPrimitiveTopology_PointList, WGPUIndexFormat_Undefined,

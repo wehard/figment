@@ -10,7 +10,7 @@ namespace Figment
     class WebGPURenderPipeline
     {
     public:
-        WebGPURenderPipeline(WebGPUContext &context, WebGPUShader &shader, WGPUVertexBufferLayout vertexBufferLayout);
+        WebGPURenderPipeline(WGPUDevice device, WebGPUShader &shader, WGPUVertexBufferLayout vertexBufferLayout);
         ~WebGPURenderPipeline();
 
         WebGPURenderPipeline &SetPrimitiveState(WGPUPrimitiveTopology topology, WGPUIndexFormat stripIndexFormat,
@@ -26,7 +26,7 @@ namespace Figment
         WGPUBindGroup GetBindGroup()
         { return m_BindGroup; }
     private:
-        WebGPUContext &m_Context;
+        WGPUDevice m_Device;
         WebGPUShader &m_Shader;
         WGPURenderPipeline m_Pipeline = {};
         WGPUBindGroup m_BindGroup = {};
