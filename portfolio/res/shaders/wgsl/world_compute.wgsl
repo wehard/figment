@@ -1,18 +1,17 @@
-struct ParticlesData {
+struct WorldParticlesData {
     deltaTime: f32,
     time: f32,
-    seed: vec2<f32>,
+    mousePos: vec2<f32>,
 };
 
-struct Particle
+struct WorldParticle
 {
     position: vec3f,
     color: vec4f,
 };
 
-
-@group(0) @binding(0) var<storage,read_write> vertexBuffer: array<Particle, 262144>;
-@group(0) @binding(1) var<uniform> data: ParticlesData;
+@group(0) @binding(0) var<storage,read_write> vertexBuffer: array<WorldParticle, 262144>;
+@group(0) @binding(1) var<uniform> data: WorldParticlesData;
 @group(0) @binding(2) var worldTexture: texture_2d<f32>;
 @group(0) @binding(3) var sampler1: sampler;
 
@@ -41,7 +40,7 @@ fn rand_f32_01() -> f32 {
 
 const width: u32 = 512;
 const height: u32 = 512;
-const PI = radians(180.0);
+const PI: f32 = radians(180.0);
 
 @compute @workgroup_size(32, 1, 1)
 fn init(@builtin(global_invocation_id) id: vec3<u32>) {
@@ -55,24 +54,23 @@ fn init(@builtin(global_invocation_id) id: vec3<u32>) {
     let y = cos(phi);
     let z = sin(phi) * sin(theta);
 
-    var particle: Particle;
+    var particle: WorldParticle;
     particle.position = vec3<f32>(x, y, z);
 
     let uv = vec2<f32>(f32(colIdx) / f32(width), f32(rowIdx) / f32(height));
-    let worldColor = textureSampleLevel(worldTexture, sampler1, uv, 0.0);
-
-//    let c = (dot(particle.position, vec3<f32>(0.0, 0.0, -1.0)) + 1.0) / 2.0;
-    if (particle.position.z > 0.0) {
-        particle.color = vec4<f32>(worldColor.r, worldColor.g, worldColor.b, 1.0) * 2.0;
-    } else {
-        particle.color = vec4<f32>(0.0, 0.0, 0.0, 0.0);
-    }
+    particle.color = textureSampleLevel(worldTexture, sampler1, uv, 0.0);
 
     vertexBuffer[id.x] = particle;
 }
 
 @compute @workgroup_size(32, 1, 1)
 fn simulate(@builtin(global_invocation_id) id: vec3<u32>) {
-    var particle: Particle = vertexBuffer[id.x];
+    var particle: WorldParticle = vertexBuffer[id.x];
+
+    let dir = normalize(vec3<f32>(data.mousePos.xy, 0.0) - particle.position);
+    let dist = length(dir);
+
+    particle.position += dir * (dist * dist * dist) * data.deltaTime * 0.5;
+
     vertexBuffer[id.x] = particle;
 }

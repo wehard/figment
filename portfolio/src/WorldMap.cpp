@@ -28,10 +28,10 @@ WorldMap::WorldMap(SharedPtr<PerspectiveCamera> camera, bool enabled) : Layer("W
             },
     });
     m_VertexBuffer->SetVertexLayout(layout, sizeof(WorldParticle), WGPUVertexStepMode_Vertex);
-    m_UniformBuffer = CreateUniquePtr<WebGPUUniformBuffer<ParticlesData>>(m_Context->GetDevice(),
-            "ParticlesDataUniformBuffer", sizeof(ParticlesData));
+    m_UniformBuffer = CreateUniquePtr<WebGPUUniformBuffer<WorldParticlesData>>(m_Context->GetDevice(),
+            "ParticlesDataUniformBuffer", sizeof(WorldParticlesData));
 
-    auto image = Image::Load("res/classic_console.png");
+    auto image = Image::Load("res/2k_earth_daymap.png");
     m_WorldTexture = WebGPUTexture::Create(m_Context->GetDevice(), image);
 }
 
@@ -42,17 +42,17 @@ WorldMap::~WorldMap()
 
 void WorldMap::OnAttach()
 {
-    ParticlesData d = {};
+    WorldParticlesData d = {};
     d.DeltaTime = 0.0;
-    d.Seed = glm::vec2(0, 0);
-    m_UniformBuffer->SetData(&d, sizeof(ParticlesData));
+    d.MouseWorldPosition = glm::vec2(0, 0);
+    m_UniformBuffer->SetData(&d, sizeof(WorldParticlesData));
 
     ComputePass computePass(m_Context->GetDevice(), m_ComputeShader.get());
     computePass.Begin();
     computePass.Bind(*m_VertexBuffer);
     computePass.Bind(*m_UniformBuffer);
     computePass.Bind(*m_WorldTexture);
-    computePass.Dispatch("init", 65535);
+    computePass.Dispatch("init", m_VertexBuffer->Count() / 32);
     computePass.End();
 }
 
@@ -63,6 +63,20 @@ void WorldMap::OnDetach()
 
 void WorldMap::OnUpdate(float deltaTime)
 {
+    WorldParticlesData d = {};
+    d.DeltaTime = deltaTime;
+    d.MouseWorldPosition = m_Camera->ScreenToWorldSpace(Input::GetMousePosition(),
+            glm::vec2(m_Context->GetSwapChainWidth(), m_Context->GetSwapChainHeight()));
+    m_UniformBuffer->SetData(&d, sizeof(WorldParticlesData));
+
+    ComputePass computePass(m_Context->GetDevice(), m_ComputeShader.get());
+    computePass.Begin();
+    computePass.Bind(*m_VertexBuffer);
+    computePass.Bind(*m_UniformBuffer);
+    computePass.Bind(*m_WorldTexture);
+    computePass.Dispatch("simulate", m_VertexBuffer->Count() / 32);
+    computePass.End();
+
     m_Renderer->Begin(*m_Camera);
     m_Renderer->DrawPoints(*m_VertexBuffer, m_VertexBuffer->Count(), *m_ParticleShader);
     m_Renderer->End();
@@ -70,7 +84,11 @@ void WorldMap::OnUpdate(float deltaTime)
 
 void WorldMap::OnImGuiRender()
 {
-
+    ImGui::SetNextWindowPos(ImVec2(10, 500), ImGuiCond_Once);
+    ImGui::Begin("Texture");
+    ImGui::Image((void *)m_WorldTexture->GetTextureView(),
+            ImVec2((float)m_WorldTexture->GetWidth() / 4, (float)m_WorldTexture->GetHeight() / 4));
+    ImGui::End();
 }
 
 void WorldMap::OnEvent(AppEvent event, void *eventData)

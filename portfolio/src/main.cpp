@@ -175,13 +175,13 @@ public:
         ImGui::SetNextWindowSize(ImVec2(width * 2 + 20, height + 50), ImGuiCond_FirstUseEver);
         ImGui::Begin("Willehard Korander | Software Engineer");
         ImGui::Text("CONTACT");
-        ImGui::Text("Email:             ");
+        ImGui::Text("Email:              ");
         ImGui::SameLine(0.0, 0.0);
         HyperLink("willehard@gmail.com", "mailto:willehard@gmail.com");
-        ImGui::Text("GitHub:            ");
+        ImGui::Text("GitHub:             ");
         ImGui::SameLine(0.0, 0.0);
         HyperLink("https://github.com/wehard", "https://github.com/wehard");
-        ImGui::Text("LinkedIn:          ");
+        ImGui::Text("LinkedIn:           ");
         ImGui::SameLine(0.0, 0.0);
         HyperLink("https://www.linkedin.com/in/willehard", "https://www.linkedin.com/in/willehard");
         ImGui::Spacing();

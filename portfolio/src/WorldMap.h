@@ -11,6 +11,13 @@ struct WorldParticle
     glm::vec4 Color;
 };
 
+struct WorldParticlesData
+{
+    float DeltaTime;
+    float Time;
+    glm::vec2 MouseWorldPosition;
+};
+
 class WorldMap : public Layer
 {
 public:
@@ -28,6 +35,6 @@ private:
     UniquePtr<WebGPUShader> m_ComputeShader;
     UniquePtr<WebGPUShader> m_ParticleShader;
     UniquePtr<WebGPUVertexBuffer<WorldParticle>> m_VertexBuffer;
-    UniquePtr<WebGPUUniformBuffer<ParticlesData>> m_UniformBuffer;
+    UniquePtr<WebGPUUniformBuffer<WorldParticlesData>> m_UniformBuffer;
     WebGPUTexture *m_WorldTexture;
 };
