@@ -1,7 +1,7 @@
 #include "WorldMap.h"
 #include "ComputePass.h"
 
-WorldMap::WorldMap(SharedPtr<PerspectiveCamera> camera, bool enabled) : Layer("World Map", enabled), m_Camera(camera)
+WorldMap::WorldMap(SharedPtr<PerspectiveCamera> camera, bool enabled) : Layer("World", enabled), m_Camera(camera)
 {
     auto m_Window = Figment::App::Instance()->GetWindow();
     auto webGpuWindow = std::dynamic_pointer_cast<Figment::WebGPUWindow>(m_Window);
@@ -84,14 +84,15 @@ void WorldMap::OnUpdate(float deltaTime)
 
 void WorldMap::OnImGuiRender()
 {
-    ImGui::SetNextWindowPos(ImVec2(10, 500), ImGuiCond_Once);
-    ImGui::Begin("Texture");
-    ImGui::Image((void *)m_WorldTexture->GetTextureView(),
-            ImVec2((float)m_WorldTexture->GetWidth() / 4, (float)m_WorldTexture->GetHeight() / 4));
-    ImGui::End();
+    // ImGui::SetNextWindowPos(ImVec2(10, 500), ImGuiCond_Once);
+    // ImGui::Begin("Texture");
+    // ImGui::Image((void *)m_WorldTexture->GetTextureView(),
+    //         ImVec2((float)m_WorldTexture->GetWidth() / 4, (float)m_WorldTexture->GetHeight() / 4));
+    // ImGui::End();
 }
 
 void WorldMap::OnEvent(AppEvent event, void *eventData)
 {
-
+    auto ev = (Figment::WindowResizeEventData *)eventData;
+    m_Renderer->OnResize(ev->Width, ev->Height);
 }

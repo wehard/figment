@@ -104,8 +104,8 @@ public:
                 (float)webGpuWindow->GetWidth() / (float)webGpuWindow->GetHeight());
         m_Camera->SetPosition(glm::vec3(0.0, 0.0, 3.0));
 
-        // m_Layers.push_back(new Cube(m_Camera, true));
-        // m_Layers.push_back(new Particles(m_Camera, true));
+        m_Layers.push_back(new Cube(m_Camera, false));
+        m_Layers.push_back(new Particles(m_Camera, false));
         m_Layers.push_back(new WorldMap(m_Camera, true));
 
         for (auto layer : m_Layers)
