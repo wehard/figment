@@ -141,6 +141,8 @@ public:
             m_BlinkTimer = 0.0f;
         }
 
+        auto scroll = Input::GetMouseScroll();
+        m_Camera->GetPositionPtr()->z -= scroll.y * 0.1f;
         m_Camera->Update();
     }
 
