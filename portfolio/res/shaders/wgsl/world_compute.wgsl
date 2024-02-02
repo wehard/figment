@@ -42,20 +42,23 @@ const width: u32 = 512;
 const height: u32 = 512;
 const PI: f32 = radians(180.0);
 
+fn init_position(u: u32, v: u32) -> vec3<f32> {
+    let theta = 2.0 * PI * f32(u) / f32(width);
+    let phi = PI * f32(v) / f32(height);
+    let x = sin(phi) * cos(theta);
+    let y = cos(phi);
+    let z = sin(phi) * sin(theta);
+    return vec3<f32>(x, y, z);
+}
+
 @compute @workgroup_size(32, 1, 1)
 fn init(@builtin(global_invocation_id) id: vec3<u32>) {
 
     let rowIdx = id.x / width;
     let colIdx = id.x % height;
 
-    let theta = 2.0 * PI * f32(colIdx) / f32(width);
-    let phi = PI * f32(rowIdx) / f32(height);
-    let x = sin(phi) * cos(theta);
-    let y = cos(phi);
-    let z = sin(phi) * sin(theta);
-
     var particle: WorldParticle;
-    particle.position = vec3<f32>(x, y, z);
+    particle.position = init_position(colIdx, rowIdx);
 
     let uv = vec2<f32>(f32(colIdx) / f32(width), f32(rowIdx) / f32(height));
     particle.color = textureSampleLevel(worldTexture, sampler1, uv, 0.0);
@@ -71,6 +74,8 @@ fn simulate(@builtin(global_invocation_id) id: vec3<u32>) {
     let dist = length(dir);
 
     particle.position += dir * (dist * dist * dist) * data.deltaTime * 0.5;
+    let init_pos = init_position(id.x % width, id.x / width);
+    particle.position = mix(particle.position, init_pos, data.deltaTime * 2.1);
 
     vertexBuffer[id.x] = particle;
 }
