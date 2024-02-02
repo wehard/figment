@@ -5,6 +5,7 @@
 #include "WebGPUShader.h"
 #include "WebGPURenderPipeline.h"
 #include "Utils.h"
+#include "RenderPass.h"
 #include <vector>
 
 #define MEM_ALIGN(_SIZE, _ALIGN)        (((_SIZE) + ((_ALIGN) - 1)) & ~((_ALIGN) - 1))
@@ -230,34 +231,17 @@ namespace Figment
     {
         mesh.UniformBuffer()->SetData(&transform, sizeof(transform));
 
-        auto pipeline = new WebGPURenderPipeline(m_Context.GetDevice(), shader, mesh.VertexBuffer()->GetVertexLayout());
-        pipeline->SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined,
-                WGPUFrontFace_CCW,
-                WGPUCullMode_None);
-        pipeline->SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
-        pipeline->SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(0),
-                m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
-        pipeline->SetBinding(mesh.UniformBuffer()->GetBindGroupLayoutEntry(1),
-                mesh.UniformBuffer()->GetBindGroupEntry(1, 0));
-        auto colorTargetStates = std::vector<WGPUColorTargetState>({
-                {
-                        .format = m_Context.GetTextureFormat(),
-                        .blend = nullptr,
-                        .writeMask = WGPUColorWriteMask_All
-                },
-                {
-                        .format = m_IdTexture->GetTextureFormat(),
-                        .blend = nullptr,
-                        .writeMask = WGPUColorWriteMask_All
-                }
-        });
-        pipeline->SetColorTargetStates(colorTargetStates);
-        pipeline->Build();
+        RenderPass renderPass(m_Context.GetDevice());
+        renderPass.AddColorAttachment(wgpuSwapChainGetCurrentTextureView(m_Context.GetSwapChain()),
+                m_Context.GetTextureFormat());
+        renderPass.AddColorAttachment(m_IdTexture->GetTextureView(), m_IdTexture->GetTextureFormat());
+        renderPass.SetDepthStencilAttachment(m_DepthTexture->GetTextureView(), m_DepthTexture->GetTextureFormat());
+        renderPass.Bind(*m_CameraDataUniformBuffer);
+        renderPass.Bind(*mesh.UniformBuffer());
+        renderPass.Begin();
+        renderPass.DrawIndexed(mesh, transform, shader);
+        renderPass.End();
 
-        WebGPUCommand::DrawIndexed(m_RenderPass, pipeline->GetPipeline(), pipeline->GetBindGroup(),
-                *mesh.IndexBuffer(), *mesh.VertexBuffer(), mesh.IndexCount());
-
-        delete pipeline;
         s_Stats.DrawCalls++;
         s_Stats.VertexCount += mesh.VertexCount();
     }

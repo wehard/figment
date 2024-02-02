@@ -183,7 +183,7 @@ namespace Figment
         WGPUBindGroupLayoutEntry bindGroupLayoutEntry = GetDefaultWGPUBindGroupLayoutEntry();
         bindGroupLayoutEntry.nextInChain = nullptr;
         bindGroupLayoutEntry.binding = bindGroupEntry.binding;
-        bindGroupLayoutEntry.visibility = WGPUShaderStage_Compute;
+        bindGroupLayoutEntry.visibility = WGPUShaderStage_Fragment | WGPUShaderStage_Vertex;
         bindGroupLayoutEntry.buffer.type = type;
 
         m_BindGroupLayoutEntries.emplace_back(bindGroupLayoutEntry);
@@ -204,7 +204,7 @@ namespace Figment
         WGPUBindGroupLayoutEntry bindGroupLayoutEntry = GetDefaultWGPUBindGroupLayoutEntry();
         bindGroupLayoutEntry.nextInChain = nullptr;
         bindGroupLayoutEntry.binding = bindGroupEntry.binding;
-        bindGroupLayoutEntry.visibility = WGPUShaderStage_Compute;
+        bindGroupLayoutEntry.visibility = WGPUShaderStage_Fragment | WGPUShaderStage_Vertex;
         bindGroupLayoutEntry.texture.sampleType = WGPUTextureSampleType_Float;
         bindGroupLayoutEntry.texture.viewDimension = WGPUTextureViewDimension_2D;
         bindGroupLayoutEntry.texture.multisampled = false;
@@ -227,7 +227,7 @@ namespace Figment
         WGPUBindGroupLayoutEntry bindGroupLayoutEntry = GetDefaultWGPUBindGroupLayoutEntry();
         bindGroupLayoutEntry.nextInChain = nullptr;
         bindGroupLayoutEntry.binding = bindGroupEntry.binding;
-        bindGroupLayoutEntry.visibility = WGPUShaderStage_Compute;
+        bindGroupLayoutEntry.visibility = WGPUShaderStage_Fragment | WGPUShaderStage_Vertex;
         bindGroupLayoutEntry.sampler = samplerBindingLayout;
 
         m_BindGroupLayoutEntries.emplace_back(bindGroupLayoutEntry);
