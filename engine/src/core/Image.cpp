@@ -15,7 +15,7 @@ namespace Figment
     {
         Image image = {};
         int width, height, channels;
-        image.m_Data = stbi_load(path.c_str(), &width, &height, &channels, 0);
+        image.m_Data = stbi_load(path.c_str(), &width, &height, &channels, STBI_rgb_alpha);
         if (!image.m_Data)
         {
             FIG_LOG_ERROR("Failed to load image: %s", path.c_str());
