@@ -34,7 +34,8 @@ namespace Figment
     WebGPUTexture::~WebGPUTexture()
     {
         wgpuTextureViewRelease(m_TextureView);
-        wgpuSamplerRelease(m_Sampler);
+        // TODO: This is causing a crash
+        // wgpuSamplerRelease(m_Sampler);
         wgpuTextureDestroy(m_Texture);
         wgpuTextureRelease(m_Texture);
     }
