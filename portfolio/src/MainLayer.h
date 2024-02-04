@@ -154,6 +154,12 @@ public:
         {
             ImGui::Separator();
             ImGui::Text("%s", m_SeletedLayer->GetName().c_str());
+
+            if (m_SeletedLayer->GetName() == "Cube")
+            {
+                ImGui::Text("It's a cube.");
+            }
+
             if (m_SeletedLayer->GetName() == "World")
             {
                 auto worldMap = (WorldMap *)m_SeletedLayer;
