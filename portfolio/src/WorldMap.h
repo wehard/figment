@@ -14,7 +14,7 @@ struct WorldParticle
 struct WorldParticlesData
 {
     float DeltaTime;
-    float Time;
+    float Rotation;
     glm::vec2 MouseWorldPosition;
 };
 
@@ -37,4 +37,5 @@ private:
     UniquePtr<WebGPUVertexBuffer<WorldParticle>> m_VertexBuffer;
     UniquePtr<WebGPUUniformBuffer<WorldParticlesData>> m_UniformBuffer;
     WebGPUTexture *m_WorldTexture;
+    float m_Rotation = -120.0f;
 };

@@ -14,7 +14,7 @@ WorldMap::WorldMap(SharedPtr<PerspectiveCamera> camera, bool enabled) : Layer("W
             *Utils::LoadFile2("res/shaders/wgsl/world_particle.wgsl"), "WorldParticle");
     m_VertexBuffer = CreateUniquePtr<WebGPUVertexBuffer<WorldParticle>>
             (m_Context->GetDevice(), "ParticlesBuffer",
-                    262144 * sizeof(WorldParticle));
+                    1048576 * sizeof(WorldParticle));
     auto layout = std::vector<WGPUVertexAttribute>({
             {
                     .format = WGPUVertexFormat_Float32x3,
@@ -44,6 +44,7 @@ void WorldMap::OnAttach()
 {
     WorldParticlesData d = {};
     d.DeltaTime = 0.0;
+    d.Rotation = m_Rotation;
     d.MouseWorldPosition = glm::vec2(0, 0);
     m_UniformBuffer->SetData(&d, sizeof(WorldParticlesData));
 
@@ -63,8 +64,10 @@ void WorldMap::OnDetach()
 
 void WorldMap::OnUpdate(float deltaTime)
 {
+    m_Rotation -= 10.0f * deltaTime;
     WorldParticlesData d = {};
     d.DeltaTime = deltaTime;
+    d.Rotation = m_Rotation;
     d.MouseWorldPosition = m_Camera->ScreenToWorldSpace(Input::GetMousePosition(),
             glm::vec2(m_Context->GetSwapChainWidth(), m_Context->GetSwapChainHeight()));
     m_UniformBuffer->SetData(&d, sizeof(WorldParticlesData));
