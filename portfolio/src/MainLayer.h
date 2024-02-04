@@ -158,6 +158,7 @@ public:
             {
                 auto worldMap = (WorldMap *)m_SeletedLayer;
                 ImGui::Text("Particle count: %d", worldMap->GetParticleCount());
+                ImGui::DragFloat("Rotation speed", &worldMap->RotationSpeed, 0.1f);
                 auto texture = worldMap->GetTexture();
                 auto aspect = (float)texture->GetHeight() / (float)texture->GetWidth();
                 auto contentWidth = ImGui::GetWindowContentRegionWidth();

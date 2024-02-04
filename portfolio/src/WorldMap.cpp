@@ -64,7 +64,7 @@ void WorldMap::OnDetach()
 
 void WorldMap::OnUpdate(float deltaTime)
 {
-    m_Rotation -= 10.0f * deltaTime;
+    m_Rotation -= RotationSpeed * deltaTime;
     WorldParticlesData d = {};
     d.DeltaTime = deltaTime;
     d.Rotation = m_Rotation;
