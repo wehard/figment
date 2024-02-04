@@ -17,6 +17,7 @@ namespace Figment
         void AddColorAttachment(WGPUTextureView textureView, WGPUTextureFormat format);
         void SetDepthStencilAttachment(WGPUTextureView textureView, WGPUTextureFormat format);
         void Begin();
+        void Begin(WGPUCommandEncoder commandEncoder);
         void End();
         void DrawIndexed(Mesh &mesh, glm::mat4 transform, WebGPUShader &shader);
         template<typename T>

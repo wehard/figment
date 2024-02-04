@@ -80,12 +80,17 @@ namespace Figment
 
     void RenderPass::Begin()
     {
+        Begin(m_CommandEncoder);
+    }
+
+    void RenderPass::Begin(WGPUCommandEncoder commandEncoder)
+    {
         WGPURenderPassDescriptor renderPassDesc = {};
         renderPassDesc.colorAttachmentCount = m_ColorAttachments.size();
         renderPassDesc.colorAttachments = m_ColorAttachments.data();
         renderPassDesc.depthStencilAttachment = &m_DepthStencilAttachment;
 
-        m_RenderPassEncoder = wgpuCommandEncoderBeginRenderPass(m_CommandEncoder, &renderPassDesc);
+        m_RenderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDesc);
     }
 
     void RenderPass::End()
