@@ -15,6 +15,7 @@ private:
     float m_BlinkTimer = 0.0f;
     ImVec4 m_BlinkTextColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
     bool m_SwapColor = false;
+    Layer *m_SeletedLayer = nullptr;
 public:
     MainLayer() : Layer("Main")
     {
@@ -137,12 +138,32 @@ public:
         for (auto layer : m_Layers)
         {
             auto enabled = layer->IsEnabled();
-            if (ImGui::Checkbox(layer->GetName().c_str(), &enabled))
+            bool selected = m_SeletedLayer == layer;
+            if (ImGui::Checkbox(("##" + layer->GetName()).c_str(), &enabled))
             {
                 layer->SetEnabled(!layer->IsEnabled());
             }
+            ImGui::SameLine();
+            if (ImGui::Selectable(layer->GetName().c_str(), &selected))
+            {
+                m_SeletedLayer = layer;
+            }
+
         }
-        ImGui::End();
+        if (m_SeletedLayer)
+        {
+            ImGui::Separator();
+            ImGui::Text("%s", m_SeletedLayer->GetName().c_str());
+            if (m_SeletedLayer->GetName() == "World")
+            {
+                auto worldMap = (WorldMap *)m_SeletedLayer;
+                ImGui::Text("Particle count: %d", worldMap->GetParticleCount());
+                auto texture = worldMap->GetTexture();
+                auto aspect = (float)texture->GetHeight() / (float)texture->GetWidth();
+                auto contentWidth = ImGui::GetWindowContentRegionWidth();
+                ImGui::Image((ImTextureID)texture->GetTextureView(), ImVec2(contentWidth, contentWidth * aspect));
+            }
+        }
 
         Figment::DrawDebugPanel(*m_Camera, true);
     }

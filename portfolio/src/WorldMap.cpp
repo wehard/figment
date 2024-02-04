@@ -14,7 +14,7 @@ WorldMap::WorldMap(SharedPtr<PerspectiveCamera> camera, bool enabled) : Layer("W
             *Utils::LoadFile2("res/shaders/wgsl/world_particle.wgsl"), "WorldParticle");
     m_VertexBuffer = CreateUniquePtr<WebGPUVertexBuffer<WorldParticle>>
             (m_Context->GetDevice(), "ParticlesBuffer",
-                    1048576 * sizeof(WorldParticle));
+                    m_ParticleCount * sizeof(WorldParticle));
     auto layout = std::vector<WGPUVertexAttribute>({
             {
                     .format = WGPUVertexFormat_Float32x3,
@@ -98,4 +98,13 @@ void WorldMap::OnEvent(AppEvent event, void *eventData)
 {
     auto ev = (Figment::WindowResizeEventData *)eventData;
     m_Renderer->OnResize(ev->Width, ev->Height);
+}
+
+WebGPUTexture *WorldMap::GetTexture()
+{
+    return m_WorldTexture;
+}
+uint32_t WorldMap::GetParticleCount()
+{
+    return m_ParticleCount;
 }
