@@ -144,7 +144,7 @@ public:
         ImGui::End();
 
         ImGui::SetNextWindowPos(ImVec2(appWindowSize.x - width - padding, padding + 20), ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSize(ImVec2(width, height), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(width, appWindowSize.y / 2), ImGuiCond_FirstUseEver);
         ImGui::Begin("Layers");
 
         for (auto layer : m_Layers)
