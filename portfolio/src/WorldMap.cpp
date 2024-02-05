@@ -31,8 +31,10 @@ WorldMap::WorldMap(SharedPtr<PerspectiveCamera> camera, bool enabled) : Layer("W
     m_UniformBuffer = CreateUniquePtr<WebGPUUniformBuffer<WorldParticlesData>>(m_Context->GetDevice(),
             "ParticlesDataUniformBuffer", sizeof(WorldParticlesData));
 
-    auto image = Image::Load("res/2k_earth_daymap.png");
-    m_WorldTexture = WebGPUTexture::Create(m_Context->GetDevice(), image);
+    auto map = Image::Load("res/2k_earth_daymap.png");
+    m_WorldTexture = WebGPUTexture::Create(m_Context->GetDevice(), map);
+    auto bump = Image::Load("res/elev_bump_8k.jpg");
+    m_WorldHeightMap = WebGPUTexture::Create(m_Context->GetDevice(), bump);
 }
 
 WorldMap::~WorldMap()
@@ -53,6 +55,7 @@ void WorldMap::OnAttach()
     computePass.Bind(*m_VertexBuffer);
     computePass.Bind(*m_UniformBuffer);
     computePass.Bind(*m_WorldTexture);
+    computePass.Bind(*m_WorldHeightMap);
     computePass.Dispatch("init", m_VertexBuffer->Count() / 32);
     computePass.End();
 }
@@ -77,6 +80,7 @@ void WorldMap::OnUpdate(float deltaTime)
     computePass.Bind(*m_VertexBuffer);
     computePass.Bind(*m_UniformBuffer);
     computePass.Bind(*m_WorldTexture);
+    computePass.Bind(*m_WorldHeightMap);
     computePass.Dispatch("simulate", m_VertexBuffer->Count() / 32);
     computePass.End();
 

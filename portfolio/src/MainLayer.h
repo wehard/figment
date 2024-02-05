@@ -180,9 +180,12 @@ public:
                 ImGui::Text("Particle count: %d", worldMap->GetParticleCount());
                 ImGui::SliderFloat("Rotation speed", &worldMap->RotationSpeed, -100.0, 100.0);
                 auto texture = worldMap->GetTexture();
+                auto bump = worldMap->GetHeightMap();
                 auto aspect = (float)texture->GetHeight() / (float)texture->GetWidth();
+                auto bumpAspect = (float)bump->GetHeight() / (float)bump->GetWidth();
                 auto contentWidth = ImGui::GetWindowContentRegionWidth();
                 ImGui::Image((ImTextureID)texture->GetTextureView(), ImVec2(contentWidth, contentWidth * aspect));
+                ImGui::Image((ImTextureID)bump->GetTextureView(), ImVec2(contentWidth, contentWidth * bumpAspect));
             });
         }
 

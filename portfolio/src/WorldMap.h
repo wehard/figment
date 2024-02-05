@@ -29,6 +29,8 @@ public:
     void OnImGuiRender() override;
     void OnEvent(AppEvent event, void *eventData) override;
     WebGPUTexture *GetTexture();
+    WebGPUTexture *GetHeightMap()
+    { return m_WorldHeightMap; }
     uint32_t GetParticleCount();
     float RotationSpeed = 10.0f;
 private:
@@ -40,6 +42,7 @@ private:
     UniquePtr<WebGPUVertexBuffer<WorldParticle>> m_VertexBuffer;
     UniquePtr<WebGPUUniformBuffer<WorldParticlesData>> m_UniformBuffer;
     WebGPUTexture *m_WorldTexture;
+    WebGPUTexture *m_WorldHeightMap;
     uint32_t m_ParticleCount = 1024 * 1024;
     float m_Rotation = -120.0f;
 };
