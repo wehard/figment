@@ -58,6 +58,8 @@ public:
 
     void OnUpdate(float deltaTime) override
     {
+        auto mp = Input::GetMousePosition();
+        m_Position = m_Camera->ScreenToWorldSpace(mp, glm::vec2(1642, 1003));
         m_Rotation.x += 90.0f * deltaTime;
         m_Rotation.y += 90.0f * deltaTime;
         m_Rotation.z += 10.0f * deltaTime;
