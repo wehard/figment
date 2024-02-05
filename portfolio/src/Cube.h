@@ -14,12 +14,13 @@ private:
     glm::vec3 m_Position = glm::vec3(0.0);
     glm::vec3 m_Rotation = glm::vec3(0.0);
     glm::vec3 m_Scale = glm::vec3(0.25);
+    SharedPtr<WebGPUWindow> m_Window = nullptr;
 public:
     Cube(SharedPtr<PerspectiveCamera> camera, bool enabled) : Layer("Cube", enabled), m_Camera(camera)
     {
-        auto m_Window = Figment::App::Instance()->GetWindow();
-        auto webGpuWindow = std::dynamic_pointer_cast<Figment::WebGPUWindow>(m_Window);
-        m_Renderer = Figment::CreateUniquePtr<Figment::WebGPURenderer>(*webGpuWindow->GetContext());
+        auto window = Figment::App::Instance()->GetWindow();
+        m_Window = std::dynamic_pointer_cast<Figment::WebGPUWindow>(window);
+        m_Renderer = Figment::CreateUniquePtr<Figment::WebGPURenderer>(*m_Window->GetContext());
 
         std::vector<Vertex> vertices = {
                 {{ -0.5, -0.5, 0.5 }},
@@ -41,8 +42,8 @@ public:
                 3, 2, 6, 6, 7, 3
         };
 
-        m_Mesh = new Figment::Mesh(webGpuWindow->GetContext()->GetDevice(), vertices, indices);
-        m_Shader = new WebGPUShader(webGpuWindow->GetContext()->GetDevice(),
+        m_Mesh = new Figment::Mesh(m_Window->GetContext()->GetDevice(), vertices, indices);
+        m_Shader = new WebGPUShader(m_Window->GetContext()->GetDevice(),
                 *Utils::LoadFile2("res/shaders/wgsl/mesh.wgsl"));
     }
 
@@ -59,7 +60,7 @@ public:
     void OnUpdate(float deltaTime) override
     {
         auto mp = Input::GetMousePosition();
-        m_Position = m_Camera->ScreenToWorldSpace(mp, glm::vec2(1642, 1003));
+        m_Position = m_Camera->ScreenToWorldSpace(mp, glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
         m_Rotation.x += 90.0f * deltaTime;
         m_Rotation.y += 90.0f * deltaTime;
         m_Rotation.z += 10.0f * deltaTime;
