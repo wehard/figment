@@ -83,6 +83,18 @@ public:
         ImGui::PopStyleVar();
     }
 
+    template<typename T, typename F>
+    static void LayerDetails(Layer *layer, F drawDetails)
+    {
+        auto layerType = dynamic_cast<T *>(layer);
+        if (layerType == nullptr)
+        {
+            return;
+        }
+        ImGui::Separator();
+        drawDetails(layerType);
+    }
+
     void OnImGuiRender() override
     {
         ImVec2 appWindowSize = ImVec2((float)App::Instance()->GetWindow()->GetWidth(),
@@ -150,26 +162,28 @@ public:
             }
 
         }
+
         if (m_SeletedLayer)
         {
-            ImGui::Separator();
-            ImGui::Text("%s", m_SeletedLayer->GetName().c_str());
-
-            if (m_SeletedLayer->GetName() == "Cube")
+            LayerDetails<Cube>(m_SeletedLayer, [](Cube *cube)
             {
                 ImGui::Text("It's a cube.");
-            }
+            });
 
-            if (m_SeletedLayer->GetName() == "World")
+            LayerDetails<Particles>(m_SeletedLayer, [](Particles *cube)
             {
-                auto worldMap = (WorldMap *)m_SeletedLayer;
+                ImGui::Text("...");
+            });
+
+            LayerDetails<WorldMap>(m_SeletedLayer, [](WorldMap *worldMap)
+            {
                 ImGui::Text("Particle count: %d", worldMap->GetParticleCount());
-                ImGui::DragFloat("Rotation speed", &worldMap->RotationSpeed, 0.1f);
+                ImGui::SliderFloat("Rotation speed", &worldMap->RotationSpeed, -100.0, 100.0);
                 auto texture = worldMap->GetTexture();
                 auto aspect = (float)texture->GetHeight() / (float)texture->GetWidth();
                 auto contentWidth = ImGui::GetWindowContentRegionWidth();
                 ImGui::Image((ImTextureID)texture->GetTextureView(), ImVec2(contentWidth, contentWidth * aspect));
-            }
+            });
         }
 
         Figment::DrawDebugPanel(*m_Camera, true);
