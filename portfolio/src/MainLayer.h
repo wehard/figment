@@ -178,6 +178,11 @@ public:
             LayerDetails<WorldMap>(m_SeletedLayer, [](WorldMap *worldMap)
             {
                 ImGui::Text("Particle count: %d", worldMap->GetParticleCount());
+                ImGui::SameLine();
+                if (ImGui::Button("Reset"))
+                {
+                    worldMap->ResetParticles();
+                }
                 ImGui::SliderFloat("Rotation speed", &worldMap->RotationSpeed, -100.0, 100.0);
                 auto texture = worldMap->GetTexture();
                 auto bump = worldMap->GetHeightMap();

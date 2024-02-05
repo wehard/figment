@@ -37,6 +37,7 @@ public:
     { return m_WorldHeightMap; }
     uint32_t GetParticleCount();
     float RotationSpeed = 10.0f;
+    void ResetParticles();
 private:
     SharedPtr<WebGPUContext> m_Context;
     SharedPtr<PerspectiveCamera> m_Camera;

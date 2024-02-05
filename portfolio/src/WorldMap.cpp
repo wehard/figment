@@ -54,20 +54,7 @@ WorldMap::~WorldMap()
 
 void WorldMap::OnAttach()
 {
-    WorldParticlesData d = {};
-    d.DeltaTime = 0.0;
-    d.Rotation = m_Rotation;
-    d.MouseWorldPosition = glm::vec2(0, 0);
-    m_UniformBuffer->SetData(&d, sizeof(WorldParticlesData));
-
-    ComputePass computePass(m_Context->GetDevice(), m_ComputeShader.get());
-    computePass.Begin();
-    computePass.Bind(*m_VertexBuffer);
-    computePass.Bind(*m_UniformBuffer);
-    computePass.Bind(*m_WorldTexture);
-    computePass.Bind(*m_WorldHeightMap);
-    computePass.Dispatch("init", m_VertexBuffer->Count() / 32);
-    computePass.End();
+    ResetParticles();
 }
 
 void WorldMap::OnDetach()
@@ -118,7 +105,26 @@ WebGPUTexture *WorldMap::GetTexture()
 {
     return m_WorldTexture;
 }
+
 uint32_t WorldMap::GetParticleCount()
 {
     return m_ParticleCount;
+}
+
+void WorldMap::ResetParticles()
+{
+    WorldParticlesData d = {};
+    d.DeltaTime = 0.0;
+    d.Rotation = m_Rotation;
+    d.MouseWorldPosition = glm::vec2(0, 0);
+    m_UniformBuffer->SetData(&d, sizeof(WorldParticlesData));
+
+    ComputePass computePass(m_Context->GetDevice(), m_ComputeShader.get());
+    computePass.Begin();
+    computePass.Bind(*m_VertexBuffer);
+    computePass.Bind(*m_UniformBuffer);
+    computePass.Bind(*m_WorldTexture);
+    computePass.Bind(*m_WorldHeightMap);
+    computePass.Dispatch("init", m_VertexBuffer->Count() / 32);
+    computePass.End();
 }
