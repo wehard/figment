@@ -130,8 +130,6 @@ namespace Figment
 
         auto device = m_Context.GetDevice();
 
-        // WGPUCommandEncoderDescriptor desc = {};
-        // m_CommandEncoder = wgpuDeviceCreateCommandEncoder(device, &desc);
         m_CommandEncoder = WebGPUCommand::CreateCommandEncoder(device, "RenderCommandEncoder");
 
         WGPURenderPassColorAttachment colorAttachments[2] = {};
