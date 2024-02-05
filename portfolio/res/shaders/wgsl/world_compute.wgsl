@@ -8,6 +8,8 @@ struct WorldParticle
 {
     position: vec3f,
     color: vec4f,
+    velocity: vec3f,
+    old_position: vec3f,
 };
 
 @group(0) @binding(0) var<storage,read_write> vertexBuffer: array<WorldParticle, 1048576>;
@@ -66,6 +68,7 @@ fn init(@builtin(global_invocation_id) id: vec3<u32>) {
 
     let height = textureSampleLevel(bumpMap, sampler1, uv, 0.0);
     particle.position += normalize(particle.position) * height.r * 0.1;
+    particle.velocity = vec3<f32>(0.0, 0.0, 0.0);
 
     vertexBuffer[id.x] = particle;
 }
@@ -74,18 +77,20 @@ fn init(@builtin(global_invocation_id) id: vec3<u32>) {
 fn simulate(@builtin(global_invocation_id) id: vec3<u32>) {
     var particle: WorldParticle = vertexBuffer[id.x];
 
-//    let dir = normalize(vec3<f32>(data.mousePos.xy, 0.0) - particle.position);
-//    let dist = length(dir);
-//
-//    particle.position += dir * (dist * dist * dist) * data.deltaTime * 0.5;
-//    let init_pos = init_position(id.x % width, id.x / width, data.rotation);
-//    particle.position = mix(particle.position, init_pos, data.deltaTime * 2.1);
     let rowIdx = id.x / width;
     let colIdx = id.x % height;
     let uv = vec2<f32>(f32(colIdx) / f32(width), f32(rowIdx) / f32(height));
     let height = textureSampleLevel(bumpMap, sampler1, uv, 0.0);
-    particle.position = init_position(colIdx, rowIdx, data.rotation);
-    particle.position += normalize(particle.position) * height.r * 0.08;
+    var init = init_position(colIdx, rowIdx, data.rotation);
+    init += normalize(particle.position) * height.r * 0.08;
+
+    let dir = normalize(particle.position - vec3<f32>(data.mousePos.xy, particle.position.z));
+    let dist = length(particle.position - vec3<f32>(data.mousePos.xy, particle.position.z));
+    particle.velocity += dir * (1.0 / (dist * dist * dist)) * 0.0001;
+    particle.velocity += (init - particle.position) * 0.1;
+
+    particle.old_position = particle.position;
+    particle.position += particle.velocity * data.deltaTime;
 
     vertexBuffer[id.x] = particle;
 }

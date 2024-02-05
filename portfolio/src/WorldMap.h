@@ -9,6 +9,10 @@ struct WorldParticle
     glm::vec3 Position;
     uint32_t _Padding[1];
     glm::vec4 Color;
+    glm::vec3 Velocity;
+    uint32_t _Padding2[1];
+    glm::vec3 PrevPosition;
+    uint32_t _Padding3[1];
 };
 
 struct WorldParticlesData

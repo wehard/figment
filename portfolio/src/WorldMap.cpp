@@ -26,6 +26,16 @@ WorldMap::WorldMap(SharedPtr<PerspectiveCamera> camera, bool enabled) : Layer("W
                     .offset = 16,
                     .shaderLocation = 1,
             },
+            {
+                    .format = WGPUVertexFormat_Float32x3,
+                    .offset = 32,
+                    .shaderLocation = 2,
+            },
+            {
+                    .format = WGPUVertexFormat_Float32x3,
+                    .offset = 48,
+                    .shaderLocation = 3,
+            },
     });
     m_VertexBuffer->SetVertexLayout(layout, sizeof(WorldParticle), WGPUVertexStepMode_Vertex);
     m_UniformBuffer = CreateUniquePtr<WebGPUUniformBuffer<WorldParticlesData>>(m_Context->GetDevice(),
