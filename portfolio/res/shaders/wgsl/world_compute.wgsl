@@ -86,8 +86,9 @@ fn simulate(@builtin(global_invocation_id) id: vec3<u32>) {
 
     let dir = normalize(particle.position - vec3<f32>(data.mousePos.xy, particle.position.z));
     let dist = length(particle.position - vec3<f32>(data.mousePos.xy, particle.position.z));
-    particle.velocity += dir * (1.0 / (dist * dist + 0.006544)) * 0.0001;
-    particle.velocity += (init - particle.position) * 0.1;
+    particle.velocity += dir * (1.0 / (dist * dist + 0.006544)) * 0.01;
+    particle.velocity *= 0.9;
+    particle.velocity += (init - particle.position) * 0.3;
 
     particle.old_position = particle.position;
     particle.position += particle.velocity * data.deltaTime;

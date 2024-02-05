@@ -62,14 +62,46 @@ void WorldMap::OnDetach()
 
 }
 
+static bool intersectSphere(glm::vec3 ro, glm::vec3 rd, glm::vec3 sc, float sr, float *t)
+{
+    glm::vec3 oc = ro - sc;
+    float b = glm::dot(oc, rd);
+    float c = glm::dot(oc, oc) - sr * sr;
+    float h = b * b - c;
+    if (h < 0.0)
+    {
+        return false;
+    }
+    h = sqrt(h);
+    *t = -b - h;
+    if (*t < 0.0)
+    {
+        *t = -b + h;
+    }
+    return *t >= 0.0;
+}
+
 void WorldMap::OnUpdate(float deltaTime)
 {
     m_Rotation -= RotationSpeed * deltaTime;
+
+    auto mw = m_Camera->ScreenToWorldSpace(Input::GetMousePosition(),
+            glm::vec2(m_Context->GetSwapChainWidth(), m_Context->GetSwapChainHeight()));
+
     WorldParticlesData d = {};
     d.DeltaTime = deltaTime;
     d.Rotation = m_Rotation;
-    d.MouseWorldPosition = m_Camera->ScreenToWorldSpace(Input::GetMousePosition(),
-            glm::vec2(m_Context->GetSwapChainWidth(), m_Context->GetSwapChainHeight()));
+    d.MouseWorldPosition = mw;
+
+    auto rd = mw - m_Camera->GetPosition();
+    rd = glm::normalize(rd);
+    float t = 0.0;
+    if (intersectSphere(m_Camera->GetPosition(), rd, glm::vec3(0, 0, 0), 1.0, &t))
+    {
+        auto p = m_Camera->GetPosition() + rd * t;
+        d.MouseWorldPosition = p;
+    }
+
     m_UniformBuffer->SetData(&d, sizeof(WorldParticlesData));
 
     ComputePass computePass(m_Context->GetDevice(), m_ComputeShader.get());
