@@ -26,7 +26,6 @@ target_include_directories(engine
         src/scene
         src/scene/components
         src/physics
-        src/platform/opengl
         src/platform/webgpu/
         lib
         lib/glm
