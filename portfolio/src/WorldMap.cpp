@@ -7,7 +7,7 @@ WorldMap::WorldMap(SharedPtr<PerspectiveCamera> camera, bool enabled) : Layer("W
     auto webGpuWindow = std::dynamic_pointer_cast<Figment::WebGPUWindow>(m_Window);
     m_Context = webGpuWindow->GetContext();
 
-    m_Renderer = Figment::CreateUniquePtr<Figment::WebGPURenderer>(*m_Context);
+    m_Renderer = Figment::CreateUniquePtr<ParticleRenderer>(*m_Context);
     m_ComputeShader = CreateUniquePtr<WebGPUShader>(m_Context->GetDevice(),
             *Utils::LoadFile2("res/shaders/wgsl/world_compute.wgsl"), "WorldCompute");
     m_ParticleShader = CreateUniquePtr<WebGPUShader>(m_Context->GetDevice(),
@@ -113,9 +113,9 @@ void WorldMap::OnUpdate(float deltaTime)
     computePass.Dispatch("simulate", m_VertexBuffer->Count() / 32);
     computePass.End();
 
-    m_Renderer->Begin(*m_Camera);
-    m_Renderer->DrawPoints(*m_VertexBuffer, m_VertexBuffer->Count(), *m_ParticleShader);
-    m_Renderer->End();
+    m_Renderer->BeginFrame(*m_Camera);
+    m_Renderer->DrawPoints(*m_VertexBuffer, *m_ParticleShader);
+    m_Renderer->EndFrame();
 }
 
 void WorldMap::OnImGuiRender()

@@ -1,6 +1,7 @@
 #pragma once
 #include "Figment.h"
 #include "Particles.h"
+#include "ParticleRenderer.h"
 
 using namespace Figment;
 
@@ -41,7 +42,7 @@ public:
 private:
     SharedPtr<WebGPUContext> m_Context;
     SharedPtr<PerspectiveCamera> m_Camera;
-    UniquePtr<WebGPURenderer> m_Renderer;
+    UniquePtr<ParticleRenderer> m_Renderer;
     UniquePtr<WebGPUShader> m_ComputeShader;
     UniquePtr<WebGPUShader> m_ParticleShader;
     UniquePtr<WebGPUVertexBuffer<WorldParticle>> m_VertexBuffer;
