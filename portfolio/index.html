@@ -1,11 +1,16 @@
 <!doctype html>
 <html lang="en-us">
-  <head>
+<head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"/>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"/>
     <title>willehard.com</title>
     <style>
-        body { margin: 0; background-color: black }
+        body {
+            margin: 0;
+            background-color: black;
+        }
+
         .emscripten {
             position: absolute;
             top: 0;
@@ -25,58 +30,75 @@
             image-rendering: pixelated;
             -ms-interpolation-mode: nearest-neighbor;
         }
+
+        .no-webgpu {
+            display: none;
+            flex-direction: column;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 2em;
+            text-align: center;
+        }
     </style>
-  </head>
-  <body>
-    <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
-    <script type='text/javascript'>
-      var Module;
-      (async () => {
+</head>
+<body>
+<div id="no-webgpu" class="no-webgpu"><span>Requires a browser with WebGPU support</span><a
+        href="https://caniuse.com/webgpu">https://caniuse.com/webgpu</a></div>
+<canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+<script type='text/javascript'>
+    var Module;
+    (async () => {
         Module = {
-          preRun: [],
-          postRun: [],
-          print: (function() {
-              return function(text) {
-                  text = Array.prototype.slice.call(arguments).join(' ');
-                  console.log(text);
-              };
-          })(),
-          printErr: function(text) {
-              text = Array.prototype.slice.call(arguments).join(' ');
-              console.error(text);
-          },
-          canvas: (function() {
-              var canvas = document.getElementById('canvas');
-              //canvas.addEventListener("webglcontextlost", function(e) { alert('FIXME: WebGL context lost, please reload the page'); e.preventDefault(); }, false);
-              return canvas;
-          })(),
-          setStatus: function(text) {
-              console.log("Status: " + text);
-          },
-          monitorRunDependencies: function(left) {
-              // no run dependencies to log
-          },
-          arguments: [window.innerWidth.toString(), window.innerHeight.toString()]
+            preRun: [],
+            postRun: [],
+            print: (function () {
+                return function (text) {
+                    text = Array.prototype.slice.call(arguments).join(' ');
+                    console.log(text);
+                };
+            })(),
+            printErr: function (text) {
+                text = Array.prototype.slice.call(arguments).join(' ');
+                console.error(text);
+            },
+            canvas: (function () {
+                return document.getElementById('canvas');
+            })(),
+            setStatus: function (text) {
+                console.log("Status: " + text);
+            },
+            monitorRunDependencies: function (left) {
+                // no run dependencies to log
+            },
+            arguments: [window.innerWidth.toString(), window.innerHeight.toString()]
         };
-        window.onerror = function() {
-          console.log("onerror: " + event);
+        window.onerror = function () {
+            console.log("onerror: " + event);
         };
 
-      // Initialize the graphics adapter
-      {
-          const adapter = await navigator.gpu.requestAdapter();
-          const device = await adapter.requestDevice();
-          console.log("Pre-initialized WebGPUDevice: ", device);
-          Module.preinitializedWebGPUDevice = device;
-      }
+        {
+            if (navigator.gpu === undefined) {
+                document.getElementById('canvas').style.display = 'none';
+                const el = document.getElementById('no-webgpu');
+                el.style.display = 'flex';
+                return;
+            }
+            const adapter = await navigator.gpu.requestAdapter();
+            const device = await adapter.requestDevice();
+            console.log("Pre-initialized WebGPUDevice: ", device);
+            Module.preinitializedWebGPUDevice = device;
+        }
 
-      {
-          const js = document.createElement('script');
-          js.async = true;
-          js.src = "portfolio.js";
-          document.body.appendChild(js);
-      }
-      })();
-    </script>
-  </body>
+        {
+            const js = document.createElement('script');
+            js.async = true;
+            js.src = "portfolio.js";
+            document.body.appendChild(js);
+        }
+    })();
+</script>
+</body>
 </html>
