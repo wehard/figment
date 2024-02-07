@@ -37,8 +37,6 @@ file(GLOB_RECURSE SRC_FILES
         "src/*.cpp"
 )
 
-list(REMOVE_ITEM SRC_FILES ${EXCLUDED_SRC_FILES})
-
 target_sources(portfolio PRIVATE ${SRC_FILES})
 
 set_target_properties(portfolio PROPERTIES LINK_FLAGS "\
