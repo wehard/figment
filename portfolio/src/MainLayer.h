@@ -140,7 +140,6 @@ public:
         ImGui::Text("SKILLS");
         ImGui::Text(
                 "C/C++, C#, JS/TS\nOpenGL, WebGPU, Vulkan, Unity\nGit, Linux, macOS, Windows\nWeb, React, Node.js, GraphQL, REST\nGCP, Jira, Confluence");
-
         ImGui::End();
 
         ImGui::SetNextWindowPos(ImVec2(appWindowSize.x - width - padding, padding + 20), ImGuiCond_FirstUseEver);
@@ -193,8 +192,9 @@ public:
                 ImGui::Image((ImTextureID)bump->GetTextureView(), ImVec2(contentWidth, contentWidth * bumpAspect));
             });
         }
-
+        ImGui::End();
         Figment::DrawDebugPanel(*m_Camera, true);
+        ImGui::PopStyleVar();
     }
 
     void OnEvent(Figment::AppEvent event, void *eventData) override
