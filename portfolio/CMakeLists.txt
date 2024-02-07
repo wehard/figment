@@ -37,8 +37,6 @@ file(GLOB_RECURSE SRC_FILES
         "src/*.cpp"
 )
 
-list(REMOVE_ITEM SRC_FILES ${EXCLUDED_SRC_FILES})
-
 target_sources(portfolio PRIVATE ${SRC_FILES})
 
 set_target_properties(portfolio PROPERTIES LINK_FLAGS "\
@@ -54,7 +52,7 @@ set_target_properties(portfolio PROPERTIES LINK_FLAGS "\
         -lGLEW\
         -lglfw\
         -g\
-        --shell-file ${CMAKE_CURRENT_SOURCE_DIR}/../engine/index.html\
+        --shell-file ${CMAKE_CURRENT_SOURCE_DIR}/index.html\
 ")
 
 # link static engine lib
