@@ -9,9 +9,9 @@ Particles::Particles(SharedPtr<PerspectiveCamera> camera, bool enabled) : Layer(
     m_Context = webGpuWindow->GetContext();
     m_Renderer = Figment::CreateUniquePtr<Figment::WebGPURenderer>(*webGpuWindow->GetContext());
     m_ComputeShader = CreateUniquePtr<WebGPUShader>(m_Context->GetDevice(),
-            *Utils::LoadFile2("res/shaders/wgsl/particles.wgsl"), "ParticlesCompute");
+            *Utils::LoadFile2("res/shaders/particles.wgsl"), "ParticlesCompute");
     m_ParticleShader = CreateUniquePtr<WebGPUShader>(m_Context->GetDevice(),
-            *Utils::LoadFile2("res/shaders/wgsl/particle.wgsl"));
+            *Utils::LoadFile2("res/shaders/particle.wgsl"));
 
     m_VertexBuffer = CreateUniquePtr<WebGPUVertexBuffer<Particle>>
             (m_Context->GetDevice(), "ParticlesBuffer",
