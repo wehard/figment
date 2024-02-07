@@ -44,7 +44,7 @@ public:
 
         m_Mesh = new Figment::Mesh(m_Window->GetContext()->GetDevice(), vertices, indices);
         m_Shader = new WebGPUShader(m_Window->GetContext()->GetDevice(),
-                *Utils::LoadFile2("res/shaders/wgsl/mesh.wgsl"));
+                *Utils::LoadFile2("res/shaders/mesh.wgsl"));
     }
 
     void OnAttach() override

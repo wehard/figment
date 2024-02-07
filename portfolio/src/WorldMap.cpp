@@ -9,9 +9,9 @@ WorldMap::WorldMap(SharedPtr<PerspectiveCamera> camera, bool enabled) : Layer("W
 
     m_Renderer = Figment::CreateUniquePtr<ParticleRenderer>(*m_Context);
     m_ComputeShader = CreateUniquePtr<WebGPUShader>(m_Context->GetDevice(),
-            *Utils::LoadFile2("res/shaders/wgsl/world_compute.wgsl"), "WorldCompute");
+            *Utils::LoadFile2("res/shaders/world_compute.wgsl"), "WorldCompute");
     m_ParticleShader = CreateUniquePtr<WebGPUShader>(m_Context->GetDevice(),
-            *Utils::LoadFile2("res/shaders/wgsl/world_particle.wgsl"), "WorldParticle");
+            *Utils::LoadFile2("res/shaders/world_particle.wgsl"), "WorldParticle");
     m_VertexBuffer = CreateUniquePtr<WebGPUVertexBuffer<WorldParticle>>
             (m_Context->GetDevice(), "ParticlesBuffer",
                     m_ParticleCount * sizeof(WorldParticle));
