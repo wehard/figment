@@ -1,7 +1,11 @@
 cmake_minimum_required(VERSION 3.12)
 project(portfolio)
 
+add_subdirectory(../engine engine)
+
 add_executable(portfolio)
+
+add_dependencies(portfolio engine)
 
 target_compile_definitions(portfolio PRIVATE GL_SILENCE_DEPRECATION)
 target_compile_definitions(portfolio PRIVATE WEBGPU_BACKEND_EMSCRIPTEN)
@@ -11,12 +15,6 @@ if (EMSCRIPTEN)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0 -Wno-dangling-else")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -Wno-dangling-else")
 endif ()
-
-add_custom_target(setup_emscripten_env
-        COMMAND source ~/dev/emsdk/emsdk_env.sh
-)
-
-add_dependencies(portfolio setup_emscripten_env)
 
 target_include_directories(portfolio
         PRIVATE
@@ -60,7 +58,7 @@ set_target_properties(portfolio PROPERTIES LINK_FLAGS "\
 ")
 
 # link static engine lib
-target_link_directories(portfolio PRIVATE ../engine/build)
+target_link_directories(portfolio PRIVATE ${CMAKE_BINARY_DIR}/engine)
 target_link_libraries(portfolio libengine.a)
 
 add_custom_target(cleanup
