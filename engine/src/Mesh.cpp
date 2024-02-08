@@ -2,7 +2,8 @@
 
 namespace Figment
 {
-    Mesh::Mesh(WGPUDevice device, std::vector<Vertex> vertices, std::vector<uint32_t> indices) : m_Vertices(vertices),
+    Mesh::Mesh(WGPUDevice device, const std::vector<Vertex> &vertices, std::vector<uint32_t> indices) : m_Vertices(
+            vertices),
             m_Indices(indices)
     {
         m_VertexBuffer = new WebGPUVertexBuffer<Vertex>(device, "MeshVertexBuffer",

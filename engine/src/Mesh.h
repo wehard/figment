@@ -17,7 +17,7 @@ namespace Figment
     class Mesh
     {
     public:
-        Mesh(WGPUDevice device, std::vector<Vertex> vertices, std::vector<uint32_t> indices);
+        Mesh(WGPUDevice device, const std::vector<Vertex> &vertices, std::vector<uint32_t> indices);
         WebGPUVertexBuffer<Vertex> *VertexBuffer()
         { return m_VertexBuffer; }
         WebGPUIndexBuffer<uint32_t> *IndexBuffer()
