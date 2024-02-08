@@ -19,6 +19,7 @@ private:
         glm::vec3 Rotation;
         glm::vec3 Scale;
         Mesh *Mesh;
+        float Speed = 1.0f;
 
         glm::mat4 Transform() const
         {
@@ -37,9 +38,37 @@ private:
         }
     };
 
+    struct Ship
+    {
+        glm::vec3 Position;
+        glm::vec3 Rotation;
+        glm::vec3 Scale;
+        Mesh *Mesh;
+        float Speed = 0.1f;
+        float TurnSpeed = 180.0f;
+        glm::vec3 Velocity;
+
+        glm::vec3 Forward() const
+        {
+            return glm::vec3(glm::eulerAngleXYZ(glm::radians(Rotation.x), glm::radians(Rotation.y),
+                    glm::radians(Rotation.z)) * glm::vec4(0.0, 1.0, 0.0, 1.0));
+        }
+
+        glm::mat4 Transform() const
+        {
+            glm::mat4 matScale = glm::scale(glm::mat4(1.0f), Scale);
+            glm::mat4 matTranslate = glm::translate(glm::mat4(1.0), Position);
+            glm::mat4 matRotate = glm::eulerAngleXYZ(glm::radians(Rotation.x), glm::radians(Rotation.y),
+                    glm::radians(Rotation.z));
+            return matTranslate * matRotate * matScale;
+        }
+    };
+
     const PerspectiveCamera &m_Camera;
-    Mesh *m_Mesh;
+    Mesh *m_AsteroidMesh;
+    Mesh *m_ShipMesh;
     UniquePtr<WebGPURenderer> m_Renderer;
     WebGPUShader *m_Shader;
     std::vector<Asteroid> m_Asteroids;
+    Ship m_Ship;
 };
