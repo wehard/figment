@@ -7,3 +7,4 @@
 #include "Layer.h"
 #include "Input.h"
 #include "Image.h"
+#include "Random.h"
