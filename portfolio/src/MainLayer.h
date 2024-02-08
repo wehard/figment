@@ -15,7 +15,7 @@ private:
     float m_BlinkTimer = 0.0f;
     ImVec4 m_BlinkTextColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
     bool m_SwapColor = false;
-    Layer *m_SeletedLayer = nullptr;
+    Layer *m_SelectedLayer = nullptr;
 public:
     MainLayer() : Layer("Main")
     {
@@ -149,7 +149,7 @@ public:
         for (auto layer : m_Layers)
         {
             auto enabled = layer->IsEnabled();
-            bool selected = m_SeletedLayer == layer;
+            bool selected = m_SelectedLayer == layer;
             if (ImGui::Checkbox(("##" + layer->GetName()).c_str(), &enabled))
             {
                 layer->SetEnabled(!layer->IsEnabled());
@@ -157,24 +157,24 @@ public:
             ImGui::SameLine();
             if (ImGui::Selectable(layer->GetName().c_str(), &selected))
             {
-                m_SeletedLayer = layer;
+                m_SelectedLayer = layer;
             }
 
         }
 
-        if (m_SeletedLayer)
+        if (m_SelectedLayer)
         {
-            LayerDetails<Cube>(m_SeletedLayer, [](Cube *cube)
+            LayerDetails<Cube>(m_SelectedLayer, [](Cube *cube)
             {
                 ImGui::Text("It's a cube.");
             });
 
-            LayerDetails<Particles>(m_SeletedLayer, [](Particles *cube)
+            LayerDetails<Particles>(m_SelectedLayer, [](Particles *cube)
             {
                 ImGui::Text("...");
             });
 
-            LayerDetails<WorldMap>(m_SeletedLayer, [](WorldMap *worldMap)
+            LayerDetails<WorldMap>(m_SelectedLayer, [](WorldMap *worldMap)
             {
                 ImGui::Text("Particle count: %d", worldMap->GetParticleCount());
                 ImGui::SameLine();
