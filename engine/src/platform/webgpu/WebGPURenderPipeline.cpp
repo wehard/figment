@@ -126,7 +126,8 @@ namespace Figment
                 .bindGroupLayouts = &bindGroupLayout
         };
 
-        desc.layout = wgpuDeviceCreatePipelineLayout(m_Device, &layoutDesc);
+        auto pipelineLayout = wgpuDeviceCreatePipelineLayout(m_Device, &layoutDesc);
+        desc.layout = pipelineLayout;
 
         m_Pipeline = wgpuDeviceCreateRenderPipeline(m_Device, &desc);
 
@@ -138,5 +139,6 @@ namespace Figment
         };
         m_BindGroup = wgpuDeviceCreateBindGroup(m_Device, &bindGroupDesc);
         wgpuBindGroupLayoutRelease(bindGroupLayout);
+        wgpuPipelineLayoutRelease(pipelineLayout);
     }
 }
