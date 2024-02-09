@@ -35,7 +35,7 @@ namespace Figment
 
         WGPURenderPassColorAttachment colorAttachment = {};
 
-        colorAttachment.loadOp = WGPULoadOp_Load;
+        colorAttachment.loadOp = WGPULoadOp_Clear;
         colorAttachment.storeOp = WGPUStoreOp_Store;
         colorAttachment.clearValue = { 0.0f, 0.0f, 0.0f, 1.0f };
         colorAttachment.view = wgpuSwapChainGetCurrentTextureView(m_Context.GetSwapChain());
@@ -79,6 +79,28 @@ namespace Figment
         delete m_DepthTexture;
         m_DepthTexture = WebGPUTexture::CreateDepthTexture(m_Context.GetDevice(), WGPUTextureFormat_Depth24Plus,
                 width, height);
+    }
+    void ParticleRenderer::CreatePipeline(WebGPUShader &shader, WGPUVertexBufferLayout &vertexBufferLayout)
+    {
+        auto pipeline = new WebGPURenderPipeline(m_Context.GetDevice(), shader, vertexBufferLayout);
+        pipeline->SetPrimitiveState(WGPUPrimitiveTopology_PointList, WGPUIndexFormat_Undefined,
+                WGPUFrontFace_CCW,
+                WGPUCullMode_None);
+        pipeline->SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
+        pipeline->SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(0),
+                m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
+        auto colorTargetStates = std::vector<WGPUColorTargetState>({
+                {
+                        .format = m_RenderTargetTextureFormat,
+                        .blend = nullptr,
+                        .writeMask = WGPUColorWriteMask_All
+                }
+        });
+        pipeline->SetColorTargetStates(colorTargetStates);
+        pipeline->Build();
+
+        m_Pipeline = pipeline->GetPipeline();
+        m_BindGroup = pipeline->GetBindGroup();
     }
 
 }

@@ -20,37 +20,24 @@ namespace Figment
 
         ParticleRenderer(WebGPUContext &context);
         ~ParticleRenderer();
+        void CreatePipeline(WebGPUShader &shader, WGPUVertexBufferLayout &vertexBufferLayout);
         void BeginFrame(Camera &camera);
         void EndFrame();
 
         template<typename T>
         void DrawPoints(WebGPUVertexBuffer<T> &vertexBuffer, WebGPUShader &shader)
         {
-            auto pipeline = new WebGPURenderPipeline(m_Context.GetDevice(), shader, vertexBuffer.GetVertexLayout());
-            pipeline->SetPrimitiveState(WGPUPrimitiveTopology_PointList, WGPUIndexFormat_Undefined,
-                    WGPUFrontFace_CCW,
-                    WGPUCullMode_None);
-            pipeline->SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
-            pipeline->SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(0),
-                    m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
-            auto colorTargetStates = std::vector<WGPUColorTargetState>({
-                    {
-                            .format = m_RenderTargetTextureFormat,
-                            .blend = nullptr,
-                            .writeMask = WGPUColorWriteMask_All
-                    }
-            });
-            pipeline->SetColorTargetStates(colorTargetStates);
-            pipeline->Build();
+            if (m_Pipeline == nullptr)
+            {
+                auto layout = vertexBuffer.GetVertexLayout();
+                CreatePipeline(shader, layout);
+            }
 
-            WebGPUCommand::DrawVertices<T>(m_RenderPass, pipeline->GetPipeline(), pipeline->GetBindGroup(),
+            WebGPUCommand::DrawVertices<T>(m_RenderPass, m_Pipeline, m_BindGroup,
                     vertexBuffer, vertexBuffer.Count());
-
-            delete pipeline;
         }
         void OnResize(uint32_t width, uint32_t height);
     private:
-
         WebGPUContext &m_Context;
         WGPUDevice m_Device;
         WGPUCommandEncoder m_CommandEncoder = nullptr;
@@ -60,5 +47,7 @@ namespace Figment
         WebGPUUniformBuffer<CameraData> *m_CameraDataUniformBuffer;
 
         WGPURenderPassEncoder m_RenderPass = nullptr;
+        WGPURenderPipeline m_Pipeline = nullptr;
+        WGPUBindGroup m_BindGroup = nullptr;
     };
 }
