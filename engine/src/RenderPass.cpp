@@ -157,6 +157,7 @@ namespace Figment
                 .bindGroupLayouts = &bindGroupLayout
         };
 
+        auto pipelineLayout = wgpuDeviceCreatePipelineLayout(m_Device, &pipelineLayoutDesc);
         WGPURenderPipelineDescriptor renderPipelineDesc = {};
         renderPipelineDesc.nextInChain = nullptr;
         renderPipelineDesc.vertex = vertexState;
@@ -166,13 +167,18 @@ namespace Figment
         renderPipelineDesc.multisample.count = 1;
         renderPipelineDesc.multisample.mask = ~0u;
         renderPipelineDesc.multisample.alphaToCoverageEnabled = false;
-        renderPipelineDesc.layout = wgpuDeviceCreatePipelineLayout(m_Device, &pipelineLayoutDesc);
+        renderPipelineDesc.layout = pipelineLayout;
 
         auto bindGroup = wgpuDeviceCreateBindGroup(m_Device, &bindGroupDesc);
         auto pipeline = wgpuDeviceCreateRenderPipeline(m_Device, &renderPipelineDesc);
 
         WebGPUCommand::DrawIndexed(m_RenderPassEncoder, pipeline, bindGroup,
                 *mesh.IndexBuffer(), *mesh.VertexBuffer(), mesh.IndexCount());
+
+        wgpuBindGroupRelease(bindGroup);
+        wgpuRenderPipelineRelease(pipeline);
+        wgpuBindGroupLayoutRelease(bindGroupLayout);
+        wgpuPipelineLayoutRelease(pipelineLayout);
     }
 
     void RenderPass::Bind(WGPUBuffer buffer, uint32_t size, WGPUBufferBindingType type)
