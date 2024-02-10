@@ -21,15 +21,11 @@ namespace Figment
         WebGPURenderPipeline &SetBinding(WGPUBindGroupLayoutEntry layoutEntry, WGPUBindGroupEntry bindGroupEntry);
         WebGPURenderPipeline &SetColorTargetStates(std::vector<WGPUColorTargetState> colorTargetStates);
         void Build();
-        WGPURenderPipeline GetPipeline()
-        { return m_Pipeline; }
-        WGPUBindGroup GetBindGroup()
-        { return m_BindGroup; }
+        WGPURenderPipeline Pipeline = {};
+        WGPUBindGroup BindGroup = {};
     private:
         WGPUDevice m_Device;
         WebGPUShader &m_Shader;
-        WGPURenderPipeline m_Pipeline = {};
-        WGPUBindGroup m_BindGroup = {};
         WGPUPrimitiveState m_PrimitiveState = {};
         WGPUDepthStencilState m_DepthStencilState = {};
         std::vector<WGPUBlendState> m_BlendStates;

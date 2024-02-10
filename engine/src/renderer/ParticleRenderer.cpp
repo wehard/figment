@@ -99,8 +99,8 @@ namespace Figment
         pipeline.SetColorTargetStates(colorTargetStates);
         pipeline.Build();
 
-        m_Pipeline = pipeline.GetPipeline();
-        m_BindGroup = pipeline.GetBindGroup();
+        m_Pipeline = pipeline.Pipeline;
+        m_BindGroup = pipeline.BindGroup;
     }
 
 }

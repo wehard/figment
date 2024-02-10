@@ -127,7 +127,7 @@ namespace Figment
         auto pipelineLayout = wgpuDeviceCreatePipelineLayout(m_Device, &layoutDesc);
         desc.layout = pipelineLayout;
 
-        m_Pipeline = wgpuDeviceCreateRenderPipeline(m_Device, &desc);
+        Pipeline = wgpuDeviceCreateRenderPipeline(m_Device, &desc);
 
         WGPUBindGroupDescriptor bindGroupDesc = {
                 .nextInChain = nullptr,
@@ -135,7 +135,7 @@ namespace Figment
                 .entryCount = m_BindGroupEntries.size(),
                 .entries = m_BindGroupEntries.data()
         };
-        m_BindGroup = wgpuDeviceCreateBindGroup(m_Device, &bindGroupDesc);
+        BindGroup = wgpuDeviceCreateBindGroup(m_Device, &bindGroupDesc);
         wgpuBindGroupLayoutRelease(bindGroupLayout);
         wgpuPipelineLayoutRelease(pipelineLayout);
     }
