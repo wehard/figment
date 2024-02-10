@@ -9,8 +9,6 @@ namespace Figment
 
     WebGPURenderPipeline::~WebGPURenderPipeline()
     {
-        wgpuRenderPipelineRelease(m_Pipeline);
-        wgpuBindGroupRelease(m_BindGroup);
     }
 
     WebGPURenderPipeline &WebGPURenderPipeline::SetPrimitiveState(WGPUPrimitiveTopology topology,

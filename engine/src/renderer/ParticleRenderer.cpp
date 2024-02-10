@@ -82,12 +82,12 @@ namespace Figment
     }
     void ParticleRenderer::CreatePipeline(WebGPUShader &shader, WGPUVertexBufferLayout &vertexBufferLayout)
     {
-        auto pipeline = new WebGPURenderPipeline(m_Context.GetDevice(), shader, vertexBufferLayout);
-        pipeline->SetPrimitiveState(WGPUPrimitiveTopology_PointList, WGPUIndexFormat_Undefined,
+        WebGPURenderPipeline pipeline(m_Context.GetDevice(), shader, vertexBufferLayout);
+        pipeline.SetPrimitiveState(WGPUPrimitiveTopology_PointList, WGPUIndexFormat_Undefined,
                 WGPUFrontFace_CCW,
                 WGPUCullMode_None);
-        pipeline->SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
-        pipeline->SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(0),
+        pipeline.SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
+        pipeline.SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(0),
                 m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
         auto colorTargetStates = std::vector<WGPUColorTargetState>({
                 {
@@ -96,11 +96,11 @@ namespace Figment
                         .writeMask = WGPUColorWriteMask_All
                 }
         });
-        pipeline->SetColorTargetStates(colorTargetStates);
-        pipeline->Build();
+        pipeline.SetColorTargetStates(colorTargetStates);
+        pipeline.Build();
 
-        m_Pipeline = pipeline->GetPipeline();
-        m_BindGroup = pipeline->GetBindGroup();
+        m_Pipeline = pipeline.GetPipeline();
+        m_BindGroup = pipeline.GetBindGroup();
     }
 
 }
