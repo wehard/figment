@@ -199,10 +199,10 @@ namespace Figment
         m_CircleVertexBuffer->SetData(m_RendererData.CircleVertices.data(),
                 m_RendererData.CircleVertexCount * sizeof(CircleVertex));
 
-        wgpuRenderPassEncoderSetPipeline(m_RenderPass, m_CirclePipeline->GetPipeline());
+        wgpuRenderPassEncoderSetPipeline(m_RenderPass, m_CirclePipeline->Pipeline);
         wgpuRenderPassEncoderSetVertexBuffer(m_RenderPass, 0, m_CircleVertexBuffer->GetBuffer(), 0,
                 m_RendererData.CircleVertexCount * sizeof(CircleVertex));
-        wgpuRenderPassEncoderSetBindGroup(m_RenderPass, 0, m_CirclePipeline->GetBindGroup(), 0, nullptr);
+        wgpuRenderPassEncoderSetBindGroup(m_RenderPass, 0, m_CirclePipeline->BindGroup, 0, nullptr);
         wgpuRenderPassEncoderDraw(m_RenderPass, m_RendererData.CircleVertexCount, 1, 0, 0);
 
         s_Stats.DrawCalls++;
@@ -216,10 +216,10 @@ namespace Figment
         m_QuadVertexBuffer->SetData(m_RendererData.QuadVertices.data(),
                 m_RendererData.QuadVertexCount * sizeof(QuadVertex));
 
-        wgpuRenderPassEncoderSetPipeline(m_RenderPass, m_QuadPipeline->GetPipeline());
+        wgpuRenderPassEncoderSetPipeline(m_RenderPass, m_QuadPipeline->Pipeline);
         wgpuRenderPassEncoderSetVertexBuffer(m_RenderPass, 0, m_QuadVertexBuffer->GetBuffer(), 0,
                 m_RendererData.QuadVertexCount * sizeof(QuadVertex));
-        wgpuRenderPassEncoderSetBindGroup(m_RenderPass, 0, m_QuadPipeline->GetBindGroup(), 0, nullptr);
+        wgpuRenderPassEncoderSetBindGroup(m_RenderPass, 0, m_QuadPipeline->BindGroup, 0, nullptr);
         wgpuRenderPassEncoderDraw(m_RenderPass, m_RendererData.QuadVertexCount, 1, 0, 0);
 
         s_Stats.DrawCalls++;
@@ -305,12 +305,12 @@ namespace Figment
 
         if (figment.Config.DrawPoints)
         {
-            WebGPUCommand::DrawVertices(m_RenderPass, pipeline->GetPipeline(), pipeline->GetBindGroup(),
+            WebGPUCommand::DrawVertices(m_RenderPass, pipeline->Pipeline, pipeline->BindGroup,
                     *figment.VertexBuffer, figment.Config.Count());
         }
         else
         {
-            WebGPUCommand::DrawIndexed(m_RenderPass, pipeline->GetPipeline(), pipeline->GetBindGroup(),
+            WebGPUCommand::DrawIndexed(m_RenderPass, pipeline->Pipeline, pipeline->BindGroup,
                     *figment.IndexBuffer, *figment.VertexBuffer, indices.size());
         }
 

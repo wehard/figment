@@ -128,7 +128,7 @@ namespace Figment
             pipeline->SetColorTargetStates(colorTargetStates);
             pipeline->Build();
 
-            WebGPUCommand::DrawVertices<T>(m_RenderPass, pipeline->GetPipeline(), pipeline->GetBindGroup(),
+            WebGPUCommand::DrawVertices<T>(m_RenderPass, pipeline->Pipeline, pipeline->BindGroup,
                     vertexBuffer, vertexCount);
 
             delete pipeline;
