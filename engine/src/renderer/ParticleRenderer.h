@@ -20,7 +20,7 @@ namespace Figment
 
         ParticleRenderer(WebGPUContext &context);
         ~ParticleRenderer();
-        void CreatePipeline(WebGPUShader &shader, WGPUVertexBufferLayout &vertexBufferLayout);
+        void CreateDefaultPipeline(WebGPUShader &shader, WGPUVertexBufferLayout &vertexBufferLayout);
         void BeginFrame(Camera &camera);
         void EndFrame();
 
@@ -30,7 +30,7 @@ namespace Figment
             if (m_Pipeline == nullptr)
             {
                 auto layout = vertexBuffer.GetVertexLayout();
-                CreatePipeline(shader, layout);
+                CreateDefaultPipeline(shader, layout);
             }
 
             WebGPUCommand::DrawVertices<T>(m_RenderPass, m_Pipeline, m_BindGroup,

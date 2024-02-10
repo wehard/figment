@@ -80,7 +80,7 @@ namespace Figment
         m_DepthTexture = WebGPUTexture::CreateDepthTexture(m_Context.GetDevice(), WGPUTextureFormat_Depth24Plus,
                 width, height);
     }
-    void ParticleRenderer::CreatePipeline(WebGPUShader &shader, WGPUVertexBufferLayout &vertexBufferLayout)
+    void ParticleRenderer::CreateDefaultPipeline(WebGPUShader &shader, WGPUVertexBufferLayout &vertexBufferLayout)
     {
         WebGPURenderPipeline pipeline(m_Context.GetDevice(), shader, vertexBufferLayout);
         pipeline.SetPrimitiveState(WGPUPrimitiveTopology_PointList, WGPUIndexFormat_Undefined,
