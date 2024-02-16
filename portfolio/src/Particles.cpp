@@ -28,6 +28,17 @@ Particles::Particles(SharedPtr<PerspectiveCamera> camera, bool enabled) : Layer(
 
     m_UniformBuffer = CreateUniquePtr<WebGPUUniformBuffer<ParticlesData>>(m_Context->GetDevice(),
             "ParticlesDataUniformBuffer", sizeof(ParticlesData));
+
+    m_ComputeBindGroup = new BindGroup(m_Context->GetDevice(), WGPUShaderStage_Compute);
+    m_ComputeBindGroup->Bind(*m_VertexBuffer);
+    m_ComputeBindGroup->Bind(*m_UniformBuffer);
+    m_ComputeBindGroup->Build();
+
+    m_InitPipeline = new ComputePipeline(m_Context->GetDevice(), *m_ComputeBindGroup);
+    m_InitPipeline->Build("init", m_ComputeShader->GetShaderModule());
+
+    m_SimulatePipeline = new ComputePipeline(m_Context->GetDevice(), *m_ComputeBindGroup);
+    m_SimulatePipeline->Build("simulate", m_ComputeShader->GetShaderModule());
 }
 
 Particles::~Particles()
@@ -78,10 +89,8 @@ void Particles::OnAttach()
     d.Seed = glm::vec2(1234, 5432);
     m_UniformBuffer->SetData(&d, sizeof(ParticlesData));
 
-    ComputePass computePass(m_Context->GetDevice(), m_ComputeShader.get());
+    ComputePass computePass(m_Context->GetDevice(), m_InitPipeline, m_ComputeBindGroup);
     computePass.Begin();
-    computePass.Bind(*m_VertexBuffer);
-    computePass.Bind(*m_UniformBuffer);
     computePass.Dispatch("init", m_VertexBuffer->Count());
     computePass.End();
 
@@ -100,10 +109,8 @@ void Particles::OnUpdate(float deltaTime)
     d.Seed = glm::vec2(0);
     m_UniformBuffer->SetData(&d, sizeof(ParticlesData));
 
-    ComputePass computePass(m_Context->GetDevice(), m_ComputeShader.get());
+    ComputePass computePass(m_Context->GetDevice(), m_SimulatePipeline, m_ComputeBindGroup);
     computePass.Begin();
-    computePass.Bind(*m_VertexBuffer);
-    computePass.Bind(*m_UniformBuffer);
     computePass.Dispatch("simulate", m_VertexBuffer->Count());
     computePass.End();
 

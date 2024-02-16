@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Figment.h"
+#include "BindGroup.h"
+#include "ComputePipeline.h"
 
 using namespace Figment;
 
@@ -37,4 +39,7 @@ private:
     UniquePtr<WebGPUShader> m_ParticleShader;
     UniquePtr<WebGPUVertexBuffer<Particle>> m_VertexBuffer;
     UniquePtr<WebGPUUniformBuffer<ParticlesData>> m_UniformBuffer;
+    BindGroup *m_ComputeBindGroup;
+    ComputePipeline *m_InitPipeline;
+    ComputePipeline *m_SimulatePipeline;
 };
