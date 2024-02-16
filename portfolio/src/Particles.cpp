@@ -7,7 +7,7 @@ Particles::Particles(SharedPtr<PerspectiveCamera> camera, bool enabled) : Layer(
     auto m_Window = Figment::App::Instance()->GetWindow();
     auto webGpuWindow = std::dynamic_pointer_cast<Figment::WebGPUWindow>(m_Window);
     m_Context = webGpuWindow->GetContext();
-    m_Renderer = Figment::CreateUniquePtr<Figment::WebGPURenderer>(*webGpuWindow->GetContext());
+    m_Renderer = Figment::CreateUniquePtr<ParticleRenderer>(*webGpuWindow->GetContext());
     m_ComputeShader = CreateUniquePtr<WebGPUShader>(m_Context->GetDevice(),
             *Utils::LoadFile2("res/shaders/particles.wgsl"), "ParticlesCompute");
     m_ParticleShader = CreateUniquePtr<WebGPUShader>(m_Context->GetDevice(),
@@ -114,9 +114,9 @@ void Particles::OnUpdate(float deltaTime)
     computePass.Dispatch("simulate", m_VertexBuffer->Count());
     computePass.End();
 
-    m_Renderer->Begin(*m_Camera);
-    m_Renderer->DrawPoints(*m_VertexBuffer, m_VertexBuffer->Count(), *m_ParticleShader);
-    m_Renderer->End();
+    m_Renderer->BeginFrame(*m_Camera);
+    m_Renderer->DrawPoints(*m_VertexBuffer, *m_ParticleShader);
+    m_Renderer->EndFrame();
 
 }
 

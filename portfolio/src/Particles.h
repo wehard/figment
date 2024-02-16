@@ -3,6 +3,7 @@
 #include "Figment.h"
 #include "BindGroup.h"
 #include "ComputePipeline.h"
+#include "ParticleRenderer.h"
 
 using namespace Figment;
 
@@ -34,7 +35,7 @@ public:
 private:
     SharedPtr<WebGPUContext> m_Context;
     SharedPtr<PerspectiveCamera> m_Camera;
-    UniquePtr<WebGPURenderer> m_Renderer;
+    UniquePtr<ParticleRenderer> m_Renderer;
     UniquePtr<WebGPUShader> m_ComputeShader;
     UniquePtr<WebGPUShader> m_ParticleShader;
     UniquePtr<WebGPUVertexBuffer<Particle>> m_VertexBuffer;
