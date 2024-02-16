@@ -3,7 +3,8 @@
 namespace Figment
 {
 
-    BindGroup::BindGroup(WGPUDevice device) : m_Device(device)
+    BindGroup::BindGroup(WGPUDevice device, WGPUShaderStageFlags visibility) : m_Device(device),
+            m_Visibility(visibility)
     {
     }
 
@@ -41,7 +42,7 @@ namespace Figment
         WGPUBindGroupLayoutEntry bindGroupLayoutEntry = GetDefaultWGPUBindGroupLayoutEntry();
         bindGroupLayoutEntry.nextInChain = nullptr;
         bindGroupLayoutEntry.binding = bindGroupEntry.binding;
-        bindGroupLayoutEntry.visibility = WGPUShaderStage_Compute; // TODO: Make this a parameter
+        bindGroupLayoutEntry.visibility = m_Visibility;
         bindGroupLayoutEntry.buffer.type = type;
 
         m_BindGroupLayoutEntries.emplace_back(bindGroupLayoutEntry);
@@ -61,7 +62,7 @@ namespace Figment
         WGPUBindGroupLayoutEntry bindGroupLayoutEntry = GetDefaultWGPUBindGroupLayoutEntry();
         bindGroupLayoutEntry.nextInChain = nullptr;
         bindGroupLayoutEntry.binding = bindGroupEntry.binding;
-        bindGroupLayoutEntry.visibility = WGPUShaderStage_Compute; // TODO: Make this a parameter
+        bindGroupLayoutEntry.visibility = m_Visibility;
         bindGroupLayoutEntry.texture.sampleType = WGPUTextureSampleType_Float;
         bindGroupLayoutEntry.texture.viewDimension = WGPUTextureViewDimension_2D;
         bindGroupLayoutEntry.texture.multisampled = false;
@@ -83,7 +84,7 @@ namespace Figment
         WGPUBindGroupLayoutEntry bindGroupLayoutEntry = GetDefaultWGPUBindGroupLayoutEntry();
         bindGroupLayoutEntry.nextInChain = nullptr;
         bindGroupLayoutEntry.binding = bindGroupEntry.binding;
-        bindGroupLayoutEntry.visibility = WGPUShaderStage_Compute; // TODO: Make this a parameter
+        bindGroupLayoutEntry.visibility = m_Visibility;
         bindGroupLayoutEntry.sampler = samplerBindingLayout;
 
         m_BindGroupLayoutEntries.emplace_back(bindGroupLayoutEntry);

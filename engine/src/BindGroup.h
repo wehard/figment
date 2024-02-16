@@ -7,7 +7,7 @@ namespace Figment
     class BindGroup
     {
     public:
-        BindGroup(WGPUDevice device);
+        BindGroup(WGPUDevice device, WGPUShaderStageFlags visibility);
         ~BindGroup();
         template<typename T>
         void Bind(WebGPUVertexBuffer<T> &buffer)
@@ -33,6 +33,7 @@ namespace Figment
         void BindSampler(WGPUSampler sampler);
 
         WGPUDevice m_Device;
+        WGPUShaderStageFlags m_Visibility;
         std::vector<WGPUBindGroupLayoutEntry> m_BindGroupLayoutEntries;
         std::vector<WGPUBindGroupEntry> m_BindGroupEntries;
     };
