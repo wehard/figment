@@ -51,4 +51,7 @@ private:
     WebGPUTexture *m_WorldHeightMap;
     uint32_t m_ParticleCount = 1024 * 1024;
     float m_Rotation = -120.0f;
+    ComputePipeline *m_InitPipeline;
+    ComputePipeline *m_SimulatePipeline;
+    BindGroup *m_ComputeBindGroup;
 };

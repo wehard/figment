@@ -4,6 +4,7 @@
 #include "WebGPUShader.h"
 #include "WebGPUTexture.h"
 #include "webgpu/webgpu.h"
+#include "ComputePipeline.h"
 #include <vector>
 
 namespace Figment
@@ -12,6 +13,7 @@ namespace Figment
     {
     public:
         ComputePass(WGPUDevice device, WebGPUShader *shader);
+        ComputePass(WGPUDevice device, ComputePipeline *pipeline, BindGroup *bindGroup);
         ~ComputePass() = default;
         void Begin();
         void Dispatch(const std::string &name, uint32_t invocationsX);
@@ -41,5 +43,7 @@ namespace Figment
         WebGPUShader *m_Shader;
         WGPUCommandEncoder m_CommandEncoder;
         WGPUComputePassEncoder m_ComputePassEncoder;
+        ComputePipeline *m_Pipeline;
+        BindGroup *m_BindGroup;
     };
 }

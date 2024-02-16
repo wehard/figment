@@ -9,6 +9,11 @@ namespace Figment
     {
     }
 
+    ComputePass::ComputePass(WGPUDevice device, ComputePipeline *pipeline, BindGroup *bindGroup) :
+            m_Device(device), m_Pipeline(pipeline), m_BindGroup(bindGroup)
+    {
+    }
+
     void ComputePass::Begin()
     {
         m_CommandEncoder = WebGPUCommand::CreateCommandEncoder(m_Device, "ComputeCommandEncoder");
@@ -22,42 +27,10 @@ namespace Figment
 
     void ComputePass::Dispatch(const std::string &name, uint32_t invocationCountX)
     {
-        WGPUBindGroupLayoutDescriptor bindGroupLayoutDesc = {};
-        bindGroupLayoutDesc.label = "ComputeBindGroupLayout";
-        bindGroupLayoutDesc.entryCount = m_BindGroupLayoutEntries.size();
-        bindGroupLayoutDesc.entries = m_BindGroupLayoutEntries.data();
-
-        auto bindGroupLayout = wgpuDeviceCreateBindGroupLayout(m_Device, &bindGroupLayoutDesc);
-
-        WGPUBindGroupDescriptor bindGroupDesc = {};
-        bindGroupDesc.label = "ComputeBindGroup";
-        bindGroupDesc.layout = bindGroupLayout;
-        bindGroupDesc.entryCount = m_BindGroupEntries.size();
-        bindGroupDesc.entries = m_BindGroupEntries.data();
-
-        WGPUPipelineLayoutDescriptor pipelineLayoutDesc = {};
-        pipelineLayoutDesc.label = "ComputePipelineLayout";
-        pipelineLayoutDesc.bindGroupLayoutCount = 1;
-        pipelineLayoutDesc.bindGroupLayouts = &bindGroupLayout;
-        auto pipelineLayout = wgpuDeviceCreatePipelineLayout(m_Device, &pipelineLayoutDesc);
-
-        WGPUComputePipelineDescriptor computePipelineDesc = {};
-        computePipelineDesc.label = "ComputePipeline";
-        computePipelineDesc.compute.entryPoint = name.c_str();
-        computePipelineDesc.compute.module = m_Shader->GetShaderModule();
-        computePipelineDesc.layout = pipelineLayout;
-
-        auto pipeline = wgpuDeviceCreateComputePipeline(m_Device, &computePipelineDesc);
-        auto bindGroup = wgpuDeviceCreateBindGroup(m_Device, &bindGroupDesc);
-        wgpuComputePassEncoderSetPipeline(m_ComputePassEncoder, pipeline);
-        wgpuComputePassEncoderSetBindGroup(m_ComputePassEncoder, 0, bindGroup, 0, nullptr);
+        wgpuComputePassEncoderSetPipeline(m_ComputePassEncoder, m_Pipeline->Pipeline);
+        wgpuComputePassEncoderSetBindGroup(m_ComputePassEncoder, 0, m_BindGroup->Group, 0, nullptr);
 
         wgpuComputePassEncoderDispatchWorkgroups(m_ComputePassEncoder, invocationCountX, 1, 1);
-
-        wgpuPipelineLayoutRelease(pipelineLayout);
-        wgpuComputePipelineRelease(pipeline);
-        wgpuBindGroupRelease(bindGroup);
-        wgpuBindGroupLayoutRelease(bindGroupLayout);
     }
 
     void ComputePass::End()

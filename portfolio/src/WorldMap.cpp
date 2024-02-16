@@ -1,5 +1,4 @@
 #include "WorldMap.h"
-#include "ComputePass.h"
 
 WorldMap::WorldMap(SharedPtr<PerspectiveCamera> camera, bool enabled) : Layer("World", enabled), m_Camera(camera)
 {
@@ -45,6 +44,19 @@ WorldMap::WorldMap(SharedPtr<PerspectiveCamera> camera, bool enabled) : Layer("W
     m_WorldTexture = WebGPUTexture::Create(m_Context->GetDevice(), map);
     auto bump = Image::Load("res/elev_bump_8k.jpg");
     m_WorldHeightMap = WebGPUTexture::Create(m_Context->GetDevice(), bump);
+
+    m_ComputeBindGroup = new BindGroup(m_Context->GetDevice(), WGPUShaderStage_Compute);
+    m_ComputeBindGroup->Bind(*m_VertexBuffer);
+    m_ComputeBindGroup->Bind(*m_UniformBuffer);
+    m_ComputeBindGroup->Bind(*m_WorldTexture);
+    m_ComputeBindGroup->Bind(*m_WorldHeightMap);
+    m_ComputeBindGroup->Build();
+
+    m_InitPipeline = new ComputePipeline(m_Context->GetDevice(), *m_ComputeBindGroup);
+    m_InitPipeline->Build("init", m_ComputeShader->GetShaderModule());
+
+    m_SimulatePipeline = new ComputePipeline(m_Context->GetDevice(), *m_ComputeBindGroup);
+    m_SimulatePipeline->Build("simulate", m_ComputeShader->GetShaderModule());
 }
 
 WorldMap::~WorldMap()
@@ -104,12 +116,8 @@ void WorldMap::OnUpdate(float deltaTime)
 
     m_UniformBuffer->SetData(&d, sizeof(WorldParticlesData));
 
-    ComputePass computePass(m_Context->GetDevice(), m_ComputeShader.get());
+    ComputePass computePass(m_Context->GetDevice(), m_SimulatePipeline, m_ComputeBindGroup);
     computePass.Begin();
-    computePass.Bind(*m_VertexBuffer);
-    computePass.Bind(*m_UniformBuffer);
-    computePass.Bind(*m_WorldTexture);
-    computePass.Bind(*m_WorldHeightMap);
     computePass.Dispatch("simulate", m_VertexBuffer->Count() / 32);
     computePass.End();
 
@@ -151,12 +159,8 @@ void WorldMap::ResetParticles()
     d.MouseWorldPosition = glm::vec2(0, 0);
     m_UniformBuffer->SetData(&d, sizeof(WorldParticlesData));
 
-    ComputePass computePass(m_Context->GetDevice(), m_ComputeShader.get());
+    ComputePass computePass(m_Context->GetDevice(), m_InitPipeline, m_ComputeBindGroup);
     computePass.Begin();
-    computePass.Bind(*m_VertexBuffer);
-    computePass.Bind(*m_UniformBuffer);
-    computePass.Bind(*m_WorldTexture);
-    computePass.Bind(*m_WorldHeightMap);
     computePass.Dispatch("init", m_VertexBuffer->Count() / 32);
     computePass.End();
 }
