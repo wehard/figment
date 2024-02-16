@@ -78,12 +78,14 @@ namespace Figment
 
     void App::AddLayer(Layer *layer)
     {
+        Log::Info("Adding layer: %s", layer->GetName().c_str());
         m_LayerStack.AddLayer(layer);
         layer->OnAttach();
     }
 
     void App::AddOverlay(Layer *overlay)
     {
+        Log::Info("Adding overlay: %s", overlay->GetName().c_str());
         m_LayerStack.AddOverlay(overlay);
         overlay->OnAttach();
     }
