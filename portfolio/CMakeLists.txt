@@ -75,7 +75,7 @@ add_custom_command(
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/res ${CMAKE_BINARY_DIR}/res
         COMMENT "Copied resources to ${CMAKE_BINARY_DIR}"
 )
-#
+
 add_custom_command(TARGET portfolio POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/index.html ${CMAKE_CURRENT_BINARY_DIR}/index.html
         COMMENT "Copied shell file to: ${CMAKE_CURRENT_BINARY_DIR}"
