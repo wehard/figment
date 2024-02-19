@@ -23,9 +23,14 @@ Asteroids::Asteroids(const PerspectiveCamera &camera, bool enabled) : Layer("Ast
 
     for (int i = 0; i < 100; i++)
     {
+        auto x = i / 10;
+        auto y = i % 10;
+        auto r = Random::Float();
+        if (r < 0.25)
+            continue;
         m_Asteroids.push_back(Asteroid {
-                .Position = glm::vec3(Random::Float(-10.0f, 10.0f), Random::Float(-10.0f, 10.0f),
-                        0.0),
+                .Position = glm::vec3((x * 2.0 - 9.0) + Random::Float() * 0.5,
+                        (y * 2.0 - 9.0) + Random::Float() * 0.5, 0.0),
                 .Rotation = glm::vec3(Random::Float(0.0f, 360.0f), Random::Float(0.0f, 360.0f),
                         Random::Float(0.0f, 360.0f)),
                 .Scale = glm::vec3(Random::Float(0.25f, 0.5f)),
