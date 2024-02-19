@@ -53,6 +53,14 @@ namespace Figment
             Update();
         }
 
+        void LookAt(glm::vec3 point)
+        {
+            m_Forward = glm::normalize(point - m_Position);
+            m_Right = glm::normalize(glm::cross(m_Forward, m_WorldUp));
+            m_Up = glm::cross(m_Right, m_Forward);
+            m_ViewMatrix = glm::lookAt(m_Position, m_Position + m_Forward, m_Up);
+        }
+
         glm::vec3 *GetPositionPtr()
         { return &m_Position; }
 
