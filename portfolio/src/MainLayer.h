@@ -17,6 +17,7 @@ private:
     ImVec4 m_BlinkTextColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
     bool m_SwapColor = false;
     Layer *m_SelectedLayer = nullptr;
+    CameraController *m_CameraController;
 public:
     MainLayer() : Layer("Main")
     {
@@ -26,10 +27,13 @@ public:
                 (float)webGpuWindow->GetWidth() / (float)webGpuWindow->GetHeight());
         m_Camera->SetPosition(glm::vec3(0.0, 0.0, 4.0));
 
+        m_CameraController = new CameraController(m_Camera);
+        m_CameraController->SetMovementSpeed(5.0f);
+
         // m_Layers.push_back(new Cube(m_Camera, false));
-        // m_Layers.push_back(new Particles(m_Camera, false));
+        m_Layers.push_back(new Particles(m_Camera, true));
         // m_Layers.push_back(new WorldMap(m_Camera, true));
-        m_Layers.push_back(new Asteroids(*m_Camera, true));
+        // m_Layers.push_back(new Asteroids(*m_Camera, true));
 
         for (auto layer : m_Layers)
         {
@@ -64,9 +68,7 @@ public:
             m_BlinkTimer = 0.0f;
         }
 
-        auto scroll = Input::GetMouseScroll();
-        m_Camera->GetPositionPtr()->z -= scroll.y * 0.1f;
-        m_Camera->Update();
+        m_CameraController->Update(deltaTime);
     }
 
     static void HyperLink(const char *label, const char *url)
