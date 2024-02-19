@@ -49,7 +49,6 @@ set_target_properties(portfolio PROPERTIES LINK_FLAGS "\
         -s ASSERTIONS=1\
         -s USE_ES6_IMPORT_META=1\
         --preload-file res@/res\
-        -lGLEW\
         -lglfw\
         -g\
         --shell-file ${CMAKE_CURRENT_SOURCE_DIR}/index.html\
