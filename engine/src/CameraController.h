@@ -19,6 +19,7 @@ namespace Figment
         { return m_MovementSpeed; };
         float GetRotationSpeed() const
         { return m_RotationSpeed; };
+        void SetMovementSpeed(float speed);
     private:
         void ProcessKeyboard(float deltaTime);
         void ProcessMouseMovement(bool constrainPitch = true);

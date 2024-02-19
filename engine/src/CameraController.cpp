@@ -75,4 +75,9 @@ namespace Figment
     {
         return m_Camera;
     }
+
+    void CameraController::SetMovementSpeed(float speed)
+    {
+        m_MovementSpeed = speed;
+    }
 }
