@@ -21,6 +21,7 @@ target_include_directories(engine
         PRIVATE
         src
         src/core
+        src/renderer
         src/scene
         src/scene/components
         src/physics
