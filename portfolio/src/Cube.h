@@ -1,13 +1,14 @@
 #pragma once
 
 #include "Figment.h"
+#include "MeshRenderer.h"
 
 using namespace Figment;
 
 class Cube : public Layer
 {
 private:
-    UniquePtr<WebGPURenderer> m_Renderer;
+    UniquePtr<MeshRenderer> m_Renderer;
     SharedPtr<PerspectiveCamera> m_Camera;
     Figment::Mesh *m_Mesh;
     WebGPUShader *m_Shader;
@@ -20,7 +21,7 @@ public:
     {
         auto window = Figment::App::Instance()->GetWindow();
         m_Window = std::dynamic_pointer_cast<Figment::WebGPUWindow>(window);
-        m_Renderer = Figment::CreateUniquePtr<Figment::WebGPURenderer>(*m_Window->GetContext());
+        m_Renderer = Figment::CreateUniquePtr<MeshRenderer>(*m_Window->GetContext());
 
         std::vector<Vertex> vertices = {
                 {{ -0.5, -0.5, 0.5 }},
@@ -64,14 +65,14 @@ public:
         m_Rotation.x += 90.0f * deltaTime;
         m_Rotation.y += 90.0f * deltaTime;
         m_Rotation.z += 10.0f * deltaTime;
-        m_Renderer->Begin(*m_Camera);
         glm::mat4 matScale = glm::scale(glm::mat4(1.0f), m_Scale);
         glm::mat4 matTranslate = glm::translate(glm::mat4(1.0), m_Position);
         glm::mat4 matRotate = glm::eulerAngleXYZ(glm::radians(m_Rotation.x), glm::radians(m_Rotation.y),
                 glm::radians(m_Rotation.z));
         glm::mat4 transform = matTranslate * matRotate * matScale;
-        m_Renderer->Submit(*m_Mesh, transform, *m_Shader);
-        m_Renderer->End();
+        m_Renderer->BeginFrame(*m_Camera);
+        m_Renderer->Draw(*m_Mesh, transform);
+        m_Renderer->EndFrame();
     }
 
     void OnImGuiRender() override
@@ -81,6 +82,6 @@ public:
     void OnEvent(Figment::AppEvent event, void *eventData) override
     {
         auto ev = (Figment::WindowResizeEventData *)eventData;
-        m_Renderer->OnResize(ev->Width, ev->Height);
+        // m_Renderer->OnResize(ev->Width, ev->Height);
     }
 };
