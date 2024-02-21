@@ -32,7 +32,6 @@ Particles::Particles(SharedPtr<PerspectiveCamera> camera, bool enabled) : Layer(
     m_ComputeBindGroup = new BindGroup(m_Context->GetDevice(), WGPUShaderStage_Compute);
     m_ComputeBindGroup->Bind(*m_VertexBuffer);
     m_ComputeBindGroup->Bind(*m_UniformBuffer);
-    m_ComputeBindGroup->Build();
 
     m_InitPipeline = new ComputePipeline(m_Context->GetDevice(), *m_ComputeBindGroup);
     m_InitPipeline->Build("init", m_ComputeShader->GetShaderModule());

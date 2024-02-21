@@ -50,7 +50,6 @@ WorldMap::WorldMap(SharedPtr<PerspectiveCamera> camera, bool enabled) : Layer("W
     m_ComputeBindGroup->Bind(*m_UniformBuffer);
     m_ComputeBindGroup->Bind(*m_WorldTexture);
     m_ComputeBindGroup->Bind(*m_WorldHeightMap);
-    m_ComputeBindGroup->Build();
 
     m_InitPipeline = new ComputePipeline(m_Context->GetDevice(), *m_ComputeBindGroup);
     m_InitPipeline->Build("init", m_ComputeShader->GetShaderModule());

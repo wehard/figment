@@ -22,7 +22,7 @@ namespace Figment
     void ComputePass::Dispatch(const std::string &name, uint32_t invocationCountX)
     {
         wgpuComputePassEncoderSetPipeline(m_ComputePassEncoder, m_Pipeline->Pipeline);
-        wgpuComputePassEncoderSetBindGroup(m_ComputePassEncoder, 0, m_BindGroup->Group, 0, nullptr);
+        wgpuComputePassEncoderSetBindGroup(m_ComputePassEncoder, 0, m_BindGroup->Get(), 0, nullptr);
 
         wgpuComputePassEncoderDispatchWorkgroups(m_ComputePassEncoder, invocationCountX, 1, 1);
     }

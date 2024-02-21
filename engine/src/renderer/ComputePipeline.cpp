@@ -15,10 +15,11 @@ namespace Figment
 
     void ComputePipeline::Build(const char *entryPoint, WGPUShaderModule shaderModule)
     {
+        auto layout = m_BindGroup.GetLayout();
         WGPUPipelineLayoutDescriptor pipelineLayoutDesc = {};
         pipelineLayoutDesc.label = "ComputePipelineLayout";
         pipelineLayoutDesc.bindGroupLayoutCount = 1;
-        pipelineLayoutDesc.bindGroupLayouts = &m_BindGroup.Layout;
+        pipelineLayoutDesc.bindGroupLayouts = &layout;
         auto pipelineLayout = wgpuDeviceCreatePipelineLayout(m_Device, &pipelineLayoutDesc);
 
         WGPUComputePipelineDescriptor computePipelineDesc = {};

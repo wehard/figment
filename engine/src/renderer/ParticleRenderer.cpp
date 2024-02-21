@@ -1,5 +1,6 @@
 #include "ParticleRenderer.h"
 #include "WebGPUCommand.h"
+#include "RenderPipeline.h"
 
 namespace Figment
 {
@@ -82,25 +83,18 @@ namespace Figment
     }
     void ParticleRenderer::CreateDefaultPipeline(WebGPUShader &shader, WGPUVertexBufferLayout &vertexBufferLayout)
     {
-        WebGPURenderPipeline pipeline(m_Context.GetDevice(), shader, vertexBufferLayout);
+        BindGroup bindGroup(m_Context.GetDevice(), WGPUShaderStage_Vertex | WGPUShaderStage_Fragment);
+        bindGroup.Bind(*m_CameraDataUniformBuffer);
+
+        RenderPipeline pipeline(m_Context.GetDevice(), shader, bindGroup, vertexBufferLayout);
         pipeline.SetPrimitiveState(WGPUPrimitiveTopology_PointList, WGPUIndexFormat_Undefined,
                 WGPUFrontFace_CCW,
                 WGPUCullMode_None);
-        pipeline.SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
-        pipeline.SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(0),
-                m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
-        auto colorTargetStates = std::vector<WGPUColorTargetState>({
-                {
-                        .format = m_RenderTargetTextureFormat,
-                        .blend = nullptr,
-                        .writeMask = WGPUColorWriteMask_All
-                }
-        });
-        pipeline.SetColorTargetStates(colorTargetStates);
-        pipeline.Build();
+        pipeline.SetDepthStencilState(m_DepthTexture->GetTextureFormat(), true, WGPUCompareFunction_Less);
+        pipeline.AddColorTarget(m_RenderTargetTextureFormat, WGPUColorWriteMask_All);
 
-        m_Pipeline = pipeline.Pipeline;
-        m_BindGroup = pipeline.BindGroup;
+        m_Pipeline = pipeline.Get();
+        m_BindGroup = bindGroup.Get();
     }
 
 }
