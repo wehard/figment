@@ -12,21 +12,34 @@ namespace Figment
     {
     }
 
-    void BindGroup::Build()
+    WGPUBindGroup BindGroup::Get()
     {
+        if (m_BindGroup != nullptr)
+            return m_BindGroup;
+
+        auto layout = GetLayout();
+
+        WGPUBindGroupDescriptor bindGroupDesc = {};
+        bindGroupDesc.label = "BindGroup";
+        bindGroupDesc.layout = layout;
+        bindGroupDesc.entryCount = m_BindGroupEntries.size();
+        bindGroupDesc.entries = m_BindGroupEntries.data();
+        m_BindGroup = wgpuDeviceCreateBindGroup(m_Device, &bindGroupDesc);
+        return m_BindGroup;
+    }
+
+    WGPUBindGroupLayout BindGroup::GetLayout()
+    {
+        if (m_BindGroupLayout != nullptr)
+            return m_BindGroupLayout;
+
         WGPUBindGroupLayoutDescriptor bindGroupLayoutDesc = {};
         bindGroupLayoutDesc.label = "BindGroupLayout";
         bindGroupLayoutDesc.entryCount = m_BindGroupLayoutEntries.size();
         bindGroupLayoutDesc.entries = m_BindGroupLayoutEntries.data();
 
-        Layout = wgpuDeviceCreateBindGroupLayout(m_Device, &bindGroupLayoutDesc);
-
-        WGPUBindGroupDescriptor bindGroupDesc = {};
-        bindGroupDesc.label = "BindGroup";
-        bindGroupDesc.layout = Layout;
-        bindGroupDesc.entryCount = m_BindGroupEntries.size();
-        bindGroupDesc.entries = m_BindGroupEntries.data();
-        Group = wgpuDeviceCreateBindGroup(m_Device, &bindGroupDesc);
+        m_BindGroupLayout = wgpuDeviceCreateBindGroupLayout(m_Device, &bindGroupLayoutDesc);
+        return m_BindGroupLayout;
     }
 
     void BindGroup::Bind(WGPUBuffer buffer, uint32_t size, WGPUBufferBindingType type)
@@ -89,5 +102,4 @@ namespace Figment
 
         m_BindGroupLayoutEntries.emplace_back(bindGroupLayoutEntry);
     }
-
 }

@@ -24,16 +24,19 @@ namespace Figment
             BindTexture(texture.GetTextureView(), texture.GetWidth() * texture.GetHeight() * 4);
             BindSampler(texture.GetSampler());
         }
-        void Build();
-        WGPUBindGroup Group;
-        WGPUBindGroupLayout Layout;
+        WGPUBindGroup Get();
+        WGPUBindGroupLayout GetLayout();
+
     private:
+        void Build();
         void Bind(WGPUBuffer buffer, uint32_t size, WGPUBufferBindingType type);
         void BindTexture(WGPUTextureView textureView, uint64_t size);
         void BindSampler(WGPUSampler sampler);
 
-        WGPUDevice m_Device;
+        WGPUDevice m_Device = nullptr;
         WGPUShaderStageFlags m_Visibility;
+        WGPUBindGroup m_BindGroup = nullptr;
+        WGPUBindGroupLayout m_BindGroupLayout = nullptr;
         std::vector<WGPUBindGroupLayoutEntry> m_BindGroupLayoutEntries;
         std::vector<WGPUBindGroupEntry> m_BindGroupEntries;
     };
