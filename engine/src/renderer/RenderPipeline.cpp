@@ -74,6 +74,9 @@ namespace Figment
 
     WGPURenderPipeline RenderPipeline::Get()
     {
+        if (m_RenderPipeline != nullptr)
+            return m_RenderPipeline;
+
         WGPUVertexState vertexState = {};
         vertexState.nextInChain = nullptr;
         vertexState.entryPoint = m_Shader.GetVertexEntryPoint();
