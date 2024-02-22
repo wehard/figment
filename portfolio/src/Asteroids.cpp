@@ -6,10 +6,7 @@ Asteroids::Asteroids(const PerspectiveCamera &camera, bool enabled) : Layer("Ast
     auto m_Window = Figment::App::Instance()->GetWindow();
     auto webGpuWindow = std::dynamic_pointer_cast<Figment::WebGPUWindow>(m_Window);
     auto context = webGpuWindow->GetContext();
-    m_Renderer = Figment::CreateUniquePtr<Figment::WebGPURenderer>(*context);
-
-    m_Shader = new WebGPUShader(context->GetDevice(),
-            *Utils::LoadFile2("res/shaders/mesh.wgsl"));
+    m_Renderer = Figment::CreateUniquePtr<Figment::MeshRenderer>(*context);
 
     auto asteroidMeshData = ModelLoader::LoadObj("res/asteroid.obj");
     auto cnv = std::vector<Vertex>();
@@ -96,14 +93,14 @@ void Asteroids::OnUpdate(float deltaTime)
         m_Ship.Velocity = glm::normalize(m_Ship.Velocity);
     }
     m_Ship.Position += m_Ship.Velocity;
-    m_Renderer->Begin((Camera &)m_Camera);
+    m_Renderer->BeginFrame((Camera &)m_Camera);
+    m_Renderer->Draw(*m_Ship.Mesh, m_Ship.Transform());
     for (auto &asteroid : m_Asteroids)
     {
         asteroid.Update(deltaTime);
-        m_Renderer->Submit(*asteroid.Mesh, asteroid.Transform(), *m_Shader);
+        m_Renderer->Draw(*asteroid.Mesh, asteroid.Transform());
     }
-    m_Renderer->Submit(*m_Ship.Mesh, m_Ship.Transform(), *m_Shader);
-    m_Renderer->End();
+    m_Renderer->EndFrame();
 }
 
 void Asteroids::OnImGuiRender()

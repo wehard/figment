@@ -1,4 +1,5 @@
 #include "Figment.h"
+#include "MeshRenderer.h"
 
 using namespace Figment;
 
@@ -67,8 +68,7 @@ private:
     const PerspectiveCamera &m_Camera;
     Mesh *m_AsteroidMesh;
     Mesh *m_ShipMesh;
-    UniquePtr<WebGPURenderer> m_Renderer;
-    WebGPUShader *m_Shader;
+    UniquePtr<MeshRenderer> m_Renderer;
     std::vector<Asteroid> m_Asteroids;
     Ship m_Ship;
 };
