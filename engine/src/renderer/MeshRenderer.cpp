@@ -14,10 +14,6 @@ namespace Figment
                 "MeshRendererCameraDataUniformBuffer",
                 sizeof(CameraData));
 
-        m_MeshDataUniformBuffer = new WebGPUUniformBuffer<MeshData>(m_Context.GetDevice(),
-                "MeshRendererMeshDataUniformBuffer",
-                sizeof(MeshData));
-
         m_DepthTexture = WebGPUTexture::CreateDepthTexture(context.GetDevice(), WGPUTextureFormat_Depth24Plus,
                 context.GetSwapChainWidth(), context.GetSwapChainHeight());
     }
@@ -32,12 +28,11 @@ namespace Figment
         };
         m_CameraDataUniformBuffer->SetData(&cameraData, sizeof(CameraData));
 
-        WGPURenderPassColorAttachment colorAttachments[1] = {};
-
-        colorAttachments[0].loadOp = WGPULoadOp_Load;
-        colorAttachments[0].storeOp = WGPUStoreOp_Store;
-        colorAttachments[0].clearValue = { 0.0f, 0.0f, 0.0f, 1.0f };
-        colorAttachments[0].view = wgpuSwapChainGetCurrentTextureView(m_Context.GetSwapChain());
+        WGPURenderPassColorAttachment colorAttachment = {};
+        colorAttachment.loadOp = WGPULoadOp_Load;
+        colorAttachment.storeOp = WGPUStoreOp_Store;
+        colorAttachment.clearValue = { 0.0f, 0.0f, 0.0f, 1.0f };
+        colorAttachment.view = wgpuSwapChainGetCurrentTextureView(m_Context.GetSwapChain());
 
         WGPURenderPassDepthStencilAttachment depthStencilAttachment = {};
         depthStencilAttachment.view = m_DepthTexture->GetTextureView();
@@ -52,7 +47,7 @@ namespace Figment
 
         WGPURenderPassDescriptor renderPassDesc = {};
         renderPassDesc.colorAttachmentCount = 1;
-        renderPassDesc.colorAttachments = colorAttachments;
+        renderPassDesc.colorAttachments = &colorAttachment;
         renderPassDesc.depthStencilAttachment = &depthStencilAttachment;
 
         m_RenderPassEncoder = wgpuCommandEncoderBeginRenderPass(m_CommandEncoder, &renderPassDesc);
@@ -76,30 +71,36 @@ namespace Figment
 
     void MeshRenderer::Draw(Mesh &mesh, glm::mat4 transform)
     {
-        if (m_RenderPipeline == nullptr)
+        if (m_MeshRenderData.find(&mesh) == m_MeshRenderData.end())
         {
-            auto vertexLayout = mesh.VertexBuffer()->GetVertexLayout(); // TODO: Vertex layout should be defined here and only meshes with that layout should be rendered
-            CreateDefaultPipeline(*m_DefaultShader, vertexLayout);
+            MeshRenderData mrd = {};
+            mrd.UniformBuffer = new WebGPUUniformBuffer<MeshData>(m_Context.GetDevice(),
+                    "MeshRendererMeshDataUniformBuffer",
+                    sizeof(MeshData));
+
+            auto vertexBufferLayout = mesh.VertexBuffer()->GetVertexLayout();
+            auto bindGroup = new BindGroup(m_Context.GetDevice(), WGPUShaderStage_Vertex | WGPUShaderStage_Fragment);
+            bindGroup->Bind(*m_CameraDataUniformBuffer);
+            bindGroup->Bind(*mrd.UniformBuffer);
+
+            auto pipeline = new RenderPipeline(m_Context.GetDevice(), *m_DefaultShader, *bindGroup, vertexBufferLayout);
+            pipeline->AddColorTarget(m_Context.GetTextureFormat(), WGPUColorWriteMask_All);
+            pipeline->SetDepthStencilState(m_DepthTexture->GetTextureFormat());
+            pipeline->SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined,
+                    WGPUFrontFace_CCW, WGPUCullMode_None);
+
+            mrd.Pipeline = pipeline;
+            mrd.BindGroup = bindGroup;
+            m_MeshRenderData[&mesh] = mrd;
         }
+
+        auto &mrd = m_MeshRenderData[&mesh];
         MeshData meshData = {
                 .ModelMatrix = transform
         };
-        m_MeshDataUniformBuffer->SetData(&meshData, sizeof(meshData));
+        mrd.UniformBuffer->SetData(&meshData, sizeof(meshData));
 
-        WebGPUCommand::DrawIndexed(m_RenderPassEncoder, m_RenderPipeline->Get(), m_BindGroup->Get(),
+        WebGPUCommand::DrawIndexed(m_RenderPassEncoder, mrd.Pipeline->Get(), mrd.BindGroup->Get(),
                 *mesh.IndexBuffer(), *mesh.VertexBuffer(), mesh.IndexCount());
-    }
-
-    void MeshRenderer::CreateDefaultPipeline(WebGPUShader &shader, WGPUVertexBufferLayout &vertexBufferLayout)
-    {
-        m_BindGroup = new BindGroup(m_Context.GetDevice(), WGPUShaderStage_Vertex | WGPUShaderStage_Fragment);
-        m_BindGroup->Bind(*m_CameraDataUniformBuffer);
-        m_BindGroup->Bind(*m_MeshDataUniformBuffer);
-
-        m_RenderPipeline = new RenderPipeline(m_Context.GetDevice(), shader, *m_BindGroup, vertexBufferLayout);
-        m_RenderPipeline->AddColorTarget(m_Context.GetTextureFormat(), WGPUColorWriteMask_All);
-        m_RenderPipeline->SetDepthStencilState(m_DepthTexture->GetTextureFormat());
-        m_RenderPipeline->SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined,
-                WGPUFrontFace_CCW, WGPUCullMode_None);
     }
 }

@@ -7,6 +7,8 @@
 #include "RenderPipeline.h"
 #include "Mesh.h"
 
+#include <unordered_map>
+
 namespace Figment
 {
     class MeshRenderer
@@ -33,14 +35,21 @@ namespace Figment
             glm::mat4 ModelMatrix;
         };
 
-        void CreateDefaultPipeline(WebGPUShader &shader, WGPUVertexBufferLayout &vertexBufferLayout);
+        struct MeshRenderData
+        {
+            uint32_t InstanceCount = 1;
+            RenderPipeline *Pipeline;
+            BindGroup *BindGroup;
+            WebGPUUniformBuffer<MeshData> *UniformBuffer;
+        };
+        std::unordered_map<Mesh *, MeshRenderData> m_MeshRenderData;
 
         WebGPUContext &m_Context;
-        BindGroup *m_BindGroup = nullptr;
-        RenderPipeline *m_RenderPipeline = nullptr;
+        // BindGroup *m_BindGroup = nullptr;
+        // RenderPipeline *m_RenderPipeline = nullptr;
         WGPUCommandEncoder m_CommandEncoder = nullptr;
         WebGPUUniformBuffer<CameraData> *m_CameraDataUniformBuffer;
-        WebGPUUniformBuffer<MeshData> *m_MeshDataUniformBuffer;
+        // WebGPUUniformBuffer<MeshData> *m_MeshDataUniformBuffer;
         WebGPUShader *m_DefaultShader;
 
         WebGPUTexture *m_DepthTexture;
