@@ -29,7 +29,7 @@ namespace Figment
         m_CameraDataUniformBuffer->SetData(&cameraData, sizeof(CameraData));
 
         WGPURenderPassColorAttachment colorAttachment = {};
-        colorAttachment.loadOp = WGPULoadOp_Load;
+        colorAttachment.loadOp = WGPULoadOp_Clear;
         colorAttachment.storeOp = WGPUStoreOp_Store;
         colorAttachment.clearValue = { 0.0f, 0.0f, 0.0f, 1.0f };
         colorAttachment.view = wgpuSwapChainGetCurrentTextureView(m_Context.GetSwapChain());
