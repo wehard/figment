@@ -35,12 +35,14 @@ namespace Figment
             glm::mat4 ModelMatrix;
         };
 
+        constexpr static uint32_t MaxInstances = 1000;
+
         struct MeshRenderData
         {
-            uint32_t InstanceCount = 1;
+            uint32_t InstanceCount = 0;
             RenderPipeline *Pipeline;
             BindGroup *BindGroup;
-            WebGPUUniformBuffer<MeshData> *UniformBuffer;
+            WebGPUVertexBuffer<MeshData> *InstanceBuffer;
         };
         std::unordered_map<Mesh *, MeshRenderData> m_MeshRenderData;
 
