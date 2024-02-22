@@ -9,14 +9,34 @@
 
 namespace Figment
 {
-    struct Vertex
-    {
-        glm::vec3 Position;
-    };
 
     class Mesh
     {
     public:
+        struct Vertex
+        {
+            glm::vec3 Position;
+            static std::vector<WGPUVertexAttribute> GetAttributes()
+            {
+                return {{
+                                .format = WGPUVertexFormat_Float32x3,
+                                .offset = 0,
+                                .shaderLocation = 0
+                        },
+                };
+            }
+            static WGPUVertexBufferLayout GetLayout(WGPUVertexStepMode stepMode)
+            {
+                auto attributes = GetAttributes();
+                WGPUVertexBufferLayout layout = {};
+                layout.attributeCount = attributes.size();
+                layout.attributes = attributes.data();
+                layout.arrayStride = sizeof(Vertex);
+                layout.stepMode = stepMode;
+                return layout;
+            }
+        };
+
         Mesh(WGPUDevice device, const std::vector<Vertex> &vertices, std::vector<uint32_t> indices);
         WebGPUVertexBuffer<Vertex> *VertexBuffer()
         { return m_VertexBuffer; }

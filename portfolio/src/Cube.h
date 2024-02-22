@@ -23,7 +23,7 @@ public:
         m_Window = std::dynamic_pointer_cast<Figment::WebGPUWindow>(window);
         m_Renderer = Figment::CreateUniquePtr<MeshRenderer>(*m_Window->GetContext());
 
-        std::vector<Vertex> vertices = {
+        std::vector<Mesh::Vertex> vertices = {
                 {{ -0.5, -0.5, 0.5 }},
                 {{ 0.5, -0.5, 0.5 }},
                 {{ 0.5, 0.5, 0.5 }},

@@ -9,11 +9,11 @@ Asteroids::Asteroids(const PerspectiveCamera &camera, bool enabled) : Layer("Ast
     m_Renderer = Figment::CreateUniquePtr<Figment::MeshRenderer>(*context);
 
     auto asteroidMeshData = ModelLoader::LoadObj("res/asteroid.obj");
-    auto cnv = std::vector<Vertex>();
+    auto cnv = std::vector<Mesh::Vertex>();
     for (int i = 0; i < asteroidMeshData.Vertices.size(); i += 3)
     {
         auto vertex = &asteroidMeshData.Vertices[i];
-        cnv.emplace_back(Vertex { glm::vec3(vertex[0], vertex[1], vertex[2]) });
+        cnv.emplace_back(Mesh::Vertex { glm::vec3(vertex[0], vertex[1], vertex[2]) });
     }
 
     m_AsteroidMesh = new Mesh(context->GetDevice(), cnv, asteroidMeshData.Indices);
@@ -31,11 +31,11 @@ Asteroids::Asteroids(const PerspectiveCamera &camera, bool enabled) : Layer("Ast
     }
 
     auto shipMeshData = ModelLoader::LoadObj("res/cone.obj");
-    auto scnv = std::vector<Vertex>();
+    auto scnv = std::vector<Mesh::Vertex>();
     for (int i = 0; i < shipMeshData.Vertices.size(); i += 3)
     {
         auto vertex = &shipMeshData.Vertices[i];
-        scnv.emplace_back(Vertex { glm::vec3(vertex[0], vertex[1], vertex[2]) });
+        scnv.emplace_back(Mesh::Vertex { glm::vec3(vertex[0], vertex[1], vertex[2]) });
     }
 
     m_ShipMesh = new Mesh(context->GetDevice(), scnv, shipMeshData.Indices);

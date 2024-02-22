@@ -14,10 +14,6 @@ namespace Figment
     class MeshRenderer
     {
     public:
-        struct Vertex
-        {
-            glm::vec3 Position;
-        };
         MeshRenderer(WebGPUContext &context);
         ~MeshRenderer() = default;
         void BeginFrame(Camera &camera);
