@@ -1,10 +1,18 @@
 #include "RenderPipeline.h"
 
+#include <utility>
+
 namespace Figment
 {
     RenderPipeline::RenderPipeline(WGPUDevice device, WebGPUShader &shader, BindGroup &bindGroup,
-            WGPUVertexBufferLayout vertexBufferLayout) : m_Device(device), m_Shader(shader), m_BindGroup(bindGroup),
-            m_VertexBufferLayout(vertexBufferLayout)
+            WGPUVertexBufferLayout vertexBufferLayout) : m_Device(device), m_Shader(shader), m_BindGroup(bindGroup)
+    {
+        m_VertexBufferLayouts.emplace_back(vertexBufferLayout);
+    }
+
+    RenderPipeline::RenderPipeline(WGPUDevice device, WebGPUShader &shader, BindGroup &bindGroup,
+            std::vector<WGPUVertexBufferLayout> vertexBufferLayouts) : m_Device(device), m_Shader(shader),
+            m_BindGroup(bindGroup), m_VertexBufferLayouts(std::move(vertexBufferLayouts))
     {
     }
 
@@ -83,8 +91,8 @@ namespace Figment
         vertexState.module = m_Shader.GetShaderModule();
         vertexState.constantCount = 0; // TODO: add support for constants
         vertexState.constants = nullptr;
-        vertexState.bufferCount = 1;
-        vertexState.buffers = &m_VertexBufferLayout;
+        vertexState.bufferCount = m_VertexBufferLayouts.size();
+        vertexState.buffers = m_VertexBufferLayouts.data();
 
         WGPUFragmentState fragmentState = {};
         fragmentState.nextInChain = nullptr;

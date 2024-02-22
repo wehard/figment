@@ -37,6 +37,8 @@ namespace Figment
     public:
         RenderPipeline(WGPUDevice device, WebGPUShader &shader, BindGroup &bindGroup,
                 WGPUVertexBufferLayout vertexBufferLayout);
+        RenderPipeline(WGPUDevice device, WebGPUShader &shader, BindGroup &bindGroup,
+                std::vector<WGPUVertexBufferLayout> vertexBufferLayouts);
         ~RenderPipeline();
         void AddColorTarget(WGPUTextureFormat format, WGPUColorWriteMask writeMask);
         void SetDepthStencilState(WGPUTextureFormat format, bool depthWriteEnabled = true,
@@ -51,7 +53,7 @@ namespace Figment
         WGPUPipelineLayout m_RenderPipelineLayout = nullptr;
         WebGPUShader &m_Shader;
         BindGroup &m_BindGroup;
-        WGPUVertexBufferLayout m_VertexBufferLayout;
+        std::vector<WGPUVertexBufferLayout> m_VertexBufferLayouts;
         WGPUPrimitiveState m_PrimitiveState;
         std::vector<WGPUColorTargetState> m_ColorTargetStates;
         WGPUDepthStencilState m_DepthStencilState;
