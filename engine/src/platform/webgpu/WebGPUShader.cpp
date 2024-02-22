@@ -1,4 +1,5 @@
 #include "WebGPUShader.h"
+#include "Log.h"
 
 namespace Figment
 {
@@ -86,6 +87,7 @@ namespace Figment
 
         m_ShaderModule = wgpuDeviceCreateShaderModule(device, &shaderDesc);
         wgpuShaderModuleSetLabel(m_ShaderModule, label);
+        FIG_LOG_INFO("Initialized shader: %s", label);
     }
 
     WebGPUShader::~WebGPUShader()
