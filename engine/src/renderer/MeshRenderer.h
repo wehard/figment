@@ -31,7 +31,7 @@ namespace Figment
             glm::mat4 ProjectionMatrix;
         };
 
-        struct MeshData
+        struct MeshInstanceData
         {
             glm::mat4 ModelMatrix;
         };
@@ -43,16 +43,14 @@ namespace Figment
             uint32_t InstanceCount = 0;
             RenderPipeline *Pipeline;
             BindGroup *BindGroup;
-            WebGPUVertexBuffer<MeshData> *InstanceBuffer;
+            WebGPUVertexBuffer<MeshInstanceData> *InstanceBuffer;
+            MeshInstanceData *InstanceDataStagingBuffer;
         };
         std::unordered_map<Mesh *, MeshRenderData> m_MeshRenderData;
 
         WebGPUContext &m_Context;
-        // BindGroup *m_BindGroup = nullptr;
-        // RenderPipeline *m_RenderPipeline = nullptr;
         WGPUCommandEncoder m_CommandEncoder = nullptr;
         WebGPUUniformBuffer<CameraData> *m_CameraDataUniformBuffer;
-        // WebGPUUniformBuffer<MeshData> *m_MeshDataUniformBuffer;
         WebGPUShader *m_DefaultShader;
 
         WebGPUTexture *m_DepthTexture;

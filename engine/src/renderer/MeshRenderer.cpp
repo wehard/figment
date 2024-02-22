@@ -64,13 +64,15 @@ namespace Figment
         {
             auto &mesh = mrd.first;
             auto &data = mrd.second;
+            data.InstanceBuffer->SetData(data.InstanceDataStagingBuffer, sizeof(MeshInstanceData) * data.InstanceCount,
+                    0);
             wgpuRenderPassEncoderSetIndexBuffer(m_RenderPassEncoder, mesh->IndexBuffer()->GetBuffer(),
                     WGPUIndexFormat_Uint32, 0,
                     mesh->IndexBuffer()->GetSize());
             wgpuRenderPassEncoderSetVertexBuffer(m_RenderPassEncoder, 0, mesh->VertexBuffer()->GetBuffer(), 0,
                     mesh->VertexBuffer()->GetSize());
             wgpuRenderPassEncoderSetVertexBuffer(m_RenderPassEncoder, 1, data.InstanceBuffer->GetBuffer(), 0,
-                    sizeof(MeshData) * data.InstanceCount);
+                    sizeof(MeshInstanceData) * data.InstanceCount);
             wgpuRenderPassEncoderSetPipeline(m_RenderPassEncoder, data.Pipeline->Get());
             wgpuRenderPassEncoderSetBindGroup(m_RenderPassEncoder, 0, data.BindGroup->Get(), 0, nullptr);
             wgpuRenderPassEncoderDrawIndexed(m_RenderPassEncoder, mesh->IndexCount(), data.InstanceCount, 0, 0, 0);
@@ -95,9 +97,10 @@ namespace Figment
         if (m_MeshRenderData.find(&mesh) == m_MeshRenderData.end())
         {
             MeshRenderData mrd = {};
-            mrd.InstanceBuffer = new WebGPUVertexBuffer<MeshData>(m_Context.GetDevice(),
+            mrd.InstanceBuffer = new WebGPUVertexBuffer<MeshInstanceData>(m_Context.GetDevice(),
                     "MeshRendererMeshDataInstanceBuffer",
-                    sizeof(MeshData) * MaxInstances);
+                    sizeof(MeshInstanceData) * MaxInstances);
+            mrd.InstanceDataStagingBuffer = new MeshInstanceData[MaxInstances];
 
             auto vertexAttributes = std::vector<WGPUVertexAttribute>({
                     {
@@ -121,7 +124,8 @@ namespace Figment
                             .shaderLocation = 4,
                     }
             });
-            mrd.InstanceBuffer->SetVertexLayout(vertexAttributes, sizeof(MeshData), WGPUVertexStepMode_Instance);
+            mrd.InstanceBuffer->SetVertexLayout(vertexAttributes, sizeof(MeshInstanceData),
+                    WGPUVertexStepMode_Instance);
 
             auto bindGroup = new BindGroup(m_Context.GetDevice(), WGPUShaderStage_Vertex | WGPUShaderStage_Fragment);
             bindGroup->Bind(*m_CameraDataUniformBuffer);
@@ -143,10 +147,10 @@ namespace Figment
         {
             return;
         }
-        MeshData meshData = {
+        MeshInstanceData meshData = {
                 .ModelMatrix = transform
         };
-        mrd.InstanceBuffer->SetData(&meshData, sizeof(meshData), sizeof(meshData) * mrd.InstanceCount);
+        mrd.InstanceDataStagingBuffer[mrd.InstanceCount] = meshData;
         mrd.InstanceCount++;
     }
 

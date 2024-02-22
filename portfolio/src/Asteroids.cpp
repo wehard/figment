@@ -18,7 +18,7 @@ Asteroids::Asteroids(const PerspectiveCamera &camera, bool enabled) : Layer("Ast
 
     m_AsteroidMesh = new Mesh(context->GetDevice(), cnv, asteroidMeshData.Indices);
 
-    for (int i = 0; i < 1000; i++)
+    for (int i = 0; i < 10000; i++)
     {
         auto r = Random::InRing(3.0, 40.0);
         m_Asteroids.push_back(Asteroid {
