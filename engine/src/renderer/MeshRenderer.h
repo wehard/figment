@@ -35,7 +35,7 @@ namespace Figment
             glm::mat4 ModelMatrix;
         };
 
-        constexpr static uint32_t MaxInstances = 1000;
+        constexpr static uint32_t MaxInstances = 10000;
 
         struct MeshRenderData
         {

@@ -18,16 +18,11 @@ Asteroids::Asteroids(const PerspectiveCamera &camera, bool enabled) : Layer("Ast
 
     m_AsteroidMesh = new Mesh(context->GetDevice(), cnv, asteroidMeshData.Indices);
 
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < 1000; i++)
     {
-        auto x = i / 10;
-        auto y = i % 10;
-        auto r = Random::Float();
-        if (r < 0.25)
-            continue;
+        auto r = Random::InRing(50.0, 100.0);
         m_Asteroids.push_back(Asteroid {
-                .Position = glm::vec3((x * 2.0 - 9.0) + Random::Float() * 0.5,
-                        (y * 2.0 - 9.0) + Random::Float() * 0.5, 0.0),
+                .Position = glm::vec3(r.x, r.y, 0.0),
                 .Rotation = glm::vec3(Random::Float(0.0f, 360.0f), Random::Float(0.0f, 360.0f),
                         Random::Float(0.0f, 360.0f)),
                 .Scale = glm::vec3(Random::Float(0.25f, 0.5f)),
