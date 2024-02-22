@@ -30,10 +30,10 @@ namespace Figment
             wgpuBufferDestroy(m_Buffer);
         }
 
-        void SetData(T *data, uint32_t size)
+        void SetData(T *data, uint32_t size, uint64_t offset = 0)
         {
             WGPUQueue queue = wgpuDeviceGetQueue(m_Device);
-            wgpuQueueWriteBuffer(queue, m_Buffer, 0, (void *)data, size);
+            wgpuQueueWriteBuffer(queue, m_Buffer, offset, (void *)data, size);
         }
 
         WGPUBufferMapState GetMapState() const
