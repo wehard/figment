@@ -96,11 +96,11 @@ namespace Figment
     {
         if (m_MeshRenderData.find(&mesh) == m_MeshRenderData.end())
         {
-            MeshRenderData mrd = {};
-            mrd.InstanceBuffer = new WebGPUVertexBuffer<MeshInstanceData>(m_Context.GetDevice(),
+            MeshRenderData meshRenderData = {};
+            meshRenderData.InstanceBuffer = new WebGPUVertexBuffer<MeshInstanceData>(m_Context.GetDevice(),
                     "MeshRendererMeshDataInstanceBuffer",
                     sizeof(MeshInstanceData) * MaxInstances);
-            mrd.InstanceDataStagingBuffer = new MeshInstanceData[MaxInstances];
+            meshRenderData.InstanceDataStagingBuffer = new MeshInstanceData[MaxInstances];
 
             auto vertexAttributes = std::vector<WGPUVertexAttribute>({
                     {
@@ -124,34 +124,34 @@ namespace Figment
                             .shaderLocation = 4,
                     }
             });
-            mrd.InstanceBuffer->SetVertexLayout(vertexAttributes, sizeof(MeshInstanceData),
+            meshRenderData.InstanceBuffer->SetVertexLayout(vertexAttributes, sizeof(MeshInstanceData),
                     WGPUVertexStepMode_Instance);
 
             auto bindGroup = new BindGroup(m_Context.GetDevice(), WGPUShaderStage_Vertex | WGPUShaderStage_Fragment);
             bindGroup->Bind(*m_CameraDataUniformBuffer);
 
             auto pipeline = new RenderPipeline(m_Context.GetDevice(), *m_DefaultShader, *bindGroup,
-                    { mesh.VertexBuffer()->GetVertexLayout(), mrd.InstanceBuffer->GetVertexLayout() });
+                    { mesh.VertexBuffer()->GetVertexLayout(), meshRenderData.InstanceBuffer->GetVertexLayout() });
             pipeline->AddColorTarget(m_Context.GetTextureFormat(), WGPUColorWriteMask_All);
             pipeline->SetDepthStencilState(m_DepthTexture->GetTextureFormat());
             pipeline->SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined,
                     WGPUFrontFace_CCW, WGPUCullMode_None);
 
-            mrd.Pipeline = pipeline;
-            mrd.BindGroup = bindGroup;
-            m_MeshRenderData[&mesh] = mrd;
+            meshRenderData.Pipeline = pipeline;
+            meshRenderData.BindGroup = bindGroup;
+            m_MeshRenderData[&mesh] = meshRenderData;
         }
 
-        auto &mrd = m_MeshRenderData[&mesh];
-        if (mrd.InstanceCount >= MaxInstances)
+        auto &meshRenderData = m_MeshRenderData[&mesh];
+        if (meshRenderData.InstanceCount >= MaxInstances)
         {
             return;
         }
         MeshInstanceData meshData = {
                 .ModelMatrix = transform
         };
-        mrd.InstanceDataStagingBuffer[mrd.InstanceCount] = meshData;
-        mrd.InstanceCount++;
+        meshRenderData.InstanceDataStagingBuffer[meshRenderData.InstanceCount] = meshData;
+        meshRenderData.InstanceCount++;
     }
 
     void MeshRenderer::OnResize(uint32_t width, uint32_t height)
