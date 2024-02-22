@@ -105,5 +105,6 @@ void Asteroids::OnImGuiRender()
 
 void Asteroids::OnEvent(AppEvent event, void *eventData)
 {
-
+    auto ev = (Figment::WindowResizeEventData *)eventData;
+    m_Renderer->OnResize(ev->Width, ev->Height);
 }

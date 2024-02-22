@@ -23,6 +23,7 @@ namespace Figment
         void BeginFrame(Camera &camera);
         void EndFrame();
         void Draw(Mesh &mesh, glm::mat4 transform);
+        void OnResize(uint32_t width, uint32_t height);
     private:
         struct CameraData
         {

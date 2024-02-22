@@ -8,7 +8,7 @@ namespace Figment
     MeshRenderer::MeshRenderer(WebGPUContext &context) : m_Context(context)
     {
         m_DefaultShader = new WebGPUShader(context.GetDevice(),
-                *Utils::LoadFile2("res/shaders/mesh.wgsl"));
+                *Utils::LoadFile2("res/shaders/builtin/mesh.wgsl"), "MeshRendererDefaultShader");
 
         m_CameraDataUniformBuffer = new WebGPUUniformBuffer<CameraData>(m_Context.GetDevice(),
                 "MeshRendererCameraDataUniformBuffer",
@@ -148,5 +148,12 @@ namespace Figment
         };
         mrd.InstanceBuffer->SetData(&meshData, sizeof(meshData), sizeof(meshData) * mrd.InstanceCount);
         mrd.InstanceCount++;
+    }
+
+    void MeshRenderer::OnResize(uint32_t width, uint32_t height)
+    {
+        delete m_DepthTexture;
+        m_DepthTexture = WebGPUTexture::CreateDepthTexture(m_Context.GetDevice(), WGPUTextureFormat_Depth24Plus,
+                width, height);
     }
 }
