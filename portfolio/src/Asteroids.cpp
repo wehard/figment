@@ -20,7 +20,7 @@ Asteroids::Asteroids(const PerspectiveCamera &camera, bool enabled) : Layer("Ast
 
     for (int i = 0; i < 1000; i++)
     {
-        auto r = Random::InRing(50.0, 100.0);
+        auto r = Random::InRing(3.0, 40.0);
         m_Asteroids.push_back(Asteroid {
                 .Position = glm::vec3(r.x, r.y, 0.0),
                 .Rotation = glm::vec3(Random::Float(0.0f, 360.0f), Random::Float(0.0f, 360.0f),
