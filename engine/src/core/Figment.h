@@ -8,3 +8,5 @@
 #include "Input.h"
 #include "Image.h"
 #include "Random.h"
+#include "Camera.h"
+#include "PixelCanvas.h"
