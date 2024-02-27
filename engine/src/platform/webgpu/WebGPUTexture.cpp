@@ -3,14 +3,21 @@
 namespace Figment
 {
     WebGPUTexture::WebGPUTexture(WGPUDevice device, WGPUTextureFormat textureFormat, uint32_t width, uint32_t height)
-            : m_Width(width), m_Height(height), m_TextureFormat(textureFormat)
+            : WebGPUTexture(device, textureFormat, width, height,
+            WGPUTextureUsage_RenderAttachment | WGPUTextureUsage_CopySrc, "RenderTexture")
+    {
+    }
+
+    WebGPUTexture::WebGPUTexture(WGPUDevice device, WGPUTextureFormat textureFormat, uint32_t width, uint32_t height,
+            WGPUTextureUsageFlags usage, const std::string &label) : m_Width(width), m_Height(height),
+            m_TextureFormat(textureFormat), m_Device(device)
     {
         WGPUTextureDescriptor textureDescriptor = {};
         textureDescriptor.nextInChain = nullptr;
-        textureDescriptor.label = "RenderTexture";
+        textureDescriptor.label = label.c_str();
         textureDescriptor.dimension = WGPUTextureDimension_2D;
         textureDescriptor.format = textureFormat;
-        textureDescriptor.usage = WGPUTextureUsage_RenderAttachment | WGPUTextureUsage_CopySrc;
+        textureDescriptor.usage = usage;
         textureDescriptor.size = { m_Width, m_Height, 1 };
         textureDescriptor.sampleCount = 1;
         textureDescriptor.mipLevelCount = 1;
@@ -20,7 +27,7 @@ namespace Figment
 
         WGPUTextureViewDescriptor textureViewDesc = {};
         textureViewDesc.nextInChain = nullptr;
-        textureViewDesc.label = "RenderTextureView";
+        textureViewDesc.label = (label + "View").c_str();
         textureViewDesc.aspect = WGPUTextureAspect_All;
         textureViewDesc.baseArrayLayer = 0;
         textureViewDesc.arrayLayerCount = 1;
@@ -39,6 +46,27 @@ namespace Figment
         wgpuTextureDestroy(m_Texture);
         wgpuTextureRelease(m_Texture);
     }
+
+    void WebGPUTexture::SetData(const void *data, uint32_t size)
+    {
+        WGPUQueue queue = wgpuDeviceGetQueue(m_Device);
+        WGPUImageCopyTexture imageCopyTexture = {};
+        imageCopyTexture.texture = m_Texture;
+        imageCopyTexture.mipLevel = 0;
+        imageCopyTexture.origin = { 0, 0, 0 };
+        imageCopyTexture.aspect = WGPUTextureAspect_All;
+
+        WGPUTextureDataLayout textureDataLayout = {};
+        textureDataLayout.nextInChain = nullptr;
+        textureDataLayout.offset = 0;
+        textureDataLayout.bytesPerRow = m_Width * 4;
+        textureDataLayout.rowsPerImage = m_Height;
+        WGPUExtent3D extent = { m_Width, m_Height, 1 };
+
+        wgpuQueueWriteTexture(queue, &imageCopyTexture, data, size, &textureDataLayout,
+                &extent);
+    }
+
     WebGPUTexture *WebGPUTexture::CreateDepthTexture(WGPUDevice device, WGPUTextureFormat depthTextureFormat,
             uint32_t width, uint32_t height)
     {
@@ -142,5 +170,24 @@ namespace Figment
         wgpuQueueWriteTexture(queue, &imageCopyTexture, image.GetData(), image.GetDataSize(), &textureDataLayout,
                 &textureDescriptor.size);
         return webGpuTexture;
+    }
+
+    WGPUSampler WebGPUTexture::GetSampler()
+    {
+        WGPUSamplerDescriptor samplerDesc = {};
+        samplerDesc.nextInChain = nullptr;
+        samplerDesc.label = "WebGPUTextureSampler";
+        samplerDesc.addressModeU = WGPUAddressMode_Repeat;
+        samplerDesc.addressModeV = WGPUAddressMode_Repeat;
+        samplerDesc.addressModeW = WGPUAddressMode_Repeat;
+        samplerDesc.magFilter = WGPUFilterMode_Nearest;
+        samplerDesc.minFilter = WGPUFilterMode_Nearest;
+        samplerDesc.mipmapFilter = WGPUMipmapFilterMode_Nearest;
+        samplerDesc.lodMinClamp = 0;
+        samplerDesc.lodMaxClamp = 4;
+        samplerDesc.compare = WGPUCompareFunction_Undefined;
+        samplerDesc.maxAnisotropy = 1;
+        m_Sampler = wgpuDeviceCreateSampler(m_Device, &samplerDesc);
+        return m_Sampler;
     }
 }
