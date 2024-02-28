@@ -36,6 +36,6 @@ namespace Figment
         WGPUTextureFormat m_TextureFormat;
         WGPUTexture m_Texture;
         WGPUTextureView m_TextureView;
-        WGPUSampler m_Sampler;
+        WGPUSampler m_Sampler = nullptr;
     };
 }

@@ -174,6 +174,11 @@ namespace Figment
 
     WGPUSampler WebGPUTexture::GetSampler()
     {
+        if (m_Sampler)
+        {
+            return m_Sampler;
+        }
+        
         WGPUSamplerDescriptor samplerDesc = {};
         samplerDesc.nextInChain = nullptr;
         samplerDesc.label = "WebGPUTextureSampler";
