@@ -134,11 +134,13 @@ namespace Figment
 
         WGPURenderPassColorAttachment colorAttachments[2] = {};
 
+        colorAttachments[0].depthSlice = WGPU_DEPTH_SLICE_UNDEFINED;
         colorAttachments[0].loadOp = WGPULoadOp_Load;
         colorAttachments[0].storeOp = WGPUStoreOp_Store;
         colorAttachments[0].clearValue = { 0.0f, 0.0f, 0.0f, 1.0f };
         colorAttachments[0].view = wgpuSwapChainGetCurrentTextureView(m_Context.GetSwapChain());
 
+        colorAttachments[1].depthSlice = WGPU_DEPTH_SLICE_UNDEFINED;
         colorAttachments[1].loadOp = WGPULoadOp_Load;
         colorAttachments[1].storeOp = WGPUStoreOp_Store;
         colorAttachments[1].clearValue = { -1.0, -1.0, -1.0, -1.0 };

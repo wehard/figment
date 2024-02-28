@@ -50,6 +50,7 @@ namespace Figment
 
         WGPURenderPassColorAttachment colorAttachment = {};
 
+        colorAttachment.depthSlice = WGPU_DEPTH_SLICE_UNDEFINED;
         colorAttachment.loadOp = WGPULoadOp_Load;
         colorAttachment.storeOp = WGPUStoreOp_Store;
         colorAttachment.clearValue = { 0.0, 0.0, 0.0, 0.0 };

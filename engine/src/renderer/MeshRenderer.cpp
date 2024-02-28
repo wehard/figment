@@ -29,6 +29,7 @@ namespace Figment
         m_CameraDataUniformBuffer->SetData(&cameraData, sizeof(CameraData));
 
         WGPURenderPassColorAttachment colorAttachment = {};
+        colorAttachment.depthSlice = WGPU_DEPTH_SLICE_UNDEFINED;
         colorAttachment.loadOp = WGPULoadOp_Clear;
         colorAttachment.storeOp = WGPUStoreOp_Store;
         colorAttachment.clearValue = { 0.0f, 0.0f, 0.0f, 1.0f };
