@@ -7,7 +7,7 @@ using namespace Figment;
 class SandSimulation : public Figment::Layer
 {
 public:
-    SandSimulation(WebGPUContext &context, Camera &camera);
+    SandSimulation(WebGPUContext &context, PerspectiveCamera &camera);
     ~SandSimulation() override = default;
     void OnAttach() override;
     void OnDetach() override;
@@ -17,5 +17,6 @@ public:
 private:
     WebGPUContext &m_Context;
     PixelCanvas m_Canvas;
-    Camera &m_Camera;
+    PerspectiveCamera &m_Camera;
+    PixelCanvas *m_PixelCanvas;
 };
