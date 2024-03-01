@@ -19,6 +19,7 @@ namespace Figment
         void BeginFrame(Camera &camera);
         void EndFrame();
         void Draw(Mesh &mesh, glm::mat4 transform);
+        void DrawTextured(Mesh &mesh, glm::mat4 transform, WebGPUTexture &texture);
         void OnResize(uint32_t width, uint32_t height);
     private:
         struct CameraData
@@ -48,6 +49,7 @@ namespace Figment
         WGPUCommandEncoder m_CommandEncoder = nullptr;
         WebGPUUniformBuffer<CameraData> *m_CameraDataUniformBuffer;
         WebGPUShader *m_DefaultShader;
+        WebGPUShader *m_TexturedShader;
 
         WebGPUTexture *m_DepthTexture;
         WGPURenderPassEncoder m_RenderPassEncoder;
