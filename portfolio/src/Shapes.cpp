@@ -19,7 +19,8 @@ void Shapes::OnDetach()
 void Shapes::OnUpdate(float deltaTime)
 {
     m_ShapeRenderer.Begin(m_Camera);
-    m_ShapeRenderer.SubmitQuad({ 0.0f, 0.0f, 0.0f }, { 0.8f, 0.2f, 0.3f, 1.0f }, -1);
+    m_ShapeRenderer.SubmitQuad({ -1.0f, 0.0f, 0.0f }, { 0.8f, 0.2f, 0.3f, 1.0f }, -1);
+    m_ShapeRenderer.SubmitCircle({ 1.0f, 0.0f, 0.0f }, { 0.8f, 0.2f, 0.3f, 1.0f }, 1.0, -1);
     m_ShapeRenderer.End();
 }
 
