@@ -113,8 +113,10 @@ namespace Figment
 
     void ShapeRenderer::InitShaders()
     {
-        m_CircleShader = new WebGPUShader(m_Context.GetDevice(), *Utils::LoadFile2("res/shaders/circle.wgsl"));
-        m_QuadShader = new WebGPUShader(m_Context.GetDevice(), *Utils::LoadFile2("res/shaders/quad.wgsl"));
+        m_CircleShader = new WebGPUShader(m_Context.GetDevice(), *Utils::LoadFile2("res/shaders/builtin/circle.wgsl"),
+                "Circle");
+        m_QuadShader = new WebGPUShader(m_Context.GetDevice(), *Utils::LoadFile2("res/shaders/builtin/quad.wgsl"),
+                "Quad");
     }
 
     WGPURenderPassEncoder ShapeRenderer::Begin(Figment::Camera &camera)
