@@ -13,15 +13,14 @@ namespace Figment
 
         auto aspectRatio = (float)height / (float)width;
         std::vector<Mesh::Vertex> vertices = {
-                {{ -0.5, -0.5 * aspectRatio, 0.0 }},
-                {{ 0.5, -0.5 * aspectRatio, 0.0 }},
-                {{ 0.5, 0.5 * aspectRatio, 0.0 }},
-                {{ -0.5, 0.5 * aspectRatio, 0.0 }},
+                {{ -0.5, -0.5 * aspectRatio, 0.0 }, { 0.0, 0.0 }},
+                {{ 0.5, -0.5 * aspectRatio, 0.0 }, { 1.0, 0.0 }},
+                {{ 0.5, 0.5 * aspectRatio, 0.0 }, { 1.0, 1.0 }},
+                {{ -0.5, 0.5 * aspectRatio, 0.0 }, { 0.0, 1.0 }},
         };
 
         std::vector<uint32_t> indices = {
                 0, 1, 2, 2, 3, 0,
-                1, 5, 6, 6, 2, 1,
         };
 
         m_Mesh = new Figment::Mesh(context.GetDevice(), vertices, indices);

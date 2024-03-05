@@ -16,6 +16,8 @@ namespace Figment
         struct Vertex
         {
             glm::vec3 Position;
+            glm::vec2 TexCoord;
+
             static std::vector<WGPUVertexAttribute> GetAttributes()
             {
                 return {{
@@ -23,6 +25,11 @@ namespace Figment
                                 .offset = 0,
                                 .shaderLocation = 0
                         },
+                        {
+                                .format = WGPUVertexFormat_Float32x2,
+                                .offset = 12,
+                                .shaderLocation = 1
+                        }
                 };
             }
             static WGPUVertexBufferLayout GetLayout(WGPUVertexStepMode stepMode)

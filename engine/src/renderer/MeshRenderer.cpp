@@ -110,22 +110,22 @@ namespace Figment
                     {
                             .format = WGPUVertexFormat_Float32x4,
                             .offset = 0,
-                            .shaderLocation = 1,
-                    },
-                    {
-                            .format = WGPUVertexFormat_Float32x4,
-                            .offset = 16,
                             .shaderLocation = 2,
                     },
                     {
                             .format = WGPUVertexFormat_Float32x4,
-                            .offset = 32,
+                            .offset = 16,
                             .shaderLocation = 3,
                     },
                     {
                             .format = WGPUVertexFormat_Float32x4,
-                            .offset = 48,
+                            .offset = 32,
                             .shaderLocation = 4,
+                    },
+                    {
+                            .format = WGPUVertexFormat_Float32x4,
+                            .offset = 48,
+                            .shaderLocation = 5,
                     }
             });
             meshRenderData.InstanceBuffer->SetVertexLayout(vertexAttributes, sizeof(MeshInstanceData),
@@ -179,22 +179,22 @@ namespace Figment
                     {
                             .format = WGPUVertexFormat_Float32x4,
                             .offset = 0,
-                            .shaderLocation = 1,
-                    },
-                    {
-                            .format = WGPUVertexFormat_Float32x4,
-                            .offset = 16,
                             .shaderLocation = 2,
                     },
                     {
                             .format = WGPUVertexFormat_Float32x4,
-                            .offset = 32,
+                            .offset = 16,
                             .shaderLocation = 3,
                     },
                     {
                             .format = WGPUVertexFormat_Float32x4,
-                            .offset = 48,
+                            .offset = 32,
                             .shaderLocation = 4,
+                    },
+                    {
+                            .format = WGPUVertexFormat_Float32x4,
+                            .offset = 48,
+                            .shaderLocation = 5,
                     }
             });
             meshRenderData.InstanceBuffer->SetVertexLayout(vertexAttributes, sizeof(MeshInstanceData),

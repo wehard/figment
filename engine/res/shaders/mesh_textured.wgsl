@@ -4,10 +4,10 @@ struct CameraData {
 };
 
 struct MeshInstanceData {
-    @location(1) model_matrix_0: vec4<f32>,
-    @location(2) model_matrix_1: vec4<f32>,
-    @location(3) model_matrix_2: vec4<f32>,
-    @location(4) model_matrix_3: vec4<f32>,
+    @location(2) model_matrix_0: vec4<f32>,
+    @location(3) model_matrix_1: vec4<f32>,
+    @location(4) model_matrix_2: vec4<f32>,
+    @location(5) model_matrix_3: vec4<f32>,
 };
 
 @group(0) @binding(0) var<uniform> cameraData: CameraData;
@@ -16,11 +16,12 @@ struct MeshInstanceData {
 
 struct VertexOutput {
     @builtin(position) pos: vec4<f32>,
-    @location(0) @interpolate(flat) id: i32
+    @location(0) @interpolate(flat) id: i32,
+    @location(1) uv: vec2<f32>
 };
 
 @vertex
-fn vs_main(@location(0) pos: vec3f, instance: MeshInstanceData) -> VertexOutput {
+fn vs_main(@location(0) pos: vec3f, @location(1) uv: vec2f, instance: MeshInstanceData) -> VertexOutput {
     var output: VertexOutput;
     var model = mat4x4<f32>(
         instance.model_matrix_0,
@@ -30,6 +31,7 @@ fn vs_main(@location(0) pos: vec3f, instance: MeshInstanceData) -> VertexOutput 
     );
     output.pos = cameraData.proj * cameraData.view * model * vec4<f32>(pos, 1.0);
     output.id = 1;
+    output.uv = uv;
     return output;
 }
 
@@ -39,9 +41,9 @@ struct FragmentOutput {
 };
 
 @fragment
-fn fs_main(@location(0)  @interpolate(flat) id: i32) -> FragmentOutput {
+fn fs_main(@location(0)  @interpolate(flat) id: i32, @location(1) uv: vec2<f32>) -> FragmentOutput {
     var output: FragmentOutput;
-    output.color = textureSampleLevel(texture, texSampler, vec2<f32>(0.0, 0.0), 0.0);;
+    output.color = textureSampleLevel(texture, texSampler, uv, 0.0);
     output.id = id;
     return output;
 }
