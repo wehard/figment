@@ -86,11 +86,11 @@ namespace Figment
         }
     };
 
-    class WebGPURenderer
+    class ShapeRenderer
     {
     public:
-        explicit WebGPURenderer(WebGPUContext &context);
-        ~WebGPURenderer();
+        explicit ShapeRenderer(WebGPUContext &context);
+        ~ShapeRenderer();
         void InitShaders();
         WGPURenderPassEncoder Begin(Camera &camera);
         void End();

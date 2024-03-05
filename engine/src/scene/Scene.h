@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core.h"
-#include "WebGPURenderer.h"
+#include "ShapeRenderer.h"
 #include "CameraController.h"
 #include "Camera.h"
 #include "OrthographicCamera.h"
@@ -39,7 +39,7 @@ namespace Figment
         uint32_t m_Width;
         uint32_t m_Height;
         SharedPtr<WebGPUContext> m_GfxContext;
-        UniquePtr<WebGPURenderer> m_Renderer;
+        UniquePtr<ShapeRenderer> m_Renderer;
         SharedPtr<CameraController> m_EditorCameraController;
         SharedPtr<PerspectiveCamera> m_EditorCamera;
         SharedPtr<CameraController> m_ActiveCameraController;

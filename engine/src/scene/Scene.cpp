@@ -19,7 +19,7 @@ namespace Figment
 
         auto m_Window = App::Instance()->GetWindow();
         auto webGpuWindow = std::dynamic_pointer_cast<WebGPUWindow>(m_Window);
-        m_Renderer = CreateUniquePtr<WebGPURenderer>(*webGpuWindow->GetContext());
+        m_Renderer = CreateUniquePtr<ShapeRenderer>(*webGpuWindow->GetContext());
     }
 
     Scene::~Scene()

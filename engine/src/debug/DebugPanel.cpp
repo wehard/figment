@@ -119,7 +119,7 @@ namespace Figment
 
         if (ImGui::TreeNodeEx("Renderer", ImGuiTreeNodeFlags_DefaultOpen))
         {
-            auto stats = WebGPURenderer::GetStats();
+            auto stats = ShapeRenderer::GetStats();
             ImGui::Text("Draw calls: %d", stats.DrawCalls);
             ImGui::Text("Vertex count: %d", stats.VertexCount);
             ImGui::Text("Quad count: %d", stats.QuadCount);

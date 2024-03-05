@@ -9,7 +9,7 @@
 #include "Scene.h"
 #include "FPSCounter.h"
 #include "imgui.h"
-#include "WebGPURenderer.h"
+#include "ShapeRenderer.h"
 #include "WebGPUGUIContext.h"
 #include "LayerStack.h"
 #include "Layer.h"

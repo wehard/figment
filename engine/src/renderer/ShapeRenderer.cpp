@@ -1,4 +1,4 @@
-#include "WebGPURenderer.h"
+#include "ShapeRenderer.h"
 #include "WebGPUCommand.h"
 #include "WebGPUBuffer.h"
 #include "WebGPUTexture.h"
@@ -8,13 +8,11 @@
 #include "RenderPass.h"
 #include <vector>
 
-#define MEM_ALIGN(_SIZE, _ALIGN)        (((_SIZE) + ((_ALIGN) - 1)) & ~((_ALIGN) - 1))
-
 namespace Figment
 {
-    RendererStats WebGPURenderer::s_Stats = {};
+    RendererStats ShapeRenderer::s_Stats = {};
 
-    WebGPURenderer::WebGPURenderer(WebGPUContext &context)
+    ShapeRenderer::ShapeRenderer(WebGPUContext &context)
             : m_Context(context)
     {
         m_IdTexture = new WebGPUTexture(context.GetDevice(), WGPUTextureFormat_R32Sint, context.GetSwapChainWidth(),
@@ -99,7 +97,7 @@ namespace Figment
         m_CirclePipeline->Build();
     }
 
-    WebGPURenderer::~WebGPURenderer()
+    ShapeRenderer::~ShapeRenderer()
     {
         delete m_IdTexture;
         delete m_DepthTexture;
@@ -113,13 +111,13 @@ namespace Figment
         delete m_CirclePipeline;
     }
 
-    void WebGPURenderer::InitShaders()
+    void ShapeRenderer::InitShaders()
     {
         m_CircleShader = new WebGPUShader(m_Context.GetDevice(), *Utils::LoadFile2("res/shaders/circle.wgsl"));
         m_QuadShader = new WebGPUShader(m_Context.GetDevice(), *Utils::LoadFile2("res/shaders/quad.wgsl"));
     }
 
-    WGPURenderPassEncoder WebGPURenderer::Begin(Figment::Camera &camera)
+    WGPURenderPassEncoder ShapeRenderer::Begin(Figment::Camera &camera)
     {
         CameraData cameraData = {
                 .ViewMatrix = camera.GetViewMatrix(),
@@ -171,7 +169,7 @@ namespace Figment
         return m_RenderPass;
     }
 
-    void WebGPURenderer::End()
+    void ShapeRenderer::End()
     {
         DrawCircles();
         DrawQuads();
@@ -193,7 +191,7 @@ namespace Figment
         s_Stats.VertexCount += m_RendererData.CircleVertexCount + m_RendererData.QuadVertexCount;
     }
 
-    void WebGPURenderer::DrawCircles()
+    void ShapeRenderer::DrawCircles()
     {
         if (m_RendererData.CircleVertexCount == 0)
             return;
@@ -210,7 +208,7 @@ namespace Figment
         s_Stats.DrawCalls++;
     }
 
-    void WebGPURenderer::DrawQuads()
+    void ShapeRenderer::DrawQuads()
     {
         if (m_RendererData.QuadVertexCount == 0)
             return;
@@ -227,7 +225,7 @@ namespace Figment
         s_Stats.DrawCalls++;
     }
 
-    void WebGPURenderer::Submit(Mesh &mesh, glm::mat4 transform, WebGPUShader &shader)
+    void ShapeRenderer::Submit(Mesh &mesh, glm::mat4 transform, WebGPUShader &shader)
     {
         mesh.UniformBuffer()->SetData(&transform, sizeof(transform));
 
@@ -265,7 +263,7 @@ namespace Figment
         return indices;
     }
 
-    void WebGPURenderer::DrawFigment(FigmentComponent &figment, int32_t id)
+    void ShapeRenderer::DrawFigment(FigmentComponent &figment, int32_t id)
     {
         auto indices = GenerateIndices(figment.Config.Width, figment.Config.Height);
         figment.IndexBuffer->SetData(indices.data(), figment.IndexBuffer->GetSize());
@@ -322,12 +320,12 @@ namespace Figment
         s_Stats.DrawCalls++;
     }
 
-    void WebGPURenderer::SubmitQuad(glm::vec3 position, glm::vec4 color, int32_t id)
+    void ShapeRenderer::SubmitQuad(glm::vec3 position, glm::vec4 color, int32_t id)
     {
         SubmitQuad(position, glm::vec3(1.0f), color, id);
     }
 
-    void WebGPURenderer::SubmitQuad(glm::vec3 position, glm::vec3 scale, glm::vec4 color, int32_t id)
+    void ShapeRenderer::SubmitQuad(glm::vec3 position, glm::vec3 scale, glm::vec4 color, int32_t id)
     {
         if (m_RendererData.QuadVertexCount >= MaxQuadVertexCount)
             return;
@@ -345,12 +343,12 @@ namespace Figment
         m_RendererData.QuadVertexCount += 6;
     }
 
-    void WebGPURenderer::SubmitCircle(glm::vec3 position, glm::vec4 color, float radius, int32_t id)
+    void ShapeRenderer::SubmitCircle(glm::vec3 position, glm::vec4 color, float radius, int32_t id)
     {
         SubmitCircle(position, glm::vec3(radius), color, id);
     }
 
-    void WebGPURenderer::SubmitCircle(glm::vec3 position, glm::vec3 scale, glm::vec4 color, int32_t id)
+    void ShapeRenderer::SubmitCircle(glm::vec3 position, glm::vec3 scale, glm::vec4 color, int32_t id)
     {
         if (m_RendererData.CircleVertexCount >= MaxCircleVertexCount)
             return;
@@ -368,7 +366,7 @@ namespace Figment
         m_RendererData.CircleVertexCount += 6;
     }
 
-    void WebGPURenderer::ReadPixel(int x, int y, const std::function<void(int32_t)> &callback)
+    void ShapeRenderer::ReadPixel(int x, int y, const std::function<void(int32_t)> &callback)
     {
         m_PixelBuffer->Unmap();
         WebGPUCommand::CopyImageToBuffer(m_Context.GetDevice(), *m_IdTexture, *m_PixelBuffer, 2048, 2048);
@@ -380,7 +378,7 @@ namespace Figment
         });
     }
 
-    void WebGPURenderer::OnResize(uint32_t width, uint32_t height)
+    void ShapeRenderer::OnResize(uint32_t width, uint32_t height)
     {
         delete m_IdTexture;
         delete m_DepthTexture;
@@ -389,7 +387,7 @@ namespace Figment
                 width, height);
     }
 
-    void WebGPURenderer::BeginComputePass()
+    void ShapeRenderer::BeginComputePass()
     {
         m_ComputeCommandEncoder = WebGPUCommand::CreateCommandEncoder(m_Context.GetDevice(), "ComputeCommandEncoder");
 
@@ -400,7 +398,7 @@ namespace Figment
         m_ComputePass = wgpuCommandEncoderBeginComputePass(m_ComputeCommandEncoder, &computePassDesc);
     }
 
-    void WebGPURenderer::Compute(FigmentComponent &figment)
+    void ShapeRenderer::Compute(FigmentComponent &figment)
     {
         WGPUBindGroupLayoutEntry bindGroupLayoutEntry = GetDefaultWGPUBindGroupLayoutEntry();
         bindGroupLayoutEntry.nextInChain = nullptr;
@@ -466,7 +464,7 @@ namespace Figment
         wgpuComputePassEncoderDispatchWorkgroups(m_ComputePass, workgroupCount, 1, 1);
     }
 
-    void WebGPURenderer::EndComputePass()
+    void ShapeRenderer::EndComputePass()
     {
         wgpuComputePassEncoderEnd(m_ComputePass);
 
