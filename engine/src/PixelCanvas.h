@@ -16,6 +16,8 @@ namespace Figment
 
         void OnUpdate(PerspectiveCamera &camera, float deltaTime);
         void SetPixel(uint32_t x, uint32_t y, uint32_t color);
+        uint32_t GetPixel(uint32_t x, uint32_t y)
+        { return m_Pixels[y * m_Width + x]; }
         void UpdateTexture();
         uint32_t GetWidth() const
         { return m_Width; }
