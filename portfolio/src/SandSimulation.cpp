@@ -22,7 +22,7 @@ SandSimulation::SandSimulation(Figment::WebGPUContext &context, PerspectiveCamer
         if (r < 0.2)
             m_PixelCanvas->SetPixel(i, j, s_SandColor);
         else
-            m_PixelCanvas->SetPixel(i, j, s_BackgroundColor);
+            m_PixelCanvas->SetPixel(i, j, s_AirColor);
     }
     m_PixelCanvas->UpdateTexture();
 }
@@ -41,7 +41,29 @@ bool SandSimulation::CanMove(PixelCanvas &canvas, int x, int y)
 {
     if (x < 0 || x >= canvas.GetWidth() || y < 0 || y >= canvas.GetHeight())
         return false;
-    return canvas.GetPixel(x, y) == s_BackgroundColor;
+    return canvas.GetPixel(x, y) == s_AirColor;
+}
+
+std::array<SandSimulation::ElementType, 9> SandSimulation::GetNeighbours(int x, int y)
+{
+    std::array<ElementType, 9> neighbours = {};
+    int index = 0;
+    for (int i = -1; i <= 1; i++)
+    {
+        for (int j = -1; j <= 1; j++)
+        {
+            if (x >= 0 && x < m_PixelCanvas->GetWidth() && y >= 0 && y < m_PixelCanvas->GetHeight())
+            {
+                auto color = m_PixelCanvas->GetPixel(x + i, y + j);
+                neighbours[index++] = m_ElementColorMap[color];
+            }
+            else
+            {
+                neighbours[index++] = ElementType::None;
+            }
+        }
+    }
+    return neighbours;
 }
 
 void SandSimulation::OnUpdate(float deltaTime)
@@ -52,7 +74,6 @@ void SandSimulation::OnUpdate(float deltaTime)
             180,
             App::Instance()->GetTimeSinceStart() > 8.0 ? s_WaterColor : s_SandColor);
 
-    bool updated = false;
     for (int y = 0; y < s_Height; y++)
     {
         for (int x = 0; x < s_Width; x++)
@@ -61,11 +82,10 @@ void SandSimulation::OnUpdate(float deltaTime)
             switch (color)
             {
             case s_SandColor:
+            {
                 UpdateSand(x, y);
                 break;
-            case s_WaterColor:
-                UpdateWater(x, y);
-                break;
+            }
             default:
                 break;
             }
