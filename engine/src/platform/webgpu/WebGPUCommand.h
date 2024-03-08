@@ -59,6 +59,38 @@ namespace Figment
             DestroyCommandBuffer(commandBuffer);
         }
 
+        static void CopyTextureToTexture(WGPUDevice device, WebGPUTexture &from, WebGPUTexture &to)
+        {
+            WGPUImageCopyTexture fromImageCopyTexture = {
+                    .nextInChain = nullptr,
+                    .texture = from.GetTexture(),
+                    .mipLevel = 0,
+                    .origin = { 0, 0, 0 },
+                    .aspect = WGPUTextureAspect_All
+            };
+
+            WGPUImageCopyTexture toImageCopyTexture = {
+                    .nextInChain = nullptr,
+                    .texture = to.GetTexture(),
+                    .mipLevel = 0,
+                    .origin = { 0, 0, 0 },
+                    .aspect = WGPUTextureAspect_All
+            };
+
+            WGPUExtent3D copySize = {};
+            copySize.width = from.GetWidth();
+            copySize.height = to.GetHeight();
+            copySize.depthOrArrayLayers = 1;
+
+            auto commandEncoder = CreateCommandEncoder(device, "CopyCommandEncoder");
+            wgpuCommandEncoderCopyTextureToTexture(commandEncoder, &fromImageCopyTexture, &toImageCopyTexture,
+                    &copySize);
+            auto commandBuffer = CommandEncoderFinish(commandEncoder, "CopyCommandBuffer");
+            SubmitCommandBuffer(device, commandBuffer);
+            DestroyCommandEncoder(commandEncoder);
+            DestroyCommandBuffer(commandBuffer);
+        }
+
         template<typename T>
         static void ClearBuffer(WGPUDevice device, WebGPUBuffer<T> &buffer)
         {
