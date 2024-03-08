@@ -24,10 +24,10 @@ namespace Figment
             BindTexture(texture.GetTextureView(), texture.GetWidth() * texture.GetHeight() * 4);
             BindSampler(texture.GetSampler());
         }
-        void BindStorage(WebGPUTexture &texture)
+        void BindStorage(WebGPUTexture &texture, WGPUStorageTextureAccess access)
         {
             BindStorageTexture(texture.GetTextureView(), texture.GetWidth() * texture.GetHeight() * 4,
-                    texture.GetTextureFormat());
+                    texture.GetTextureFormat(), access);
         }
         WGPUBindGroup Get();
         WGPUBindGroupLayout GetLayout();
@@ -36,7 +36,8 @@ namespace Figment
         void Build();
         void Bind(WGPUBuffer buffer, uint32_t size, WGPUBufferBindingType type);
         void BindTexture(WGPUTextureView textureView, uint64_t size);
-        void BindStorageTexture(WGPUTextureView textureView, uint64_t size, WGPUTextureFormat format);
+        void BindStorageTexture(WGPUTextureView textureView, uint64_t size, WGPUTextureFormat format,
+                WGPUStorageTextureAccess access);
         void BindSampler(WGPUSampler sampler);
 
         WGPUDevice m_Device = nullptr;

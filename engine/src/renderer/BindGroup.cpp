@@ -84,7 +84,8 @@ namespace Figment
         m_BindGroupLayoutEntries.emplace_back(bindGroupLayoutEntry);
     }
 
-    void BindGroup::BindStorageTexture(WGPUTextureView textureView, uint64_t size, WGPUTextureFormat format)
+    void BindGroup::BindStorageTexture(WGPUTextureView textureView, uint64_t size, WGPUTextureFormat format,
+            WGPUStorageTextureAccess access)
     {
         WGPUBindGroupEntry bindGroupEntry = {};
         bindGroupEntry.size = size;
@@ -102,7 +103,7 @@ namespace Figment
         bindGroupLayoutEntry.visibility = m_Visibility;
         bindGroupLayoutEntry.storageTexture.nextInChain = nullptr;
         bindGroupLayoutEntry.storageTexture.format = format;
-        bindGroupLayoutEntry.storageTexture.access = WGPUStorageTextureAccess_ReadWrite;
+        bindGroupLayoutEntry.storageTexture.access = access;
         bindGroupLayoutEntry.storageTexture.viewDimension = WGPUTextureViewDimension_2D;
 
         m_BindGroupLayoutEntries.emplace_back(bindGroupLayoutEntry);
