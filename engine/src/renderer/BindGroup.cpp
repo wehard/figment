@@ -60,6 +60,7 @@ namespace Figment
 
         m_BindGroupLayoutEntries.emplace_back(bindGroupLayoutEntry);
     }
+
     void BindGroup::BindTexture(WGPUTextureView textureView, uint64_t size)
     {
         WGPUBindGroupEntry bindGroupEntry = {};
@@ -82,6 +83,31 @@ namespace Figment
 
         m_BindGroupLayoutEntries.emplace_back(bindGroupLayoutEntry);
     }
+
+    void BindGroup::BindStorageTexture(WGPUTextureView textureView, uint64_t size, WGPUTextureFormat format)
+    {
+        WGPUBindGroupEntry bindGroupEntry = {};
+        bindGroupEntry.size = size;
+        bindGroupEntry.offset = 0;
+        bindGroupEntry.binding = m_BindGroupEntries.size();
+        bindGroupEntry.textureView = textureView;
+        bindGroupEntry.buffer = nullptr;
+        bindGroupEntry.sampler = nullptr;
+
+        m_BindGroupEntries.emplace_back(bindGroupEntry);
+
+        WGPUBindGroupLayoutEntry bindGroupLayoutEntry = GetDefaultWGPUBindGroupLayoutEntry();
+        bindGroupLayoutEntry.nextInChain = nullptr;
+        bindGroupLayoutEntry.binding = bindGroupEntry.binding;
+        bindGroupLayoutEntry.visibility = m_Visibility;
+        bindGroupLayoutEntry.storageTexture.nextInChain = nullptr;
+        bindGroupLayoutEntry.storageTexture.format = format;
+        bindGroupLayoutEntry.storageTexture.access = WGPUStorageTextureAccess_ReadWrite;
+        bindGroupLayoutEntry.storageTexture.viewDimension = WGPUTextureViewDimension_2D;
+
+        m_BindGroupLayoutEntries.emplace_back(bindGroupLayoutEntry);
+    }
+
     void BindGroup::BindSampler(WGPUSampler sampler)
     {
         WGPUBindGroupEntry bindGroupEntry = GetDefaultWGPUBindGroupEntry();
