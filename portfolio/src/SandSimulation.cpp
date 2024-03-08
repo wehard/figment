@@ -1,9 +1,11 @@
 #include "SandSimulation.h"
+#include "ComputePass.h"
 
 SandSimulation::SandSimulation(Figment::WebGPUContext &context, PerspectiveCamera &camera) : Layer("SandSimulation"),
         m_Context(context), m_Camera(camera)
 {
-    m_PixelCanvas = new PixelCanvas(context, s_Width, s_Height);
+    PixelCanvasDescriptor descriptor = { s_Width, s_Height, true };
+    m_PixelCanvas = new PixelCanvas(context, &descriptor);
 
     m_PixelCanvas->SetPixel(0, 0, 0xff0000ff);
     m_PixelCanvas->SetPixel(0, 255, 0x00ff00ff);
@@ -25,6 +27,13 @@ SandSimulation::SandSimulation(Figment::WebGPUContext &context, PerspectiveCamer
             m_PixelCanvas->SetPixel(i, j, s_AirColor);
     }
     m_PixelCanvas->UpdateTexture();
+
+    m_ComputeShader = new WebGPUShader(context.GetDevice(), *Utils::LoadFile2("res/shaders/sand_simulation.wgsl"),
+            "SandSimulationCompute");
+    m_UniformBuffer = new WebGPUUniformBuffer<TextureData>(context.GetDevice(), "TextureDataUniformBuffer",
+            sizeof(TextureData));
+    TextureData data = { s_Width, s_Height };
+    m_UniformBuffer->SetData(&data, sizeof(TextureData));
 }
 
 void SandSimulation::OnAttach()
@@ -44,55 +53,46 @@ bool SandSimulation::CanMove(PixelCanvas &canvas, int x, int y)
     return canvas.GetPixel(x, y) == s_AirColor;
 }
 
-std::array<SandSimulation::ElementType, 9> SandSimulation::GetNeighbours(int x, int y)
-{
-    std::array<ElementType, 9> neighbours = {};
-    int index = 0;
-    for (int i = -1; i <= 1; i++)
-    {
-        for (int j = -1; j <= 1; j++)
-        {
-            if (x >= 0 && x < m_PixelCanvas->GetWidth() && y >= 0 && y < m_PixelCanvas->GetHeight())
-            {
-                auto color = m_PixelCanvas->GetPixel(x + i, y + j);
-                neighbours[index++] = m_ElementColorMap[color];
-            }
-            else
-            {
-                neighbours[index++] = ElementType::None;
-            }
-        }
-    }
-    return neighbours;
-}
-
 void SandSimulation::OnUpdate(float deltaTime)
 {
-    auto r = Random::Float();
-    m_PixelCanvas->SetPixel(
-            ((s_Width / 2) + (uint32_t)(10 * r)) + glm::sin(App::Instance()->GetTimeSinceStart()) * 30,
-            180,
-            App::Instance()->GetTimeSinceStart() > 8.0 ? s_WaterColor : s_SandColor);
+    // auto r = Random::Float();
+    // m_PixelCanvas->SetPixel(
+    //         ((s_Width / 2) + (uint32_t)(10 * r)) + glm::sin(App::Instance()->GetTimeSinceStart()) * 30,
+    //         180,
+    //         App::Instance()->GetTimeSinceStart() > 8.0 ? s_WaterColor : s_SandColor);
+    //
+    // for (int y = 0; y < s_Height; y++)
+    // {
+    //     for (int x = 0; x < s_Width; x++)
+    //     {
+    //         auto color = m_PixelCanvas->GetPixel(x, y);
+    //         switch (color)
+    //         {
+    //         case s_SandColor:
+    //         {
+    //             UpdateSand(x, y);
+    //             break;
+    //         }
+    //         default:
+    //             break;
+    //         }
+    //     }
+    // }
+    // if (m_Dirty)
+    //     m_PixelCanvas->UpdateTexture();
 
-    for (int y = 0; y < s_Height; y++)
-    {
-        for (int x = 0; x < s_Width; x++)
-        {
-            auto color = m_PixelCanvas->GetPixel(x, y);
-            switch (color)
-            {
-            case s_SandColor:
-            {
-                UpdateSand(x, y);
-                break;
-            }
-            default:
-                break;
-            }
-        }
-    }
-    if (m_Dirty)
-        m_PixelCanvas->UpdateTexture();
+    auto m_ComputeBindGroup = new BindGroup(m_Context.GetDevice(), WGPUShaderStage_Compute);
+    m_ComputeBindGroup->Bind(*m_UniformBuffer);
+    m_ComputeBindGroup->BindStorage(m_PixelCanvas->GetComputeTexture(), WGPUStorageTextureAccess_ReadOnly);
+    m_ComputeBindGroup->BindStorage(m_PixelCanvas->GetTexture(), WGPUStorageTextureAccess_WriteOnly);
+
+    auto m_SimulatePipeline = new ComputePipeline(m_Context.GetDevice(), *m_ComputeBindGroup);
+    m_SimulatePipeline->Build("simulate", m_ComputeShader->GetShaderModule());
+
+    ComputePass computePass(m_Context.GetDevice(), m_SimulatePipeline, m_ComputeBindGroup);
+    computePass.Begin();
+    computePass.Dispatch("simulate", m_PixelCanvas->GetWidth(), m_PixelCanvas->GetHeight());
+    computePass.End();
 
     m_PixelCanvas->OnUpdate(m_Camera, deltaTime);
 }
