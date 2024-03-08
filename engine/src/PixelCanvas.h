@@ -8,10 +8,17 @@
 
 namespace Figment
 {
+    struct PixelCanvasDescriptor
+    {
+        uint32_t Width;
+        uint32_t Height;
+        bool useCompute;
+    };
+
     class PixelCanvas
     {
     public:
-        PixelCanvas(WebGPUContext &context, uint32_t width, uint32_t height);
+        PixelCanvas(WebGPUContext &context, PixelCanvasDescriptor *descriptor);
         ~PixelCanvas() = default;
 
         void OnUpdate(PerspectiveCamera &camera, float deltaTime);
@@ -23,6 +30,10 @@ namespace Figment
         { return m_Width; }
         uint32_t GetHeight() const
         { return m_Height; }
+        WebGPUTexture &GetTexture()
+        { return m_Texture; }
+        WebGPUTexture &GetComputeTexture()
+        { return *m_ComputeTexture.get(); }
     private:
         WebGPUContext &m_Context;
         MeshRenderer m_MeshRenderer;
@@ -31,6 +42,9 @@ namespace Figment
         WebGPUTexture m_Texture;
         uint32_t *m_Pixels;
         Mesh *m_Mesh;
+
+        bool m_UseCompute = false;
+        UniquePtr<WebGPUTexture> m_ComputeTexture = nullptr;
     };
 
 }

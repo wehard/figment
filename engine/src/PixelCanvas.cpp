@@ -3,15 +3,16 @@
 
 namespace Figment
 {
-    PixelCanvas::PixelCanvas(WebGPUContext &context, uint32_t width, uint32_t height) : m_Context(context),
-            m_Width(width), m_Height(height),
-            m_Texture(context.GetDevice(), WGPUTextureFormat_RGBA8Unorm, width, height,
-                    WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, "PixelCanvasTexture"),
-            m_MeshRenderer(context)
+    PixelCanvas::PixelCanvas(WebGPUContext &context, PixelCanvasDescriptor *descriptor) : m_Context(context),
+            m_Width(descriptor->Width), m_Height(descriptor->Height),
+            m_Texture(context.GetDevice(), WGPUTextureFormat_RGBA8Unorm, descriptor->Width, descriptor->Height,
+                    WGPUTextureUsage_TextureBinding | WGPUTextureUsage_StorageBinding | WGPUTextureUsage_CopyDst,
+                    "PixelCanvasTexture"),
+            m_MeshRenderer(context), m_UseCompute(descriptor->useCompute)
     {
-        m_Pixels = new uint32_t[width * height];
+        m_Pixels = new uint32_t[descriptor->Width * descriptor->Height];
 
-        auto aspectRatio = (float)height / (float)width;
+        auto aspectRatio = (float)descriptor->Height / (float)descriptor->Width;
         std::vector<Mesh::Vertex> vertices = {
                 {{ -0.5, -0.5 * aspectRatio, 0.0 }, { 0.0, 0.0 }},
                 {{ 0.5, -0.5 * aspectRatio, 0.0 }, { 1.0, 0.0 }},
@@ -24,6 +25,15 @@ namespace Figment
         };
 
         m_Mesh = new Figment::Mesh(context.GetDevice(), vertices, indices);
+
+        if (m_UseCompute)
+        {
+            m_ComputeTexture = CreateUniquePtr<WebGPUTexture>(context.GetDevice(), WGPUTextureFormat_RGBA8Unorm,
+                    descriptor->Width, descriptor->Height,
+                    WGPUTextureUsage_TextureBinding | WGPUTextureUsage_StorageBinding | WGPUTextureUsage_CopyDst
+                            | WGPUTextureUsage_CopySrc,
+                    "PixelCanvasComputeTexture");
+        }
     }
 
     void PixelCanvas::SetPixel(uint32_t x, uint32_t y, const uint32_t color)
@@ -34,6 +44,11 @@ namespace Figment
 
     void PixelCanvas::UpdateTexture()
     {
+        if (m_UseCompute)
+        {
+            m_ComputeTexture->SetData(m_Pixels, m_Width * m_Height * sizeof(uint32_t));
+            return;
+        }
         m_Texture.SetData(m_Pixels, m_Width * m_Height * sizeof(uint32_t));
     }
 
