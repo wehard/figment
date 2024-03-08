@@ -76,6 +76,13 @@ namespace Figment
             FIG_LOG_ERROR("Failed to create WebGPU instance!");
         }
 
+        auto hasStorageTextureReadWriteFeature = wgpuInstanceHasWGSLLanguageFeature(m_Instance,
+                WGPUWGSLFeatureName_ReadonlyAndReadwriteStorageTextures);
+        if (!hasStorageTextureReadWriteFeature)
+        {
+            FIG_LOG_ERROR("Storage texture read-write feature not supported!");
+        }
+
         m_WebGPUSurface = wgpuInstanceCreateSurface(m_Instance, &surfaceDesc);
         if (!m_WebGPUSurface)
         {
