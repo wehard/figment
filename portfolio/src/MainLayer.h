@@ -27,17 +27,17 @@ public:
         auto webGpuWindow = std::dynamic_pointer_cast<Figment::WebGPUWindow>(m_Window);
         m_Camera = CreateSharedPtr<PerspectiveCamera>(
                 (float)webGpuWindow->GetWidth() / (float)webGpuWindow->GetHeight());
-        m_Camera->SetPosition(glm::vec3(0.0, 0.0, 1.0));
+        m_Camera->SetPosition(glm::vec3(0.0, 0.0, 3.0));
 
         m_CameraController = new CameraController(m_Camera);
         m_CameraController->SetMovementSpeed(1.0f);
 
         // m_Layers.push_back(new Cube(m_Camera, true));
-        // m_Layers.push_back(new Particles(m_Camera, false));
-        // m_Layers.push_back(new WorldMap(m_Camera, true));
+        m_Layers.push_back(new Particles(m_Camera, false));
+        m_Layers.push_back(new WorldMap(m_Camera, true));
         // m_Layers.push_back(new Asteroids(*m_Camera, true));
         // m_Layers.push_back(new SandSimulation(*webGpuWindow->GetContext(), *m_Camera));
-        m_Layers.push_back(new Shapes(*webGpuWindow->GetContext(), *m_Camera));
+        // m_Layers.push_back(new Shapes(*webGpuWindow->GetContext(), *m_Camera));
 
         for (auto layer : m_Layers)
         {
@@ -114,10 +114,9 @@ public:
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 5.0f);
 
-        ImGui::SetNextWindowCollapsed(true, ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowCollapsed(false, ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowPos(ImVec2(padding, padding), ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSize(ImVec2(width * 2 + 20, height + 50), ImGuiCond_FirstUseEver);
-        ImGui::Begin("Willehard Korander | Software Engineer");
+        ImGui::Begin("Willehard Korander | Software Engineer", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
         ImGui::Text("CONTACT");
         ImGui::Text("Email:              ");
         ImGui::SameLine(0.0, 0.0);

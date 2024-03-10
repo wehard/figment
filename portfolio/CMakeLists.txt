@@ -11,9 +11,14 @@ target_compile_definitions(portfolio PRIVATE GL_SILENCE_DEPRECATION)
 target_compile_definitions(portfolio PRIVATE WEBGPU_BACKEND_EMSCRIPTEN)
 target_compile_options(portfolio PRIVATE -Wno-deprecated-literal-operator)
 
-if (EMSCRIPTEN)
+message(STATUS "Configuring ${CMAKE_PROJECT_NAME} for ${CMAKE_BUILD_TYPE} (${CMAKE_SYSTEM_NAME})")
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0 -Wno-dangling-else")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -Wno-dangling-else")
+else ()
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 --closure 1")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 --closure 1")
 endif ()
 
 target_include_directories(portfolio
@@ -49,13 +54,11 @@ set_target_properties(portfolio PROPERTIES LINK_FLAGS "\
         -s ASSERTIONS=1\
         -s USE_ES6_IMPORT_META=1\
         --preload-file res@/res\
-        --preload-file ../../engine/res/shaders@/res/shaders/builtin\
+        --preload-file ../../../engine/res/shaders@/res/shaders/builtin\
         -lglfw\
-        -g\
         --shell-file ${CMAKE_CURRENT_SOURCE_DIR}/index.html\
 ")
 
-# link static engine lib
 target_link_directories(portfolio PRIVATE ${CMAKE_BINARY_DIR}/engine)
 target_link_libraries(portfolio libengine.a)
 

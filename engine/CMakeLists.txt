@@ -8,8 +8,8 @@ target_compile_definitions(engine PRIVATE WEBGPU_BACKEND_EMSCRIPTEN)
 target_compile_options(engine PRIVATE -Wno-deprecated-literal-operator)
 
 set(EMSCRIPTEN_PATH "~/dev/emsdk")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0 -Wno-dangling-else")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -Wno-dangling-else")
+
+message(STATUS "Configuring engine for ${CMAKE_BUILD_TYPE} (${CMAKE_SYSTEM_NAME})")
 
 add_custom_target(setup_emscripten
         COMMAND source ${EMSCRIPTEN_PATH}/emsdk_env.sh
