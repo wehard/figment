@@ -42,7 +42,7 @@ WorldMap::WorldMap(SharedPtr<PerspectiveCamera> camera, bool enabled) : Layer("W
 
     auto map = Image::Load("res/2k_earth_daymap.png");
     m_WorldTexture = WebGPUTexture::Create(m_Context->GetDevice(), map);
-    auto bump = Image::Load("res/elev_bump_8k.jpg");
+    auto bump = Image::Load("res/2k_earth_bump.jpg");
     m_WorldHeightMap = WebGPUTexture::Create(m_Context->GetDevice(), bump);
 
     m_ComputeBindGroup = new BindGroup(m_Context->GetDevice(), WGPUShaderStage_Compute);
