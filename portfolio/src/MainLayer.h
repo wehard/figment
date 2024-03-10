@@ -161,6 +161,12 @@ public:
             if (ImGui::Checkbox(("##" + layer->GetName()).c_str(), &enabled))
             {
                 layer->SetEnabled(!layer->IsEnabled());
+                for (auto other : m_Layers)
+                {
+                    if (other == layer)
+                        continue;
+                    other->SetEnabled(false);
+                }
             }
             ImGui::SameLine();
             if (ImGui::Selectable(layer->GetName().c_str(), &selected))
