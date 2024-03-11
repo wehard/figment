@@ -46,6 +46,19 @@ public:
     constexpr static uint32_t s_SandColor = 0xff0000ff;
     constexpr static uint32_t s_WaterColor = 0xffff0000;
 
+    struct Coord
+    {
+        int X;
+        int Y;
+    };
+
+    struct Particle
+    {
+        Coord Position;
+        Coord PreviousPosition;
+        uint32_t Color;
+    };
+
 public:
     SandSimulation(WebGPUContext &context, PerspectiveCamera &camera);
     ~SandSimulation() override = default;
@@ -66,10 +79,11 @@ private:
     PixelCanvas *m_PixelCanvas;
     WebGPUShader *m_ComputeShader;
     WebGPUUniformBuffer<TextureData> *m_UniformBuffer;
+    WebGPUBuffer<Particle> *m_ParticleBuffer;
 
     bool CanMove(PixelCanvas &canvas, int x, int y);
-    void UpdateSand(int x, int y);
-    void UpdateWater(int x, int y);
+    void UpdateSandParticle(int x, int y);
+    void UpdateWaterParticle(int x, int y);
     bool m_Dirty = false;
 
     constexpr static uint32_t s_Width = 320;

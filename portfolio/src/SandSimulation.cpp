@@ -4,13 +4,10 @@
 SandSimulation::SandSimulation(Figment::WebGPUContext &context, PerspectiveCamera &camera) : Layer("SandSimulation"),
         m_Context(context), m_Camera(camera)
 {
-    PixelCanvasDescriptor descriptor = { s_Width, s_Height, true };
+    PixelCanvasDescriptor descriptor = { s_Width, s_Height, false };
     m_PixelCanvas = new PixelCanvas(context, &descriptor);
 
-    m_PixelCanvas->SetPixel(0, 0, 0xff0000ff);
-    m_PixelCanvas->SetPixel(0, 255, 0x00ff00ff);
-    m_PixelCanvas->SetPixel(255, 255, 0x0000ffff);
-    m_PixelCanvas->SetPixel(255, 0, 0xffffffff);
+    m_PixelCanvas->Fill(s_AirColor);
 
     for (auto x = 0; x < s_Width * s_Height; x++)
     {
@@ -23,8 +20,6 @@ SandSimulation::SandSimulation(Figment::WebGPUContext &context, PerspectiveCamer
         auto r = Random::Float();
         if (r < 0.2)
             m_PixelCanvas->SetPixel(i, j, s_SandColor);
-        else
-            m_PixelCanvas->SetPixel(i, j, s_AirColor);
     }
     m_PixelCanvas->UpdateTexture();
 
@@ -55,46 +50,44 @@ bool SandSimulation::CanMove(PixelCanvas &canvas, int x, int y)
 
 void SandSimulation::OnUpdate(float deltaTime)
 {
-    // auto r = Random::Float();
-    // m_PixelCanvas->SetPixel(
-    //         ((s_Width / 2) + (uint32_t)(10 * r)) + glm::sin(App::Instance()->GetTimeSinceStart()) * 30,
-    //         180,
-    //         App::Instance()->GetTimeSinceStart() > 8.0 ? s_WaterColor : s_SandColor);
+    auto r = Random::Float();
+    m_PixelCanvas->SetPixel(
+            ((s_Width / 2) + (uint32_t)(10 * r)) + glm::sin(App::Instance()->GetTimeSinceStart()) * 30,
+            180, App::Instance()->GetTimeSinceStart() > 5.0 ? s_WaterColor : s_SandColor);
+
+    for (int y = 1; y < s_Height; y++)
+    {
+        for (int x = 0; x < s_Width; x++)
+        {
+            auto pixel = m_PixelCanvas->GetPixel(x, y);
+            if (pixel == s_SandColor)
+            {
+                UpdateSandParticle(x, y);
+            }
+            else if (pixel == s_WaterColor)
+            {
+                UpdateWaterParticle(x, y);
+            }
+        }
+    }
+    if (m_Dirty)
+        m_PixelCanvas->UpdateTexture();
+
+    // auto m_ComputeBindGroup = new BindGroup(m_Context.GetDevice(), WGPUShaderStage_Compute);
+    // m_ComputeBindGroup->Bind(*m_UniformBuffer);
+    // m_ComputeBindGroup->BindStorage(m_PixelCanvas->GetTexture(), WGPUStorageTextureAccess_ReadOnly);
+    // m_ComputeBindGroup->BindStorage(m_PixelCanvas->GetComputeTexture(), WGPUStorageTextureAccess_WriteOnly);
     //
-    // for (int y = 0; y < s_Height; y++)
-    // {
-    //     for (int x = 0; x < s_Width; x++)
-    //     {
-    //         auto color = m_PixelCanvas->GetPixel(x, y);
-    //         switch (color)
-    //         {
-    //         case s_SandColor:
-    //         {
-    //             UpdateSand(x, y);
-    //             break;
-    //         }
-    //         default:
-    //             break;
-    //         }
-    //     }
-    // }
-    // if (m_Dirty)
-    //     m_PixelCanvas->UpdateTexture();
-
-    auto m_ComputeBindGroup = new BindGroup(m_Context.GetDevice(), WGPUShaderStage_Compute);
-    m_ComputeBindGroup->Bind(*m_UniformBuffer);
-    m_ComputeBindGroup->BindStorage(m_PixelCanvas->GetComputeTexture(), WGPUStorageTextureAccess_ReadOnly);
-    m_ComputeBindGroup->BindStorage(m_PixelCanvas->GetTexture(), WGPUStorageTextureAccess_WriteOnly);
-
-    auto m_SimulatePipeline = new ComputePipeline(m_Context.GetDevice(), *m_ComputeBindGroup);
-    m_SimulatePipeline->Build("simulate", m_ComputeShader->GetShaderModule());
-
-    ComputePass computePass(m_Context.GetDevice(), m_SimulatePipeline, m_ComputeBindGroup);
-    computePass.Begin();
-    computePass.Dispatch("simulate", m_PixelCanvas->GetWidth(), m_PixelCanvas->GetHeight());
-    computePass.End();
+    // auto m_SimulatePipeline = new ComputePipeline(m_Context.GetDevice(), *m_ComputeBindGroup);
+    // m_SimulatePipeline->Build("simulate", m_ComputeShader->GetShaderModule());
+    //
+    // ComputePass computePass(m_Context.GetDevice(), m_SimulatePipeline, m_ComputeBindGroup);
+    // computePass.Begin();
+    // computePass.Dispatch("simulate", m_PixelCanvas->GetWidth(), m_PixelCanvas->GetHeight());
+    // computePass.End();
 
     m_PixelCanvas->OnUpdate(m_Camera, deltaTime);
+
 }
 
 void SandSimulation::OnImGuiRender()
@@ -107,97 +100,52 @@ void SandSimulation::OnEvent(Figment::AppEvent event, void *eventData)
 
 }
 
-void SandSimulation::UpdateSand(int x, int y)
+void SandSimulation::UpdateSandParticle(int x, int y)
 {
-    if (x < 0 || x >= m_PixelCanvas->GetWidth() || y < 0 || y >= m_PixelCanvas->GetHeight())
-        return;
-    if (CanMove(*m_PixelCanvas, x, y - 1))
+    auto bx = x;
+    auto by = y - 1;
+    if (m_PixelCanvas->GetPixel(bx, by) == s_AirColor)
     {
-        auto below = m_PixelCanvas->GetPixel(x, y - 1);
-        m_PixelCanvas->SetPixel(x, y, below);
-        m_PixelCanvas->SetPixel(x, y - 1, s_SandColor);
-        m_Dirty = true;
-        return;
-    }
-    bool canMoveDownLeft = CanMove(*m_PixelCanvas, x - 1, y - 1);
-    bool canMoveDownRight = CanMove(*m_PixelCanvas, x + 1, y - 1);
-    if (canMoveDownLeft && canMoveDownRight)
-    {
-        auto fc = App::Instance()->GetFPSCounter().GetFrameCount() % 2;
-        fc == 0 ? canMoveDownRight = false : canMoveDownLeft = false;
-    }
-    if (canMoveDownLeft)
-    {
-        auto below = m_PixelCanvas->GetPixel(x - 1, y - 1);
-        m_PixelCanvas->SetPixel(x, y, below);
-        m_PixelCanvas->SetPixel(x - 1, y - 1, s_SandColor);
+        m_PixelCanvas->SwapPixels(x, y, bx, by);
         m_Dirty = true;
     }
-    else if (canMoveDownRight)
+    else if (m_PixelCanvas->GetPixel(bx + 1, by) == s_AirColor)
     {
-        auto below = m_PixelCanvas->GetPixel(x + 1, y - 1);
-        m_PixelCanvas->SetPixel(x, y, below);
-        m_PixelCanvas->SetPixel(x + 1, y - 1, s_SandColor);
+        m_PixelCanvas->SwapPixels(x, y, bx + 1, by);
+        m_Dirty = true;
+    }
+    else if (m_PixelCanvas->GetPixel(bx - 1, by) == s_AirColor)
+    {
+        m_PixelCanvas->SwapPixels(x, y, bx - 1, by);
         m_Dirty = true;
     }
 }
 
-void SandSimulation::UpdateWater(int x, int y)
+void SandSimulation::UpdateWaterParticle(int x, int y)
 {
-    if (CanMove(*m_PixelCanvas, x, y - 1))
+    if (m_PixelCanvas->GetPixel(x, y - 1) == s_AirColor) // down
     {
-        auto other = m_PixelCanvas->GetPixel(x, y - 1);
-        m_PixelCanvas->SetPixel(x, y, other);
-        m_PixelCanvas->SetPixel(x, y - 1, s_WaterColor);
+        m_PixelCanvas->SwapPixels(x, y, x, y - 1);
         m_Dirty = true;
-        return;
     }
-
-    bool canMoveDownLeft = CanMove(*m_PixelCanvas, x - 1, y - 1);
-    bool canMoveDownRight = CanMove(*m_PixelCanvas, x + 1, y - 1);
-    if (canMoveDownLeft && canMoveDownRight)
+    else if (m_PixelCanvas->GetPixel(x + 1, y - 1) == s_AirColor)
     {
-        auto fc = App::Instance()->GetFPSCounter().GetFrameCount() % 2;
-        fc == 0 ? canMoveDownRight = false : canMoveDownLeft = false;
-    }
-    if (canMoveDownLeft)
-    {
-        auto below = m_PixelCanvas->GetPixel(x - 1, y - 1);
-        m_PixelCanvas->SetPixel(x, y, below);
-        m_PixelCanvas->SetPixel(x - 1, y - 1, s_WaterColor);
+        m_PixelCanvas->SwapPixels(x, y, x + 1, y - 1);
         m_Dirty = true;
-        return;
     }
-    if (canMoveDownRight)
+    else if (m_PixelCanvas->GetPixel(x - 1, y - 1) == s_AirColor)
     {
-        auto below = m_PixelCanvas->GetPixel(x + 1, y - 1);
-        m_PixelCanvas->SetPixel(x, y, below);
-        m_PixelCanvas->SetPixel(x + 1, y - 1, s_WaterColor);
+        m_PixelCanvas->SwapPixels(x, y, x - 1, y - 1);
         m_Dirty = true;
-        return;
     }
-
-    bool canMoveLeft = CanMove(*m_PixelCanvas, x - 1, y);
-    bool canMoveRight = CanMove(*m_PixelCanvas, x + 1, y);
-    if (canMoveLeft && canMoveRight)
+    else if (m_PixelCanvas->GetPixel(x + 1, y) == s_AirColor || m_PixelCanvas->GetPixel(x + 1, y) == s_WaterColor)
     {
-        auto fc = App::Instance()->GetFPSCounter().GetFrameCount() % 2;
-        fc == 0 ? canMoveRight = false : canMoveLeft = false;
-    }
-    if (canMoveLeft)
-    {
-        auto below = m_PixelCanvas->GetPixel(x - 1, y);
-        m_PixelCanvas->SetPixel(x, y, below);
-        m_PixelCanvas->SetPixel(x - 1, y, s_WaterColor);
+        m_PixelCanvas->SwapPixels(x, y, x + 1, y);
         m_Dirty = true;
-        return;
     }
-    if (canMoveRight)
+    else if (m_PixelCanvas->GetPixel(x - 1, y) == s_AirColor || m_PixelCanvas->GetPixel(x - 1, y) == s_WaterColor)
     {
-        auto other = m_PixelCanvas->GetPixel(x + 1, y);
-        m_PixelCanvas->SetPixel(x, y, other);
-        m_PixelCanvas->SetPixel(x + 1, y, s_WaterColor);
+        m_PixelCanvas->SwapPixels(x, y, x - 1, y);
         m_Dirty = true;
-        return;
     }
 }

@@ -9,14 +9,16 @@ struct TextureData {
 
 @compute @workgroup_size(1, 1, 1)
 fn simulate(@builtin(global_invocation_id) id: vec3<u32>) {
-    let pos = id.xy;
-    let srcColor = textureLoad(sourceTexture, pos);
-    if (all(srcColor == vec4<f32>(1.0, 0.0, 0.0, 1.0)))
+    let srcPos = id.xy;
+    let dstPos = vec2<u32>(id.x, id.y - 1);
+    let srcColor = textureLoad(sourceTexture, srcPos);
+    let dstColor = textureLoad(sourceTexture, dstPos);
+    if (id.y > 0 && id.y < textureData.height && all(srcColor == vec4<f32>(1.0, 0.0, 0.0, 1.0)))
     {
-        textureStore(destTexture, pos, vec4<f32>(f32(id.x) / 255, f32(id.y) / 255, 0.0, 1.0));
+        textureStore(destTexture, srcPos, dstColor);
+        textureStore(destTexture, dstPos, srcColor);
+        return;
     }
-    else
-    {
-        textureStore(destTexture, pos, srcColor);
-    }
+
+    textureStore(destTexture, srcPos, srcColor);
 }

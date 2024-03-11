@@ -23,8 +23,10 @@ namespace Figment
 
         void OnUpdate(PerspectiveCamera &camera, float deltaTime);
         void SetPixel(uint32_t x, uint32_t y, uint32_t color);
+        void Fill(uint32_t color);
         uint32_t GetPixel(uint32_t x, uint32_t y)
         { return m_Pixels[y * m_Width + x]; }
+        void SwapPixels(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2);
         void UpdateTexture();
         uint32_t GetWidth() const
         { return m_Width; }
@@ -34,6 +36,7 @@ namespace Figment
         { return m_Texture; }
         WebGPUTexture &GetComputeTexture()
         { return *m_ComputeTexture.get(); }
+
     private:
         WebGPUContext &m_Context;
         MeshRenderer m_MeshRenderer;
