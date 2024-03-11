@@ -6,6 +6,7 @@
 
 #include <string>
 #include <GLFW/glfw3.h>
+#include <RenderStats.h>
 
 #include "imgui_impl_wgpu.h"
 #include "WebGPUWindow.h"
@@ -44,6 +45,8 @@ namespace Figment
 
     void App::Update()
     {
+        RenderStats::Reset();
+
         m_CurrentTime = (float)glfwGetTime();
         float deltaTime = m_CurrentTime - m_LastTime;
         m_LastTime = m_CurrentTime;
