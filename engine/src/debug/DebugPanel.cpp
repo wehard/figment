@@ -1,7 +1,7 @@
 #include "DebugPanel.h"
 #include "Scene.h"
-#include "Entity.h"
 #include "App.h"
+#include "RenderStats.h"
 #include "Input.h"
 #include "imgui.h"
 
@@ -119,11 +119,10 @@ namespace Figment
 
         if (ImGui::TreeNodeEx("Renderer", ImGuiTreeNodeFlags_DefaultOpen))
         {
-            auto stats = ShapeRenderer::GetStats();
-            ImGui::Text("Draw calls: %d", stats.DrawCalls);
-            ImGui::Text("Vertex count: %d", stats.VertexCount);
-            ImGui::Text("Quad count: %d", stats.QuadCount);
-            ImGui::Text("Circle count: %d", stats.CircleCount);
+            ImGui::Text("Draw calls: %d", RenderStats::DrawCalls);
+            ImGui::Text("Vertex count: %d", RenderStats::VertexCount);
+            ImGui::Text("Quad count: %d", RenderStats::QuadCount);
+            ImGui::Text("Circle count: %d", RenderStats::CircleCount);
             ImGui::Separator();
             auto fpsCounter = App::Instance()->GetFPSCounter();
             ImGui::Text("FPS: %.2f", fpsCounter.GetFPS());

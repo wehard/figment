@@ -6,6 +6,7 @@
 #include "WebGPURenderPipeline.h"
 #include "WebGPUCommand.h"
 #include "Camera.h"
+#include "RenderStats.h"
 
 namespace Figment
 {
@@ -35,6 +36,8 @@ namespace Figment
 
             WebGPUCommand::DrawVertices<T>(m_RenderPass, m_Pipeline, m_BindGroup,
                     vertexBuffer, vertexBuffer.Count());
+            RenderStats::VertexCount += vertexBuffer.Count();
+            RenderStats::DrawCalls++;
         }
         void OnResize(uint32_t width, uint32_t height);
     private:

@@ -6,12 +6,11 @@
 #include "WebGPURenderPipeline.h"
 #include "Utils.h"
 #include "RenderPass.h"
+#include "RenderStats.h"
 #include <vector>
 
 namespace Figment
 {
-    RendererStats ShapeRenderer::s_Stats = {};
-
     ShapeRenderer::ShapeRenderer(WebGPUContext &context)
             : m_Context(context)
     {
@@ -166,7 +165,6 @@ namespace Figment
         m_RenderPass = wgpuCommandEncoderBeginRenderPass(m_CommandEncoder, &renderPassDesc);
 
         m_RendererData.Reset();
-        s_Stats.Reset();
 
         return m_RenderPass;
     }
@@ -188,9 +186,9 @@ namespace Figment
         m_CommandEncoder = nullptr;
         m_RenderPass = nullptr;
 
-        s_Stats.CircleCount = m_RendererData.CircleVertexCount / 6;
-        s_Stats.QuadCount = m_RendererData.QuadVertexCount / 6;
-        s_Stats.VertexCount += m_RendererData.CircleVertexCount + m_RendererData.QuadVertexCount;
+        RenderStats::CircleCount = m_RendererData.CircleVertexCount / 6;
+        RenderStats::QuadCount = m_RendererData.QuadVertexCount / 6;
+        RenderStats::VertexCount += m_RendererData.CircleVertexCount + m_RendererData.QuadVertexCount;
     }
 
     void ShapeRenderer::DrawCircles()
@@ -207,7 +205,7 @@ namespace Figment
         wgpuRenderPassEncoderSetBindGroup(m_RenderPass, 0, m_CirclePipeline->BindGroup, 0, nullptr);
         wgpuRenderPassEncoderDraw(m_RenderPass, m_RendererData.CircleVertexCount, 1, 0, 0);
 
-        s_Stats.DrawCalls++;
+        RenderStats::DrawCalls++;
     }
 
     void ShapeRenderer::DrawQuads()
@@ -224,7 +222,7 @@ namespace Figment
         wgpuRenderPassEncoderSetBindGroup(m_RenderPass, 0, m_QuadPipeline->BindGroup, 0, nullptr);
         wgpuRenderPassEncoderDraw(m_RenderPass, m_RendererData.QuadVertexCount, 1, 0, 0);
 
-        s_Stats.DrawCalls++;
+        RenderStats::DrawCalls++;
     }
 
     void ShapeRenderer::Submit(Mesh &mesh, glm::mat4 transform, WebGPUShader &shader)
@@ -242,8 +240,8 @@ namespace Figment
         renderPass.DrawIndexed(mesh, transform, shader);
         renderPass.End();
 
-        s_Stats.DrawCalls++;
-        s_Stats.VertexCount += mesh.VertexCount();
+        RenderStats::DrawCalls++;
+        RenderStats::VertexCount += mesh.VertexCount();
     }
 
     static std::vector<uint32_t> GenerateIndices(int width, int height)
@@ -318,8 +316,8 @@ namespace Figment
 
         delete pipeline;
 
-        s_Stats.VertexCount += figment.VertexBuffer->GetSize() / FigmentComponent::Vertex::Size();
-        s_Stats.DrawCalls++;
+        RenderStats::VertexCount += figment.VertexBuffer->GetSize() / FigmentComponent::Vertex::Size();
+        RenderStats::DrawCalls++;
     }
 
     void ShapeRenderer::SubmitQuad(glm::vec3 position, glm::vec4 color, int32_t id)

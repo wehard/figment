@@ -70,22 +70,6 @@ namespace Figment
         }
     };
 
-    struct RendererStats
-    {
-        uint32_t DrawCalls = 0;
-        uint32_t VertexCount = 0;
-        uint32_t CircleCount = 0;
-        uint32_t QuadCount = 0;
-
-        void Reset()
-        {
-            DrawCalls = 0;
-            VertexCount = 0;
-            CircleCount = 0;
-            QuadCount = 0;
-        }
-    };
-
     class ShapeRenderer
     {
     public:
@@ -136,9 +120,6 @@ namespace Figment
 
         void ReadPixel(int x, int y, const std::function<void(int32_t)> &callback);
         void OnResize(uint32_t width, uint32_t height);
-
-        static RendererStats GetStats()
-        { return s_Stats; }
     private:
         void DrawCircles();
         void DrawQuads();
@@ -177,6 +158,5 @@ namespace Figment
         WebGPURenderPipeline *m_CirclePipeline;
 
         RendererData m_RendererData;
-        static RendererStats s_Stats;
     };
 }

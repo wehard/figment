@@ -1,6 +1,7 @@
 #include "MeshRenderer.h"
 #include "WebGPUCommand.h"
 #include "Utils.h"
+#include "RenderStats.h"
 
 namespace Figment
 {
@@ -80,6 +81,8 @@ namespace Figment
             wgpuRenderPassEncoderSetPipeline(m_RenderPassEncoder, data.Pipeline->Get());
             wgpuRenderPassEncoderSetBindGroup(m_RenderPassEncoder, 0, data.BindGroup->Get(), 0, nullptr);
             wgpuRenderPassEncoderDrawIndexed(m_RenderPassEncoder, mesh->IndexCount(), data.InstanceCount, 0, 0, 0);
+            RenderStats::VertexCount += mesh->VertexCount();
+            RenderStats::DrawCalls++;
         }
 
         wgpuRenderPassEncoderEnd(m_RenderPassEncoder);
