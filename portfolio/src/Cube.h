@@ -16,6 +16,7 @@ private:
     glm::vec3 m_Rotation = glm::vec3(0.0);
     glm::vec3 m_Scale = glm::vec3(0.25);
     SharedPtr<WebGPUWindow> m_Window = nullptr;
+    WebGPUTexture *m_Texture;
 public:
     Cube(SharedPtr<PerspectiveCamera> camera, bool enabled) : Layer("Cube", enabled), m_Camera(camera)
     {
@@ -24,14 +25,14 @@ public:
         m_Renderer = Figment::CreateUniquePtr<MeshRenderer>(*m_Window->GetContext());
 
         std::vector<Mesh::Vertex> vertices = {
-                {{ -0.5, -0.5, 0.5 }},
-                {{ 0.5, -0.5, 0.5 }},
-                {{ 0.5, 0.5, 0.5 }},
-                {{ -0.5, 0.5, 0.5 }},
-                {{ -0.5, -0.5, -0.5 }},
-                {{ 0.5, -0.5, -0.5 }},
-                {{ 0.5, 0.5, -0.5 }},
-                {{ -0.5, 0.5, -0.5 }}
+                {{ -0.5, -0.5, 0.5 }, { 0.0, 0.0 }},
+                {{ 0.5, -0.5, 0.5 }, { 1.0, 0.0 }},
+                {{ 0.5, 0.5, 0.5 }, { 1.0, 1.0 }},
+                {{ -0.5, 0.5, 0.5 }, { 0.0, 1.0 }},
+                {{ -0.5, -0.5, -0.5 }, { 0.0, 0.0 }},
+                {{ 0.5, -0.5, -0.5 }, { 1.0, 0.0 }},
+                {{ 0.5, 0.5, -0.5 }, { 1.0, 1.0 }},
+                {{ -0.5, 0.5, -0.5 }, { 0.0, 1.0 }}
         };
 
         std::vector<uint32_t> indices = {
@@ -46,6 +47,9 @@ public:
         m_Mesh = new Figment::Mesh(m_Window->GetContext()->GetDevice(), vertices, indices);
         m_Shader = new WebGPUShader(m_Window->GetContext()->GetDevice(),
                 *Utils::LoadFile2("res/shaders/mesh.wgsl"));
+
+        auto image = Image::Load("res/2k_earth_daymap.png");
+        m_Texture = WebGPUTexture::Create(m_Window->GetContext()->GetDevice(), image);
     }
 
     void OnAttach() override
@@ -71,7 +75,7 @@ public:
                 glm::radians(m_Rotation.z));
         glm::mat4 transform = matTranslate * matRotate * matScale;
         m_Renderer->BeginFrame(*m_Camera);
-        m_Renderer->Draw(*m_Mesh, transform);
+        m_Renderer->DrawTextured(*m_Mesh, transform, *m_Texture);
         m_Renderer->EndFrame();
     }
 
