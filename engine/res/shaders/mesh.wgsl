@@ -4,10 +4,10 @@ struct CameraData {
 };
 
 struct MeshInstanceData {
-    @location(1) model_matrix_0: vec4<f32>,
-    @location(2) model_matrix_1: vec4<f32>,
-    @location(3) model_matrix_2: vec4<f32>,
-    @location(4) model_matrix_3: vec4<f32>,
+    @location(2) model_matrix_0: vec4<f32>,
+    @location(3) model_matrix_1: vec4<f32>,
+    @location(4) model_matrix_2: vec4<f32>,
+    @location(5) model_matrix_3: vec4<f32>,
 };
 
 @binding(0) @group(0) var<uniform> cameraData: CameraData;
@@ -18,7 +18,7 @@ struct VertexOutput {
 };
 
 @vertex
-fn vs_main(@location(0) pos: vec3f, instance: MeshInstanceData) -> VertexOutput {
+fn vs_main(@location(0) pos: vec3f, @location(1) uv: vec2f, instance: MeshInstanceData) -> VertexOutput {
     var output: VertexOutput;
     var model = mat4x4<f32>(
         instance.model_matrix_0,
