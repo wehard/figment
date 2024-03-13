@@ -22,6 +22,7 @@ namespace Figment
         void DrawTextured(Mesh &mesh, glm::mat4 transform, WebGPUTexture &texture);
         void OnResize(uint32_t width, uint32_t height);
     private:
+
         struct CameraData
         {
             glm::mat4 ViewMatrix;
@@ -53,5 +54,9 @@ namespace Figment
 
         WebGPUTexture *m_DepthTexture;
         WGPURenderPassEncoder m_RenderPassEncoder;
+
+        void Submit(Mesh &mesh, glm::mat4 transform, WebGPUTexture *texture = nullptr);
+        void SubmitDrawCall(Mesh &mesh, MeshRenderData &data);
+        MeshRenderData CreateMeshRenderData(Mesh &mesh, WebGPUShader &shader, WebGPUTexture *texture = nullptr);
     };
 }

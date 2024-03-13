@@ -63,26 +63,29 @@ namespace Figment
         }
     }
 
+    void MeshRenderer::SubmitDrawCall(Mesh &mesh, MeshRenderData &data)
+    {
+        data.InstanceBuffer->SetData(data.InstanceDataStagingBuffer, sizeof(MeshInstanceData) * data.InstanceCount,
+                0);
+        wgpuRenderPassEncoderSetIndexBuffer(m_RenderPassEncoder, mesh.IndexBuffer()->GetBuffer(),
+                WGPUIndexFormat_Uint32, 0,
+                mesh.IndexBuffer()->GetSize());
+        wgpuRenderPassEncoderSetVertexBuffer(m_RenderPassEncoder, 0, mesh.VertexBuffer()->GetBuffer(), 0,
+                mesh.VertexBuffer()->GetSize());
+        wgpuRenderPassEncoderSetVertexBuffer(m_RenderPassEncoder, 1, data.InstanceBuffer->GetBuffer(), 0,
+                sizeof(MeshInstanceData) * data.InstanceCount);
+        wgpuRenderPassEncoderSetPipeline(m_RenderPassEncoder, data.Pipeline->Get());
+        wgpuRenderPassEncoderSetBindGroup(m_RenderPassEncoder, 0, data.BindGroup->Get(), 0, nullptr);
+        wgpuRenderPassEncoderDrawIndexed(m_RenderPassEncoder, mesh.IndexCount(), data.InstanceCount, 0, 0, 0);
+        RenderStats::VertexCount += mesh.VertexCount();
+        RenderStats::DrawCalls++;
+    }
+
     void MeshRenderer::EndFrame()
     {
         for (auto &mrd : m_MeshRenderData)
         {
-            auto &mesh = mrd.first;
-            auto &data = mrd.second;
-            data.InstanceBuffer->SetData(data.InstanceDataStagingBuffer, sizeof(MeshInstanceData) * data.InstanceCount,
-                    0);
-            wgpuRenderPassEncoderSetIndexBuffer(m_RenderPassEncoder, mesh->IndexBuffer()->GetBuffer(),
-                    WGPUIndexFormat_Uint32, 0,
-                    mesh->IndexBuffer()->GetSize());
-            wgpuRenderPassEncoderSetVertexBuffer(m_RenderPassEncoder, 0, mesh->VertexBuffer()->GetBuffer(), 0,
-                    mesh->VertexBuffer()->GetSize());
-            wgpuRenderPassEncoderSetVertexBuffer(m_RenderPassEncoder, 1, data.InstanceBuffer->GetBuffer(), 0,
-                    sizeof(MeshInstanceData) * data.InstanceCount);
-            wgpuRenderPassEncoderSetPipeline(m_RenderPassEncoder, data.Pipeline->Get());
-            wgpuRenderPassEncoderSetBindGroup(m_RenderPassEncoder, 0, data.BindGroup->Get(), 0, nullptr);
-            wgpuRenderPassEncoderDrawIndexed(m_RenderPassEncoder, mesh->IndexCount(), data.InstanceCount, 0, 0, 0);
-            RenderStats::VertexCount += mesh->VertexCount();
-            RenderStats::DrawCalls++;
+            SubmitDrawCall(*mrd.first, mrd.second);
         }
 
         wgpuRenderPassEncoderEnd(m_RenderPassEncoder);
@@ -99,54 +102,74 @@ namespace Figment
         m_RenderPassEncoder = nullptr;
     }
 
+    MeshRenderer::MeshRenderData MeshRenderer::CreateMeshRenderData(Mesh &mesh, WebGPUShader &shader,
+            WebGPUTexture *texture)
+    {
+        MeshRenderData meshRenderData = {};
+        meshRenderData.InstanceBuffer = new WebGPUVertexBuffer<MeshInstanceData>(m_Context.GetDevice(),
+                "MeshRendererMeshDataInstanceBuffer",
+                sizeof(MeshInstanceData) * MaxInstances);
+        meshRenderData.InstanceDataStagingBuffer = new MeshInstanceData[MaxInstances];
+
+        auto vertexAttributes = std::vector<WGPUVertexAttribute>({
+                {
+                        .format = WGPUVertexFormat_Float32x4,
+                        .offset = 0,
+                        .shaderLocation = 2,
+                },
+                {
+                        .format = WGPUVertexFormat_Float32x4,
+                        .offset = 16,
+                        .shaderLocation = 3,
+                },
+                {
+                        .format = WGPUVertexFormat_Float32x4,
+                        .offset = 32,
+                        .shaderLocation = 4,
+                },
+                {
+                        .format = WGPUVertexFormat_Float32x4,
+                        .offset = 48,
+                        .shaderLocation = 5,
+                }
+        });
+        meshRenderData.InstanceBuffer->SetVertexLayout(vertexAttributes, sizeof(MeshInstanceData),
+                WGPUVertexStepMode_Instance);
+
+        auto bindGroup = new BindGroup(m_Context.GetDevice(), WGPUShaderStage_Vertex | WGPUShaderStage_Fragment);
+        bindGroup->Bind(*m_CameraDataUniformBuffer);
+        if (texture != nullptr)
+        {
+            bindGroup->Bind(*texture);
+        }
+
+        auto pipeline = new RenderPipeline(m_Context.GetDevice(), shader, *bindGroup,
+                { mesh.VertexBuffer()->GetVertexLayout(), meshRenderData.InstanceBuffer->GetVertexLayout() });
+        pipeline->AddColorTarget(m_Context.GetTextureFormat(), WGPUColorWriteMask_All);
+        pipeline->SetDepthStencilState(m_DepthTexture->GetTextureFormat());
+        pipeline->SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined,
+                WGPUFrontFace_CCW, WGPUCullMode_None);
+
+        meshRenderData.Pipeline = pipeline;
+        meshRenderData.BindGroup = bindGroup;
+        return meshRenderData;
+    }
+
     void MeshRenderer::Draw(Mesh &mesh, glm::mat4 transform)
+    {
+        Submit(mesh, transform, nullptr);
+    }
+
+    void MeshRenderer::DrawTextured(Mesh &mesh, glm::mat4 transform, WebGPUTexture &texture)
+    {
+        Submit(mesh, transform, &texture);
+    }
+
+    void MeshRenderer::Submit(Mesh &mesh, glm::mat4 transform, WebGPUTexture *texture)
     {
         if (m_MeshRenderData.find(&mesh) == m_MeshRenderData.end())
         {
-            MeshRenderData meshRenderData = {};
-            meshRenderData.InstanceBuffer = new WebGPUVertexBuffer<MeshInstanceData>(m_Context.GetDevice(),
-                    "MeshRendererMeshDataInstanceBuffer",
-                    sizeof(MeshInstanceData) * MaxInstances);
-            meshRenderData.InstanceDataStagingBuffer = new MeshInstanceData[MaxInstances];
-
-            auto vertexAttributes = std::vector<WGPUVertexAttribute>({
-                    {
-                            .format = WGPUVertexFormat_Float32x4,
-                            .offset = 0,
-                            .shaderLocation = 2,
-                    },
-                    {
-                            .format = WGPUVertexFormat_Float32x4,
-                            .offset = 16,
-                            .shaderLocation = 3,
-                    },
-                    {
-                            .format = WGPUVertexFormat_Float32x4,
-                            .offset = 32,
-                            .shaderLocation = 4,
-                    },
-                    {
-                            .format = WGPUVertexFormat_Float32x4,
-                            .offset = 48,
-                            .shaderLocation = 5,
-                    }
-            });
-            meshRenderData.InstanceBuffer->SetVertexLayout(vertexAttributes, sizeof(MeshInstanceData),
-                    WGPUVertexStepMode_Instance);
-
-            auto bindGroup = new BindGroup(m_Context.GetDevice(), WGPUShaderStage_Vertex | WGPUShaderStage_Fragment);
-            bindGroup->Bind(*m_CameraDataUniformBuffer);
-
-            auto pipeline = new RenderPipeline(m_Context.GetDevice(), *m_DefaultShader, *bindGroup,
-                    { mesh.VertexBuffer()->GetVertexLayout(), meshRenderData.InstanceBuffer->GetVertexLayout() });
-            pipeline->AddColorTarget(m_Context.GetTextureFormat(), WGPUColorWriteMask_All);
-            pipeline->SetDepthStencilState(m_DepthTexture->GetTextureFormat());
-            pipeline->SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined,
-                    WGPUFrontFace_CCW, WGPUCullMode_None);
-
-            meshRenderData.Pipeline = pipeline;
-            meshRenderData.BindGroup = bindGroup;
-            m_MeshRenderData[&mesh] = meshRenderData;
+            m_MeshRenderData[&mesh] = CreateMeshRenderData(mesh, *m_TexturedShader, texture);
         }
 
         auto &meshRenderData = m_MeshRenderData[&mesh];
@@ -166,68 +189,5 @@ namespace Figment
         delete m_DepthTexture;
         m_DepthTexture = WebGPUTexture::CreateDepthTexture(m_Context.GetDevice(), WGPUTextureFormat_Depth24Plus,
                 width, height);
-    }
-
-    void MeshRenderer::DrawTextured(Mesh &mesh, glm::mat4 transform, WebGPUTexture &texture)
-    {
-        if (m_MeshRenderData.find(&mesh) == m_MeshRenderData.end())
-        {
-            MeshRenderData meshRenderData = {};
-            meshRenderData.InstanceBuffer = new WebGPUVertexBuffer<MeshInstanceData>(m_Context.GetDevice(),
-                    "MeshRendererMeshDataInstanceBuffer",
-                    sizeof(MeshInstanceData) * MaxInstances);
-            meshRenderData.InstanceDataStagingBuffer = new MeshInstanceData[MaxInstances];
-
-            auto vertexAttributes = std::vector<WGPUVertexAttribute>({
-                    {
-                            .format = WGPUVertexFormat_Float32x4,
-                            .offset = 0,
-                            .shaderLocation = 2,
-                    },
-                    {
-                            .format = WGPUVertexFormat_Float32x4,
-                            .offset = 16,
-                            .shaderLocation = 3,
-                    },
-                    {
-                            .format = WGPUVertexFormat_Float32x4,
-                            .offset = 32,
-                            .shaderLocation = 4,
-                    },
-                    {
-                            .format = WGPUVertexFormat_Float32x4,
-                            .offset = 48,
-                            .shaderLocation = 5,
-                    }
-            });
-            meshRenderData.InstanceBuffer->SetVertexLayout(vertexAttributes, sizeof(MeshInstanceData),
-                    WGPUVertexStepMode_Instance);
-
-            auto bindGroup = new BindGroup(m_Context.GetDevice(), WGPUShaderStage_Vertex | WGPUShaderStage_Fragment);
-            bindGroup->Bind(*m_CameraDataUniformBuffer);
-            bindGroup->Bind(texture);
-
-            auto pipeline = new RenderPipeline(m_Context.GetDevice(), *m_TexturedShader, *bindGroup,
-                    { mesh.VertexBuffer()->GetVertexLayout(), meshRenderData.InstanceBuffer->GetVertexLayout() });
-            pipeline->AddColorTarget(m_Context.GetTextureFormat(), WGPUColorWriteMask_All);
-            pipeline->SetDepthStencilState(m_DepthTexture->GetTextureFormat());
-            pipeline->SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined,
-                    WGPUFrontFace_CCW, WGPUCullMode_None);
-
-            meshRenderData.Pipeline = pipeline;
-            meshRenderData.BindGroup = bindGroup;
-            m_MeshRenderData[&mesh] = meshRenderData;
-        }
-
-        auto &meshRenderData = m_MeshRenderData[&mesh];
-        if (meshRenderData.InstanceCount >= MaxInstances)
-        {
-            return;
-        }
-        MeshInstanceData meshData = {
-                .ModelMatrix = transform
-        };
-        meshRenderData.InstanceDataStagingBuffer[meshRenderData.InstanceCount] = meshData;
-        meshRenderData.InstanceCount++;
     }
 }
