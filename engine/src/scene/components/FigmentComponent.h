@@ -91,11 +91,11 @@ namespace Figment
         device) :
                 m_Device(device)
         {
-            auto computeShaderSource = Utils::LoadFile2("res/shaders/compute.wgsl");
-            std::copy(computeShaderSource->begin(), computeShaderSource->end(), Config.ComputeShaderSourceBuffer);
+            auto computeShaderSource = Utils::LoadFile("res/shaders/compute.wgsl");
+            std::copy(computeShaderSource.begin(), computeShaderSource.end(), Config.ComputeShaderSourceBuffer);
 
-            auto shaderSource = Utils::LoadFile2("res/shaders/figment.wgsl");
-            std::copy(shaderSource->begin(), shaderSource->end(), Config.ShaderSourceBuffer);
+            auto shaderSource = Utils::LoadFile("res/shaders/figment.wgsl");
+            std::copy(shaderSource.begin(), shaderSource.end(), Config.ShaderSourceBuffer);
 
             CreateBuffers();
             Init();
