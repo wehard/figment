@@ -10,3 +10,4 @@
 #include "Random.h"
 #include "Camera.h"
 #include "PixelCanvas.h"
+#include "DebugPanel.h"
