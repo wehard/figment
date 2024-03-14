@@ -11,3 +11,4 @@
 #include "Camera.h"
 #include "PixelCanvas.h"
 #include "DebugPanel.h"
+#include "MeshRenderer.h"
