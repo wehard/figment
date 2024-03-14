@@ -7,10 +7,9 @@
 
 using namespace Figment;
 
-Figment::App *app;
-
 static void main_loop(void *arg)
 {
+    App *app = (App *)arg;
     app->Update();
 }
 
@@ -23,10 +22,9 @@ int main(int argc, char **argv)
     }
     uint32_t width = std::stoul(argv[1]);
     uint32_t height = std::stoul(argv[2]);
-    app = new Figment::App(width, height);
-    app->AddLayer(new MainLayer());
+    App app(width, height);
+    MainLayer layer;
+    app.AddLayer(&layer);
 
-    auto model = ModelLoader::LoadGltf("res/box.gltf");
-
-    emscripten_set_main_loop_arg(main_loop, app, 0, false);
+    emscripten_set_main_loop_arg(main_loop, &app, 0, true);
 }
