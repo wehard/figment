@@ -1,7 +1,4 @@
 #include "Figment.h"
-#include "DebugPanel.h"
-#include "Particles.h"
-#include "WorldMap.h"
 
 #include <emscripten.h>
 #include <cstdio>
