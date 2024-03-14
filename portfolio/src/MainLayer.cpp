@@ -6,7 +6,7 @@
 #include "SandSimulation.h"
 #include "Shapes.h"
 
-#include "emscripten.h"
+#include <emscripten.h>
 
 MainLayer::MainLayer() : Layer("Main")
 {
