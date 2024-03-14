@@ -26,7 +26,7 @@ struct WorldParticlesData
 class WorldMap : public Layer
 {
 public:
-    WorldMap(SharedPtr<PerspectiveCamera> camera, bool enabled);
+    WorldMap(std::shared_ptr<PerspectiveCamera> camera, bool enabled);
     ~WorldMap() override;
     void OnAttach() override;
     void OnDetach() override;
@@ -40,13 +40,13 @@ public:
     float RotationSpeed = 10.0f;
     void ResetParticles();
 private:
-    SharedPtr<WebGPUContext> m_Context;
-    SharedPtr<PerspectiveCamera> m_Camera;
-    UniquePtr<ParticleRenderer> m_Renderer;
-    UniquePtr<WebGPUShader> m_ComputeShader;
-    UniquePtr<WebGPUShader> m_ParticleShader;
-    UniquePtr<WebGPUVertexBuffer<WorldParticle>> m_VertexBuffer;
-    UniquePtr<WebGPUUniformBuffer<WorldParticlesData>> m_UniformBuffer;
+    std::shared_ptr<WebGPUContext> m_Context;
+    std::shared_ptr<PerspectiveCamera> m_Camera;
+    std::unique_ptr<ParticleRenderer> m_Renderer;
+    std::unique_ptr<WebGPUShader> m_ComputeShader;
+    std::unique_ptr<WebGPUShader> m_ParticleShader;
+    std::unique_ptr<WebGPUVertexBuffer<WorldParticle>> m_VertexBuffer;
+    std::unique_ptr<WebGPUUniformBuffer<WorldParticlesData>> m_UniformBuffer;
     WebGPUTexture *m_WorldTexture;
     WebGPUTexture *m_WorldHeightMap;
     uint32_t m_ParticleCount = 1024 * 1024;

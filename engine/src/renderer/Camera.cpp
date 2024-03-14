@@ -4,7 +4,7 @@
 
 namespace Figment
 {
-    Figment::SharedPtr<Camera> Camera::Create(CameraType cameraType)
+    std::shared_ptr<Camera> Camera::Create(CameraType cameraType)
     {
         switch (cameraType)
         {
@@ -15,16 +15,16 @@ namespace Figment
         default:
             break;
         }
-        return Figment::SharedPtr<Camera>();
+        return std::shared_ptr<Camera>();
     }
 
-    Figment::SharedPtr<Camera> Camera::CreateOrthographicCamera(float width, float height)
+    std::shared_ptr<Camera> Camera::CreateOrthographicCamera(float width, float height)
     {
-        return Figment::CreateSharedPtr<OrthographicCamera>(width, height);
+        return std::make_shared<OrthographicCamera>(width, height);
     }
 
-    Figment::SharedPtr<Camera> Camera::CreatePerspectiveCamera(float aspectRatio)
+    std::shared_ptr<Camera> Camera::CreatePerspectiveCamera(float aspectRatio)
     {
-        return Figment::CreateSharedPtr<PerspectiveCamera>(aspectRatio);
+        return std::make_shared<PerspectiveCamera>(aspectRatio);
     }
 }

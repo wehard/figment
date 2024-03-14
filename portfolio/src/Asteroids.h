@@ -68,7 +68,7 @@ private:
     const PerspectiveCamera &m_Camera;
     Mesh *m_AsteroidMesh;
     Mesh *m_ShipMesh;
-    UniquePtr<MeshRenderer> m_Renderer;
+    std::unique_ptr<MeshRenderer> m_Renderer;
     std::vector<Asteroid> m_Asteroids;
     Ship m_Ship;
 };

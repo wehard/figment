@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Core.h"
 #include "Entity.h"
 #include "Framebuffer.h"
 #include "Window.h"
@@ -28,7 +27,7 @@ namespace Figment
         void AddLayer(Layer *layer);
         void AddOverlay(Layer *overlay);
         void Update();
-        Figment::SharedPtr<Window> GetWindow()
+        std::shared_ptr<Window> GetWindow()
         { return m_Window; }
         FPSCounter &GetFPSCounter()
         { return m_FPSCounter; }
@@ -37,8 +36,8 @@ namespace Figment
         static App *Instance()
         { return s_Instance; }
     private:
-        Figment::SharedPtr<Window> m_Window;
-        Figment::UniquePtr<WebGPUGUIContext> m_GUICtx;
+        std::shared_ptr<Window> m_Window;
+        std::unique_ptr<WebGPUGUIContext> m_GUICtx;
         LayerStack m_LayerStack;
 
         float m_CurrentTime = 0;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core.h"
+#include <memory>
 #include "cstdio"
 #include "cstdarg"
 
@@ -9,7 +9,8 @@ class Logger
 {
 public:
     virtual void Log(const char *prefix, const char *message, va_list args) = 0;
-    virtual ~Logger() {}
+    virtual ~Logger()
+    { }
 };
 
 class BrowserConsoleLogger : public Logger
@@ -28,14 +29,12 @@ class Log
 public:
     static void Init()
     {
-        s_Logger = Figment::CreateUniquePtr<BrowserConsoleLogger>();
+        s_Logger = std::make_unique<BrowserConsoleLogger>();
     }
 
     static void Shutdown()
     {
     }
-
-
 
     static void Info(const char *format, ...)
     {
@@ -70,14 +69,13 @@ public:
     }
 
 private:
-    static Figment::UniquePtr<Logger> s_Logger;
+    static std::unique_ptr<Logger> s_Logger;
 
     static void LogWithPrefix(const char *prefix, const char *format, va_list args)
     {
         s_Logger->Log(prefix, format, args);
     }
 };
-
 
 #define FIG_LOG_INFO(...) Log::Info(__VA_ARGS__)
 #define FIG_LOG_WARN(...) Log::Warn(__VA_ARGS__)

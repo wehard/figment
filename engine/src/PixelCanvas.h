@@ -35,7 +35,7 @@ namespace Figment
         WebGPUTexture &GetTexture()
         { return m_Texture; }
         WebGPUTexture &GetComputeTexture()
-        { return *m_ComputeTexture.get(); }
+        { return *m_ComputeTexture; }
 
     private:
         WebGPUContext &m_Context;
@@ -47,7 +47,7 @@ namespace Figment
         Mesh *m_Mesh;
 
         bool m_UseCompute = false;
-        UniquePtr<WebGPUTexture> m_ComputeTexture = nullptr;
+        std::unique_ptr<WebGPUTexture> m_ComputeTexture = nullptr;
     };
 
 }

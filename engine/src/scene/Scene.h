@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Core.h"
 #include "ShapeRenderer.h"
 #include "CameraController.h"
 #include "Camera.h"
@@ -27,22 +26,22 @@ namespace Figment
         std::vector<Entity> GetEntities();
         Entity GetEntityById(uint32_t id);
         Entity GetHoveredEntity();
-        SharedPtr<CameraController> GetEditorCameraController();
+        std::shared_ptr<CameraController> GetEditorCameraController();
         int32_t m_HoveredId = -1;
 
-        SharedPtr<CameraController> GetActiveCameraController();
-        void SetActiveCameraController(SharedPtr<CameraController> camera);
+        std::shared_ptr<CameraController> GetActiveCameraController();
+        void SetActiveCameraController(std::shared_ptr<CameraController> camera);
 
         friend class Entity;
     private:
         entt::registry m_Registry;
         uint32_t m_Width;
         uint32_t m_Height;
-        SharedPtr<WebGPUContext> m_GfxContext;
-        UniquePtr<ShapeRenderer> m_Renderer;
-        SharedPtr<CameraController> m_EditorCameraController;
-        SharedPtr<PerspectiveCamera> m_EditorCamera;
-        SharedPtr<CameraController> m_ActiveCameraController;
+        std::shared_ptr<WebGPUContext> m_GfxContext;
+        std::unique_ptr<ShapeRenderer> m_Renderer;
+        std::shared_ptr<CameraController> m_EditorCameraController;
+        std::shared_ptr<PerspectiveCamera> m_EditorCamera;
+        std::shared_ptr<CameraController> m_ActiveCameraController;
         VerletPhysics m_VerletPhysics;
     };
 }

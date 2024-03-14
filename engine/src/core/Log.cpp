@@ -1,3 +1,3 @@
 #include "Log.h"
 
-Figment::UniquePtr<Logger> Log::s_Logger = nullptr;
+std::unique_ptr<Logger> Log::s_Logger = nullptr;

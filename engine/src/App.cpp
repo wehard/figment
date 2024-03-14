@@ -1,4 +1,3 @@
-#include "Core.h"
 #include "Log.h"
 #include "App.h"
 #include "Input.h"
@@ -31,7 +30,7 @@ namespace Figment
         });
 
         Input::Initialize((GLFWwindow *)m_Window->GetNative());
-        m_GUICtx = Figment::CreateUniquePtr<WebGPUGUIContext>();
+        m_GUICtx = std::make_unique<WebGPUGUIContext>();
         m_GUICtx->Init(m_Window, "glslVersion");
 
         FIG_LOG_INFO("App initialized");

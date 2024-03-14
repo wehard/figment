@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Core.h"
 #include <memory>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
@@ -30,9 +29,9 @@ namespace Figment
         {
         }
         virtual ~Camera() = default;
-        static Figment::SharedPtr<Camera> Create(CameraType cameraType);
-        static Figment::SharedPtr<Camera> CreateOrthographicCamera(float width, float height);
-        static Figment::SharedPtr<Camera> CreatePerspectiveCamera(float aspectRatio);
+        static std::shared_ptr<Camera> Create(CameraType cameraType);
+        static std::shared_ptr<Camera> CreateOrthographicCamera(float width, float height);
+        static std::shared_ptr<Camera> CreatePerspectiveCamera(float aspectRatio);
 
         virtual void Update() = 0;
         virtual void Resize(float width, float height) = 0;

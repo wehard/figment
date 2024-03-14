@@ -1,7 +1,6 @@
 #pragma once
 
 #include "FigmentComponent.h"
-#include "Core.h"
 #include "UUID.h"
 #include "Camera.h"
 #include "glm/glm.hpp"
@@ -85,20 +84,20 @@ namespace Figment
     struct CameraComponent
     {
     public:
-        SharedPtr<CameraController> Controller;
+        std::shared_ptr<CameraController> Controller;
 
         CameraComponent()
         {
-            Camera = CreateSharedPtr<PerspectiveCamera>(1.777f);
-            Controller = CreateSharedPtr<CameraController>(Camera);
+            Camera = std::make_shared<PerspectiveCamera>(1.777f);
+            Controller = std::make_shared<CameraController>(Camera);
         }
         CameraComponent(const CameraComponent &) = default;
-        explicit CameraComponent(SharedPtr<PerspectiveCamera> camera) : Camera(camera)
+        explicit CameraComponent(std::shared_ptr<PerspectiveCamera> camera) : Camera(camera)
         {
-            Controller = CreateSharedPtr<CameraController>(Camera);
+            Controller = std::make_shared<CameraController>(Camera);
         }
     private:
-        SharedPtr<PerspectiveCamera> Camera;
+        std::shared_ptr<PerspectiveCamera> Camera;
     };
 
     struct AnimateComponent
@@ -127,18 +126,18 @@ namespace Figment
 
             switch (Type)
             {
-                case MotionType::PingPong:
-                    UpdatePingPong(deltaTime);
-                    break;
-                case MotionType::Loop:
-                    UpdateLoop(deltaTime);
-                    break;
-                case MotionType::Once:
-                    UpdateOnce(deltaTime);
-                    break;
-                case MotionType::OnceAndBack:
-                    UpdateOnceAndBack(deltaTime);
-                    break;
+            case MotionType::PingPong:
+                UpdatePingPong(deltaTime);
+                break;
+            case MotionType::Loop:
+                UpdateLoop(deltaTime);
+                break;
+            case MotionType::Once:
+                UpdateOnce(deltaTime);
+                break;
+            case MotionType::OnceAndBack:
+                UpdateOnceAndBack(deltaTime);
+                break;
             }
 
             *m_Value += Speed * deltaTime;

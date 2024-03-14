@@ -1,17 +1,17 @@
 #include "WorldMap.h"
 
-WorldMap::WorldMap(SharedPtr<PerspectiveCamera> camera, bool enabled) : Layer("World", enabled), m_Camera(camera)
+WorldMap::WorldMap(std::shared_ptr<PerspectiveCamera> camera, bool enabled) : Layer("World", enabled), m_Camera(camera)
 {
     auto m_Window = Figment::App::Instance()->GetWindow();
     auto webGpuWindow = std::dynamic_pointer_cast<Figment::WebGPUWindow>(m_Window);
     m_Context = webGpuWindow->GetContext();
 
-    m_Renderer = Figment::CreateUniquePtr<ParticleRenderer>(*m_Context);
-    m_ComputeShader = CreateUniquePtr<WebGPUShader>(m_Context->GetDevice(), "res/shaders/world_compute.wgsl",
+    m_Renderer = std::make_unique<ParticleRenderer>(*m_Context);
+    m_ComputeShader = std::make_unique<WebGPUShader>(m_Context->GetDevice(), "res/shaders/world_compute.wgsl",
             "WorldCompute");
-    m_ParticleShader = CreateUniquePtr<WebGPUShader>(m_Context->GetDevice(), "res/shaders/world_particle.wgsl",
+    m_ParticleShader = std::make_unique<WebGPUShader>(m_Context->GetDevice(), "res/shaders/world_particle.wgsl",
             "WorldParticle");
-    m_VertexBuffer = CreateUniquePtr<WebGPUVertexBuffer<WorldParticle>>
+    m_VertexBuffer = std::make_unique<WebGPUVertexBuffer<WorldParticle>>
             (m_Context->GetDevice(), "ParticlesBuffer",
                     m_ParticleCount * sizeof(WorldParticle));
     auto layout = std::vector<WGPUVertexAttribute>({
@@ -37,7 +37,7 @@ WorldMap::WorldMap(SharedPtr<PerspectiveCamera> camera, bool enabled) : Layer("W
             },
     });
     m_VertexBuffer->SetVertexLayout(layout, sizeof(WorldParticle), WGPUVertexStepMode_Vertex);
-    m_UniformBuffer = CreateUniquePtr<WebGPUUniformBuffer<WorldParticlesData>>(m_Context->GetDevice(),
+    m_UniformBuffer = std::make_unique<WebGPUUniformBuffer<WorldParticlesData>>(m_Context->GetDevice(),
             "ParticlesDataUniformBuffer", sizeof(WorldParticlesData));
 
     auto map = Image::Load("res/2k_earth_daymap.png");

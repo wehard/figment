@@ -25,7 +25,7 @@ struct ParticlesData
 class Particles : public Layer
 {
 public:
-    Particles(SharedPtr<PerspectiveCamera> camera, bool enabled);
+    Particles(std::shared_ptr<PerspectiveCamera> camera, bool enabled);
     ~Particles() override;
     void OnAttach() override;
     void OnDetach() override;
@@ -33,13 +33,13 @@ public:
     void OnImGuiRender() override;
     void OnEvent(AppEvent event, void *eventData) override;
 private:
-    SharedPtr<WebGPUContext> m_Context;
-    SharedPtr<PerspectiveCamera> m_Camera;
-    UniquePtr<ParticleRenderer> m_Renderer;
-    UniquePtr<WebGPUShader> m_ComputeShader;
-    UniquePtr<WebGPUShader> m_ParticleShader;
-    UniquePtr<WebGPUVertexBuffer<Particle>> m_VertexBuffer;
-    UniquePtr<WebGPUUniformBuffer<ParticlesData>> m_UniformBuffer;
+    std::shared_ptr<WebGPUContext> m_Context;
+    std::shared_ptr<PerspectiveCamera> m_Camera;
+    std::unique_ptr<ParticleRenderer> m_Renderer;
+    std::unique_ptr<WebGPUShader> m_ComputeShader;
+    std::unique_ptr<WebGPUShader> m_ParticleShader;
+    std::unique_ptr<WebGPUVertexBuffer<Particle>> m_VertexBuffer;
+    std::unique_ptr<WebGPUUniformBuffer<ParticlesData>> m_UniformBuffer;
     BindGroup *m_ComputeBindGroup;
     ComputePipeline *m_InitPipeline;
     ComputePipeline *m_SimulatePipeline;

@@ -29,7 +29,7 @@ namespace Figment
 
         if (m_UseCompute)
         {
-            m_ComputeTexture = CreateUniquePtr<WebGPUTexture>(context.GetDevice(), WGPUTextureFormat_RGBA8Unorm,
+            m_ComputeTexture = std::make_unique<WebGPUTexture>(context.GetDevice(), WGPUTextureFormat_RGBA8Unorm,
                     descriptor->Width, descriptor->Height,
                     WGPUTextureUsage_TextureBinding | WGPUTextureUsage_StorageBinding | WGPUTextureUsage_CopyDst
                             | WGPUTextureUsage_CopySrc,

@@ -12,14 +12,14 @@ namespace Figment
     Scene::Scene(uint32_t width, uint32_t height)
             : m_Width(width), m_Height(height)
     {
-        m_EditorCamera = CreateSharedPtr<PerspectiveCamera>((float)width / (float)height);
-        m_EditorCameraController = CreateSharedPtr<CameraController>(m_EditorCamera);
+        m_EditorCamera = std::make_shared<PerspectiveCamera>((float)width / (float)height);
+        m_EditorCameraController = std::make_shared<CameraController>(m_EditorCamera);
         m_EditorCamera->GetPositionPtr()->z = 15.0;
         SetActiveCameraController(m_EditorCameraController);
 
         auto m_Window = App::Instance()->GetWindow();
         auto webGpuWindow = std::dynamic_pointer_cast<WebGPUWindow>(m_Window);
-        m_Renderer = CreateUniquePtr<ShapeRenderer>(*webGpuWindow->GetContext());
+        m_Renderer = std::make_unique<ShapeRenderer>(*webGpuWindow->GetContext());
     }
 
     Scene::~Scene()

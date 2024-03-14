@@ -14,7 +14,7 @@ class MainLayer : public Figment::Layer
 {
 private:
     std::vector<Layer *> m_Layers;
-    SharedPtr<PerspectiveCamera> m_Camera;
+    std::shared_ptr<PerspectiveCamera> m_Camera;
     float m_BlinkTimer = 0.0f;
     ImVec4 m_BlinkTextColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
     bool m_SwapColor = false;
@@ -25,19 +25,19 @@ public:
     {
         auto m_Window = Figment::App::Instance()->GetWindow();
         auto webGpuWindow = std::dynamic_pointer_cast<Figment::WebGPUWindow>(m_Window);
-        m_Camera = CreateSharedPtr<PerspectiveCamera>(
+        m_Camera = std::make_shared<PerspectiveCamera>(
                 (float)webGpuWindow->GetWidth() / (float)webGpuWindow->GetHeight());
         m_Camera->SetPosition(glm::vec3(0.0, 0.0, 3.0));
 
         m_CameraController = new CameraController(m_Camera);
         m_CameraController->SetMovementSpeed(1.0f);
 
-        // m_Layers.push_back(new Cube(m_Camera, true));
+        m_Layers.push_back(new Cube(m_Camera, true));
         m_Layers.push_back(new Particles(m_Camera, false));
-        m_Layers.push_back(new WorldMap(m_Camera, true));
-        // m_Layers.push_back(new Asteroids(*m_Camera, true));
+        // m_Layers.push_back(new WorldMap(m_Camera, false));
+        // m_Layers.push_back(new Asteroids(*m_Camera, false));
         // m_Layers.push_back(new SandSimulation(*webGpuWindow->GetContext(), *m_Camera));
-        // m_Layers.push_back(new Shapes(*webGpuWindow->GetContext(), *m_Camera));
+        m_Layers.push_back(new Shapes(*webGpuWindow->GetContext(), *m_Camera));
 
         for (auto layer : m_Layers)
         {
@@ -158,7 +158,8 @@ public:
         {
             auto enabled = layer->IsEnabled();
             bool selected = m_SelectedLayer == layer;
-            if (ImGui::Checkbox(("##" + layer->GetName()).c_str(), &enabled))
+            // if (ImGui::Checkbox(("##" + layer->GetName()).c_str(), &enabled))
+            if (ImGui::RadioButton(("##" + layer->GetName()).c_str(), enabled))
             {
                 layer->SetEnabled(!layer->IsEnabled());
                 for (auto other : m_Layers)

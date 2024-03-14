@@ -8,21 +8,21 @@ using namespace Figment;
 class Cube : public Layer
 {
 private:
-    UniquePtr<MeshRenderer> m_Renderer;
-    SharedPtr<PerspectiveCamera> m_Camera;
+    std::unique_ptr<MeshRenderer> m_Renderer;
+    std::shared_ptr<PerspectiveCamera> m_Camera;
     Figment::Mesh *m_Mesh;
     WebGPUShader *m_Shader;
     glm::vec3 m_Position = glm::vec3(0.0);
     glm::vec3 m_Rotation = glm::vec3(0.0);
     glm::vec3 m_Scale = glm::vec3(0.25);
-    SharedPtr<WebGPUWindow> m_Window = nullptr;
+    std::shared_ptr<WebGPUWindow> m_Window = nullptr;
     WebGPUTexture *m_Texture;
 public:
-    Cube(SharedPtr<PerspectiveCamera> camera, bool enabled) : Layer("Cube", enabled), m_Camera(camera)
+    Cube(std::shared_ptr<PerspectiveCamera> camera, bool enabled) : Layer("Cube", enabled), m_Camera(camera)
     {
         auto window = Figment::App::Instance()->GetWindow();
         m_Window = std::dynamic_pointer_cast<Figment::WebGPUWindow>(window);
-        m_Renderer = Figment::CreateUniquePtr<MeshRenderer>(*m_Window->GetContext());
+        m_Renderer = std::make_unique<MeshRenderer>(*m_Window->GetContext());
 
         std::vector<Mesh::Vertex> vertices = {
                 {{ -0.5, -0.5, 0.5 }, { 0.0, 0.0 }},

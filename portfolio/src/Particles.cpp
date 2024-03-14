@@ -2,18 +2,19 @@
 #include "ComputePass.h"
 #include "Figment.h"
 
-Particles::Particles(SharedPtr<PerspectiveCamera> camera, bool enabled) : Layer("Particles", enabled), m_Camera(camera)
+Particles::Particles(std::shared_ptr<PerspectiveCamera> camera, bool enabled) : Layer("Particles", enabled),
+        m_Camera(camera)
 {
     auto m_Window = Figment::App::Instance()->GetWindow();
     auto webGpuWindow = std::dynamic_pointer_cast<Figment::WebGPUWindow>(m_Window);
     m_Context = webGpuWindow->GetContext();
-    m_Renderer = Figment::CreateUniquePtr<ParticleRenderer>(*webGpuWindow->GetContext());
-    m_ComputeShader = CreateUniquePtr<WebGPUShader>(m_Context->GetDevice(),
+    m_Renderer = std::make_unique<ParticleRenderer>(*webGpuWindow->GetContext());
+    m_ComputeShader = std::make_unique<WebGPUShader>(m_Context->GetDevice(),
             "res/shaders/particles.wgsl", "ParticlesCompute");
-    m_ParticleShader = CreateUniquePtr<WebGPUShader>(m_Context->GetDevice(),
+    m_ParticleShader = std::make_unique<WebGPUShader>(m_Context->GetDevice(),
             "res/shaders/particle.wgsl", "ParticleShader");
 
-    m_VertexBuffer = CreateUniquePtr<WebGPUVertexBuffer<Particle>>
+    m_VertexBuffer = std::make_unique<WebGPUVertexBuffer<Particle>>
             (m_Context->GetDevice(), "ParticlesBuffer",
                     32768 * sizeof(Particle));
 
@@ -26,7 +27,7 @@ Particles::Particles(SharedPtr<PerspectiveCamera> camera, bool enabled) : Layer(
     });
     m_VertexBuffer->SetVertexLayout(layout, sizeof(Particle), WGPUVertexStepMode_Vertex);
 
-    m_UniformBuffer = CreateUniquePtr<WebGPUUniformBuffer<ParticlesData>>(m_Context->GetDevice(),
+    m_UniformBuffer = std::make_unique<WebGPUUniformBuffer<ParticlesData>>(m_Context->GetDevice(),
             "ParticlesDataUniformBuffer", sizeof(ParticlesData));
 
     m_ComputeBindGroup = new BindGroup(m_Context->GetDevice(), WGPUShaderStage_Compute);

@@ -4,7 +4,7 @@
 
 namespace Figment
 {
-    CameraController::CameraController(SharedPtr<PerspectiveCamera> camera)
+    CameraController::CameraController(std::shared_ptr<PerspectiveCamera> camera)
             : m_Camera(camera), m_MovementSpeed(60.0), m_RotationSpeed(0.1), m_FpsCamera(false)
     {
 
@@ -71,7 +71,7 @@ namespace Figment
         m_Camera->m_Position += m_Camera->m_Forward * scrollDelta;
     }
 
-    SharedPtr<PerspectiveCamera> CameraController::GetCamera()
+    std::shared_ptr<PerspectiveCamera> CameraController::GetCamera()
     {
         return m_Camera;
     }
