@@ -1,3 +1,4 @@
+#include <Utils.h>
 #include "WebGPUShader.h"
 #include "Log.h"
 
@@ -73,9 +74,10 @@ namespace Figment
         return depthStencilState;
     }
 
-    WebGPUShader::WebGPUShader(WGPUDevice device, const std::string &shaderSource, const char *label)
-            : m_ShaderSource(shaderSource)
+    WebGPUShader::WebGPUShader(WGPUDevice device, const std::string &filePath, const char *label)
+            : m_FilePath(filePath)
     {
+        auto shaderSource = Utils::LoadFile(filePath);
         WGPUShaderModuleWGSLDescriptor shaderCodeDesc = {};
         shaderCodeDesc.chain.next = nullptr;
         shaderCodeDesc.chain.sType = WGPUSType_ShaderModuleWGSLDescriptor;
@@ -87,7 +89,7 @@ namespace Figment
 
         m_ShaderModule = wgpuDeviceCreateShaderModule(device, &shaderDesc);
         wgpuShaderModuleSetLabel(m_ShaderModule, label);
-        FIG_LOG_INFO("Initialized shader: %s", label);
+        FIG_LOG_INFO("Initialized shader: %s", filePath.c_str());
     }
 
     WebGPUShader::~WebGPUShader()

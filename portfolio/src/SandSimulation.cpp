@@ -23,7 +23,7 @@ SandSimulation::SandSimulation(Figment::WebGPUContext &context, PerspectiveCamer
     }
     m_PixelCanvas->UpdateTexture();
 
-    m_ComputeShader = new WebGPUShader(context.GetDevice(), *Utils::LoadFile2("res/shaders/sand_simulation.wgsl"),
+    m_ComputeShader = new WebGPUShader(context.GetDevice(), "res/shaders/sand_simulation.wgsl",
             "SandSimulationCompute");
     m_UniformBuffer = new WebGPUUniformBuffer<TextureData>(context.GetDevice(), "TextureDataUniformBuffer",
             sizeof(TextureData));

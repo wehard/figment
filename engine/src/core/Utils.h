@@ -12,21 +12,21 @@ private:
 public:
     Utils() = delete;
     ~Utils() = delete;
-    static std::string LoadFile(const char *path)
+    static std::string LoadFile(const std::string &filePath)
     {
-        std::string source;
+        std::string result;
 
-        std::ifstream shader_stream(path, std::ios::in);
-        if (shader_stream.is_open())
+        std::ifstream shaderStream(filePath, std::ios::in);
+        if (shaderStream.is_open())
         {
-            std::stringstream sstr;
-            sstr << shader_stream.rdbuf();
-            source = sstr.str();
-            shader_stream.close();
+            std::stringstream stream;
+            stream << shaderStream.rdbuf();
+            result = stream.str();
+            shaderStream.close();
         }
         else
-            printf("Error opening %s\n", path);
-        return source;
+            printf("Error opening %s\n", filePath.c_str());
+        return result;
     }
     static std::string *LoadFile2(const char *filename)
     {

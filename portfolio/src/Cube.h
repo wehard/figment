@@ -45,8 +45,7 @@ public:
         };
 
         m_Mesh = new Figment::Mesh(m_Window->GetContext()->GetDevice(), vertices, indices);
-        m_Shader = new WebGPUShader(m_Window->GetContext()->GetDevice(),
-                *Utils::LoadFile2("res/shaders/mesh.wgsl"));
+        m_Shader = new WebGPUShader(m_Window->GetContext()->GetDevice(), "res/shaders/mesh.wgsl");
 
         auto image = Image::Load("res/2k_earth_daymap.png");
         m_Texture = WebGPUTexture::Create(m_Window->GetContext()->GetDevice(), image);

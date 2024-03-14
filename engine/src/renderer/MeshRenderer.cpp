@@ -8,11 +8,11 @@ namespace Figment
 
     MeshRenderer::MeshRenderer(WebGPUContext &context) : m_Context(context)
     {
-        m_DefaultShader = new WebGPUShader(context.GetDevice(),
-                *Utils::LoadFile2("res/shaders/builtin/mesh.wgsl"), "MeshRendererDefaultShader");
+        m_DefaultShader = new WebGPUShader(context.GetDevice(), "res/shaders/builtin/mesh.wgsl",
+                "MeshRendererDefaultShader");
 
-        m_TexturedShader = new WebGPUShader(context.GetDevice(),
-                *Utils::LoadFile2("res/shaders/builtin/mesh_textured.wgsl"), "MeshRendererTexturedShader");
+        m_TexturedShader = new WebGPUShader(context.GetDevice(), "res/shaders/builtin/mesh_textured.wgsl",
+                "MeshRendererTexturedShader");
 
         m_CameraDataUniformBuffer = new WebGPUUniformBuffer<CameraData>(m_Context.GetDevice(),
                 "MeshRendererCameraDataUniformBuffer",
