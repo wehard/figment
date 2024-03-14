@@ -27,7 +27,6 @@ Cube::Cube(std::shared_ptr<PerspectiveCamera> camera, bool enabled) : Layer("Cub
     };
 
     m_Mesh = std::make_unique<Mesh>(m_Window->GetContext()->GetDevice(), vertices, indices);
-    m_Shader = std::make_unique<WebGPUShader>(m_Window->GetContext()->GetDevice(), "res/shaders/mesh.wgsl");
 
     auto image = Image::Load("res/2k_earth_daymap.png");
     m_Texture = WebGPUTexture::Create(m_Window->GetContext()->GetDevice(), image);

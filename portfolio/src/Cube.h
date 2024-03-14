@@ -19,9 +19,8 @@ private:
     std::unique_ptr<MeshRenderer> m_Renderer;
     std::shared_ptr<PerspectiveCamera> m_Camera;
     std::unique_ptr<Mesh> m_Mesh;
-    std::unique_ptr<WebGPUShader> m_Shader;
     WebGPUTexture *m_Texture;
-    
+
     glm::vec3 m_Position = glm::vec3(0.0);
     glm::vec3 m_Rotation = glm::vec3(0.0);
     glm::vec3 m_Scale = glm::vec3(0.25);
