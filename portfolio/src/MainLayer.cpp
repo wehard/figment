@@ -16,7 +16,7 @@ MainLayer::MainLayer() : Layer("Main")
             (float)webGpuWindow->GetWidth() / (float)webGpuWindow->GetHeight());
     m_Camera->SetPosition(glm::vec3(0.0, 0.0, 3.0));
 
-    m_CameraController = new CameraController(m_Camera);
+    m_CameraController = std::make_shared<CameraController>(m_Camera);
     m_CameraController->SetMovementSpeed(1.0f);
 
     m_Layers.push_back(new Cube(m_Camera, true));

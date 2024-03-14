@@ -17,9 +17,10 @@ public:
 private:
     std::vector<Layer *> m_Layers;
     std::shared_ptr<PerspectiveCamera> m_Camera;
-    float m_BlinkTimer = 0.0f;
-    ImVec4 m_BlinkTextColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
-    bool m_SwapColor = false;
+    std::shared_ptr<CameraController> m_CameraController;
     Layer *m_SelectedLayer = nullptr;
-    CameraController *m_CameraController;
+    
+    float m_BlinkTimer = 0.0f;
+    bool m_SwapColor = false;
+    ImVec4 m_BlinkTextColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 };
