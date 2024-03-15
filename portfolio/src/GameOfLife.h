@@ -31,8 +31,6 @@ private:
     WebGPUUniformBuffer<TextureData> *m_UniformBuffer;
     uint32_t *m_PrevPixelData;
 
-    bool m_Dirty = false;
-
     constexpr static uint32_t s_Width = 320;
     constexpr static uint32_t s_Height = 200;
 };
