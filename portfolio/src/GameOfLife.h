@@ -38,30 +38,15 @@ private:
     }
 };
 
-class SandSimulation : public Figment::Layer
+class GameOfLife : public Figment::Layer
 {
 public:
-    constexpr static uint32_t s_NoneColor = 0xff000000;
-    constexpr static uint32_t s_AirColor = 0xffffb273;
-    constexpr static uint32_t s_SandColor = 0xff0000ff;
-    constexpr static uint32_t s_WaterColor = 0xffff0000;
-
-    struct Coord
-    {
-        int X;
-        int Y;
-    };
-
-    struct Particle
-    {
-        Coord Position;
-        Coord PreviousPosition;
-        uint32_t Color;
-    };
+    constexpr static uint32_t s_DeadColor = 0xffffb273;
+    constexpr static uint32_t s_LiveColor = 0xff0000ff;
 
 public:
-    SandSimulation(WebGPUContext &context, PerspectiveCamera &camera);
-    ~SandSimulation() override = default;
+    GameOfLife(WebGPUContext &context, PerspectiveCamera &camera);
+    ~GameOfLife() override = default;
     void OnAttach() override;
     void OnDetach() override;
     void OnUpdate(float deltaTime) override;
@@ -77,13 +62,9 @@ private:
     WebGPUContext &m_Context;
     PerspectiveCamera &m_Camera;
     PixelCanvas *m_PixelCanvas;
-    WebGPUShader *m_ComputeShader;
     WebGPUUniformBuffer<TextureData> *m_UniformBuffer;
-    WebGPUBuffer<Particle> *m_ParticleBuffer;
+    uint32_t *m_PrevPixelData;
 
-    bool CanMove(PixelCanvas &canvas, int x, int y);
-    void UpdateSandParticle(int x, int y);
-    void UpdateWaterParticle(int x, int y);
     bool m_Dirty = false;
 
     constexpr static uint32_t s_Width = 320;
