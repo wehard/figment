@@ -4,40 +4,6 @@
 
 using namespace Figment;
 
-template<typename K, typename V>
-class bimap
-{
-public:
-    bimap() = default;
-    bimap(std::initializer_list<std::pair<K, V>> init)
-    {
-        for (auto &pair : init)
-        {
-            insert(pair.first, pair.second);
-        }
-    }
-
-    V operator[](K k)
-    {
-        return m_KVMap[k];
-    }
-
-    K operator[](V v)
-    {
-        return m_VKMap[v];
-    }
-
-private:
-    std::map<K, V> m_KVMap;
-    std::map<V, K> m_VKMap;
-
-    void insert(K k, V v)
-    {
-        m_KVMap[k] = v;
-        m_VKMap[v] = k;
-    }
-};
-
 class GameOfLife : public Figment::Layer
 {
 public:
