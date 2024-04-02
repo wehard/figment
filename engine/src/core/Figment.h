@@ -12,3 +12,4 @@
 #include "PixelCanvas.h"
 #include "DebugPanel.h"
 #include "MeshRenderer.h"
+#include "RenderStats.h"

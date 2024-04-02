@@ -1,9 +1,6 @@
 #pragma once
 
-#include "Core.h"
-#include "Layer.h"
-#include "Scene.h"
-#include "Entity.h"
+#include "Figment.h"
 #include <string>
 
 namespace Figment
@@ -19,8 +16,8 @@ namespace Figment
         void OnImGuiRender() override;
         void OnEvent(AppEvent event, void *eventData) override;
     private:
-        SharedPtr<WebGPUContext> m_Context;
-        UniquePtr<Scene> m_Scene;
+        std::shared_ptr<WebGPUContext> m_Context;
+        std::unique_ptr<Scene> m_Scene;
         Entity m_SelectedEntity;
 
         void SelectEntity(Entity entity);
