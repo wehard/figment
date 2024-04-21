@@ -1,11 +1,16 @@
 <!doctype html>
 <html lang="en-us">
-  <head>
+<head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"/>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"/>
     <title>Figment Editor</title>
     <style>
-        body { margin: 0; background-color: black }
+        body {
+            margin: 0;
+            background-color: black
+        }
+
         .emscripten {
             position: absolute;
             top: 0;
@@ -25,58 +30,95 @@
             image-rendering: pixelated;
             -ms-interpolation-mode: nearest-neighbor;
         }
+
+        .editor {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            margin: 0;
+            border: 0;
+            width: 40%;
+            height: 40%;
+            overflow: hidden;
+            display: block;
+        }
     </style>
-  </head>
-  <body>
-    <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
-    <script type='text/javascript'>
-      var Module;
-      (async () => {
+</head>
+<body>
+<canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+<script type='text/javascript'>
+    var Module;
+    (async () => {
         Module = {
-          preRun: [],
-          postRun: [],
-          print: (function() {
-              return function(text) {
-                  text = Array.prototype.slice.call(arguments).join(' ');
-                  console.log(text);
-              };
-          })(),
-          printErr: function(text) {
-              text = Array.prototype.slice.call(arguments).join(' ');
-              console.error(text);
-          },
-          canvas: (function() {
-              var canvas = document.getElementById('canvas');
-              //canvas.addEventListener("webglcontextlost", function(e) { alert('FIXME: WebGL context lost, please reload the page'); e.preventDefault(); }, false);
-              return canvas;
-          })(),
-          setStatus: function(text) {
-              console.log("Status: " + text);
-          },
-          monitorRunDependencies: function(left) {
-              // no run dependencies to log
-          },
-          arguments: [window.innerWidth.toString(), window.innerHeight.toString()]
+            preRun: [],
+            postRun: [],
+            print: (function () {
+                return function (text) {
+                    text = Array.prototype.slice.call(arguments).join(' ');
+                    console.log(text);
+                };
+            })(),
+            printErr: function (text) {
+                text = Array.prototype.slice.call(arguments).join(' ');
+                console.error(text);
+            },
+            canvas: (function () {
+                var canvas = document.getElementById('canvas');
+                //canvas.addEventListener("webglcontextlost", function(e) { alert('FIXME: WebGL context lost, please reload the page'); e.preventDefault(); }, false);
+                return canvas;
+            })(),
+            setStatus: function (text) {
+                console.log("Status: " + text);
+            },
+            monitorRunDependencies: function (left) {
+                // no run dependencies to log
+            },
+            arguments: [window.innerWidth.toString(), window.innerHeight.toString()]
         };
-        window.onerror = function() {
-          console.log("onerror: " + event);
+        window.onerror = function () {
+            console.log("onerror: " + event);
         };
 
-      // Initialize the graphics adapter
-      {
-          const adapter = await navigator.gpu.requestAdapter();
-          const device = await adapter.requestDevice();
-          console.log("Pre-initialized WebGPUDevice: ", device);
-          Module.preinitializedWebGPUDevice = device;
-      }
+        // Initialize the graphics adapter
+        {
+            const adapter = await navigator.gpu.requestAdapter();
+            const device = await adapter.requestDevice();
+            console.log("Pre-initialized WebGPUDevice: ", device);
+            Module.preinitializedWebGPUDevice = device;
+        }
 
-      {
-          const js = document.createElement('script');
-          js.async = true;
-          js.src = "editor.js";
-          document.body.appendChild(js);
-      }
-      })();
-    </script>
-  </body>
+        {
+            const js = document.createElement('script');
+            js.async = true;
+            js.src = "editor.js";
+            document.body.appendChild(js);
+        }
+    })();
+</script>
+
+<div id="container" class="editor" ></div>
+<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.22.3/min/vs/loader.js"></script>
+<script type='text/javascript'>
+    Editor = {};
+    EditorExecute = function() {
+        const code = Editor.getValue();
+        var func = new Function(code);
+        func.apply(null);
+    };
+</script>
+<script>
+    require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.22.3/min/vs' }});
+    require(['vs/editor/editor.main'], function() {
+        Editor = monaco.editor.create(document.getElementById('container'), {
+            value: [
+            'var e = Figment.EntityCreate();',
+            'Figment.EntityAddComponent(e, 1);',
+            'Figment.EntitySetPosition(e, 0, 3, 0);'
+            ].join('\n'),
+            language: 'javascript'
+        });
+    });
+</script>
+
+</body>
 </html>
