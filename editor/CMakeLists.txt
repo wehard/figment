@@ -57,6 +57,8 @@ set_target_properties(editor PROPERTIES LINK_FLAGS "\
         --preload-file ../../../engine/res/shaders@/res/shaders/builtin\
         -lglfw\
         --shell-file ${CMAKE_CURRENT_SOURCE_DIR}/index.html\
+        --js-library ${CMAKE_CURRENT_SOURCE_DIR}/figment_lib.js\
+        --pre-js ${CMAKE_CURRENT_SOURCE_DIR}/figment_api.js\
 ")
 
 target_link_directories(editor PRIVATE ${CMAKE_BINARY_DIR}/engine)
