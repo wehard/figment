@@ -21,15 +21,15 @@ namespace Figment
         auto height = (float)window->GetFramebufferHeight();
         m_Scene = std::make_unique<Scene>(window->GetFramebufferWidth(), window->GetFramebufferHeight());
 
-        auto figmentEntity = m_Scene->CreateEntity("Figment");
-        figmentEntity.AddComponent<FigmentComponent>(m_Context->GetDevice());
-        auto &transform = figmentEntity.GetComponent<TransformComponent>();
-        transform.Rotation.x = -45.0f;
+        // auto figmentEntity = m_Scene->CreateEntity("Figment");
+        // figmentEntity.AddComponent<FigmentComponent>(m_Context->GetDevice());
+        // auto &transform = figmentEntity.GetComponent<TransformComponent>();
+        // transform.Rotation.x = -45.0f;
 
         auto cameraEntity = m_Scene->CreateEntity("Camera");
         cameraEntity.AddComponent<CameraComponent>(std::make_shared<PerspectiveCamera>(width / height));
 
-        SelectEntity(figmentEntity);
+        // SelectEntity(figmentEntity);
     }
 
     EditorLayer::~EditorLayer()
