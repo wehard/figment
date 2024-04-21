@@ -15,6 +15,7 @@ namespace Figment
         void OnUpdate(float deltaTime) override;
         void OnImGuiRender() override;
         void OnEvent(AppEvent event, void *eventData) override;
+        std::unique_ptr<Scene> &GetScene() { return m_Scene; }
     private:
         std::shared_ptr<WebGPUContext> m_Context;
         std::unique_ptr<Scene> m_Scene;
