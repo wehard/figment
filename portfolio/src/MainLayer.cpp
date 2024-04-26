@@ -173,7 +173,7 @@ void MainLayer::OnImGuiRender()
 
         LayerDetails<Particles>(m_SelectedLayer, [](Particles *cube)
         {
-            ImGui::Text("...");
+            ImGui::SliderFloat("Particle size", &cube->m_ParticleSize, 0.001, 0.1);
         });
 
         LayerDetails<WorldMap>(m_SelectedLayer, [](WorldMap *worldMap)

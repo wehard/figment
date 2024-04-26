@@ -117,7 +117,7 @@ void Particles::OnUpdate(float deltaTime)
     computePass.End();
 
     m_Renderer->BeginFrame(*m_Camera);
-    m_Renderer->DrawQuads(*m_VertexBuffer, *m_ParticleShader);
+    m_Renderer->DrawQuads(*m_VertexBuffer, m_ParticleSize, *m_ParticleShader);
     m_Renderer->EndFrame();
 
 }

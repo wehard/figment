@@ -42,7 +42,7 @@ namespace Figment
         }
 
         template<typename T>
-        void DrawQuads(WebGPUVertexBuffer<T> &particlePositions, WebGPUShader &shader)
+        void DrawQuads(WebGPUVertexBuffer<T> &particlePositions, float size, WebGPUShader &shader)
         {
             if (m_Pipeline == nullptr)
             {
@@ -64,6 +64,7 @@ namespace Figment
 
                 BindGroup bindGroup(m_Context.GetDevice(), WGPUShaderStage_Vertex | WGPUShaderStage_Fragment);
                 bindGroup.Bind(*m_CameraDataUniformBuffer);
+                bindGroup.Bind(*m_ParticlesDataUniformBuffer);
 
                 RenderPipeline pipeline(m_Context.GetDevice(), shader, bindGroup,
                         { m_QuadVertexBuffer->GetVertexLayout(), particlePositions.GetVertexLayout() });
@@ -77,6 +78,8 @@ namespace Figment
                 m_BindGroup = bindGroup.Get();
 
             }
+
+            m_ParticlesDataUniformBuffer->SetData(&size, sizeof(float));
 
             wgpuRenderPassEncoderSetIndexBuffer(m_RenderPass, m_QuadIndexBuffer->GetBuffer(),
                     WGPUIndexFormat_Uint32, 0,
@@ -103,6 +106,7 @@ namespace Figment
         WGPUTextureFormat m_RenderTargetTextureFormat;
         WebGPUTexture *m_DepthTexture;
         WebGPUUniformBuffer<CameraData> *m_CameraDataUniformBuffer;
+        WebGPUUniformBuffer<float> *m_ParticlesDataUniformBuffer;
 
         WGPURenderPassEncoder m_RenderPass = nullptr;
         WGPURenderPipeline m_Pipeline = nullptr;

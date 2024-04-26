@@ -32,6 +32,7 @@ public:
     void OnUpdate(float deltaTime) override;
     void OnImGuiRender() override;
     void OnEvent(AppEvent event, void *eventData) override;
+    float m_ParticleSize = 0.01f;
 private:
     std::shared_ptr<WebGPUContext> m_Context;
     std::shared_ptr<PerspectiveCamera> m_Camera;
