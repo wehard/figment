@@ -2,7 +2,7 @@
 #include "ComputePass.h"
 #include "Figment.h"
 
-Particles::Particles(std::shared_ptr<PerspectiveCamera> camera, bool enabled) : Layer("Particles", enabled),
+Particles::Particles(std::shared_ptr<PerspectiveCamera> camera, bool enabled) : Layer("Galaxy", enabled),
         m_Camera(camera)
 {
     auto m_Window = Figment::App::Instance()->GetWindow();
