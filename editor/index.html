@@ -108,7 +108,7 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.47.0/min/vs/loader.js"></script>
 <script type='text/javascript'>
-    Editor = {};
+    let Editor;
     EditorExecute = function() {
         const code = Editor.getValue();
         const func = new Function(code);
@@ -124,10 +124,27 @@
             'Figment.EntityAddComponent(e, 1);',
             'Figment.EntitySetPosition(e, 0, 3, 0);'
             ].join('\n'),
-            language: 'javascript'
+            language: 'javascript',
+            theme: 'vs-dark'
         });
     });
 </script>
 
+<script type='text/javascript'>
+    const importObject = {
+
+    };
+
+    (async () => {
+        const response = await fetch('wasm_module.wasm');
+        const buffer = await response.arrayBuffer();
+        const module = await WebAssembly.compile(buffer);
+        console.info(module);
+        const instance = new WebAssembly.Instance(module, importObject);
+        const result = instance.exports.foo(42);
+        console.log(result);
+        console.log("WebAssembly module loaded");
+    })();
+</script>
 </body>
 </html>
