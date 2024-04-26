@@ -7,11 +7,9 @@ struct ParticlesData {
 struct Particle
 {
     position: vec3f,
-    prevPosition: vec3f,
-    acc: vec3f,
 };
 
-const ellipse_count: u32 = 16;
+const ellipse_count: u32 = 32;
 
 @group(0) @binding(0) var<storage,read_write> vertexBuffer: array<Particle,32768>;
 @group(0) @binding(1) var<uniform> data: ParticlesData;
@@ -82,31 +80,36 @@ fn init(@builtin(global_invocation_id) id: vec3<u32>) {
     let rz = rand_f32_01() - 0.5;
     particle.position.z = rz * (1.0 - bezier_blend(t) * bezier_blend(t)) * 0.2;
 
-
-    let d = normalize(cross(particle.position, vec3<f32>(0.0, 0.0, -1.0)));
-    particle.prevPosition = particle.position + d * 0.002;
-
-    particle.acc = vec3<f32>(0.0, 0.0, 0.0);
-
     vertexBuffer[id.x] = particle;
 }
 
 @compute @workgroup_size(32, 1, 1)
 fn simulate(@builtin(global_invocation_id) id: vec3<u32>) {
-    var particle: Particle = vertexBuffer[id.x];
+    let points_per_ellipse = 32768 / ellipse_count;
+    let ellipse_id = id.x / u32(points_per_ellipse);
 
-    let p = 2.0 * particle.position - particle.prevPosition + particle.acc * data.deltaTime * data.deltaTime;
+    var angle = 2.0 * PI * f32(f32(id.x) % f32(points_per_ellipse)) / f32(points_per_ellipse);
+    let x_radius = 0.04 + f32(ellipse_id) * 0.04;
+    let y_radius = 0.03 + f32(ellipse_id) * 0.03;
 
-    particle.prevPosition = particle.position;
-    particle.position = p;
+    angle += data.time * (1.0 - f32(ellipse_id) / f32(ellipse_count)) * 0.5;
+    let p = point_ellipse(x_radius, y_radius, angle);
 
-    let G = 0.00000006672;
-    let M = 24000.0;
-    let g_dir = -particle.prevPosition;
-    let dist = length(g_dir);
-    let f = G * (M / (dist * dist));
+    var rangle = f32(ellipse_id) * (PI / f32(ellipse_count - 1));
+    var rotated = rotate(vec2<f32>(p.x, p.y), rangle);
 
-    var vel = normalize(g_dir) * f;
-    particle.acc = vel;
+    var particle: Particle;
+    particle.position = vec3<f32>(rotated.xy, 0.0);
+
+    rng_state = wang_hash(id.x);
+    let rx = rand_f32_01() - 0.5;
+    let ry = rand_f32_01() - 0.5;
+
+    particle.position += vec3<f32>(rx * 0.05, ry * 0.05, 0.0);
+
+//    let t = length(particle.position.xyz) / 1.0;
+//    let rz = rand_f32_01() - 0.5;
+//    particle.position.z = rz * (1.0 - bezier_blend(t) * bezier_blend(t)) * 0.2;
+
     vertexBuffer[id.x] = particle;
 }

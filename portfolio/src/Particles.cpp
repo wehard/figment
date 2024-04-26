@@ -87,6 +87,7 @@ void Particles::OnAttach()
     ParticlesData d = {};
     d.DeltaTime = 0.0;
     d.Seed = glm::vec2(1234, 5432);
+    d.Time = App::Instance()->GetTimeSinceStart();
     m_UniformBuffer->SetData(&d, sizeof(ParticlesData));
 
     ComputePass computePass(m_Context->GetDevice(), m_InitPipeline, m_ComputeBindGroup);
@@ -107,6 +108,7 @@ void Particles::OnUpdate(float deltaTime)
     ParticlesData d = {};
     d.DeltaTime = deltaTime;
     d.Seed = glm::vec2(0);
+    d.Time = App::Instance()->GetTimeSinceStart();
     m_UniformBuffer->SetData(&d, sizeof(ParticlesData));
 
     ComputePass computePass(m_Context->GetDevice(), m_SimulatePipeline, m_ComputeBindGroup);
