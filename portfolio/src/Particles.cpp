@@ -12,7 +12,7 @@ Particles::Particles(std::shared_ptr<PerspectiveCamera> camera, bool enabled) : 
     m_ComputeShader = std::make_unique<WebGPUShader>(m_Context->GetDevice(),
             "res/shaders/particles.wgsl", "ParticlesCompute");
     m_ParticleShader = std::make_unique<WebGPUShader>(m_Context->GetDevice(),
-            "res/shaders/particle.wgsl", "ParticleShader");
+            "res/shaders/particle_mesh.wgsl", "ParticleShader");
 
     m_VertexBuffer = std::make_unique<WebGPUVertexBuffer<Particle>>
             (m_Context->GetDevice(), "ParticlesBuffer",
@@ -25,7 +25,7 @@ Particles::Particles(std::shared_ptr<PerspectiveCamera> camera, bool enabled) : 
                     .shaderLocation = 0,
             },
     });
-    m_VertexBuffer->SetVertexLayout(layout, sizeof(Particle), WGPUVertexStepMode_Vertex);
+    m_VertexBuffer->SetVertexLayout(layout, sizeof(Particle), WGPUVertexStepMode_Instance);
 
     m_UniformBuffer = std::make_unique<WebGPUUniformBuffer<ParticlesData>>(m_Context->GetDevice(),
             "ParticlesDataUniformBuffer", sizeof(ParticlesData));
@@ -115,7 +115,7 @@ void Particles::OnUpdate(float deltaTime)
     computePass.End();
 
     m_Renderer->BeginFrame(*m_Camera);
-    m_Renderer->DrawPoints(*m_VertexBuffer, *m_ParticleShader);
+    m_Renderer->DrawQuads(*m_VertexBuffer, *m_ParticleShader);
     m_Renderer->EndFrame();
 
 }

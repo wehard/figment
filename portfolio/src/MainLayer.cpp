@@ -14,13 +14,13 @@ MainLayer::MainLayer() : Layer("Main")
     auto webGpuWindow = std::dynamic_pointer_cast<Figment::WebGPUWindow>(m_Window);
     m_Camera = std::make_shared<PerspectiveCamera>(
             (float)webGpuWindow->GetWidth() / (float)webGpuWindow->GetHeight());
-    m_Camera->SetPosition(glm::vec3(0.0, 0.0, 1.0));
+    m_Camera->SetPosition(glm::vec3(0.0, 0.0, 5.0));
 
     m_CameraController = std::make_shared<CameraController>(m_Camera);
     m_CameraController->SetMovementSpeed(1.0f);
 
     // m_Layers.push_back(new Cube(m_Camera, true));
-    m_Layers.push_back(new Particles(m_Camera, false));
+    m_Layers.push_back(new Particles(m_Camera, true));
     // m_Layers.push_back(new WorldMap(m_Camera, false));
     // m_Layers.push_back(new Asteroids(*m_Camera, false));
     // m_Layers.push_back(new GameOfLife(*webGpuWindow->GetContext(), *m_Camera));

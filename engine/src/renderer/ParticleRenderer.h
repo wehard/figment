@@ -7,6 +7,7 @@
 #include "WebGPUCommand.h"
 #include "Camera.h"
 #include "RenderStats.h"
+#include "RenderPipeline.h"
 
 namespace Figment
 {
@@ -39,6 +40,60 @@ namespace Figment
             RenderStats::VertexCount += vertexBuffer.Count();
             RenderStats::DrawCalls++;
         }
+
+        template<typename T>
+        void DrawQuads(WebGPUVertexBuffer<T> &particlePositions, WebGPUShader &shader)
+        {
+            if (m_Pipeline == nullptr)
+            {
+                m_QuadVertexBuffer = new WebGPUVertexBuffer<glm::vec3>(m_Context.GetDevice(),
+                        "ParticleRendererQuadVertexBuffer", sizeof(m_QuadVertices));
+                m_QuadVertexBuffer->SetVertexLayout({
+                        {
+                                .format = WGPUVertexFormat_Float32x3,
+                                .offset = 0,
+                                .shaderLocation = 1,
+                        }
+                }, sizeof(glm::vec3), WGPUVertexStepMode_Vertex);
+                m_QuadVertexBuffer->SetData(m_QuadVertices, sizeof(m_QuadVertices));
+
+                m_QuadIndexBuffer = new WebGPUIndexBuffer<uint32_t>(m_Context.GetDevice(),
+                        "ParticleRendererQuadIndexBuffer", 6 * sizeof(uint32_t));
+                uint32_t indices[] = { 0, 2, 1, 0, 3, 2 };
+                m_QuadIndexBuffer->SetData(indices, sizeof(indices));
+
+                BindGroup bindGroup(m_Context.GetDevice(), WGPUShaderStage_Vertex | WGPUShaderStage_Fragment);
+                bindGroup.Bind(*m_CameraDataUniformBuffer);
+
+                RenderPipeline pipeline(m_Context.GetDevice(), shader, bindGroup,
+                        { m_QuadVertexBuffer->GetVertexLayout(), particlePositions.GetVertexLayout() });
+                pipeline.SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined,
+                        WGPUFrontFace_CCW,
+                        WGPUCullMode_None);
+                pipeline.SetDepthStencilState(m_DepthTexture->GetTextureFormat(), true, WGPUCompareFunction_Less);
+                pipeline.AddColorTarget(m_RenderTargetTextureFormat, WGPUColorWriteMask_All);
+
+                m_Pipeline = pipeline.Get();
+                m_BindGroup = bindGroup.Get();
+
+            }
+
+            wgpuRenderPassEncoderSetIndexBuffer(m_RenderPass, m_QuadIndexBuffer->GetBuffer(),
+                    WGPUIndexFormat_Uint32, 0,
+                    m_QuadIndexBuffer->GetSize());
+            wgpuRenderPassEncoderSetVertexBuffer(m_RenderPass, 0, m_QuadVertexBuffer->GetBuffer(), 0,
+                    m_QuadVertexBuffer->GetSize());
+            wgpuRenderPassEncoderSetVertexBuffer(m_RenderPass, 1, particlePositions.GetBuffer(), 0,
+                    particlePositions.GetSize());
+            wgpuRenderPassEncoderSetPipeline(m_RenderPass, m_Pipeline);
+            wgpuRenderPassEncoderSetBindGroup(m_RenderPass, 0, m_BindGroup, 0, nullptr);
+            wgpuRenderPassEncoderDrawIndexed(m_RenderPass, m_QuadIndexBuffer->Count(), particlePositions.Count(), 0, 0,
+                    0);
+
+            RenderStats::VertexCount += particlePositions.Count() * m_QuadVertexBuffer->Count();
+            RenderStats::DrawCalls++;
+        }
+
         void OnResize(uint32_t width, uint32_t height);
     private:
         WebGPUContext &m_Context;
@@ -52,5 +107,15 @@ namespace Figment
         WGPURenderPassEncoder m_RenderPass = nullptr;
         WGPURenderPipeline m_Pipeline = nullptr;
         WGPUBindGroup m_BindGroup = nullptr;
+
+        glm::vec3 m_QuadVertices[4] = {
+                { -0.5, -0.5, 0.0 },
+                { -0.5, +0.5, 0.0 },
+                { +0.5, +0.5, 0.0 },
+                { +0.5, -0.5, 0.0 },
+        };
+
+        WebGPUVertexBuffer<glm::vec3> *m_QuadVertexBuffer;
+        WebGPUIndexBuffer<uint32_t> *m_QuadIndexBuffer;
     };
 }
