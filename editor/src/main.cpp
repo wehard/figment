@@ -60,6 +60,36 @@ void entity_set_position(int handle, float x, float y, float z)
     }
 }
 
+EMSCRIPTEN_KEEPALIVE
+void entity_set_rotation(int handle, float x, float y, float z)
+{
+    Entity entity = Entity((uint32_t)handle, editorLayer->GetScene().get());
+    if (entity.HasComponent<TransformComponent>())
+    {
+        auto &transform = entity.GetComponent<TransformComponent>();
+        transform.Rotation = { x, y, z };
+    }
+    else
+    {
+        printf("Entity does not have a TransformComponent\n");
+    }
+}
+
+EMSCRIPTEN_KEEPALIVE
+void entity_set_scale(int handle, float x, float y, float z)
+{
+    Entity entity = Entity((uint32_t)handle, editorLayer->GetScene().get());
+    if (entity.HasComponent<TransformComponent>())
+    {
+        auto &transform = entity.GetComponent<TransformComponent>();
+        transform.Scale = { x, y, z };
+    }
+    else
+    {
+        printf("Entity does not have a TransformComponent\n");
+    }
+}
+
 } // extern "C"
 
 static void main_loop(void *arg)
