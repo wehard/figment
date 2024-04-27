@@ -34,8 +34,8 @@ Particles::Particles(std::shared_ptr<PerspectiveCamera> camera, bool enabled) : 
     m_ComputeBindGroup->Bind(*m_VertexBuffer);
     m_ComputeBindGroup->Bind(*m_UniformBuffer);
 
-    m_InitPipeline = new ComputePipeline(m_Context->GetDevice(), *m_ComputeBindGroup);
-    m_InitPipeline->Build("init", m_ComputeShader->GetShaderModule());
+    // m_InitPipeline = new ComputePipeline(m_Context->GetDevice(), *m_ComputeBindGroup);
+    // m_InitPipeline->Build("init", m_ComputeShader->GetShaderModule());
 
     m_SimulatePipeline = new ComputePipeline(m_Context->GetDevice(), *m_ComputeBindGroup);
     m_SimulatePipeline->Build("simulate", m_ComputeShader->GetShaderModule());
@@ -84,16 +84,16 @@ void Particles::OnAttach()
 
     FIG_LOG_INFO("Particles layer attached");
 
-    ParticlesData d = {};
-    d.DeltaTime = 0.0;
-    d.Seed = glm::vec2(1234, 5432);
-    d.Time = App::Instance()->GetTimeSinceStart();
-    m_UniformBuffer->SetData(&d, sizeof(ParticlesData));
-
-    ComputePass computePass(m_Context->GetDevice(), m_InitPipeline, m_ComputeBindGroup);
-    computePass.Begin();
-    computePass.Dispatch("init", m_VertexBuffer->Count());
-    computePass.End();
+    // ParticlesData d = {};
+    // d.DeltaTime = 0.0;
+    // d.Seed = glm::vec2(1234, 5432);
+    // d.Time = App::Instance()->GetTimeSinceStart();
+    // m_UniformBuffer->SetData(&d, sizeof(ParticlesData));
+    //
+    // ComputePass computePass(m_Context->GetDevice(), m_InitPipeline, m_ComputeBindGroup);
+    // computePass.Begin();
+    // computePass.Dispatch("init", m_VertexBuffer->Count());
+    // computePass.End();
 
     // wgpuDevicePopErrorScope(m_Context->GetDevice(), &Error, nullptr);
 }

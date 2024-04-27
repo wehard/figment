@@ -43,7 +43,6 @@ private:
     std::unique_ptr<WebGPUVertexBuffer<Particle>> m_VertexBuffer;
     std::unique_ptr<WebGPUUniformBuffer<ParticlesData>> m_UniformBuffer;
     BindGroup *m_ComputeBindGroup;
-    ComputePipeline *m_InitPipeline;
     ComputePipeline *m_SimulatePipeline;
 
     glm::vec3 m_Position = { 0.0f, 0.0f, 0.0f };

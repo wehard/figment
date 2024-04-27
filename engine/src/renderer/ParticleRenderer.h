@@ -55,7 +55,7 @@ namespace Figment
             if (m_Pipeline == nullptr)
             {
                 m_QuadVertexBuffer = new WebGPUVertexBuffer<glm::vec3>(m_Context.GetDevice(),
-                        "ParticleRendererQuadVertexBuffer", sizeof(m_QuadVertices));
+                        "ParticleRendererQuadVertexBuffer", sizeof(m_Vertices));
                 m_QuadVertexBuffer->SetVertexLayout({
                         {
                                 .format = WGPUVertexFormat_Float32x3,
@@ -63,12 +63,11 @@ namespace Figment
                                 .shaderLocation = 1,
                         }
                 }, sizeof(glm::vec3), WGPUVertexStepMode_Vertex);
-                m_QuadVertexBuffer->SetData(m_QuadVertices, sizeof(m_QuadVertices));
+                m_QuadVertexBuffer->SetData(m_Vertices, sizeof(m_Vertices));
 
                 m_QuadIndexBuffer = new WebGPUIndexBuffer<uint32_t>(m_Context.GetDevice(),
-                        "ParticleRendererQuadIndexBuffer", 6 * sizeof(uint32_t));
-                uint32_t indices[] = { 0, 2, 1, 0, 3, 2 };
-                m_QuadIndexBuffer->SetData(indices, sizeof(indices));
+                        "ParticleRendererQuadIndexBuffer", sizeof(m_Indices));
+                m_QuadIndexBuffer->SetData(m_Indices, sizeof(m_Indices));
 
                 BindGroup bindGroup(m_Context.GetDevice(), WGPUShaderStage_Vertex | WGPUShaderStage_Fragment);
                 bindGroup.Bind(*m_CameraDataUniformBuffer);
@@ -125,12 +124,17 @@ namespace Figment
         WGPURenderPipeline m_Pipeline = nullptr;
         WGPUBindGroup m_BindGroup = nullptr;
 
-        glm::vec3 m_QuadVertices[4] = {
-                { -0.5, -0.5, 0.0 },
-                { -0.5, +0.5, 0.0 },
-                { +0.5, +0.5, 0.0 },
-                { +0.5, -0.5, 0.0 },
+        glm::vec3 m_Vertices[6] = {
+                { -0.5, 0.0, 0.5 },
+                { -0.5, 0.0, -0.5 },
+                { +0.5, 0.0, -0.5 },
+                { +0.5, 0.0, 0.5 },
+                { 0.0, 0.5, 0.0 },
+                { 0.0, -0.5, 0.0 },
         };
+
+        uint32_t m_Indices[24] = { 0, 4, 1, 1, 4, 2, 2, 4, 3, 3, 4, 0,
+                                   0, 1, 5, 1, 2, 5, 2, 3, 5, 3, 0, 5 };
 
         WebGPUVertexBuffer<glm::vec3> *m_QuadVertexBuffer;
         WebGPUIndexBuffer<uint32_t> *m_QuadIndexBuffer;

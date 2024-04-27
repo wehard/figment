@@ -18,6 +18,7 @@ struct MeshInstanceData {
 struct VertexOutput {
     @builtin(position) pos: vec4<f32>,
     @location(1) p: vec3f,
+    @location(2) c: vec4<f32>,
 };
 
 @vertex
@@ -26,6 +27,7 @@ fn vs_main(@location(1) pos: vec3f, instance: MeshInstanceData) -> VertexOutput 
     let p = instance.pos + pos * data.size;
     output.pos = cameraData.proj * cameraData.view * data.model * vec4<f32>(p, 1.0);
     output.p = pos;
+    output.c = vec4<f32>(1.0, 1.0, 1.0, 1.0) * (1.0 - length(instance.pos) / 1.25);
     return output;
 }
 
@@ -34,11 +36,8 @@ struct FragmentOutput {
 };
 
 @fragment
-fn fs_main(@location(1) pos: vec3f) -> FragmentOutput {
+fn fs_main(@location(1) pos: vec3f, @location(2) c: vec4<f32>) -> FragmentOutput {
     var output: FragmentOutput;
-    if(abs(length(pos)) > 0.5) {
-        discard;
-    }
-    output.color = vec4<f32>(1.0, 1.0, 1.0, 0.5);
+    output.color = c;
     return output;
 }
