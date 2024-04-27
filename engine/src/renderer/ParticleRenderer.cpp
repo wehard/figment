@@ -16,9 +16,9 @@ namespace Figment
                 "ParticleRendererCameraDataUniformBuffer",
                 sizeof(CameraData));
 
-        m_ParticlesDataUniformBuffer = new WebGPUUniformBuffer<float>(m_Context.GetDevice(),
+        m_ParticlesDataUniformBuffer = new WebGPUUniformBuffer<ParticlesData>(m_Context.GetDevice(),
                 "ParticleRendererParticlesDataUniformBuffer",
-                sizeof(float));
+                sizeof(ParticlesData));
     }
 
     ParticleRenderer::~ParticleRenderer()

@@ -4,6 +4,7 @@ struct CameraData {
 };
 
 struct ParticlesData {
+    model: mat4x4<f32>,
     size: f32,
 };
 
@@ -23,7 +24,7 @@ struct VertexOutput {
 fn vs_main(@location(1) pos: vec3f, instance: MeshInstanceData) -> VertexOutput {
     var output: VertexOutput;
     let p = instance.pos + pos * data.size;
-    output.pos = cameraData.proj * cameraData.view * vec4<f32>(p, 1.0);
+    output.pos = cameraData.proj * cameraData.view * data.model * vec4<f32>(p, 1.0);
     output.p = pos;
     return output;
 }

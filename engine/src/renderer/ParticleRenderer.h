@@ -20,6 +20,13 @@ namespace Figment
             glm::mat4 ProjectionMatrix;
         };
 
+        struct ParticlesData
+        {
+            glm::mat4 ModelMatrix;
+            float ParticleSize;
+            uint32_t _Padding[3];
+        };
+
         ParticleRenderer(WebGPUContext &context);
         ~ParticleRenderer();
         void CreateDefaultPipeline(WebGPUShader &shader, WGPUVertexBufferLayout &vertexBufferLayout);
@@ -42,7 +49,8 @@ namespace Figment
         }
 
         template<typename T>
-        void DrawQuads(WebGPUVertexBuffer<T> &particlePositions, float size, WebGPUShader &shader)
+        void DrawQuads(WebGPUVertexBuffer<T> &particlePositions, glm::mat4 transform, float particleSize,
+                WebGPUShader &shader)
         {
             if (m_Pipeline == nullptr)
             {
@@ -79,7 +87,12 @@ namespace Figment
 
             }
 
-            m_ParticlesDataUniformBuffer->SetData(&size, sizeof(float));
+            ParticlesData data = {
+                    .ModelMatrix = transform,
+                    .ParticleSize = particleSize
+            };
+
+            m_ParticlesDataUniformBuffer->SetData(&data, sizeof(data));
 
             wgpuRenderPassEncoderSetIndexBuffer(m_RenderPass, m_QuadIndexBuffer->GetBuffer(),
                     WGPUIndexFormat_Uint32, 0,
@@ -106,7 +119,7 @@ namespace Figment
         WGPUTextureFormat m_RenderTargetTextureFormat;
         WebGPUTexture *m_DepthTexture;
         WebGPUUniformBuffer<CameraData> *m_CameraDataUniformBuffer;
-        WebGPUUniformBuffer<float> *m_ParticlesDataUniformBuffer;
+        WebGPUUniformBuffer<ParticlesData> *m_ParticlesDataUniformBuffer;
 
         WGPURenderPassEncoder m_RenderPass = nullptr;
         WGPURenderPipeline m_Pipeline = nullptr;

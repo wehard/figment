@@ -116,15 +116,26 @@ void Particles::OnUpdate(float deltaTime)
     computePass.Dispatch("simulate", m_VertexBuffer->Count());
     computePass.End();
 
+    glm::mat4 matScale = glm::scale(glm::mat4(1.0f), m_Scale);
+    glm::mat4 matTranslate = glm::translate(glm::mat4(1.0), m_Position);
+    glm::mat4 matRotate = glm::eulerAngleXYZ(glm::radians(m_Rotation.x), glm::radians(m_Rotation.y),
+            glm::radians(m_Rotation.z));
+    glm::mat4 transform = matTranslate * matRotate * matScale;
+
     m_Renderer->BeginFrame(*m_Camera);
-    m_Renderer->DrawQuads(*m_VertexBuffer, m_ParticleSize, *m_ParticleShader);
+    m_Renderer->DrawQuads(*m_VertexBuffer, transform, m_ParticleSize, *m_ParticleShader);
     m_Renderer->EndFrame();
 
 }
 
 void Particles::OnImGuiRender()
 {
-
+    ImGui::Begin("Galaxy");
+    ImGui::SliderFloat("Particle Size", &m_ParticleSize, 0.0f, 0.1f);
+    ImGui::DragFloat3("Position", &m_Position[0], 0.1f);
+    ImGui::DragFloat3("Rotation", &m_Rotation[0], 0.1f);
+    ImGui::DragFloat3("Scale", &m_Scale[0], 0.1f);
+    ImGui::End();
 }
 
 void Particles::OnEvent(AppEvent event, void *eventData)
