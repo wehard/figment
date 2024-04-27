@@ -33,6 +33,7 @@ public:
     void OnImGuiRender() override;
     void OnEvent(AppEvent event, void *eventData) override;
     float m_ParticleSize = 0.005f;
+
 private:
     std::shared_ptr<WebGPUContext> m_Context;
     std::shared_ptr<PerspectiveCamera> m_Camera;
@@ -46,6 +47,7 @@ private:
     ComputePipeline *m_SimulatePipeline;
 
     glm::vec3 m_Position = { 0.0f, 0.0f, 0.0f };
-    glm::vec3 m_Rotation = { 0.0f, 0.0f, 0.0f };
+    glm::vec3 m_Rotation = { -50.0f, 0.0f, 0.0f };
     glm::vec3 m_Scale = { 1.0f, 1.0f, 1.0f };
+    friend class MainLayer;
 };

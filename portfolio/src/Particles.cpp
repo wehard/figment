@@ -130,12 +130,6 @@ void Particles::OnUpdate(float deltaTime)
 
 void Particles::OnImGuiRender()
 {
-    ImGui::Begin("Galaxy");
-    ImGui::SliderFloat("Particle Size", &m_ParticleSize, 0.0f, 0.1f);
-    ImGui::DragFloat3("Position", &m_Position[0], 0.1f);
-    ImGui::DragFloat3("Rotation", &m_Rotation[0], 0.1f);
-    ImGui::DragFloat3("Scale", &m_Scale[0], 0.1f);
-    ImGui::End();
 }
 
 void Particles::OnEvent(AppEvent event, void *eventData)

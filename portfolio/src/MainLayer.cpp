@@ -171,9 +171,12 @@ void MainLayer::OnImGuiRender()
             ImGui::Text("It's a cube.");
         });
 
-        LayerDetails<Particles>(m_SelectedLayer, [](Particles *cube)
+        LayerDetails<Particles>(m_SelectedLayer, [](Particles *galaxy)
         {
-            ImGui::SliderFloat("Particle size", &cube->m_ParticleSize, 0.001, 0.1);
+            ImGui::SliderFloat("Particle size", &galaxy->m_ParticleSize, 0.001, 0.1);
+            ImGui::DragFloat3("Position", &galaxy->m_Position[0], 0.1f);
+            ImGui::DragFloat3("Rotation", &galaxy->m_Rotation[0], 0.1f);
+            ImGui::DragFloat3("Scale", &galaxy->m_Scale[0], 0.1f);
         });
 
         LayerDetails<WorldMap>(m_SelectedLayer, [](WorldMap *worldMap)
