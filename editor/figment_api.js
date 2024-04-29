@@ -1,7 +1,19 @@
 Figment = {};
 
+Figment.EnableInput = function() {
+    Module._enable_input();
+}
+
+Figment.DisableInput = function() {
+    Module._disable_input();
+}
+
+Figment.EntityGet = function(handle) {
+    return Module._entity_get(handle);
+}
+
 Figment.EntityCreate = function() {
-    return Module._entity_create();
+    return new Entity(Module._entity_create());
 }
 
 Figment.EntityDestroy = function(entity) {
@@ -34,6 +46,11 @@ class Entity
     destroy()
     {
         Figment.EntityDestroy(this.entity);
+    }
+
+    getHandle()
+    {
+        return this.entity;
     }
 
     addComponent(component)

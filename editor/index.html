@@ -102,7 +102,6 @@
 </script>
 
 <div class="editor-container">
-<button onclick="EditorExecute()">Execute</button>
     <div id="container" class="editor" ></div>
 
 </div>
@@ -121,12 +120,55 @@
         Editor = monaco.editor.create(document.getElementById('container'), {
             value: [
             'var e = Figment.EntityCreate();',
-            'Figment.EntityAddComponent(e, 1);',
-            'Figment.EntitySetPosition(e, 0, 3, 0);'
+            'e.addComponent(1);',
+            'e.setPosition(-5.0 + e.getHandle() * 1.1, 0, 0);',
+            'e.setScale(1, e.getHandle(), 1);'
             ].join('\n'),
             language: 'javascript',
             theme: 'vs-dark'
         });
+        fetch('figment_template.js')
+            .then(response => response.text())
+            .then((data) => {
+                Editor.setValue(data);
+            })
+        // load the Figment API source file into variable
+        fetch('figment_api.js')
+            .then(response => response.text())
+            .then((data) => {
+                monaco.languages.typescript.javascriptDefaults.addExtraLib(data, 'figment_api.js');
+            })
+        Editor.onDidFocusEditorWidget(()=>{
+            console.info("Disabled Figment input");
+            Figment.DisableInput();
+        });
+        Editor.onDidBlurEditorWidget(()=>{
+            console.info("Enabled Figment input");
+            Figment.EnableInput();
+        });
+        var overlayWidget = {
+            domNode: (function () {
+                var domNode = document.createElement("button");
+                domNode.innerHTML = ">";
+                domNode.style.background = "grey";
+                domNode.style.left = "0px";
+                domNode.style.top = "0px";
+                domNode.onclick = function () {
+                    EditorExecute();
+                };
+                return domNode;
+            })(),
+            getId: function () {
+                return "run.button";
+            },
+            getDomNode: function () {
+                return this.domNode;
+            },
+            getPosition: function () {
+                return null;
+            },
+        };
+        Editor.addOverlayWidget(overlayWidget);
     });
 </script>
 
@@ -134,6 +176,8 @@
     const importObject = {
 
     };
+
+    let TestModule;
 
     (async () => {
         const response = await fetch('wasm_module.wasm');
@@ -144,6 +188,7 @@
         const result = instance.exports.foo(42);
         console.log(result);
         console.log("WebAssembly module loaded");
+        TestModule = instance.exports;
     })();
 </script>
 </body>

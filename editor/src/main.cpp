@@ -18,6 +18,25 @@ extern "C"
 extern void JS_EntityCreate();
 
 EMSCRIPTEN_KEEPALIVE
+void enable_input()
+{
+    app->EnableInput();
+}
+
+EMSCRIPTEN_KEEPALIVE
+void disable_input()
+{
+    app->DisableInput();
+}
+
+EMSCRIPTEN_KEEPALIVE
+Entity entity_get(int handle)
+{
+    Entity entity = Entity((uint32_t)handle, editorLayer->GetScene().get());
+    return entity;
+}
+
+EMSCRIPTEN_KEEPALIVE
 int entity_create()
 {
     Entity entity = editorLayer->GetScene()->CreateEntity();
