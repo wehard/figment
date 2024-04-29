@@ -84,4 +84,8 @@ add_custom_command(
 add_custom_command(TARGET editor POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/index.html ${CMAKE_CURRENT_BINARY_DIR}/index.html
         COMMENT "Copied shell file to: ${CMAKE_CURRENT_BINARY_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/figment_api.js ${CMAKE_CURRENT_BINARY_DIR}/figment_api.js
+        COMMENT "Copied api js file to: ${CMAKE_CURRENT_BINARY_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/figment_template.js ${CMAKE_CURRENT_BINARY_DIR}/figment_template.js
+        COMMENT "Copied template js file to: ${CMAKE_CURRENT_BINARY_DIR}"
 )
