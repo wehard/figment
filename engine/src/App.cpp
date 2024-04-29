@@ -54,7 +54,7 @@ namespace Figment
         m_FPSCounter.Update(deltaTime);
 
         ImGuiIO &io = ImGui::GetIO();
-        if (!io.WantCaptureKeyboard || !io.WantCaptureMouse)
+        if (m_InputEnabled && (!io.WantCaptureKeyboard || !io.WantCaptureMouse))
         {
             Input::Update();
         }

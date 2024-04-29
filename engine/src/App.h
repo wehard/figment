@@ -27,6 +27,10 @@ namespace Figment
         void AddLayer(Layer *layer);
         void AddOverlay(Layer *overlay);
         void Update();
+        void EnableInput()
+        { m_InputEnabled = true; }
+        void DisableInput()
+        { m_InputEnabled = false; }
         std::shared_ptr<Window> GetWindow()
         { return m_Window; }
         FPSCounter &GetFPSCounter()
@@ -40,6 +44,7 @@ namespace Figment
         std::unique_ptr<WebGPUGUIContext> m_GUICtx;
         LayerStack m_LayerStack;
 
+        bool m_InputEnabled = true;
         float m_CurrentTime = 0;
         float m_LastTime = 0;
         float m_TimeSinceStart = 0;
