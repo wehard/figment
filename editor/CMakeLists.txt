@@ -53,6 +53,7 @@ set_target_properties(editor PROPERTIES LINK_FLAGS "\
         -s NO_EXIT_RUNTIME=0\
         -s ASSERTIONS=1\
         -s USE_ES6_IMPORT_META=1\
+        -s 'EXPORTED_FUNCTIONS=[\"_free\", \"_main\"]'\
         --preload-file res@/res\
         --preload-file ../../../engine/res/shaders@/res/shaders/builtin\
         -lglfw\

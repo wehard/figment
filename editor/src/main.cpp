@@ -66,6 +66,21 @@ void entity_add_component(int handle, int componentType)
 }
 
 EMSCRIPTEN_KEEPALIVE
+void entity_set_name(int handle, const char *name)
+{
+    Entity entity = Entity((uint32_t)handle, editorLayer->GetScene().get());
+    if (entity.HasComponent<InfoComponent>())
+    {
+        auto &info = entity.GetComponent<InfoComponent>();
+        info.m_Name = std::string(name);
+    }
+    else
+    {
+        printf("Entity does not have an InfoComponent\n");
+    }
+}
+
+EMSCRIPTEN_KEEPALIVE
 void entity_set_position(int handle, float x, float y, float z)
 {
     Entity entity = Entity((uint32_t)handle, editorLayer->GetScene().get());
@@ -132,6 +147,8 @@ int main(int argc, char **argv)
     app->AddLayer(editorLayer);
 
     UserWasmModuleFoo();
+
+    free((void *)0);
 
     emscripten_set_main_loop_arg(main_loop, app, 0, false);
 }

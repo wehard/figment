@@ -24,6 +24,12 @@ Figment.EntityAddComponent = function(entity, component) {
     Module._entity_add_component(entity, component);
 }
 
+Figment.EntitySetName = function(entity, name) {
+    const ptr = stringToNewUTF8(name);
+    Module._entity_set_name(entity, ptr);
+    Module._free(ptr);
+}
+
 Figment.EntitySetPosition = function(entity, x, y, z) {
     Module._entity_set_position(entity, x, y, z);
 }
@@ -56,6 +62,11 @@ class Entity
     addComponent(component)
     {
         Figment.EntityAddComponent(this.entity, component);
+    }
+
+    setName(name)
+    {
+        Figment.EntitySetName(this.entity, name);
     }
 
     setPosition(x, y, z)
