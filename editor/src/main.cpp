@@ -16,6 +16,7 @@ extern "C"
 {
 
 extern void JS_EntityCreate();
+extern int UserWasmModuleFoo();
 
 EMSCRIPTEN_KEEPALIVE
 void enable_input()
@@ -129,6 +130,8 @@ int main(int argc, char **argv)
     app = new Figment::App(width, height);
     editorLayer = new EditorLayer();
     app->AddLayer(editorLayer);
+
+    UserWasmModuleFoo();
 
     emscripten_set_main_loop_arg(main_loop, app, 0, false);
 }

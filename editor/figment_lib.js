@@ -1,9 +1,13 @@
-var figmentApi={
+var figmentLib={
     $dependencies: {},
     JS_EntityCreate: function() {
         Module._entity_create();
     },
+    UserWasmModuleFoo: function() {
+        const r = UserWasmModule.foo();
+        console.log(`UserWasmModuleFoo: ${r}`);
+    }
 };
 
-autoAddDeps(figmentApi, '$dependencies');
-mergeInto(LibraryManager.library, figmentApi);
+autoAddDeps(figmentLib, '$dependencies');
+mergeInto(LibraryManager.library, figmentLib);

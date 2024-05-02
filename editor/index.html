@@ -177,7 +177,7 @@
 
     };
 
-    let TestModule;
+    let UserWasmModule;
 
     (async () => {
         const response = await fetch('wasm_module.wasm');
@@ -188,7 +188,7 @@
         const result = instance.exports.foo(42);
         console.log(result);
         console.log("WebAssembly module loaded");
-        TestModule = instance.exports;
+        UserWasmModule = instance.exports;
     })();
 </script>
 </body>
