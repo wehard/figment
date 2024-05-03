@@ -22,7 +22,12 @@ Particles::Particles(std::shared_ptr<PerspectiveCamera> camera, bool enabled) : 
             {
                     .format = WGPUVertexFormat_Float32x3,
                     .offset = 0,
-                    .shaderLocation = 0,
+                    .shaderLocation = 1,
+            },
+            {
+                    .format = WGPUVertexFormat_Float32x4,
+                    .offset = 16,
+                    .shaderLocation = 2,
             },
     });
     m_VertexBuffer->SetVertexLayout(layout, sizeof(Particle), WGPUVertexStepMode_Instance);

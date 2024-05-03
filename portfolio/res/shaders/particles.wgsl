@@ -7,6 +7,7 @@ struct ParticlesData {
 struct Particle
 {
     position: vec3f,
+    color: vec4f,
 };
 
 const ellipse_count: u32 = 32;
@@ -75,10 +76,14 @@ fn simulate(@builtin(global_invocation_id) id: vec3<u32>) {
     let rx = rand_f32_01() - 0.5;
     let ry = rand_f32_01() - 0.5;
 
+
     let t = length(particle.position.xyz) / 1.2;
     let rz = rand_f32_01() - 0.5;
     let z = rz * (1.0 - bezier_blend(t) * bezier_blend(t)) * 0.2;
     particle.position += vec3<f32>(rx * 0.05, ry * 0.05, z);
+
+    let normalized = normalize(particle.position);
+    particle.color = vec4<f32>(abs(normalized), 1.0);
 
     vertexBuffer[id.x] = particle;
 }

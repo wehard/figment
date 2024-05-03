@@ -9,7 +9,8 @@ struct ParticlesData {
 };
 
 struct MeshInstanceData {
-    @location(0) pos: vec3<f32>,
+    @location(1) pos: vec3<f32>,
+    @location(2) color: vec4<f32>,
 };
 
 @binding(0) @group(0) var<uniform> cameraData: CameraData;
@@ -22,12 +23,12 @@ struct VertexOutput {
 };
 
 @vertex
-fn vs_main(@location(1) pos: vec3f, instance: MeshInstanceData) -> VertexOutput {
+fn vs_main(@location(0) pos: vec3f, instance: MeshInstanceData) -> VertexOutput {
     var output: VertexOutput;
     let p = instance.pos + pos * data.size;
     output.pos = cameraData.proj * cameraData.view * data.model * vec4<f32>(p, 1.0);
     output.p = pos;
-    output.c = vec4<f32>(1.0, 1.0, 1.0, 1.0) * (1.0 - length(instance.pos) / 1.25);
+    output.c = instance.color;
     return output;
 }
 

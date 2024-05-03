@@ -60,7 +60,7 @@ namespace Figment
                         {
                                 .format = WGPUVertexFormat_Float32x3,
                                 .offset = 0,
-                                .shaderLocation = 1,
+                                .shaderLocation = 0,
                         }
                 }, sizeof(glm::vec3), WGPUVertexStepMode_Vertex);
                 m_QuadVertexBuffer->SetData(m_Vertices, sizeof(m_Vertices));
