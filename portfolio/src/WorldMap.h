@@ -20,6 +20,8 @@ struct WorldParticlesData
 {
     float DeltaTime;
     float Rotation;
+    float BumpMultiplier;
+    float _Padding[1];
     glm::vec2 MouseWorldPosition;
 };
 
@@ -34,10 +36,10 @@ public:
     void OnImGuiRender() override;
     void OnEvent(AppEvent event, void *eventData) override;
     WebGPUTexture *GetTexture();
-    WebGPUTexture *GetHeightMap()
-    { return m_WorldHeightMap; }
+    WebGPUTexture *GetHeightMap() { return m_WorldHeightMap; }
     uint32_t GetParticleCount();
     float RotationSpeed = 10.0f;
+    float BumpMultiplier = 0.0f;
     void ResetParticles();
 private:
     std::shared_ptr<WebGPUContext> m_Context;

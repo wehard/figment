@@ -102,6 +102,7 @@ void WorldMap::OnUpdate(float deltaTime)
     WorldParticlesData d = {};
     d.DeltaTime = deltaTime;
     d.Rotation = m_Rotation;
+    d.BumpMultiplier = BumpMultiplier;
     d.MouseWorldPosition = mw;
 
     auto rd = mw - m_Camera->GetPosition();
@@ -155,6 +156,7 @@ void WorldMap::ResetParticles()
     WorldParticlesData d = {};
     d.DeltaTime = 0.0;
     d.Rotation = m_Rotation;
+    d.BumpMultiplier = BumpMultiplier;
     d.MouseWorldPosition = glm::vec2(0, 0);
     m_UniformBuffer->SetData(&d, sizeof(WorldParticlesData));
 

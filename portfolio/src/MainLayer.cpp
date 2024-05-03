@@ -138,7 +138,7 @@ void MainLayer::OnImGuiRender()
     ImGui::End();
 
     ImGui::SetNextWindowPos(ImVec2(appWindowSize.x - width - padding, padding + 20), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(width, appWindowSize.y / 2), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(width, appWindowSize.y / 1.5), ImGuiCond_FirstUseEver);
     ImGui::Begin("Layers");
 
     for (auto layer : m_Layers)
@@ -188,6 +188,7 @@ void MainLayer::OnImGuiRender()
                 worldMap->ResetParticles();
             }
             ImGui::SliderFloat("Rotation speed", &worldMap->RotationSpeed, -100.0, 100.0);
+            ImGui::SliderFloat("Bump multiplier", &worldMap->BumpMultiplier, -1.0, 1.0);
             auto texture = worldMap->GetTexture();
             auto bump = worldMap->GetHeightMap();
             auto aspect = (float)texture->GetHeight() / (float)texture->GetWidth();
