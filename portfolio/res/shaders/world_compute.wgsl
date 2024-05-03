@@ -94,5 +94,7 @@ fn simulate(@builtin(global_invocation_id) id: vec3<u32>) {
     particle.old_position = particle.position;
     particle.position += particle.velocity * data.deltaTime;
 
+    particle.color = textureSampleLevel(worldTexture, sampler1, uv, 0.0);
+
     vertexBuffer[id.x] = particle;
 }
