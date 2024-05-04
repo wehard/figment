@@ -42,7 +42,7 @@ namespace Figment
         colorAttachment.depthSlice = WGPU_DEPTH_SLICE_UNDEFINED;
         colorAttachment.loadOp = WGPULoadOp_Clear;
         colorAttachment.storeOp = WGPUStoreOp_Store;
-        colorAttachment.clearValue = { 0.0f, 0.0f, 0.0f, 1.0f };
+        colorAttachment.clearValue = { 0.0f, 0.0f, 0.0f, 0.0f };
         colorAttachment.view = wgpuSwapChainGetCurrentTextureView(m_Context.GetSwapChain());
 
         WGPURenderPassDepthStencilAttachment depthStencilAttachment = {};

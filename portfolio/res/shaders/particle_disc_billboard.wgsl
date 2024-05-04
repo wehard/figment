@@ -44,6 +44,6 @@ fn fs_main(@location(1) pos: vec3f, @location(2) c: vec4<f32>) -> FragmentOutput
     if (length(pos) > 0.5) {
         discard;
     }
-    output.color = c;
+    output.color = vec4(c.xyz, (1.0 - length(pos) * 2.0));
     return output;
 }

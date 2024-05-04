@@ -22,9 +22,22 @@ namespace Figment
 
     void RenderPipeline::AddColorTarget(WGPUTextureFormat format, WGPUColorWriteMask writeMask)
     {
+        WGPUBlendState defaultBlendState = {
+                .color = {
+                        .operation = WGPUBlendOperation_Add,
+                        .srcFactor = WGPUBlendFactor_One,
+                        .dstFactor = WGPUBlendFactor_OneMinusSrcAlpha,
+                },
+                .alpha = {
+                        .operation = WGPUBlendOperation_Add,
+                        .srcFactor = WGPUBlendFactor_One,
+                        .dstFactor = WGPUBlendFactor_OneMinusSrcAlpha,
+                }
+        };
+        m_BlendStates.push_back(defaultBlendState);
         m_ColorTargetStates.push_back({
                 .format = format,
-                .blend = nullptr, // TODO: Add support for blending
+                .blend = &m_BlendStates.back(),
                 .writeMask = writeMask
         });
     }

@@ -56,6 +56,7 @@ namespace Figment
         std::vector<WGPUVertexBufferLayout> m_VertexBufferLayouts;
         WGPUPrimitiveState m_PrimitiveState;
         std::vector<WGPUColorTargetState> m_ColorTargetStates;
+        std::vector<WGPUBlendState> m_BlendStates;
         WGPUDepthStencilState m_DepthStencilState;
     };
 

@@ -103,6 +103,11 @@ namespace Figment
                     particlePositions.GetSize());
             wgpuRenderPassEncoderSetPipeline(m_RenderPass, m_Pipeline);
             wgpuRenderPassEncoderSetBindGroup(m_RenderPass, 0, m_BindGroup, 0, nullptr);
+
+            // Setup blend factor
+            // WGPUColor blend_color = { 0.f, 0.f, 0.f, 0.f };
+            // wgpuRenderPassEncoderSetBlendConstant(m_RenderPass, &blend_color);
+
             wgpuRenderPassEncoderDrawIndexed(m_RenderPass, m_QuadIndexBuffer->Count(), particlePositions.Count(), 0, 0,
                     0);
 
