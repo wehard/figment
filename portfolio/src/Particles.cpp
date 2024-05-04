@@ -12,7 +12,7 @@ Particles::Particles(std::shared_ptr<PerspectiveCamera> camera, bool enabled) : 
     m_ComputeShader = std::make_unique<WebGPUShader>(m_Context->GetDevice(),
             "res/shaders/particles.wgsl", "ParticlesCompute");
     m_ParticleShader = std::make_unique<WebGPUShader>(m_Context->GetDevice(),
-            "res/shaders/particle_mesh.wgsl", "ParticleShader");
+            "res/shaders/particle_disc_billboard.wgsl", "ParticleDiscBillboardShader");
 
     m_VertexBuffer = std::make_unique<WebGPUVertexBuffer<Particle>>
             (m_Context->GetDevice(), "ParticlesBuffer",
