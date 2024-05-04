@@ -124,17 +124,14 @@ namespace Figment
         WGPURenderPipeline m_Pipeline = nullptr;
         WGPUBindGroup m_BindGroup = nullptr;
 
-        glm::vec3 m_Vertices[6] = {
-                { -0.5, 0.0, 0.5 },
-                { -0.5, 0.0, -0.5 },
-                { +0.5, 0.0, -0.5 },
-                { +0.5, 0.0, 0.5 },
-                { 0.0, 0.5, 0.0 },
-                { 0.0, -0.5, 0.0 },
+        glm::vec3 m_Vertices[4] = {
+                { -0.5, -0.5, 0.0 },
+                { -0.5, +0.5, 0.0 },
+                { +0.5, +0.5, 0.0 },
+                { +0.5, -0.5, 0.0 },
         };
 
-        uint32_t m_Indices[24] = { 0, 4, 1, 1, 4, 2, 2, 4, 3, 3, 4, 0,
-                                   0, 1, 5, 1, 2, 5, 2, 3, 5, 3, 0, 5 };
+        uint32_t m_Indices[24] = { 0, 1, 2, 0, 2, 3 };
 
         WebGPUVertexBuffer<glm::vec3> *m_QuadVertexBuffer;
         WebGPUIndexBuffer<uint32_t> *m_QuadIndexBuffer;
