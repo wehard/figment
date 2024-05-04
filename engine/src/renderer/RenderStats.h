@@ -11,6 +11,7 @@ namespace Figment
         static uint32_t VertexCount;
         static uint32_t CircleCount;
         static uint32_t QuadCount;
+        static uint32_t ParticleCount;
 
         static void Reset()
         {
@@ -18,6 +19,7 @@ namespace Figment
             VertexCount = 0;
             CircleCount = 0;
             QuadCount = 0;
+            ParticleCount = 0;
         }
     };
 }

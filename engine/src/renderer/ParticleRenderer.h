@@ -44,6 +44,7 @@ namespace Figment
 
             WebGPUCommand::DrawVertices<T>(m_RenderPass, m_Pipeline, m_BindGroup,
                     vertexBuffer, vertexBuffer.Count());
+            RenderStats::ParticleCount += vertexBuffer.Count();
             RenderStats::VertexCount += vertexBuffer.Count();
             RenderStats::DrawCalls++;
         }
@@ -105,6 +106,7 @@ namespace Figment
             wgpuRenderPassEncoderDrawIndexed(m_RenderPass, m_QuadIndexBuffer->Count(), particlePositions.Count(), 0, 0,
                     0);
 
+            RenderStats::ParticleCount += particlePositions.Count();
             RenderStats::VertexCount += particlePositions.Count() * m_QuadVertexBuffer->Count();
             RenderStats::DrawCalls++;
         }

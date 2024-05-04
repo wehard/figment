@@ -6,4 +6,5 @@ namespace Figment
     uint32_t RenderStats::VertexCount = 0;
     uint32_t RenderStats::CircleCount = 0;
     uint32_t RenderStats::QuadCount = 0;
+    uint32_t RenderStats::ParticleCount = 0;
 }

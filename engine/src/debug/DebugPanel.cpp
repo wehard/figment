@@ -123,6 +123,7 @@ namespace Figment
             ImGui::Text("Vertex count: %d", RenderStats::VertexCount);
             ImGui::Text("Quad count: %d", RenderStats::QuadCount);
             ImGui::Text("Circle count: %d", RenderStats::CircleCount);
+            ImGui::Text("Particle count: %d", RenderStats::ParticleCount);
             ImGui::Separator();
             auto fpsCounter = App::Instance()->GetFPSCounter();
             ImGui::Text("FPS: %.2f", fpsCounter.GetFPS());
