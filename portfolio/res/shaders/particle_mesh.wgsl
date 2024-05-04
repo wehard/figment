@@ -25,10 +25,12 @@ struct VertexOutput {
 @vertex
 fn vs_main(@location(0) pos: vec3f, instance: MeshInstanceData) -> VertexOutput {
     var output: VertexOutput;
-    let p = instance.pos + pos * data.size;
-    output.pos = cameraData.proj * cameraData.view * data.model * vec4<f32>(p, 1.0);
+    let mv = cameraData.view * data.model;
+    let p = cameraData.proj * (mv * vec4(instance.pos, 1.0) + vec4(pos.x * data.size, pos.y * data.size, 0.0, 0.0));
+    output.pos = p;
     output.p = pos;
     output.c = instance.color;
+
     return output;
 }
 
