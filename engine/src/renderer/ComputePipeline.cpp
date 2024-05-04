@@ -10,7 +10,7 @@ namespace Figment
 
     ComputePipeline::~ComputePipeline()
     {
-
+        wgpuComputePipelineRelease(Pipeline);
     }
 
     void ComputePipeline::Build(const char *entryPoint, WGPUShaderModule shaderModule)
@@ -28,5 +28,7 @@ namespace Figment
         computePipelineDesc.compute.module = shaderModule;
         computePipelineDesc.layout = pipelineLayout;
         Pipeline = wgpuDeviceCreateComputePipeline(m_Device, &computePipelineDesc);
+
+        wgpuPipelineLayoutRelease(pipelineLayout);
     }
 }
