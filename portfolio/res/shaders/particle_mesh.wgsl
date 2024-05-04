@@ -41,6 +41,9 @@ struct FragmentOutput {
 @fragment
 fn fs_main(@location(1) pos: vec3f, @location(2) c: vec4<f32>) -> FragmentOutput {
     var output: FragmentOutput;
+    if (length(pos) > 0.5) {
+        discard;
+    }
     output.color = c;
     return output;
 }
