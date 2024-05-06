@@ -37,7 +37,7 @@ namespace Figment
         m_BlendStates.push_back(defaultBlendState);
         m_ColorTargetStates.push_back({
                 .format = format,
-                .blend = &m_BlendStates.back(),
+                .blend = nullptr, // &m_BlendStates.back(),
                 .writeMask = writeMask
         });
     }
