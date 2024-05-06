@@ -11,6 +11,7 @@
 #include "Component.h"
 #include "Mesh.h"
 #include "WebGPUCommand.h"
+#include "RenderTarget.h"
 
 namespace Figment
 {
@@ -94,7 +95,7 @@ namespace Figment
             pipeline->SetPrimitiveState(WGPUPrimitiveTopology_PointList, WGPUIndexFormat_Undefined,
                     WGPUFrontFace_CCW,
                     WGPUCullMode_None);
-            pipeline->SetDepthStencilState(m_DepthTexture->GetTextureFormat(), WGPUCompareFunction_Less, true);
+            pipeline->SetDepthStencilState(m_RenderTarget.Depth.TextureFormat, WGPUCompareFunction_Less, true);
             pipeline->SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(0),
                     m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
             auto colorTargetStates = std::vector<WGPUColorTargetState>({
@@ -152,7 +153,8 @@ namespace Figment
         WebGPUUniformBuffer<CameraData> *m_CameraDataUniformBuffer;
         WebGPUShader *m_CircleShader;
         WebGPUShader *m_QuadShader;
-        WebGPUTexture *m_DepthTexture;
+
+        RenderTarget &m_RenderTarget;
 
         WebGPURenderPipeline *m_QuadPipeline;
         WebGPURenderPipeline *m_CirclePipeline;
