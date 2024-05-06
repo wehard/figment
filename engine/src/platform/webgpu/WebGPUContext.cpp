@@ -1,5 +1,6 @@
 #include "WebGPUContext.h"
 #include "Log.h"
+#include "WebGPUTexture.h"
 
 #include <emscripten/html5_webgpu.h>
 #include <webgpu/webgpu.h>
@@ -114,9 +115,34 @@ namespace Figment
         m_SwapChain = wgpuDeviceCreateSwapChain(m_WebGPUDevice, m_WebGPUSurface, &swapChainDesc);
 
         if (!m_SwapChain)
+            FIG_LOG_ERROR("Failed to create WebGPU swap chain!\n");
+
+        FIG_LOG_INFO("Created WebGPU swap chain (%dx%d)", m_SwapChainWidth, m_SwapChainHeight);
+
+        CreateDefaultRenderTarget();
+    }
+
+
+    void WebGPUContext::CreateDefaultRenderTarget()
+    {
+        if (m_DepthTexture != nullptr)
         {
-            printf("Failed to create WebGPU swap chain!\n");
+            wgpuTextureViewRelease(m_DefaultRenderTarget.Color.TextureView);
+            delete m_DepthTexture;
         }
+        m_DepthTexture = WebGPUTexture::CreateDepthTexture(m_WebGPUDevice, WGPUTextureFormat_Depth24Plus,
+                m_SwapChainWidth, m_SwapChainHeight);
+        m_DefaultRenderTarget = {
+            .Color = {
+                .TextureView = wgpuSwapChainGetCurrentTextureView(m_SwapChain),
+                .TextureFormat = m_TextureFormat,
+            },
+            .Depth = {
+                .TextureView = m_DepthTexture->GetTextureView(),
+                .TextureFormat = m_DepthTexture->GetTextureFormat(),
+            }
+        };
+        FIG_LOG_INFO("Created default render target");
     }
 
     void WebGPUContext::SwapBuffers()

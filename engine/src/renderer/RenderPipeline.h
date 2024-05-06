@@ -6,32 +6,6 @@
 
 namespace Figment
 {
-    class RenderTarget
-    {
-    public:
-        RenderTarget() = default;
-        RenderTarget(WGPUDevice device, WGPUTextureFormat format, WGPUTextureUsage usage,
-                uint32_t width, uint32_t height)
-        {
-
-        }
-        ~RenderTarget() = default;
-
-        void AddColorAttachment(WGPUTextureView textureView, WGPUTextureFormat format)
-        {
-        }
-
-        void SetDepthStencilAttachment(WGPUTextureView textureView, WGPUTextureFormat format)
-        {
-        }
-
-    private:
-        WGPUTexture m_Texture = nullptr;
-        WGPUTextureView m_TextureView = nullptr;
-        std::vector<WGPURenderPassColorAttachment> m_ColorAttachments;
-        WGPURenderPassDepthStencilAttachment m_DepthStencilAttachment;
-    };
-
     class RenderPipeline
     {
     public:
