@@ -29,6 +29,17 @@ namespace Figment
         auto cameraEntity = m_Scene->CreateEntity("Camera");
         cameraEntity.AddComponent<CameraComponent>(std::make_shared<PerspectiveCamera>(width / height));
 
+        auto mesh = new Mesh(m_Context->GetDevice(), {
+                {{-1.0, -1.0, 0.0}, {0.0, 0.0}},
+                {{-1.0, 1.0, 0.0}, {0.0, 1.0}},
+                {{1.0, 1.0, 0.0}, {1.0, 1.0}},
+                {{1.0, -1.0, 0.0}, {1.0, 0.0}},
+            }, {
+                0, 2, 1, 0, 3, 2
+        });
+        auto grid = m_Scene->CreateEntity("Grid");
+        grid.AddComponent<GridComponent>(*mesh);
+
         // SelectEntity(figmentEntity);
     }
 

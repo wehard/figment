@@ -14,12 +14,15 @@ namespace Figment
     {
         m_EditorCamera = std::make_shared<PerspectiveCamera>((float)width / (float)height);
         m_EditorCameraController = std::make_shared<CameraController>(m_EditorCamera);
+        m_EditorCamera->GetPositionPtr()->y = 1.0;
         m_EditorCamera->GetPositionPtr()->z = 15.0;
         SetActiveCameraController(m_EditorCameraController);
 
         auto m_Window = App::Instance()->GetWindow();
         auto webGpuWindow = std::dynamic_pointer_cast<WebGPUWindow>(m_Window);
         m_Renderer = std::make_unique<ShapeRenderer>(*webGpuWindow->GetContext());
+
+        m_GridShader = new WebGPUShader(webGpuWindow->GetContext()->GetDevice(), "res/shaders/builtin/grid.wgsl");
     }
 
     Scene::~Scene()
@@ -140,6 +143,11 @@ namespace Figment
                 auto &quad = entity.GetComponent<QuadComponent>();
                 auto color = entity.GetHandle() == m_HoveredId ? glm::vec4(1.0, 1.0, 1.0, 1.0) : quad.Color;
                 m_Renderer->SubmitQuad(transform.Position, transform.Scale, color, (int)entity.GetHandle());
+            }
+            if (entity.HasComponent<GridComponent>())
+            {
+                auto &grid = entity.GetComponent<GridComponent>();
+                m_Renderer->Submit(grid.GetMesh(), transform.GetTransform(), *m_GridShader);
             }
         }
 

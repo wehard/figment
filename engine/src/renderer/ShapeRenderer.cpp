@@ -92,6 +92,9 @@ namespace Figment
                 m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
         m_CirclePipeline->SetColorTargetStates(colorTargetStates);
         m_CirclePipeline->Build();
+
+        m_GridUniformBuffer = new WebGPUUniformBuffer<GridData>(m_Context.GetDevice(), "GridUniformBuffer",
+                sizeof(GridData));
     }
 
     ShapeRenderer::~ShapeRenderer()
@@ -105,6 +108,7 @@ namespace Figment
         delete m_CameraDataUniformBuffer;
         delete m_QuadPipeline;
         delete m_CirclePipeline;
+        delete m_GridUniformBuffer;
     }
 
     void ShapeRenderer::InitShaders()
@@ -117,12 +121,12 @@ namespace Figment
 
     WGPURenderPassEncoder ShapeRenderer::Begin(Figment::Camera &camera)
     {
-        CameraData cameraData = {
+        m_CameraData = {
                 .ViewMatrix = camera.GetViewMatrix(),
                 .ProjectionMatrix = camera.GetProjectionMatrix()
         };
 
-        m_CameraDataUniformBuffer->SetData(&cameraData, sizeof(cameraData));
+        m_CameraDataUniformBuffer->SetData(&m_CameraData, sizeof(m_CameraData));
 
         auto device = m_Context.GetDevice();
 
@@ -224,17 +228,36 @@ namespace Figment
 
     void ShapeRenderer::Submit(Mesh &mesh, glm::mat4 transform, WebGPUShader &shader)
     {
-        mesh.UniformBuffer()->SetData(&transform, sizeof(transform));
+        GridData gridData = {
+                .ModelMatrix = transform,
+                .InverseViewMatrix = glm::inverse(m_CameraData.ViewMatrix),
+                .InverseProjectionMatrix = glm::inverse(m_CameraData.ProjectionMatrix),
+        };
+        m_GridUniformBuffer->SetData(&gridData, sizeof(gridData));
 
-        RenderPass renderPass(m_Context.GetDevice());
-        renderPass.AddColorAttachment(m_RenderTarget.Color.TextureView, m_RenderTarget.Color.TextureFormat);
-        renderPass.AddColorAttachment(m_IdTexture->GetTextureView(), m_IdTexture->GetTextureFormat());
-        renderPass.SetDepthStencilAttachment(m_RenderTarget.Depth.TextureView, m_RenderTarget.Depth.TextureFormat);
-        renderPass.Bind(*m_CameraDataUniformBuffer);
-        renderPass.Bind(*mesh.UniformBuffer());
-        renderPass.Begin();
-        renderPass.DrawIndexed(mesh, transform, shader);
-        renderPass.End();
+        WebGPURenderPipeline pipeline(m_Context.GetDevice(), shader, mesh.VertexBuffer()->GetVertexLayout());
+        pipeline.SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined, WGPUFrontFace_CCW,
+                WGPUCullMode_None);
+        pipeline.SetDepthStencilState(m_RenderTarget.Depth.TextureFormat, WGPUCompareFunction_Less, true);
+        pipeline.SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(0),
+                m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
+        pipeline.SetBinding(m_GridUniformBuffer->GetBindGroupLayoutEntry(1), m_GridUniformBuffer->GetBindGroupEntry(1, 0));
+        auto colorTargetStates = std::vector<WGPUColorTargetState>({
+                {
+                        .format = m_Context.GetTextureFormat(),
+                        .blend = nullptr,
+                        .writeMask = WGPUColorWriteMask_All
+                },
+                {
+                        .format = m_IdTexture->GetTextureFormat(),
+                        .blend = nullptr,
+                        .writeMask = WGPUColorWriteMask_All
+                }
+        });
+        pipeline.SetColorTargetStates(colorTargetStates);
+        pipeline.Build();
+
+        WebGPUCommand::DrawIndexed(m_RenderPass, pipeline.Pipeline, pipeline.BindGroup, *mesh.IndexBuffer(), *mesh.VertexBuffer(), mesh.IndexCount());
 
         RenderStats::DrawCalls++;
         RenderStats::VertexCount += mesh.VertexCount();

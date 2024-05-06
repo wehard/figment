@@ -6,6 +6,7 @@
 #include "glm/glm.hpp"
 #include "CameraController.h"
 #include "Utils.h"
+#include "Mesh.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/euler_angles.hpp>
 
@@ -79,6 +80,15 @@ namespace Figment
         glm::vec4 Color = glm::vec4(1.0);
 
         QuadComponent() = default;
+    };
+
+    struct GridComponent
+    {
+    public:
+        GridComponent(Mesh &mesh) : m_Mesh(mesh) { }
+        Mesh &GetMesh() { return m_Mesh; }
+    private:
+        Mesh &m_Mesh;
     };
 
     struct CameraComponent

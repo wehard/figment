@@ -43,5 +43,6 @@ namespace Figment
         std::shared_ptr<PerspectiveCamera> m_EditorCamera;
         std::shared_ptr<CameraController> m_ActiveCameraController;
         VerletPhysics m_VerletPhysics;
+        WebGPUShader *m_GridShader;
     };
 }

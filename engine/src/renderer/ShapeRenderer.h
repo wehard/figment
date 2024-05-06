@@ -21,6 +21,13 @@ namespace Figment
         glm::mat4 ProjectionMatrix;
     };
 
+    struct GridData
+    {
+        glm::mat4 ModelMatrix;
+        glm::mat4 InverseViewMatrix;
+        glm::mat4 InverseProjectionMatrix;
+    };
+
     constexpr uint32_t MaxCircleCount = 1000000;
     constexpr uint32_t MaxQuadCount = 1000000;
     constexpr uint32_t MaxCircleVertexCount = MaxCircleCount * 6;
@@ -151,6 +158,7 @@ namespace Figment
         WebGPUVertexBuffer<QuadVertex> *m_QuadVertexBuffer;
         WebGPUBuffer<int32_t> *m_PixelBuffer;
         WebGPUUniformBuffer<CameraData> *m_CameraDataUniformBuffer;
+        WebGPUUniformBuffer<GridData> *m_GridUniformBuffer;
         WebGPUShader *m_CircleShader;
         WebGPUShader *m_QuadShader;
 
@@ -159,6 +167,7 @@ namespace Figment
         WebGPURenderPipeline *m_QuadPipeline;
         WebGPURenderPipeline *m_CirclePipeline;
 
+        CameraData m_CameraData;
         RendererData m_RendererData;
     };
 }

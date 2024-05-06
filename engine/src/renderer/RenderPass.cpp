@@ -12,9 +12,9 @@ namespace Figment
     void RenderPass::AddColorAttachment(WGPUTextureView textureView, WGPUTextureFormat format)
     {
         WGPURenderPassColorAttachment colorAttachment = {};
+        colorAttachment.depthSlice = WGPU_DEPTH_SLICE_UNDEFINED;
         colorAttachment.nextInChain = nullptr;
         colorAttachment.view = textureView;
-        colorAttachment.depthSlice = 0;
         colorAttachment.resolveTarget = nullptr;
         colorAttachment.loadOp = WGPULoadOp_Load;
         colorAttachment.storeOp = WGPUStoreOp_Store;
