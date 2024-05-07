@@ -33,14 +33,20 @@ fn vs_main(@location(0) pos: vec3f, @location(1) uv: vec2f) -> VertexOutput {
 //    output.pos = cameraData.proj * cameraData.view * gridData.model * vec4<f32>(pos, 1.0);
     output.pos = vec4<f32>(pos, 1.0);
     output.uv = uv;
-    output.id = 42;
+    output.id = -1;
     return output;
 }
 
 struct FragmentOutput {
+    @builtin(frag_depth) depth: f32,
     @location(0) color: vec4<f32>,
     @location(1) id: i32
 };
+
+fn compute_depth(pos: vec3<f32>) -> f32 {
+    var clip = cameraData.proj * cameraData.view * vec4<f32>(pos, 1.0);
+    return clip.z / clip.w;
+}
 
 @fragment
 fn fs_main(@location(0) uv: vec2<f32>, @location(1)  @interpolate(flat) id: i32, @location(2) near: vec3<f32>, @location(3) far: vec3<f32>) -> FragmentOutput {
@@ -58,10 +64,13 @@ fn fs_main(@location(0) uv: vec2<f32>, @location(1)  @interpolate(flat) id: i32,
     let ln = min(grid.x, grid.y);
     let minz = min(deriv.y, 1.0);
     let minx = min(deriv.x, 1.0);
-    let x = 0.2;
     var g = 1.0 - min(ln, 1.0);
 
-    var c = vec4<f32>(g, g, g, 1.0);
+    if (g < 0.1) {
+        discard;
+    }
+
+    var c = vec4<f32>(0.5, 0.5, 0.5, 1.0) * g;
 
     if (pos.x > -0.1 * minx && pos.x < 0.1 * minx) {
         c.z = 1.0;
@@ -72,5 +81,6 @@ fn fs_main(@location(0) uv: vec2<f32>, @location(1)  @interpolate(flat) id: i32,
 
     output.color = c;
     output.id = id;
+    output.depth = compute_depth(pos);
     return output;
 }
