@@ -20,16 +20,16 @@ struct VertexOutput {
     @location(3) far: vec3<f32>,
 };
 
-fn unproject(pos: vec3<f32>, invView: mat4x4<f32>, invProj: mat4x4<f32>) -> vec3<f32> {
-    let unprojected = invView * invProj * vec4<f32>(pos, 1.0);
+fn unproject(pos: vec3<f32>) -> vec3<f32> {
+    let unprojected = gridData.invView * gridData.invProj * vec4<f32>(pos, 1.0);
     return unprojected.xyz / unprojected.w;
 }
 
 @vertex
 fn vs_main(@location(0) pos: vec3f, @location(1) uv: vec2f) -> VertexOutput {
     var output: VertexOutput;
-    output.near = unproject(vec3<f32>(pos.x, pos.y, 0.0), gridData.invView, gridData.invProj);
-    output.far = unproject(vec3<f32>(pos.x, pos.y, 1.0), gridData.invView, gridData.invProj);
+    output.near = unproject(vec3<f32>(pos.x, pos.y, 0.0));
+    output.far = unproject(vec3<f32>(pos.x, pos.y, 1.0));
     output.pos = vec4<f32>(pos, 1.0);
     output.uv = uv;
     output.id = -1;
