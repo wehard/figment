@@ -30,7 +30,6 @@ fn vs_main(@location(0) pos: vec3f, @location(1) uv: vec2f) -> VertexOutput {
     var output: VertexOutput;
     output.near = unproject(vec3<f32>(pos.x, pos.y, 0.0), gridData.invView, gridData.invProj);
     output.far = unproject(vec3<f32>(pos.x, pos.y, 1.0), gridData.invView, gridData.invProj);
-//    output.pos = cameraData.proj * cameraData.view * gridData.model * vec4<f32>(pos, 1.0);
     output.pos = vec4<f32>(pos, 1.0);
     output.uv = uv;
     output.id = -1;
@@ -46,6 +45,15 @@ struct FragmentOutput {
 fn compute_depth(pos: vec3<f32>) -> f32 {
     var clip = cameraData.proj * cameraData.view * vec4<f32>(pos, 1.0);
     return clip.z / clip.w;
+}
+
+fn compute_linear_depth(pos: vec3<f32>) -> f32 {
+    var clip = cameraData.proj * cameraData.view * vec4<f32>(pos, 1.0);
+    var clip_depth = (clip.z / clip.w) * 2.0 - 1.0;
+    var near = 0.01;
+    var far = 100.0;
+    var linear_depth = (2.0 * near * far) / (far + near - clip_depth * (far - near));
+    return linear_depth / far;
 }
 
 @fragment
@@ -72,14 +80,17 @@ fn fs_main(@location(0) uv: vec2<f32>, @location(1)  @interpolate(flat) id: i32,
 
     var c = vec4<f32>(0.5, 0.5, 0.5, 1.0) * g;
 
-    if (pos.x > -0.1 * minx && pos.x < 0.1 * minx) {
+    if (pos.x > -0.5 * minx && pos.x < 0.5 * minx) {
         c.z = 1.0;
     }
-    if (pos.z > -0.1 * minz && pos.z < 0.1 * minz) {
+    if (pos.z > -0.5 * minz && pos.z < 0.5 * minz) {
         c.x = 1.0;
     }
 
-    output.color = c;
+    var linear_depth = compute_linear_depth(pos);
+    var fade = max(0, (0.5 - linear_depth));
+
+    output.color = c * fade;
     output.id = id;
     output.depth = compute_depth(pos);
     return output;
