@@ -77,7 +77,7 @@ namespace Figment
         float m_AspectRatio = 1.0;
         float m_Fov = 45.0;
         float m_NearClip = 0.01;
-        float m_FarClip = 100.0;
+        float m_FarClip = 1000.0;
         glm::mat4 m_ProjectionMatrix;
         glm::mat4 m_ViewMatrix;
 
