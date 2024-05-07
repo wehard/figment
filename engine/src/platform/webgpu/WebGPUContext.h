@@ -1,17 +1,16 @@
 #pragma once
 
-#include "GfxContext.h"
+#include "RenderContext.h"
 #include "RenderTarget.h"
 #include "WebGPUTexture.h"
 #include <webgpu/webgpu.h>
 
 namespace Figment
 {
-    class WebGPUContext : public GfxContext
+    class WebGPUContext : public RenderContext
     {
     public:
         void Init() override;
-        void SwapBuffers() override;
 
         void Init(uint32_t width, uint32_t height);
         WGPUDevice GetDevice() { return m_WebGPUDevice; }

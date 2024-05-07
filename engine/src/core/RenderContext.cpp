@@ -1,9 +1,9 @@
-#include "GfxContext.h"
+#include "RenderContext.h"
 #include "WebGPUContext.h"
 
 namespace Figment
 {
-    std::unique_ptr<GfxContext> GfxContext::Create(void *window)
+    std::unique_ptr<RenderContext> RenderContext::Create(void *window)
     {
         return std::make_unique<WebGPUContext>();
     }

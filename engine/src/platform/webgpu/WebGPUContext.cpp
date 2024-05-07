@@ -144,9 +144,4 @@ namespace Figment
         };
         FIG_LOG_INFO("Created default render target");
     }
-
-    void WebGPUContext::SwapBuffers()
-    {
-
-    }
 }
