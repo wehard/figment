@@ -50,7 +50,7 @@ namespace Figment
 
         auto colorTargetStates = std::vector<WGPUColorTargetState>({
                 {
-                        .format = m_Context.GetTextureFormat(),
+                        .format = m_RenderTarget->Color.TextureFormat,
                         .blend = nullptr,
                         .writeMask = WGPUColorWriteMask_All
                 },
@@ -76,7 +76,7 @@ namespace Figment
         m_QuadPipeline->SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined,
                 WGPUFrontFace_CCW,
                 WGPUCullMode_None);
-        m_QuadPipeline->SetDepthStencilState(m_RenderTarget.Depth.TextureFormat, WGPUCompareFunction_Less, true);
+        m_QuadPipeline->SetDepthStencilState(m_RenderTarget->Depth.TextureFormat, WGPUCompareFunction_Less, true);
         m_QuadPipeline->SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(0),
                 m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
         m_QuadPipeline->SetColorTargetStates(colorTargetStates);
@@ -87,7 +87,7 @@ namespace Figment
         m_CirclePipeline->SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined,
                 WGPUFrontFace_CCW,
                 WGPUCullMode_None);
-        m_CirclePipeline->SetDepthStencilState(m_RenderTarget.Depth.TextureFormat, WGPUCompareFunction_Less, true);
+        m_CirclePipeline->SetDepthStencilState(m_RenderTarget->Depth.TextureFormat, WGPUCompareFunction_Less, true);
         m_CirclePipeline->SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(0),
                 m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
         m_CirclePipeline->SetColorTargetStates(colorTargetStates);
@@ -148,7 +148,7 @@ namespace Figment
         colorAttachments[1].resolveTarget = nullptr;
 
         WGPURenderPassDepthStencilAttachment depthStencilAttachment = {};
-        depthStencilAttachment.view = m_RenderTarget.Depth.TextureView;
+        depthStencilAttachment.view = m_RenderTarget->Depth.TextureView;
         depthStencilAttachment.depthClearValue = 1.0f;
         depthStencilAttachment.depthLoadOp = WGPULoadOp_Clear;
         depthStencilAttachment.depthStoreOp = WGPUStoreOp_Store;
@@ -238,7 +238,7 @@ namespace Figment
         WebGPURenderPipeline pipeline(m_Context.GetDevice(), shader, mesh.VertexBuffer()->GetVertexLayout());
         pipeline.SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined, WGPUFrontFace_CCW,
                 WGPUCullMode_None);
-        pipeline.SetDepthStencilState(m_RenderTarget.Depth.TextureFormat, WGPUCompareFunction_Less, true);
+        pipeline.SetDepthStencilState(m_RenderTarget->Depth.TextureFormat, WGPUCompareFunction_Less, true);
         pipeline.SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(0),
                 m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
         pipeline.SetBinding(m_GridUniformBuffer->GetBindGroupLayoutEntry(1), m_GridUniformBuffer->GetBindGroupEntry(1, 0));
@@ -302,7 +302,7 @@ namespace Figment
                     WGPUFrontFace_CCW,
                     WGPUCullMode_None);
         }
-        pipeline->SetDepthStencilState(m_RenderTarget.Depth.TextureFormat, WGPUCompareFunction_Less, true);
+        pipeline->SetDepthStencilState(m_RenderTarget->Depth.TextureFormat, WGPUCompareFunction_Less, true);
         pipeline->SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(0),
                 m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
         pipeline->SetBinding(figment.UniformBuffer->GetBindGroupLayoutEntry(1),

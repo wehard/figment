@@ -102,7 +102,7 @@ namespace Figment
             pipeline->SetPrimitiveState(WGPUPrimitiveTopology_PointList, WGPUIndexFormat_Undefined,
                     WGPUFrontFace_CCW,
                     WGPUCullMode_None);
-            pipeline->SetDepthStencilState(m_RenderTarget.Depth.TextureFormat, WGPUCompareFunction_Less, true);
+            pipeline->SetDepthStencilState(m_RenderTarget->Depth.TextureFormat, WGPUCompareFunction_Less, true);
             pipeline->SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(0),
                     m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
             auto colorTargetStates = std::vector<WGPUColorTargetState>({
@@ -162,7 +162,7 @@ namespace Figment
         WebGPUShader *m_CircleShader;
         WebGPUShader *m_QuadShader;
 
-        RenderTarget &m_RenderTarget;
+        RenderTarget *m_RenderTarget;
 
         WebGPURenderPipeline *m_QuadPipeline;
         WebGPURenderPipeline *m_CirclePipeline;

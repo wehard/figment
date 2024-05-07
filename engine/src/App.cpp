@@ -29,6 +29,9 @@ namespace Figment
             }
         });
 
+        auto webGpuWindow = std::dynamic_pointer_cast<WebGPUWindow>(App::Instance()->GetWindow());
+        m_RenderContext = webGpuWindow->GetContext();
+
         Input::Initialize((GLFWwindow *)m_Window->GetNative());
         m_GUICtx = std::make_unique<WebGPUGUIContext>();
         m_GUICtx->Init(m_Window, "glslVersion");
@@ -44,6 +47,7 @@ namespace Figment
 
     void App::Update()
     {
+        m_RenderContext->BeginFrame();
         RenderStats::Reset();
 
         m_CurrentTime = (float)glfwGetTime();
@@ -65,6 +69,8 @@ namespace Figment
                 continue;
             layer->OnUpdate(deltaTime);
         }
+
+        m_RenderContext->EndFrame();
 
         m_GUICtx->Begin();
         for (auto layer : m_LayerStack)

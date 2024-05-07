@@ -41,6 +41,7 @@ namespace Figment
         grid.AddComponent<GridComponent>(*mesh);
 
         // SelectEntity(figmentEntity);
+        m_OverlayRenderer = std::make_unique<OverlayRenderer>(*m_Context);
     }
 
     EditorLayer::~EditorLayer()
@@ -59,6 +60,10 @@ namespace Figment
     {
         auto m_Window = App::Instance()->GetWindow();
         m_Scene->OnUpdate(deltaTime, Input::GetMousePosition(), glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
+
+        m_OverlayRenderer->Begin(*m_Scene->GetActiveCameraController()->GetCamera());
+        m_OverlayRenderer->DrawGrid();
+        m_OverlayRenderer->End();
 
         ImGuiIO &io = ImGui::GetIO();
         if (io.WantCaptureMouse || io.WantCaptureKeyboard)
@@ -90,7 +95,6 @@ namespace Figment
         {
             SelectEntity(m_Scene->GetHoveredEntity());
         }
-
     }
 
     static void DrawVec3(const char *name, glm::vec3 *value, bool *syncValues)

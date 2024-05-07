@@ -19,8 +19,11 @@ namespace Figment
         WGPUTextureFormat GetTextureFormat() { return m_TextureFormat; }
         uint32_t GetSwapChainWidth() { return m_SwapChainWidth; }
         uint32_t GetSwapChainHeight() { return m_SwapChainHeight; }
-        RenderTarget &GetDefaultRenderTarget() { return m_DefaultRenderTarget; }
+        RenderTarget *GetDefaultRenderTarget() { return &m_DefaultRenderTarget; }
         void CreateSwapChain(uint32_t width, uint32_t height);
+
+        void BeginFrame();
+        void EndFrame();
     private:
         void CreateDefaultRenderTarget();
 

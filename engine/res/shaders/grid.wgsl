@@ -4,7 +4,6 @@ struct CameraData {
 };
 
 struct GridData {
-    model: mat4x4<f32>,
     invView: mat4x4<f32>,
     invProj: mat4x4<f32>,
 };

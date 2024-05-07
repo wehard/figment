@@ -127,7 +127,6 @@ namespace Figment
     {
         if (m_DepthTexture != nullptr)
         {
-            wgpuTextureViewRelease(m_DefaultRenderTarget.Color.TextureView);
             delete m_DepthTexture;
         }
         m_DepthTexture = WebGPUTexture::CreateDepthTexture(m_WebGPUDevice, WGPUTextureFormat_Depth24Plus,
@@ -143,5 +142,16 @@ namespace Figment
             }
         };
         FIG_LOG_INFO("Created default render target");
+    }
+
+    // TODO: Figure out where this belongs
+    void WebGPUContext::BeginFrame()
+    {
+        m_DefaultRenderTarget.Color.TextureView = wgpuSwapChainGetCurrentTextureView(m_SwapChain);
+    }
+
+    void WebGPUContext::EndFrame()
+    {
+        wgpuTextureViewRelease(m_DefaultRenderTarget.Color.TextureView);
     }
 }

@@ -41,6 +41,7 @@ namespace Figment
         { return s_Instance; }
     private:
         std::shared_ptr<Window> m_Window;
+        std::shared_ptr<WebGPUContext> m_RenderContext;
         std::unique_ptr<WebGPUGUIContext> m_GUICtx;
         LayerStack m_LayerStack;
 

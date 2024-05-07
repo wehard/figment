@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Figment.h"
+#include "OverlayRenderer.h"
 #include <string>
 
 namespace Figment
@@ -18,6 +19,7 @@ namespace Figment
         std::unique_ptr<Scene> &GetScene() { return m_Scene; }
     private:
         std::shared_ptr<WebGPUContext> m_Context;
+        std::unique_ptr<OverlayRenderer> m_OverlayRenderer;
         std::unique_ptr<Scene> m_Scene;
         Entity m_SelectedEntity;
 

@@ -16,7 +16,7 @@ namespace Figment
         colorAttachment.nextInChain = nullptr;
         colorAttachment.view = textureView;
         colorAttachment.resolveTarget = nullptr;
-        colorAttachment.loadOp = WGPULoadOp_Load;
+        colorAttachment.loadOp = WGPULoadOp_Clear;
         colorAttachment.storeOp = WGPUStoreOp_Store;
         colorAttachment.clearValue = { 0.0f, 0.0f, 0.0f, 1.0f };
 
