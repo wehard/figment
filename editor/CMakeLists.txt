@@ -5,6 +5,8 @@ add_subdirectory(../engine engine)
 
 add_executable(editor)
 
+set_property(TARGET editor PROPERTY CXX_STANDARD 20)
+
 add_dependencies(editor engine)
 
 target_compile_definitions(editor PRIVATE GL_SILENCE_DEPRECATION)
