@@ -10,6 +10,7 @@ struct WorldData
     WebGPUTexture *ColorMap;
     WebGPUTexture *HeightMap;
     BindGroup *ComputeBindGroup;
+    float RelativeSize = 1.0f;
 };
 
 struct WorldParticle
@@ -28,7 +29,7 @@ struct WorldParticlesData
     float DeltaTime;
     float Rotation;
     float BumpMultiplier;
-    float _Padding[1];
+    float RelativeSize;
     glm::vec2 MouseWorldPosition;
 };
 
@@ -51,7 +52,7 @@ public:
     void ResetParticles();
 private:
 
-    void LoadWorld(const std::string &colorMapPath, const std::string &heightMapPath);
+    void LoadWorld(const std::string &colorMapPath, const std::string &heightMapPath, float relativeSize);
     void RecreatePipelines();
 
     std::shared_ptr<WebGPUContext> m_Context;

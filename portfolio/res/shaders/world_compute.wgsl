@@ -2,6 +2,7 @@ struct WorldParticlesData {
     deltaTime: f32,
     rotation: f32,
     bumpMultiplier: f32,
+    relativeSize: f32,
     mousePos: vec2<f32>,
 };
 
@@ -52,7 +53,7 @@ fn init_position(u: u32, v: u32, deg: f32) -> vec3<f32> {
     let x = sin(phi) * cos(theta);
     let y = cos(phi);
     let z = sin(phi) * sin(theta);
-    return vec3<f32>(x, y, z);
+    return vec3<f32>(x, y, z) * data.relativeSize;
 }
 
 @compute @workgroup_size(32, 1, 1)

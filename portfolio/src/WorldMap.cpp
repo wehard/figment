@@ -40,9 +40,9 @@ WorldMap::WorldMap(std::shared_ptr<PerspectiveCamera> camera, bool enabled) : La
     m_UniformBuffer = std::make_unique<WebGPUUniformBuffer<WorldParticlesData>>(m_Context->GetDevice(),
             "ParticlesDataUniformBuffer", sizeof(WorldParticlesData));
 
-    LoadWorld("res/earth_color_map.png", "res/earth_height_map.jpg");
-    LoadWorld("res/moon_color_map.png", "res/moon_height_map.jpg");
-    LoadWorld("res/mars_color_map.jpg", "res/mars_height_map.jpg");
+    LoadWorld("res/earth_color_map.png", "res/earth_height_map.jpg", 1.0);
+    LoadWorld("res/moon_color_map.png", "res/moon_height_map.jpg", 0.27);
+    LoadWorld("res/mars_color_map.jpg", "res/mars_height_map.jpg", 0.53);
 
     m_InitPipeline = new ComputePipeline(m_Context->GetDevice(), *m_WorldData[m_CurrentWorld].ComputeBindGroup);
     m_InitPipeline->Build("init", m_ComputeShader->GetShaderModule());
@@ -61,7 +61,7 @@ WorldMap::~WorldMap()
     }
 }
 
-void WorldMap::LoadWorld(const std::string &colorMapPath, const std::string &heightMapPath)
+void WorldMap::LoadWorld(const std::string &colorMapPath, const std::string &heightMapPath, float relativeSize)
 {
     auto colorMapImage = Image::Load(colorMapPath);
     auto colorMap = WebGPUTexture::Create(m_Context->GetDevice(), colorMapImage);
@@ -77,7 +77,8 @@ void WorldMap::LoadWorld(const std::string &colorMapPath, const std::string &hei
     m_WorldData.push_back({
             .ColorMap = colorMap,
             .HeightMap = heightMap,
-            .ComputeBindGroup = m_ComputeBindGroup
+            .ComputeBindGroup = m_ComputeBindGroup,
+            .RelativeSize = relativeSize,
     });
 }
 
@@ -129,6 +130,7 @@ void WorldMap::OnUpdate(float deltaTime)
     d.Rotation = m_Rotation;
     d.BumpMultiplier = BumpMultiplier;
     d.MouseWorldPosition = mw;
+    d.RelativeSize = m_WorldData[m_CurrentWorld].RelativeSize;
 
     auto rd = mw - m_Camera->GetPosition();
     rd = glm::normalize(rd);
@@ -212,6 +214,7 @@ void WorldMap::ResetParticles()
     d.Rotation = m_Rotation;
     d.BumpMultiplier = BumpMultiplier;
     d.MouseWorldPosition = glm::vec2(0, 0);
+    d.RelativeSize = m_WorldData[m_CurrentWorld].RelativeSize;
     m_UniformBuffer->SetData(&d, sizeof(WorldParticlesData));
 
     ComputePass computePass(m_Context->GetDevice(), m_InitPipeline, m_WorldData[m_CurrentWorld].ComputeBindGroup);
