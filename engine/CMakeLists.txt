@@ -57,6 +57,8 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
             figment_tests
             test/PoolTests.cpp
             test/HandleTests.cpp
+            test/ResourceManagerTests.cpp
+            src/core/ResourceManager.cpp
     )
 
     set_property(TARGET figment_tests PROPERTY CXX_STANDARD 20)

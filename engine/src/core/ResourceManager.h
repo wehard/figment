@@ -1,79 +1,58 @@
 #pragma once
 
-#include <WebGPUContext.h>
-#include "WebGPUTexture.h"
 #include "RenderContext.h"
+#include "Pool.h"
 #include "Handle.h"
 
 namespace Figment
 {
-    template<typename A>
-    struct Array
-    {
-        uint32_t size = 0;
-        uint32_t capacity = 0;
-        A *data = nullptr;
-
-        Array() = default;
-        explicit Array(uint32_t capacity) : capacity(capacity)
-        {
-            data = new A[capacity];
-        }
-
-        A Get() {
-            if (size >= capacity)
-            {
-                capacity *= 2;
-                A *newData = new A[capacity];
-                for (uint32_t i = 0; i < size; i++)
-                {
-                    newData[i] = data[i];
-                }
-                delete[] data;
-                data = newData;
-            }
-            A handle = data[size];
-            handle.index = size;
-            size++;
-            return handle;
-        }
-
-        void Delete(A handle) {
-            for (uint32_t i = 0; i < size; i++)
-            {
-                if (&data[i].index == index)
-                {
-                    data[i].generation++;
-                    return;
-                }
-            }
-        }
-    };
-
     struct TextureDescriptor
     {
-        WGPUTextureDimension dimension = WGPUTextureDimension_2D;
-        uint32_t size = 0;
         uint32_t width = 0;
         uint32_t height = 0;
         uint32_t depth = 1;
         uint32_t arrayLayerCount = 1;
         uint32_t mipLevelCount = 1;
-        WGPUTextureFormat format = WGPUTextureFormat_RGBA8Unorm;
-        WGPUTextureUsage usage = static_cast<WGPUTextureUsage>(WGPUTextureUsage_TextureBinding
-                | WGPUTextureUsage_CopySrc);
+        // uint32_t format = WGPUTextureFormat_RGBA8Unorm;
+        // uint32_t usage = static_cast<WGPUTextureUsage>(WGPUTextureUsage_TextureBinding
+        //         | WGPUTextureUsage_CopySrc);
+    };
+
+    struct Texture
+    {
+        uint32_t width = 0;
+        uint32_t height = 0;
+    };
+
+    struct BindGroupDescriptor
+    {
+        uint32_t size = 0;
+    };
+
+    struct BindGroup
+    {
+        uint32_t size = 0;
     };
 
     class ResourceManager
     {
     public:
-        explicit ResourceManager(WebGPUContext &context) : m_Context(context) {};
+        explicit ResourceManager(RenderContext &context) : m_Context(context) { };
         ~ResourceManager() = default;
 
-        Handle<WebGPUTexture> CreateTexture(TextureDescriptor descriptor);
-    private:
-        WebGPUContext &m_Context;
+        Handle<Texture> CreateTexture(const TextureDescriptor &&descriptor);
+        Handle<BindGroup> CreateBindGroup(const BindGroupDescriptor &&descriptor);
 
-        Array<Handle<WebGPUTexture>> m_TextureHandles;
+        Texture *GetTexture(Handle<Texture> handle) { return m_TextureHandles.Get(handle); }
+        BindGroup *GetBindGroup(Handle<BindGroup> handle) { return m_BindGroupHandles.Get(handle); }
+
+        [[nodiscard]] uint32_t ResourceCount() const { return m_TextureHandles.Count() + m_BindGroupHandles.Count(); }
+        [[nodiscard]] uint32_t TextureCount() const { return m_TextureHandles.Count(); }
+        [[nodiscard]] uint32_t BindGroupCount() const { return m_BindGroupHandles.Count(); }
+    private:
+        RenderContext &m_Context;
+
+        Pool<Texture> m_TextureHandles;
+        Pool<BindGroup> m_BindGroupHandles;
     };
 }

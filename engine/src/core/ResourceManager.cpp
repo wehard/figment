@@ -2,10 +2,16 @@
 
 namespace Figment
 {
-    Handle<WebGPUTexture> ResourceManager::CreateTexture(TextureDescriptor descriptor)
+    Handle<Texture> ResourceManager::CreateTexture(const TextureDescriptor &&descriptor)
     {
-        auto handle = m_TextureHandles.Get();
-        // handle.data = new WebGPUTexture(m_Context.GetDevice(), descriptor.format, descriptor.width, descriptor.height);
+        auto handle = m_TextureHandles.Create({ .width = descriptor.width, .height = descriptor.height });
+        return handle;
+    }
+
+    Handle<BindGroup> ResourceManager::CreateBindGroup(const BindGroupDescriptor &&descriptor)
+    {
+        auto handle = m_BindGroupHandles.Create({ .size = descriptor.size });
+        // handle.data = new WebGPUBindGroup(m_Context.GetDevice(), descriptor.size);
         return handle;
     }
 }
