@@ -41,7 +41,7 @@ file(GLOB_RECURSE SRC_FILES
 
 target_sources(engine PRIVATE ${SRC_FILES})
 
-if (CMAKE_BUILD_TYPE STREQUAL "Test")
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     include(FetchContent)
     FetchContent_Declare(
             googletest
@@ -55,8 +55,8 @@ if (CMAKE_BUILD_TYPE STREQUAL "Test")
 
     add_executable(
             figment_tests
-            test/pool_tests.cpp
-            test/handle_tests.cpp
+            test/PoolTests.cpp
+            test/HandleTests.cpp
     )
 
     set_property(TARGET figment_tests PROPERTY CXX_STANDARD 20)
