@@ -46,11 +46,13 @@ public:
     WebGPUTexture *GetHeightMap() { return m_WorldData[m_CurrentWorld].HeightMap; }
     uint32_t GetParticleCount();
     float RotationSpeed = 10.0f;
-    float BumpMultiplier = 0.0f;
+    float BumpMultiplier = 0.06f;
+    bool AutoCycleWorlds = true;
     void ResetParticles();
 private:
 
     void LoadWorld(const std::string &colorMapPath, const std::string &heightMapPath);
+    void RecreatePipelines();
 
     std::shared_ptr<WebGPUContext> m_Context;
     std::shared_ptr<PerspectiveCamera> m_Camera;
@@ -59,13 +61,12 @@ private:
     std::unique_ptr<WebGPUShader> m_ParticleShader;
     std::unique_ptr<WebGPUVertexBuffer<WorldParticle>> m_VertexBuffer;
     std::unique_ptr<WebGPUUniformBuffer<WorldParticlesData>> m_UniformBuffer;
-    // WebGPUTexture *m_WorldTexture;
-    // WebGPUTexture *m_WorldHeightMap;
     std::vector<WorldData> m_WorldData;
     uint32_t m_CurrentWorld = 0;
     uint32_t m_ParticleCount = 1024 * 1024;
     float m_Rotation = -120.0f;
     ComputePipeline *m_InitPipeline;
     ComputePipeline *m_SimulatePipeline;
-    // BindGroup *m_ComputeBindGroup;
+    float m_TimeSinceLastCycle = 0.0f;
+    float m_CycleInterval = 2.0f;
 };

@@ -112,6 +112,13 @@ static bool intersectSphere(glm::vec3 ro, glm::vec3 rd, glm::vec3 sc, float sr, 
 
 void WorldMap::OnUpdate(float deltaTime)
 {
+    m_TimeSinceLastCycle += deltaTime;
+    if (AutoCycleWorlds && m_TimeSinceLastCycle >= m_CycleInterval)
+    {
+        m_CurrentWorld = (m_CurrentWorld + 1) % m_WorldData.size();
+        m_TimeSinceLastCycle = 0.0;
+        RecreatePipelines();
+    }
     m_Rotation -= RotationSpeed * deltaTime;
 
     auto mw = m_Camera->ScreenToWorldSpace(Input::GetMousePosition(),
@@ -147,29 +154,43 @@ void WorldMap::OnUpdate(float deltaTime)
 void WorldMap::OnImGuiRender()
 {
     bool shouldRecreatePipeline = false;
-    ImGui::SetNextWindowPos(ImVec2(500, 500), ImGuiCond_Once);
-    ImGui::Begin("World");
-    if (ImGui::Button("<"))
+    auto size = ImGui::GetWindowWidth();
+    ImGui::SetNextWindowPos(ImVec2(m_Context->GetSwapChainWidth() / 2, m_Context->GetSwapChainHeight() - 80),
+            ImGuiCond_Always, ImVec2(0.5, 1.0));
+    ImGui::Begin("World", nullptr,
+            ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_AlwaysAutoResize);
+    ImVec2 buttonSize = ImVec2(40, 40);
+    auto buttonColor = ImGui::GetStyleColorVec4(ImGuiCol_Button);
+    buttonColor.x *= 0.5;
+    buttonColor.y *= 0.5;
+    buttonColor.z *= 0.5;
+    buttonColor.w = 1.0;
+    ImGui::PushStyleColor(ImGuiCol_Button, buttonColor);
+    if (ImGui::Button("<", buttonSize))
     {
-        m_CurrentWorld = (m_CurrentWorld - 1) % m_WorldData.size();
+        if (m_CurrentWorld == 0)
+        {
+            m_CurrentWorld = m_WorldData.size() - 1;
+        }
+        else
+        {
+            m_CurrentWorld = (m_CurrentWorld - 1) % m_WorldData.size();
+        }
         shouldRecreatePipeline = true;
     }
     ImGui::SameLine();
-    if (ImGui::Button(">"))
+    if (ImGui::Button(">", buttonSize))
     {
         m_CurrentWorld = (m_CurrentWorld + 1) % m_WorldData.size();
         shouldRecreatePipeline = true;
     }
+    ImGui::PopStyleColor();
     ImGui::End();
 
     if (shouldRecreatePipeline)
     {
-        delete m_InitPipeline;
-        delete m_SimulatePipeline;
-        m_InitPipeline = new ComputePipeline(m_Context->GetDevice(), *m_WorldData[m_CurrentWorld].ComputeBindGroup);
-        m_InitPipeline->Build("init", m_ComputeShader->GetShaderModule());
-        m_SimulatePipeline = new ComputePipeline(m_Context->GetDevice(), *m_WorldData[m_CurrentWorld].ComputeBindGroup);
-        m_SimulatePipeline->Build("simulate", m_ComputeShader->GetShaderModule());
+        m_TimeSinceLastCycle = 0.0;
+        RecreatePipelines();
     }
 }
 
@@ -197,4 +218,14 @@ void WorldMap::ResetParticles()
     computePass.Begin();
     computePass.Dispatch("init", m_VertexBuffer->Count() / 32);
     computePass.End();
+}
+
+void WorldMap::RecreatePipelines()
+{
+    delete m_InitPipeline;
+    delete m_SimulatePipeline;
+    m_InitPipeline = new ComputePipeline(m_Context->GetDevice(), *m_WorldData[m_CurrentWorld].ComputeBindGroup);
+    m_InitPipeline->Build("init", m_ComputeShader->GetShaderModule());
+    m_SimulatePipeline = new ComputePipeline(m_Context->GetDevice(), *m_WorldData[m_CurrentWorld].ComputeBindGroup);
+    m_SimulatePipeline->Build("simulate", m_ComputeShader->GetShaderModule());
 }
