@@ -42,3 +42,49 @@ TEST(ResourceManager, TestResourceManagerResourceRetrieval)
     ASSERT_EQ(texture->width, size);
     ASSERT_EQ(texture->height, size);
 }
+
+TEST(ResourceManager_TextureHandle, TestResourceManagerCreateTextureResourceHandle)
+{
+    static constexpr uint32_t size = 1024;
+    auto renderContext = MockRenderContext();
+    auto resourceManager = ResourceManager(renderContext);
+
+    auto textureHandle = resourceManager.CreateTexture({ .width = size, .height = size });
+
+    EXPECT_EQ(textureHandle.index, 0);
+}
+
+TEST(ResourceManager_TextureHandle, TestResourceManagerRetrieveTextureResource)
+{
+    static constexpr uint32_t size = 1024;
+    auto renderContext = MockRenderContext();
+    auto resourceManager = ResourceManager(renderContext);
+
+    auto textureHandle = resourceManager.CreateTexture({ .width = size, .height = size });
+    auto texture = resourceManager.GetTexture(textureHandle);
+
+    EXPECT_NE(texture, nullptr);
+}
+
+TEST(ResourceManager_BindGroupHandle, TestResourceManagerCreateBindGroupResourceHandle)
+{
+    static constexpr uint32_t size = 1024;
+    auto renderContext = MockRenderContext();
+    auto resourceManager = ResourceManager(renderContext);
+
+    auto bindGroupHandle = resourceManager.CreateBindGroup({});
+
+    EXPECT_EQ(bindGroupHandle.index, 0);
+}
+
+TEST(ResourceManager_BindGroupHandle, TestResourceManagerRetrieveBindGroupResource)
+{
+    static constexpr uint32_t size = 1024;
+    auto renderContext = MockRenderContext();
+    auto resourceManager = ResourceManager(renderContext);
+
+    auto bindGroupHandle = resourceManager.CreateBindGroup({});
+    auto bindGroup = resourceManager.GetBindGroup(bindGroupHandle);
+
+    EXPECT_NE(bindGroup, nullptr);
+}
