@@ -15,12 +15,14 @@ if (EMSCRIPTEN)
             COMMAND source ${EMSCRIPTEN_PATH}/emsdk_env.sh
     )
     add_dependencies(engine setup_emscripten)
+    target_include_directories(engine PRIVATE src/platform/webgpu)
 else ()
     #    find_package(Vulkan REQUIRED)
     #    target_compile_definitions(engine PRIVATE VULKAN_BACKEND_MACOS)
     #    target_include_directories(engine PRIVATE ${Vulkan_INCLUDE_DIRS})
     #    target_link_libraries(engine PRIVATE ${Vulkan_LIBRARIES})
     target_include_directories(engine PRIVATE "/opt/homebrew/Cellar/glfw/3.3.8/include")
+    target_include_directories(engine PRIVATE src/platform/vulkan)
 endif ()
 
 target_compile_definitions(engine PRIVATE GL_SILENCE_DEPRECATION)
@@ -36,7 +38,6 @@ target_include_directories(engine
         src/scene
         src/scene/components
         src/physics
-        src/platform/webgpu/
         lib
         lib/glm
         lib/entt
