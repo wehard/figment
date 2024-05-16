@@ -8,6 +8,7 @@
 #include "Utils.h"
 #include "Mesh.h"
 #include <glm/gtc/matrix_transform.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/euler_angles.hpp>
 
 #include <string>
@@ -20,8 +21,7 @@ namespace Figment
 
         IdComponent() = default;
         IdComponent(const IdComponent &) = default;
-        explicit IdComponent(Figment::UUID uuid) : UUID(uuid)
-        { }
+        explicit IdComponent(Figment::UUID uuid) : UUID(uuid) { }
     };
 
     struct InfoComponent
@@ -30,8 +30,7 @@ namespace Figment
 
         InfoComponent() = default;
         InfoComponent(const InfoComponent &) = default;
-        InfoComponent(const std::string &name) : m_Name(name)
-        { }
+        InfoComponent(const std::string &name) : m_Name(name) { }
     };
 
     struct TransformComponent
@@ -43,8 +42,7 @@ namespace Figment
         TransformComponent() = default;
         TransformComponent(const TransformComponent &) = default;
         TransformComponent(const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale) : Position(
-                position), Rotation(rotation), Scale(scale)
-        { }
+                position), Rotation(rotation), Scale(scale) { }
 
         // operator glm::mat4 &() { return m_Transform; }
         glm::mat4 GetTransform()
@@ -71,8 +69,7 @@ namespace Figment
         float Radius = 1.0f;
 
         CircleComponent() = default;
-        CircleComponent(float radius) : Radius(radius)
-        { }
+        CircleComponent(float radius) : Radius(radius) { }
     };
 
     struct QuadComponent
