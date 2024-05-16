@@ -3,7 +3,7 @@
 #include "imgui.h"
 #include "imgui_impl_wgpu.h"
 #include "imgui_impl_glfw.h"
-#include "glm.hpp"
+#include "glm/glm.hpp"
 #include "Input.h"
 #include "App.h"
 #include "WebGPUWindow.h"
@@ -134,7 +134,7 @@ namespace Figment
             figment.Init();
         ImGui::SameLine();
         // Draw next button aligned to the right of window
-        ImGui::SetCursorPosX(ImGui::GetWindowContentRegionWidth() - 100);
+        ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 100);
         if (ImGui::Button("Close", ImVec2(100, 20)))
             *editFigment = !*editFigment;
         if (ImGui::BeginTabBar("TabBar"))
