@@ -36,7 +36,8 @@ target_include_directories(editor
         ../engine/src/platform/webgpu
         ../engine/lib
         ../engine/lib/entt
-        ../engine/lib/imgui/include
+        ../engine/lib/imgui
+        ../engine/lib/imgui/backends
         ../engine/lib/glm
 )
 

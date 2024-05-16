@@ -16,6 +16,14 @@ if (EMSCRIPTEN)
     )
     add_dependencies(engine setup_emscripten)
     target_include_directories(engine PRIVATE src/platform/webgpu)
+
+    target_sources(engine PRIVATE
+            "lib/imgui/backends/imgui_impl_glfw.cpp"
+            "lib/imgui/backends/imgui_impl_wgpu.cpp"
+    )
+
+    target_compile_definitions(engine PRIVATE GL_SILENCE_DEPRECATION)
+    target_compile_options(engine PRIVATE -Wno-deprecated-literal-operator)
 else ()
     #    find_package(Vulkan REQUIRED)
     #    target_compile_definitions(engine PRIVATE VULKAN_BACKEND_MACOS)
@@ -23,10 +31,12 @@ else ()
     #    target_link_libraries(engine PRIVATE ${Vulkan_LIBRARIES})
     target_include_directories(engine PRIVATE "/opt/homebrew/Cellar/glfw/3.3.8/include")
     target_include_directories(engine PRIVATE src/platform/vulkan)
-endif ()
 
-target_compile_definitions(engine PRIVATE GL_SILENCE_DEPRECATION)
-target_compile_options(engine PRIVATE -Wno-deprecated-literal-operator)
+    target_sources(engine PRIVATE
+            "lib/imgui/backends/imgui_impl_glfw.cpp"
+            "lib/imgui/backends/imgui_impl_vulkan.cpp"
+    )
+endif ()
 
 message(STATUS "Configuring engine for ${CMAKE_BUILD_TYPE} (${CMAKE_SYSTEM_NAME})")
 
@@ -48,8 +58,9 @@ target_include_directories(engine
 file(GLOB_RECURSE SRC_FILES
         "src/*.cpp"
         "lib/imgui/imgui.cpp"
-        "lib/imgui/backends/imgui_impl_glfw.cpp"
-        "lib/imgui/backends/imgui_impl_wgpu.cpp"
+        "lib/imgui/imgui_draw.cpp"
+        "lib/imgui/imgui_widgets.cpp"
+        "lib/imgui/imgui_tables.cpp"
 )
 
 target_sources(engine PRIVATE ${SRC_FILES})
