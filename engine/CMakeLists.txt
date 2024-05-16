@@ -40,12 +40,15 @@ target_include_directories(engine
         lib
         lib/glm
         lib/entt
-        lib/imgui/include
+        lib/imgui
+        lib/imgui/backends
 )
 
 file(GLOB_RECURSE SRC_FILES
         "src/*.cpp"
-        "lib/imgui/*.cpp"
+        "lib/imgui/imgui.cpp"
+        "lib/imgui/backends/imgui_impl_glfw.cpp"
+        "lib/imgui/backends/imgui_impl_wgpu.cpp"
 )
 
 target_sources(engine PRIVATE ${SRC_FILES})
