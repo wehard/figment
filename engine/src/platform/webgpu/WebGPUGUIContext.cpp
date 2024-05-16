@@ -27,8 +27,12 @@ namespace Figment
         m_GfxContext = webGpuWindow->GetContext().get();
 
         ImGui_ImplGlfw_InitForOther(glfwWindow, true);
-        ImGui_ImplWGPU_Init(m_GfxContext->GetDevice(), 3, m_GfxContext->GetTextureFormat(),
-                WGPUTextureFormat_Undefined);
+        ImGui_ImplWGPU_InitInfo initInfo = {};
+        initInfo.Device = m_GfxContext->GetDevice();
+        initInfo.NumFramesInFlight = 3;
+        initInfo.RenderTargetFormat = m_GfxContext->GetTextureFormat();
+        initInfo.DepthStencilFormat = WGPUTextureFormat_Undefined;
+        ImGui_ImplWGPU_Init(&initInfo);
 
         ImGui_ImplWGPU_InvalidateDeviceObjects();
         ImGui_ImplWGPU_CreateDeviceObjects();
