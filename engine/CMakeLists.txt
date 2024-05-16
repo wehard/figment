@@ -63,7 +63,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 
     set_property(TARGET figment_tests PROPERTY CXX_STANDARD 20)
 
-    target_include_directories(figment_tests PRIVATE ../engine/src/core)
+    target_include_directories(figment_tests PRIVATE ../engine/src/core ../engine/src/renderer)
     target_link_libraries(
             figment_tests
             GTest::gtest_main
