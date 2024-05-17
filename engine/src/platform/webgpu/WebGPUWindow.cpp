@@ -41,8 +41,8 @@ namespace Figment
         return EM_TRUE;
     }
 
-    WebGPUWindow::WebGPUWindow(const std::string &title, const uint32_t width, const uint32_t height) : m_Title(title),
-            m_Width(width), m_Height(height)
+    WebGPUWindow::WebGPUWindow(const std::string &title, const uint32_t width, const uint32_t height) : Window(title,
+            width, height)
     {
         if (!glfwInit())
         {
@@ -110,26 +110,6 @@ namespace Figment
     bool WebGPUWindow::ShouldClose()
     {
         return glfwWindowShouldClose(m_Window);
-    }
-
-    uint32_t WebGPUWindow::GetWidth() const
-    {
-        return m_Width;
-    }
-
-    uint32_t WebGPUWindow::GetHeight() const
-    {
-        return m_Height;
-    }
-
-    uint32_t WebGPUWindow::GetFramebufferWidth() const
-    {
-        return m_FramebufferWidth;
-    }
-
-    uint32_t WebGPUWindow::GetFramebufferHeight() const
-    {
-        return m_FramebufferHeight;
     }
 
     void WebGPUWindow::SetResizeEventCallback(ResizeEventCallbackFn callback)
