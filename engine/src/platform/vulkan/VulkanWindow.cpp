@@ -1,6 +1,7 @@
 #include "VulkanWindow.h"
 #include "Log.h"
 #include "FigmentAssert.h"
+#include "VulkanContext.h"
 
 Figment::VulkanWindow::VulkanWindow(const std::string &title, uint32_t width, uint32_t height) : Window(title, width,
         height)
@@ -20,11 +21,16 @@ Figment::VulkanWindow::VulkanWindow(const std::string &title, uint32_t width, ui
         FIGMENT_ASSERT(false, "Failed to create GLFW window");
     }
 
-    glfwSetWindowUserPointer(m_Window, this);
     // glfwSetWindowSizeCallback(m_Window, glfwWindowSizeCallback);
     // glfwSetFramebufferSizeCallback(m_Window, glfwFramebufferSizeCallback);
 
 
-    // m_RenderContext = std::make_shared<VulkanContext>();
-    // m_RenderContext->Init(m_Width, m_Height);
+    m_RenderContext = std::make_shared<VulkanContext>();
+    m_RenderContext->Init(m_Width, m_Height);
+
+    // Create vulkan surface
+    // VkResult result = glfwCreateWindowSurface(instance, window, nullptr, &surface);
+    glfwShowWindow(m_Window);
+    glfwSetWindowUserPointer(m_Window, this);
+    FIG_LOG_INFO("Vulkan window created");
 }
