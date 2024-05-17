@@ -2,15 +2,17 @@
 #include "FigmentAssert.h"
 #include <string>
 
-#ifdef __EMSCRIPTEN__
+#if defined(WEBGPU_BACKEND)
 #include "WebGPUWindow.h"
+#elif defined(VULKAN_BACKEND)
+#include "VulkanWindow.h"
 #endif
 
 namespace Figment
 {
     std::shared_ptr<Window> Window::Create(const std::string &title, const uint32_t width, const uint32_t height)
     {
-#ifdef __EMSCRIPTEN__
+#ifdef WEBGPU_BACKEND
         return std::make_shared<WebGPUWindow>(title, width, height);
 #endif
         FIGMENT_ASSERT(false, "Window creation not implemented for this platform");

@@ -9,7 +9,7 @@ set_property(TARGET engine PROPERTY CXX_STANDARD 20)
 
 # Platform-specific configurations
 if (EMSCRIPTEN)
-    target_compile_definitions(engine PRIVATE WEBGPU_BACKEND_EMSCRIPTEN)
+    target_compile_definitions(engine PRIVATE WEBGPU_BACKEND)
     set(EMSCRIPTEN_PATH "~/dev/emsdk")
     add_custom_target(setup_emscripten
             COMMAND source ${EMSCRIPTEN_PATH}/emsdk_env.sh
@@ -25,6 +25,7 @@ if (EMSCRIPTEN)
     target_compile_definitions(engine PRIVATE GL_SILENCE_DEPRECATION)
     target_compile_options(engine PRIVATE -Wno-deprecated-literal-operator)
 else ()
+    target_compile_definitions(engine PRIVATE VULKAN_BACKEND)
     #    find_package(Vulkan REQUIRED)
     #    target_compile_definitions(engine PRIVATE VULKAN_BACKEND_MACOS)
     #    target_include_directories(engine PRIVATE ${Vulkan_INCLUDE_DIRS})
