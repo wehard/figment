@@ -24,7 +24,7 @@ namespace Figment
 
         auto *glfwWindow = (GLFWwindow *)window->GetNative();
         auto webGpuWindow = std::dynamic_pointer_cast<WebGPUWindow>(window);
-        m_GfxContext = webGpuWindow->GetContext().get();
+        m_GfxContext = webGpuWindow->GetContext<WebGPUContext>().get();
 
         ImGui_ImplGlfw_InitForOther(glfwWindow, true);
         ImGui_ImplWGPU_InitInfo initInfo = {};

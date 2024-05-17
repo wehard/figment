@@ -9,6 +9,7 @@ namespace Figment
     public:
         virtual ~RenderContext() = default;
         virtual void Init() = 0;
+        virtual void Init(uint32_t width, uint32_t height) = 0;
 
         static std::unique_ptr<RenderContext> Create(void *window);
     };

@@ -1,5 +1,8 @@
 #pragma once
 
+#include "RenderContext.h"
+
+#include <GLFW/glfw3.h>
 #include <memory>
 #include <string>
 #include <functional>
@@ -32,9 +35,14 @@ namespace Figment
 
         virtual void *GetNative() = 0;
 
+        std::shared_ptr<RenderContext> &GetRenderContext() { return m_RenderContext; }
+
         static std::shared_ptr<Window> Create(const std::string &title, const uint32_t width, const uint32_t height);
         ResizeEventCallbackFn ResizeEventCallback;
     protected:
+        GLFWwindow *m_Window;
+        std::shared_ptr<RenderContext> m_RenderContext;
+
         uint32_t m_Width;
         uint32_t m_Height;
         uint32_t m_FramebufferWidth;

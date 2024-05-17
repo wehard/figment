@@ -66,8 +66,8 @@ namespace Figment
 
         FIG_LOG_INFO("Initialized WebGPU window (%dx%d)", width, height);
 
-        m_GfxContext = std::make_shared<WebGPUContext>();
-        m_GfxContext->Init(m_Width, m_Height);
+        m_RenderContext = std::make_shared<WebGPUContext>();
+        m_RenderContext->Init(m_Width, m_Height);
 
         int w, h;
         glfwGetWindowSize(m_Window, &w, &h);
@@ -99,7 +99,8 @@ namespace Figment
 
         glfwSetWindowSize(m_Window, (int)m_Width, (int)m_Height);
 
-        m_GfxContext->CreateSwapChain(resizeData.Width, resizeData.Height);
+        auto context = GetContext<WebGPUContext>();
+        context->CreateSwapChain(resizeData.Width, resizeData.Height);
 
         if (ResizeEventCallback != nullptr)
         {

@@ -30,7 +30,7 @@ namespace Figment
         });
 
         auto webGpuWindow = std::dynamic_pointer_cast<WebGPUWindow>(App::Instance()->GetWindow());
-        m_RenderContext = webGpuWindow->GetContext();
+        m_RenderContext = webGpuWindow->GetContext<WebGPUContext>();
 
         Input::Initialize((GLFWwindow *)m_Window->GetNative());
         m_GUICtx = std::make_unique<WebGPUGUIContext>();

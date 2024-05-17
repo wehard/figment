@@ -15,7 +15,7 @@ namespace Figment
             : Layer("EditorLayer")
     {
         const auto window = std::dynamic_pointer_cast<WebGPUWindow>(App::Instance()->GetWindow());
-        m_Context = window->GetContext();
+        m_Context = window->GetContext<WebGPUContext>();
 
         auto width = (float)window->GetFramebufferWidth();
         auto height = (float)window->GetFramebufferHeight();

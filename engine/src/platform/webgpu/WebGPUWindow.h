@@ -20,11 +20,13 @@ namespace Figment
         void SetResizeEventCallback(ResizeEventCallbackFn callback) override;
         void *GetNative() override { return m_Window; };
 
-        std::shared_ptr<WebGPUContext> &GetContext() { return m_GfxContext; }
+        template<class T>
+        std::shared_ptr<T> GetContext()
+        {
+            return std::static_pointer_cast<T>(m_RenderContext);
+        }
 
     private:
-        GLFWwindow *m_Window;
         std::string m_Title;
-        std::shared_ptr<WebGPUContext> m_GfxContext;
     };
 }
