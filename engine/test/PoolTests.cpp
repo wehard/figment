@@ -51,8 +51,8 @@ TEST(Pool, TestHandleCreationAndRetrieval)
 
     auto data = pool.Get(handle);
     ASSERT_NE(data, nullptr);
-    ASSERT_EQ(handle.index, 0);
-    ASSERT_EQ(handle.generation, 0);
+    ASSERT_EQ(handle.Index(), 0);
+    ASSERT_EQ(handle.Generation(), 0);
 }
 
 TEST(Pool, TestMultipleHandleCreationAndRetrieval)
@@ -65,8 +65,8 @@ TEST(Pool, TestMultipleHandleCreationAndRetrieval)
         auto handle = pool.Create({});
         auto data = pool.Get(handle);
         ASSERT_NE(data, nullptr);
-        ASSERT_EQ(handle.index, i);
-        ASSERT_EQ(handle.generation, 0);
+        ASSERT_EQ(handle.Index(), i);
+        ASSERT_EQ(handle.Generation(), 0);
     }
 }
 
@@ -77,9 +77,9 @@ TEST(Pool, TestHandleGenerationAfterDeletionAndCreation)
     pool.Delete(h1);
     auto h2 = pool.Create({});
 
-    ASSERT_NE(h1.generation, h2.generation);
-    ASSERT_EQ(h1.index, h2.index);
-    ASSERT_EQ(h1.generation, h2.generation - 1);
+    ASSERT_NE(h1.Generation(), h2.Generation());
+    ASSERT_EQ(h1.Index(), h2.Index());
+    ASSERT_EQ(h1.Generation(), h2.Generation() - 1);
 }
 
 TEST(Pool, TestHandleGetDataStaleHandle)

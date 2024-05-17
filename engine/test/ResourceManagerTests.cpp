@@ -25,7 +25,7 @@ TEST(ResourceManager, TestResourceManagerResourceCreation)
 
     auto textureHandle = resourceManager.CreateTexture({ .width = 1024, .height = 1024 });
 
-    ASSERT_EQ(textureHandle.index, 0);
+    ASSERT_EQ(textureHandle.Index(), 0);
     ASSERT_EQ(resourceManager.ResourceCount(), 1);
 }
 
@@ -51,7 +51,7 @@ TEST(ResourceManager_TextureHandle, TestResourceManagerCreateTextureResourceHand
 
     auto textureHandle = resourceManager.CreateTexture({ .width = size, .height = size });
 
-    EXPECT_EQ(textureHandle.index, 0);
+    EXPECT_EQ(textureHandle.Index(), 0);
 }
 
 TEST(ResourceManager_TextureHandle, TestResourceManagerRetrieveTextureResource)
@@ -74,7 +74,7 @@ TEST(ResourceManager_BindGroupHandle, TestResourceManagerCreateBindGroupResource
 
     auto bindGroupHandle = resourceManager.CreateBindGroup({});
 
-    EXPECT_EQ(bindGroupHandle.index, 0);
+    EXPECT_EQ(bindGroupHandle.Index(), 0);
 }
 
 TEST(ResourceManager_BindGroupHandle, TestResourceManagerRetrieveBindGroupResource)
@@ -97,7 +97,7 @@ TEST(ResourceManager_BufferHandle, TestResourceManagerCreateBufferResourceHandle
 
     auto bufferHandle = resourceManager.CreateBuffer({});
 
-    EXPECT_EQ(bufferHandle.index, 0);
+    EXPECT_EQ(bufferHandle.Index(), 0);
 }
 
 TEST(ResourceManager_BufferHandle, TestResourceManagerRetrieveBufferResource)
