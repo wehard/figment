@@ -38,7 +38,13 @@ namespace Figment
         void SetResizeEventCallback(ResizeEventCallbackFn callback) { ResizeEventCallback = callback; }
         void *GetNative() { return m_Window; }
 
-        std::shared_ptr<RenderContext> &GetRenderContext() { return m_RenderContext; }
+        std::shared_ptr<RenderContext> GetContext() { return m_RenderContext; }
+
+        template<class T>
+        std::shared_ptr<T> GetContext()
+        {
+            return std::static_pointer_cast<T>(m_RenderContext);
+        }
 
         ResizeEventCallbackFn ResizeEventCallback;
     protected:

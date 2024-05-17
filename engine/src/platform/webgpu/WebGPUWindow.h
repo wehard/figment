@@ -16,12 +16,6 @@ namespace Figment
         ~WebGPUWindow() override;
         void Resize(WindowResizeEventData resizeData);
 
-        template<class T>
-        std::shared_ptr<T> GetContext()
-        {
-            return std::static_pointer_cast<T>(m_RenderContext);
-        }
-
     private:
         std::string m_Title;
     };
