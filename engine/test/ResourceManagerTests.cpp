@@ -88,3 +88,28 @@ TEST(ResourceManager_BindGroupHandle, TestResourceManagerRetrieveBindGroupResour
 
     EXPECT_NE(bindGroup, nullptr);
 }
+
+TEST(ResourceManager_BufferHandle, TestResourceManagerCreateBufferResourceHandle)
+{
+    static constexpr uint32_t size = 1024;
+    auto renderContext = MockRenderContext();
+    auto resourceManager = ResourceManager(renderContext);
+
+    auto bufferHandle = resourceManager.CreateBuffer({});
+
+    EXPECT_EQ(bufferHandle.index, 0);
+}
+
+TEST(ResourceManager_BufferHandle, TestResourceManagerRetrieveBufferResource)
+{
+    static constexpr uint32_t size = 1024;
+    static constexpr uint32_t byteSize = 42;
+    auto renderContext = MockRenderContext();
+    auto resourceManager = ResourceManager(renderContext);
+
+    auto bufferHandle = resourceManager.CreateBuffer({ .ByteSize = byteSize, .Usage = BufferUsage::None });
+    auto buffer = resourceManager.GetBuffer(bufferHandle);
+
+    EXPECT_EQ(buffer->GetByteSize(), byteSize);
+    EXPECT_NE(buffer, nullptr);
+}

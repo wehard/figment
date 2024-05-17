@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RenderContext.h"
+#include "Buffer.h"
 #include "Pool.h"
 #include "Handle.h"
 
@@ -42,9 +43,11 @@ namespace Figment
 
         Handle<Texture> CreateTexture(const TextureDescriptor &&descriptor);
         Handle<BindGroup> CreateBindGroup(const BindGroupDescriptor &&descriptor);
+        Handle<Buffer> CreateBuffer(const BufferDescriptor &&descriptor);
 
         Texture *GetTexture(Handle<Texture> handle) { return m_TextureHandles.Get(handle); }
         BindGroup *GetBindGroup(Handle<BindGroup> handle) { return m_BindGroupHandles.Get(handle); }
+        Buffer *GetBuffer(Handle<Buffer> handle) { return m_BufferHandles.Get(handle); }
 
         [[nodiscard]] uint32_t ResourceCount() const { return m_TextureHandles.Count() + m_BindGroupHandles.Count(); }
         [[nodiscard]] uint32_t TextureCount() const { return m_TextureHandles.Count(); }
@@ -54,5 +57,6 @@ namespace Figment
 
         Pool<Texture> m_TextureHandles;
         Pool<BindGroup> m_BindGroupHandles;
+        Pool<Buffer> m_BufferHandles;
     };
 }
