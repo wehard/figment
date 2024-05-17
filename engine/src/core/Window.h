@@ -31,6 +31,8 @@ namespace Figment
 
         static std::shared_ptr<Window> Create(const std::string &title, const uint32_t width, const uint32_t height);
         ResizeEventCallbackFn ResizeEventCallback;
-
+    private:
+        uint32_t m_Width;
+        uint32_t m_Height;
     };
 }
