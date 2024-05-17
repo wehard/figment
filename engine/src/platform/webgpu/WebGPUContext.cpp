@@ -34,11 +34,6 @@ namespace Figment
         printf("%s error: %s\n", error_type_lbl, message);
     }
 
-    void WebGPUContext::Init()
-    {
-
-    }
-
     void WebGPUContext::Init(uint32_t width, uint32_t height)
     {
         m_WebGPUDevice = emscripten_webgpu_get_device();
@@ -122,7 +117,6 @@ namespace Figment
         CreateDefaultRenderTarget();
     }
 
-
     void WebGPUContext::CreateDefaultRenderTarget()
     {
         if (m_DepthTexture != nullptr)
@@ -132,14 +126,14 @@ namespace Figment
         m_DepthTexture = WebGPUTexture::CreateDepthTexture(m_WebGPUDevice, WGPUTextureFormat_Depth24Plus,
                 m_SwapChainWidth, m_SwapChainHeight);
         m_DefaultRenderTarget = {
-            .Color = {
-                .TextureView = wgpuSwapChainGetCurrentTextureView(m_SwapChain),
-                .TextureFormat = m_TextureFormat,
-            },
-            .Depth = {
-                .TextureView = m_DepthTexture->GetTextureView(),
-                .TextureFormat = m_DepthTexture->GetTextureFormat(),
-            }
+                .Color = {
+                        .TextureView = wgpuSwapChainGetCurrentTextureView(m_SwapChain),
+                        .TextureFormat = m_TextureFormat,
+                },
+                .Depth = {
+                        .TextureView = m_DepthTexture->GetTextureView(),
+                        .TextureFormat = m_DepthTexture->GetTextureFormat(),
+                }
         };
         FIG_LOG_INFO("Created default render target");
     }
