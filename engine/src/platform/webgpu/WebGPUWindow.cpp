@@ -107,14 +107,4 @@ namespace Figment
             ResizeEventCallback(resizeData);
         }
     }
-
-    bool WebGPUWindow::ShouldClose()
-    {
-        return glfwWindowShouldClose(m_Window);
-    }
-
-    void WebGPUWindow::SetResizeEventCallback(ResizeEventCallbackFn callback)
-    {
-        ResizeEventCallback = callback;
-    }
 }

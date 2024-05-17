@@ -21,23 +21,25 @@ namespace Figment
     {
     public:
         using ResizeEventCallbackFn = std::function<void(WindowResizeEventData)>;
+
+        static std::shared_ptr<Window> Create(const std::string &title, const uint32_t width, const uint32_t height);
+
         Window(const std::string &title, const uint32_t width, const uint32_t height) : m_Width(width),
                 m_Height(height),
                 m_FramebufferWidth(width), m_FramebufferHeight(height) { }
         virtual ~Window() = default;
 
-        virtual bool ShouldClose() = 0;
+        bool ShouldClose() { return glfwWindowShouldClose(m_Window); }
         [[nodiscard]] uint32_t GetWidth() const { return m_Width; };
         [[nodiscard]] uint32_t GetHeight() const { return m_Height; };
         [[nodiscard]] uint32_t GetFramebufferWidth() const { return m_FramebufferWidth; };
         [[nodiscard]] uint32_t GetFramebufferHeight() const { return m_FramebufferHeight; };
-        virtual void SetResizeEventCallback(ResizeEventCallbackFn callback) = 0;
 
-        virtual void *GetNative() = 0;
+        void SetResizeEventCallback(ResizeEventCallbackFn callback) { ResizeEventCallback = callback; }
+        void *GetNative() { return m_Window; }
 
         std::shared_ptr<RenderContext> &GetRenderContext() { return m_RenderContext; }
 
-        static std::shared_ptr<Window> Create(const std::string &title, const uint32_t width, const uint32_t height);
         ResizeEventCallbackFn ResizeEventCallback;
     protected:
         GLFWwindow *m_Window;

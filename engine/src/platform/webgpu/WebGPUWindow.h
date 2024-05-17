@@ -15,10 +15,6 @@ namespace Figment
         WebGPUWindow(const std::string &title, uint32_t width, uint32_t height);
         ~WebGPUWindow() override;
         void Resize(WindowResizeEventData resizeData);
-        bool ShouldClose() override;
-
-        void SetResizeEventCallback(ResizeEventCallbackFn callback) override;
-        void *GetNative() override { return m_Window; };
 
         template<class T>
         std::shared_ptr<T> GetContext()
