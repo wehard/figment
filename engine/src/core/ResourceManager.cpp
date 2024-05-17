@@ -26,9 +26,6 @@ namespace Figment
         auto webGPUContext = dynamic_cast<WebGPUContext *>(&m_Context);
         auto buffer = new WebGPUBuffer<uint32_t>(webGPUContext->GetDevice(), "", descriptor.ByteSize, 0);
 #endif
-        // auto buffer = Buffer::Create(descriptor.ByteSize, descriptor.Usage);
-        auto handle = m_BufferHandles.Create({});
-        // handle.data = *buffer;
-        return handle;
+        return m_BufferHandles.Create(Buffer::Create(descriptor.ByteSize, descriptor.Usage));
     }
 }
