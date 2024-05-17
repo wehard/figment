@@ -46,7 +46,7 @@ namespace Figment
             return &m_Data[handle.index].data;
         }
 
-        Handle<T> Create(T data)
+        Handle<T> Create(const T data)
         {
             if (!m_FreeList.empty() && m_Count < m_Capacity)
             {

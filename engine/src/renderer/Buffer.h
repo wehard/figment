@@ -35,9 +35,9 @@ namespace Figment
 
         [[nodiscard]] uint32_t GetByteSize() const { return m_ByteSize; }
 
-        static Buffer *Create(uint32_t sizeBytes, BufferUsage usage)
+        static Buffer Create(uint32_t sizeBytes, BufferUsage usage)
         {
-            return new Buffer({ .ByteSize = sizeBytes, .Usage = usage });
+            return Buffer({ .ByteSize = sizeBytes, .Usage = usage });
         }
 
     private:
