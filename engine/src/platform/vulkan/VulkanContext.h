@@ -18,9 +18,13 @@ namespace Figment
     class VulkanContext : public RenderContext
     {
     public:
-        VulkanContext(GLFWwindow *window) : m_Window(window) {}
+        VulkanContext(GLFWwindow *window) : m_Window(window) { }
         ~VulkanContext() override;
         void Init(uint32_t width, uint32_t height) override;
+        VkDevice GetDevice() { return m_Device; }
+        VkInstance GetInstance() { return m_Instance; }
+        VkPhysicalDevice GetPhysicalDevice() { return m_PhysicalDevice; }
+        VkQueue GetGraphicsQueue() { return m_GraphicsQueue; }
     private:
         GLFWwindow *m_Window;
         VkInstance m_Instance;
