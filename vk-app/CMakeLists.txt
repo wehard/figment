@@ -23,7 +23,8 @@ target_include_directories(vk-app
         ../engine/src/platform/vulkan
         ../engine/lib
         ../engine/lib/entt
-        ../engine/lib/imgui/include
+        ../engine/lib/imgui
+        ../engine/lib/imgui/backends
         ../engine/lib/glm
 )
 
@@ -44,6 +45,18 @@ target_sources(vk-app PRIVATE ../engine/src/core/Window.cpp)
 target_sources(vk-app PRIVATE ../engine/src/core/Log.cpp)
 target_sources(vk-app PRIVATE ../engine/src/platform/vulkan/VulkanWindow.cpp)
 target_sources(vk-app PRIVATE ../engine/src/platform/vulkan/VulkanContext.cpp)
+
+target_sources(vk-app PRIVATE
+        "../engine/lib/imgui/backends/imgui_impl_glfw.cpp"
+        "../engine/lib/imgui/backends/imgui_impl_vulkan.cpp"
+)
+
+target_sources(vk-app PRIVATE
+        "../engine/lib/imgui/imgui.cpp"
+        "../engine/lib/imgui/imgui_draw.cpp"
+        "../engine/lib/imgui/imgui_widgets.cpp"
+        "../engine/lib/imgui/imgui_tables.cpp"
+)
 
 
 target_link_directories(vk-app PRIVATE ${CMAKE_BINARY_DIR}/engine)
