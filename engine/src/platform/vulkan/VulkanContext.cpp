@@ -2,7 +2,9 @@
 #include "Log.h"
 
 #include <vector>
+#include <string>
 #include <GLFW/glfw3.h>
+#include <fstream>
 
 Figment::VulkanContext::~VulkanContext()
 {
@@ -11,12 +13,55 @@ Figment::VulkanContext::~VulkanContext()
 
 #define VK_CHECK_RESULT(f, s, e) { VkResult res = (f); if (res != VK_SUCCESS) { FIG_LOG_ERROR("Vulkan error: %s", e); } else { FIG_LOG_INFO("Vulkan: %s", s); } }
 
+static std::vector<char> ReadFile(const std::string &filename)
+{
+    std::ifstream file(filename, std::ios::binary | std::ios::ate);
+    if (!file.is_open())
+        throw std::runtime_error("Failed to open file!");
+    std::streamsize fileSize = file.tellg();
+    std::vector<char> fileBuffer(fileSize);
+    file.seekg(0); // move read pos to the start of file
+    file.read(fileBuffer.data(), fileSize);
+    file.close();
+    return (fileBuffer);
+}
+
+static VkShaderModule CreateShaderModule(VkDevice device, const std::vector<char> &code)
+{
+    VkShaderModuleCreateInfo shaderModuleCreateInfo = {};
+    shaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+    shaderModuleCreateInfo.codeSize = code.size();
+    shaderModuleCreateInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());
+
+    VkShaderModule shaderModule;
+    VkResult result = vkCreateShaderModule(device, &shaderModuleCreateInfo, nullptr, &shaderModule);
+    if (result != VK_SUCCESS)
+        throw std::runtime_error("Failed to create shader module!");
+    return (shaderModule);
+}
+
 void Figment::VulkanContext::Init(uint32_t width, uint32_t height)
 {
+
     CreateInstance();
     CreateSurface();
     CreateDevice();
     CreateSwapChain();
+    CreateRenderPass();
+
+    const std::string vertexShaderPath = "res/shader.vert.spv";
+    const std::string fragmentShaderPath = "res/shader.frag.spv";
+    auto vertexShaderCode = ReadFile(vertexShaderPath);
+    auto fragmentShaderCode = ReadFile(fragmentShaderPath);
+    VkShaderModule vertexModule = CreateShaderModule(m_Device, vertexShaderCode);
+    VkShaderModule fragmentModule = CreateShaderModule(m_Device, fragmentShaderCode);
+
+    CreatePipeline(vertexModule, fragmentModule);
+    CreateFramebuffers();
+    CreateCommandPool();
+    CreateCommandBuffers();
+    CreateDescriptorPool();
+    CreateSynchronization();
 }
 
 void Figment::VulkanContext::CreateInstance()
@@ -32,7 +77,6 @@ void Figment::VulkanContext::CreateInstance()
     // Get required instance extensions
     uint32_t glfwExtensionCount = 0;
     auto glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
 
     std::vector<const char *> enabledExtensions = {
             "VK_KHR_surface",
@@ -52,15 +96,18 @@ void Figment::VulkanContext::CreateInstance()
     instanceCreateInfo.ppEnabledLayerNames = validationLayers;
     instanceCreateInfo.flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
 
-    VK_CHECK_RESULT(vkCreateInstance(&instanceCreateInfo, nullptr, &m_Instance), "Instance created", "Failed to create instance");
+    VK_CHECK_RESULT(vkCreateInstance(&instanceCreateInfo, nullptr, &m_Instance), "Instance created",
+            "Failed to create instance");
 }
 
 void Figment::VulkanContext::CreateSurface()
 {
-    VK_CHECK_RESULT(glfwCreateWindowSurface(m_Instance, m_Window, nullptr, &m_Surface), "Vulkan surface created", "Failed to create Vulkan surface");
+    VK_CHECK_RESULT(glfwCreateWindowSurface(m_Instance, m_Window, nullptr, &m_Surface), "Vulkan surface created",
+            "Failed to create Vulkan surface");
 }
 
-static void GetQueueFamilyIndices(VkPhysicalDevice device, VkSurfaceKHR surface, uint32_t &graphicsFamily, uint32_t &presentFamily)
+static void GetQueueFamilyIndices(VkPhysicalDevice device, VkSurfaceKHR surface, uint32_t &graphicsFamily,
+        uint32_t &presentFamily)
 {
     uint32_t queueFamilyCount = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
@@ -168,7 +215,8 @@ void Figment::VulkanContext::CreateDevice()
     VkPhysicalDeviceFeatures deviceFeatures = {}; // empty for now
     deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
 
-    VK_CHECK_RESULT(vkCreateDevice(m_PhysicalDevice, &deviceCreateInfo, nullptr, &m_Device), "Logical device created", "Failed to create logical device")
+    VK_CHECK_RESULT(vkCreateDevice(m_PhysicalDevice, &deviceCreateInfo, nullptr, &m_Device), "Logical device created",
+            "Failed to create logical device")
 
     vkGetDeviceQueue(m_Device, graphicsFamily, 0, &m_GraphicsQueue);
     vkGetDeviceQueue(m_Device, presentFamily, 0, &m_PresentationQueue);
@@ -193,19 +241,45 @@ static Figment::SurfaceDetails GetSurfaceDetails(VkPhysicalDevice device, VkSurf
     if (presentationCount != 0)
     {
         surfaceDetails.presentationModes.resize(presentationCount);
-        vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentationCount, surfaceDetails.presentationModes.data());
+        vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentationCount,
+                surfaceDetails.presentationModes.data());
     }
     return surfaceDetails;
 }
 
+static VkImageView CreateVkImageView(VkDevice device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
+{
+    VkImageViewCreateInfo viewCreateInfo = {};
+    viewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    viewCreateInfo.image = image;
+    viewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    viewCreateInfo.format = format;
+    viewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+    viewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+    viewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+    viewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+
+    viewCreateInfo.subresourceRange.aspectMask = aspectFlags;
+    viewCreateInfo.subresourceRange.baseMipLevel = 0;
+    viewCreateInfo.subresourceRange.levelCount = 1;
+    viewCreateInfo.subresourceRange.baseArrayLayer = 0;
+    viewCreateInfo.subresourceRange.layerCount = 1;
+
+    VkImageView imageView;
+    VkResult result = vkCreateImageView(device, &viewCreateInfo, nullptr, &imageView);
+    if (result != VK_SUCCESS)
+        throw std::runtime_error("Failed to create an Image View!");
+    return imageView;
+}
+
 void Figment::VulkanContext::CreateSwapChain()
 {
-    SurfaceDetails surfaceDetails = GetSurfaceDetails(m_PhysicalDevice, m_Surface);
-    VkSurfaceFormatKHR surfaceFormat = surfaceDetails.formats[0];
-    VkPresentModeKHR presentMode = surfaceDetails.presentationModes[0];
-    VkExtent2D extent = surfaceDetails.surfaceCapabilities.currentExtent;
+    m_SurfaceDetails = GetSurfaceDetails(m_PhysicalDevice, m_Surface);
+    VkSurfaceFormatKHR surfaceFormat = m_SurfaceDetails.formats[0];
+    VkPresentModeKHR presentMode = m_SurfaceDetails.presentationModes[0];
+    VkExtent2D extent = m_SurfaceDetails.surfaceCapabilities.currentExtent;
 
-    uint32_t imageCount = surfaceDetails.surfaceCapabilities.minImageCount + 1;
+    uint32_t imageCount = m_SurfaceDetails.surfaceCapabilities.minImageCount + 1;
 
     VkSwapchainCreateInfoKHR swapChainCreateInfo = {};
     swapChainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -217,7 +291,7 @@ void Figment::VulkanContext::CreateSwapChain()
     swapChainCreateInfo.minImageCount = imageCount;
     swapChainCreateInfo.imageArrayLayers = 1;
     swapChainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-    swapChainCreateInfo.preTransform = surfaceDetails.surfaceCapabilities.currentTransform;
+    swapChainCreateInfo.preTransform = m_SurfaceDetails.surfaceCapabilities.currentTransform;
     swapChainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
     swapChainCreateInfo.clipped = VK_TRUE;
 
@@ -230,4 +304,463 @@ void Figment::VulkanContext::CreateSwapChain()
     {
         FIG_LOG_INFO("Swap chain created");
     }
+
+    m_SwapChainImageFormat = surfaceFormat.format;
+    m_SwapChainExtent = extent;
+
+    uint32_t swapChainImageCount = 0;
+    vkGetSwapchainImagesKHR(m_Device, m_SwapChain, &swapChainImageCount, nullptr);
+    std::vector<VkImage> images(swapChainImageCount);
+    vkGetSwapchainImagesKHR(m_Device, m_SwapChain, &swapChainImageCount, images.data());
+
+    for (VkImage image : images)
+    {
+        m_SwapChainImages.push_back({
+                .image = image,
+                .imageView = CreateVkImageView(m_Device, image, m_SwapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT)
+        });
+    }
+}
+
+void Figment::VulkanContext::CreateRenderPass()
+{
+    // color attachment of render pass
+    VkAttachmentDescription colorAttachment = {};
+    colorAttachment.format = m_SwapChainImageFormat;
+    colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+
+    // framebuffer data will be stored as image but images can be given different data layouts
+    colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+    // subpass: reference for subpass, cant link colorAttachment directly
+    VkAttachmentReference colorAttachmentReference = {};
+    colorAttachmentReference.attachment = 0;                                    // index
+    colorAttachmentReference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL; // converted to this during subpass (between initialLayout and finalLayout)
+
+    // -- subpass --
+    VkSubpassDescription subpass = {};
+    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    subpass.colorAttachmentCount = 1;
+    subpass.pColorAttachments = &colorAttachmentReference;
+
+    // determine when layout transitions occur using subpass dependencies
+    VkSubpassDependency subpassDependencies[2];
+
+    // transition: initialLayout > subpassLayout (VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+    subpassDependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
+    subpassDependencies[0].srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+    subpassDependencies[0].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+    subpassDependencies[0].dstSubpass = 0; //index
+    subpassDependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    subpassDependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    subpassDependencies[0].dependencyFlags = 0;
+
+    // transition: subpassLayout > finalLayout
+    subpassDependencies[1].srcSubpass = 0;
+    subpassDependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    subpassDependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    subpassDependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL; //index
+    subpassDependencies[1].dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+    subpassDependencies[1].dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+    subpassDependencies[1].dependencyFlags = 0;
+
+    // renderpass info
+    VkRenderPassCreateInfo renderPassCreateInfo = {};
+    renderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+    renderPassCreateInfo.attachmentCount = 1;
+    renderPassCreateInfo.pAttachments = &colorAttachment;
+    renderPassCreateInfo.subpassCount = 1;
+    renderPassCreateInfo.pSubpasses = &subpass;
+    renderPassCreateInfo.dependencyCount = 2;
+    renderPassCreateInfo.pDependencies = subpassDependencies;
+
+    VK_CHECK_RESULT(vkCreateRenderPass(m_Device, &renderPassCreateInfo, nullptr, &m_RenderPass), "Render pass created",
+            "Failed to create render pass");
+}
+
+void Figment::VulkanContext::CreatePipeline(VkShaderModule vertexModule, VkShaderModule fragmentModule)
+{
+    // const std::string vertexShaderFilename = "shaders/shader_vert.spv";
+    // const std::string fragmentShaderFilename = "shaders/shader_frag.spv";
+    // auto vertexShaderCode = readFile(vertexShaderFilename);
+    // auto fragmentShaderCode = readFile(fragmentShaderFilename);
+
+    // build shader modules to link to graphics pipeline
+    // VkShaderModule vertexShaderModule = createShaderModule(vertexShaderCode);
+    // printf("Created shader module for: %s\n", vertexShaderFilename.c_str());
+    // VkShaderModule fragmentShaderModule = createShaderModule(fragmentShaderCode);
+    // printf("Created shader module for: %s\n", fragmentShaderFilename.c_str());
+
+    // shader stage create info for graphics pipeline
+    VkPipelineShaderStageCreateInfo vertexShaderCreateInfo = {};
+    vertexShaderCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    vertexShaderCreateInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+    vertexShaderCreateInfo.module = vertexModule;
+    vertexShaderCreateInfo.pName = "main"; // points to first glsl function called
+
+    VkPipelineShaderStageCreateInfo fragmentShaderCreateInfo = {};
+    fragmentShaderCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    fragmentShaderCreateInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+    fragmentShaderCreateInfo.module = fragmentModule;
+    fragmentShaderCreateInfo.pName = "main"; // points to first glsl function called
+
+    VkPipelineShaderStageCreateInfo shaderStages[] = { vertexShaderCreateInfo, fragmentShaderCreateInfo };
+
+    // create pipeline
+
+    // vertex data description (pos, col, uv, normal etc.)
+    VkVertexInputBindingDescription bindingDescription = {};
+    bindingDescription.binding = 0;
+    bindingDescription.stride = sizeof(Vertex);
+    bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX; // modify if instanced drawing
+
+    // define vertex attribute position
+    std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions = {};
+    attributeDescriptions[0].binding = 0;
+    attributeDescriptions[0].location = 0;
+    attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+    attributeDescriptions[0].offset = offsetof(Vertex, Position);
+    // color attribute
+    attributeDescriptions[1].binding = 0;
+    attributeDescriptions[1].location = 1;
+    attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+    attributeDescriptions[1].offset = offsetof(Vertex, Color);
+
+    // -- vertex input --
+    VkPipelineVertexInputStateCreateInfo vertexInputCreateInfo = {};
+    vertexInputCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+    vertexInputCreateInfo.vertexBindingDescriptionCount = 1;
+    vertexInputCreateInfo.pVertexBindingDescriptions = &bindingDescription;
+    vertexInputCreateInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+    vertexInputCreateInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+
+    // -- input assembly --
+    VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
+    inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+    inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    inputAssembly.primitiveRestartEnable = VK_FALSE;
+
+    // -- viewport & scissor --
+    VkViewport viewport = {};
+    viewport.x = 0.0f;
+    viewport.y = 0.0f;
+    viewport.width = (float)m_SwapChainExtent.width;
+    viewport.height = (float)m_SwapChainExtent.height;
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+
+    VkRect2D scissor = {};
+    scissor.offset = { 0, 0 };
+    scissor.extent = m_SwapChainExtent;
+
+    VkPipelineViewportStateCreateInfo viewportStateCreateInfo = {};
+    viewportStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+    viewportStateCreateInfo.viewportCount = 1;
+    viewportStateCreateInfo.pViewports = &viewport;
+    viewportStateCreateInfo.scissorCount = 1;
+    viewportStateCreateInfo.pScissors = &scissor;
+
+    // -- dynamic states -- (for dynamic resizing of viewport etc. using cmd buffers vkCmdSetViewport())
+    // std::vector<VkDynamicState> dynamicStateEnables;
+    // dynamicStateEnables.push_back(VK_DYNAMIC_STATE_VIEWPORT);
+    // dynamicStateEnables.push_back(VK_DYNAMIC_STATE_SCISSOR);
+
+    // VkPipelineDynamicStateCreateInfo dynamicStateCreateInfo = {};
+    // dynamicStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+    // dynamicStateCreateInfo.dynamicStateCount = static_cast<uint32_t>(dynamicStateEnables.size());
+    // dynamicStateCreateInfo.pDynamicStates = dynamicStateEnables.data();
+
+    // -- rasterizer --
+    VkPipelineRasterizationStateCreateInfo rasterizationCreateInfo = {};
+    rasterizationCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+    rasterizationCreateInfo.depthClampEnable = VK_FALSE;
+    rasterizationCreateInfo.rasterizerDiscardEnable = VK_FALSE;
+    rasterizationCreateInfo.polygonMode = VK_POLYGON_MODE_FILL;
+    rasterizationCreateInfo.lineWidth = 1.0f;
+    rasterizationCreateInfo.cullMode = VK_CULL_MODE_BACK_BIT;
+    rasterizationCreateInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
+    rasterizationCreateInfo.depthBiasEnable = VK_FALSE;
+
+    // -- multisampling -- (disabled)
+    VkPipelineMultisampleStateCreateInfo multisamplingCreateInfo = {};
+    multisamplingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+    multisamplingCreateInfo.sampleShadingEnable = VK_FALSE;
+    multisamplingCreateInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+
+    // -- blending --
+    // blend attachment state
+    VkPipelineColorBlendAttachmentState colorState = {};
+    colorState.colorWriteMask =
+            VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+    colorState.blendEnable = VK_TRUE;
+
+    // blend equation (srcColorBlendFactor * newcolor) colorBlendOp (dstColorBlendFactor * oldcolor)
+    colorState.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+    colorState.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+    colorState.colorBlendOp = VK_BLEND_OP_ADD; // (VK_BLEND_FACTOR_SRC_ALPHA * newcolor) + (VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA * oldcolor)
+    colorState.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+    colorState.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+    colorState.alphaBlendOp = VK_BLEND_OP_ADD;
+
+    VkPipelineColorBlendStateCreateInfo colorBlendingCreateInfo = {};
+    colorBlendingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+    colorBlendingCreateInfo.logicOpEnable = VK_FALSE;
+    colorBlendingCreateInfo.attachmentCount = 1;
+    colorBlendingCreateInfo.pAttachments = &colorState;
+
+    // -- pipeline layout -- (descriptor set layouts) uniforms etc.
+    VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo = {};
+    pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    pipelineLayoutCreateInfo.setLayoutCount = 0;
+    pipelineLayoutCreateInfo.pSetLayouts = nullptr;
+    pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
+    pipelineLayoutCreateInfo.pPushConstantRanges = nullptr;
+
+    // create pipeline layout
+    VkPipelineLayout pipelineLayout;
+    VkResult result = vkCreatePipelineLayout(m_Device, &pipelineLayoutCreateInfo, nullptr,
+            &pipelineLayout);
+    if (result != VK_SUCCESS)
+        throw std::runtime_error("Failed to create pipeline layout!");
+
+    // -- depth stencil testing --
+    // set up depth stencil testing
+
+    // create graphics pipeline
+    VkGraphicsPipelineCreateInfo pipelineCreateInfo = {};
+    pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+    pipelineCreateInfo.stageCount = 2;
+    pipelineCreateInfo.pStages = shaderStages;
+    pipelineCreateInfo.pVertexInputState = &vertexInputCreateInfo;
+    pipelineCreateInfo.pInputAssemblyState = &inputAssembly;
+    pipelineCreateInfo.pViewportState = &viewportStateCreateInfo;
+    pipelineCreateInfo.pDynamicState = nullptr;
+    pipelineCreateInfo.pRasterizationState = &rasterizationCreateInfo;
+    pipelineCreateInfo.pMultisampleState = &multisamplingCreateInfo;
+    pipelineCreateInfo.pColorBlendState = &colorBlendingCreateInfo;
+    pipelineCreateInfo.pDepthStencilState = nullptr;
+    pipelineCreateInfo.layout = pipelineLayout;
+    pipelineCreateInfo.renderPass = m_RenderPass;
+    pipelineCreateInfo.subpass = 0;
+
+    // pipeline derivatives : used to create new pipelines based on others
+    pipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
+    pipelineCreateInfo.basePipelineIndex = -1;
+
+    result = vkCreateGraphicsPipelines(m_Device, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr,
+            &m_Pipeline);
+    if (result != VK_SUCCESS)
+        throw std::runtime_error("Failed to create graphics pipeline!");
+}
+
+void Figment::VulkanContext::CreatePipelineCache()
+{
+    VkPipelineCacheCreateInfo pipelineCacheCreateInfo = {};
+    pipelineCacheCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
+    pipelineCacheCreateInfo.pNext = nullptr;
+    pipelineCacheCreateInfo.flags = 0;
+    pipelineCacheCreateInfo.initialDataSize = 0;
+    pipelineCacheCreateInfo.pInitialData = nullptr;
+
+    VK_CHECK_RESULT(vkCreatePipelineCache(m_Device, &pipelineCacheCreateInfo, nullptr, &m_PipelineCache),
+            "PipelineCache created", "Failed to create PipelineCache!")
+}
+
+void Figment::VulkanContext::CreateDescriptorPool()
+{
+    VkDescriptorPoolSize pool_sizes[] =
+            {
+                    { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1 },
+            };
+    VkDescriptorPoolCreateInfo descriptorPoolCreateInfo = {};
+    descriptorPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    descriptorPoolCreateInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+    descriptorPoolCreateInfo.maxSets = 1;
+    descriptorPoolCreateInfo.poolSizeCount = 1;
+    descriptorPoolCreateInfo.pPoolSizes = pool_sizes;
+
+    vkCreateDescriptorPool(m_Device, &descriptorPoolCreateInfo, nullptr, &m_DescriptorPool);
+}
+
+void Figment::VulkanContext::CreateCommandPool()
+{
+    uint32_t graphicsFamily, presentFamily;
+    GetQueueFamilyIndices(m_PhysicalDevice, m_Surface, graphicsFamily, presentFamily);
+
+    VkCommandPoolCreateInfo poolInfo = {};
+    poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    poolInfo.queueFamilyIndex = graphicsFamily;
+
+    // create graphics queue family command pool
+    VkResult result = vkCreateCommandPool(m_Device, &poolInfo, nullptr, &m_CommandPool);
+    if (result != VK_SUCCESS)
+        throw std::runtime_error("Failed to create command pool!");
+}
+
+void Figment::VulkanContext::CreateFramebuffers()
+{
+    m_SwapChainFramebuffers.resize(m_SwapChainImages.size());
+
+    for (size_t i = 0; i < m_SwapChainFramebuffers.size(); i++)
+    {
+        std::array<VkImageView, 1> attachments = {
+                m_SwapChainImages[i].imageView };
+
+        VkFramebufferCreateInfo framebufferCreateInfo = {};
+        framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        framebufferCreateInfo.renderPass = m_RenderPass;
+        framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+        framebufferCreateInfo.pAttachments = attachments.data();
+        framebufferCreateInfo.width = m_SwapChainExtent.width;
+        framebufferCreateInfo.height = m_SwapChainExtent.height;
+        framebufferCreateInfo.layers = 1;
+
+        VkResult result = vkCreateFramebuffer(m_Device, &framebufferCreateInfo, nullptr,
+                &m_SwapChainFramebuffers[i]);
+        if (result != VK_SUCCESS)
+            throw std::runtime_error("Failed to create framebuffer!");
+    }
+}
+
+void Figment::VulkanContext::CreateCommandBuffers()
+{
+    m_CommandBuffers.resize(m_SwapChainFramebuffers.size());
+    VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
+    commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    commandBufferAllocateInfo.commandPool = m_CommandPool;
+    commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY; // can only be executed by queue, not like secondary that can be executed by primary command buffers
+    commandBufferAllocateInfo.commandBufferCount = static_cast<uint32_t>(m_CommandBuffers.size());
+
+    VkResult result = vkAllocateCommandBuffers(m_Device, &commandBufferAllocateInfo, &m_CommandBuffers[0]);
+    if (result != VK_SUCCESS)
+        throw std::runtime_error("Failed to allocate command buffers!");
+}
+
+void Figment::VulkanContext::CreateSynchronization()
+{
+    m_ImageAvailable.resize(MAX_FRAME_DRAWS);
+    m_RenderFinished.resize(MAX_FRAME_DRAWS);
+    m_DrawFences.resize(MAX_FRAME_DRAWS);
+
+    VkSemaphoreCreateInfo semaphoreCreateInfo = {};
+    semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+    VkFenceCreateInfo fenceCreateInfo = {};
+    fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+    for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
+    {
+        if (vkCreateSemaphore(m_Device, &semaphoreCreateInfo, nullptr, &m_ImageAvailable[i]) != VK_SUCCESS
+                ||
+                        vkCreateSemaphore(m_Device, &semaphoreCreateInfo, nullptr, &m_RenderFinished[i])
+                                != VK_SUCCESS ||
+                vkCreateFence(m_Device, &fenceCreateInfo, nullptr, &m_DrawFences[i]) != VK_SUCCESS)
+            throw std::runtime_error("Failed to create semaphore or fence!");
+    }
+}
+
+void Figment::VulkanContext::BeginFrame()
+{
+    vkWaitForFences(m_Device, 1, &m_DrawFences[m_CurrentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
+    vkResetFences(m_Device, 1, &m_DrawFences[m_CurrentFrame]);
+
+    // get next available image to draw to and set semaphore to signal when it's ready to be drawn to
+
+    vkAcquireNextImageKHR(m_Device, m_SwapChain, std::numeric_limits<uint64_t>::max(), m_ImageAvailable[m_CurrentFrame],
+            VK_NULL_HANDLE, &m_ImageIndex);
+
+    VkCommandBufferBeginInfo commandBufferBeginInfo = {};
+    commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+
+    vkBeginCommandBuffer(m_CommandBuffers[m_ImageIndex], &commandBufferBeginInfo);
+
+    VkRenderPassBeginInfo renderPassBeginInfo = {};
+    renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderPassBeginInfo.renderPass = m_RenderPass;
+    renderPassBeginInfo.renderArea.offset = { 0, 0 };
+    renderPassBeginInfo.renderArea.extent = m_SwapChainExtent;
+    VkClearValue clearValues[] = {
+            { 0.6f, 0.65f, 0.4f, 1.0f }};
+    renderPassBeginInfo.pClearValues = clearValues;
+    renderPassBeginInfo.clearValueCount = 1;
+    renderPassBeginInfo.framebuffer = m_SwapChainFramebuffers[m_ImageIndex];
+
+    vkCmdBeginRenderPass(m_CommandBuffers[m_ImageIndex], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+    vkCmdBindPipeline(m_CommandBuffers[m_ImageIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
+
+}
+
+void Figment::VulkanContext::EndFrame()
+{
+    vkCmdEndRenderPass(m_CommandBuffers[m_ImageIndex]);
+
+    VkImageMemoryBarrier barrier = {};
+    barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    barrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED; // Assuming the image is in VK_IMAGE_LAYOUT_UNDEFINED
+    barrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.image = m_SwapChainImages[m_ImageIndex].image; // Assuming this is the correct way to access your image
+    barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    barrier.subresourceRange.baseMipLevel = 0;
+    barrier.subresourceRange.levelCount = 1;
+    barrier.subresourceRange.baseArrayLayer = 0;
+    barrier.subresourceRange.layerCount = 1;
+
+    barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT; // Transition after writing to the color attachment
+    barrier.dstAccessMask = 0; // Not needed for presentation
+
+    VkPipelineStageFlags sourceStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    VkPipelineStageFlags destinationStage = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+
+    vkCmdPipelineBarrier(
+            m_CommandBuffers[m_ImageIndex],
+            sourceStage, destinationStage,
+            0, // No dependency flags
+            0, nullptr, // No memory barriers
+            0, nullptr, // No buffer barriers
+            1, &barrier // Image barrier
+    );
+
+    vkEndCommandBuffer(m_CommandBuffers[m_ImageIndex]);
+
+    // submit command buffer to queue for execution
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.waitSemaphoreCount = 1;
+    submitInfo.pWaitSemaphores = &m_ImageAvailable[m_CurrentFrame];
+    VkPipelineStageFlags waitStages[] = {
+            VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+    submitInfo.pWaitDstStageMask = waitStages;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &m_CommandBuffers[m_ImageIndex];
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = &m_RenderFinished[m_CurrentFrame];
+
+    VkResult result = vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_DrawFences[m_CurrentFrame]);
+    if (result != VK_SUCCESS)
+        throw std::runtime_error("Failed to submit command buffer!");
+
+// present image to screen when finished rendering
+    VkPresentInfoKHR presentInfo = {};
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.pWaitSemaphores = &m_RenderFinished[m_CurrentFrame];
+    presentInfo.swapchainCount = 1;
+    presentInfo.pSwapchains = &m_SwapChain;
+    presentInfo.pImageIndices = &m_ImageIndex;
+
+    result = vkQueuePresentKHR(m_PresentationQueue, &presentInfo);
+    if (result != VK_SUCCESS)
+        throw std::runtime_error("Failed to present image!");
+
+    m_CurrentFrame = (m_CurrentFrame + 1) % MAX_FRAME_DRAWS;
 }

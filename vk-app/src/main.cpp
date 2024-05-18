@@ -16,17 +16,22 @@ int main()
     ImGui_ImplGlfw_InitForVulkan((GLFWwindow*)window->GetNative(), true);
     auto vkContext = window->GetContext<VulkanContext>();
     ImGui_ImplVulkan_InitInfo initInfo = {};
+    initInfo.UseDynamicRendering = true;
+    VkPipelineRenderingCreateInfo pipelineRenderingCreateInfo = {};
+    pipelineRenderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
+
+    initInfo.PipelineRenderingCreateInfo = pipelineRenderingCreateInfo;
     initInfo.Device = vkContext->GetDevice();
     initInfo.Instance = vkContext->GetInstance();
     initInfo.PhysicalDevice = vkContext->GetPhysicalDevice();
     initInfo.Queue = vkContext->GetGraphicsQueue();
     // initInfo.QueueFamily = g_QueueFamily;
     // initInfo.PipelineCache = g_PipelineCache;
-    // initInfo.DescriptorPool = g_DescriptorPool;
-    // initInfo.RenderPass = wd->RenderPass;
-    // initInfo.Subpass = 0;
-    // initInfo.MinImageCount = g_MinImageCount;
-    // initInfo.ImageCount = wd->ImageCount;
+    initInfo.DescriptorPool = vkContext->GetDescriptorPool();
+    initInfo.RenderPass = vkContext->GetRenderPass();
+    initInfo.Subpass = 0;
+    initInfo.MinImageCount = vkContext->SurfaceDetails().surfaceCapabilities.minImageCount;
+    initInfo.ImageCount = vkContext->SurfaceDetails().surfaceCapabilities.minImageCount + 1;
     // initInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
     // initInfo.Allocator = nullptr;
     // initInfo.CheckVkResultFn = check_vk_result;
@@ -41,8 +46,11 @@ int main()
         ImGui::Text("This is some useful text.");
         ImGui::End();
         ImGui::Render();
+        ImGui::EndFrame();
 
-        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), nullptr);
+        vkContext->BeginFrame();
+        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), vkContext->GetCommandBuffer(), vkContext->GetPipeline());
+        vkContext->EndFrame();
     }
 
     ImGui_ImplVulkan_Shutdown();
