@@ -43,8 +43,10 @@ file(GLOB_RECURSE SRC_FILES
 target_sources(vk-app PRIVATE ${SRC_FILES})
 target_sources(vk-app PRIVATE ../engine/src/core/Window.cpp)
 target_sources(vk-app PRIVATE ../engine/src/core/Log.cpp)
-target_sources(vk-app PRIVATE ../engine/src/platform/vulkan/VulkanWindow.cpp)
-target_sources(vk-app PRIVATE ../engine/src/platform/vulkan/VulkanContext.cpp)
+target_sources(vk-app PRIVATE
+        "../engine/src/platform/vulkan/VulkanWindow.cpp"
+        "../engine/src/platform/vulkan/VulkanContext.cpp"
+        "../engine/src/platform/vulkan/VulkanBuffer.cpp")
 
 target_sources(vk-app PRIVATE
         "../engine/lib/imgui/backends/imgui_impl_glfw.cpp"
