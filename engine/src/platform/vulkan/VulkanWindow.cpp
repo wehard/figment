@@ -11,6 +11,18 @@ Figment::VulkanWindow::VulkanWindow(const std::string &title, uint32_t width, ui
         FIGMENT_ASSERT(false, "Failed to initialize GLFW");
     }
 
+    if (glfwVulkanSupported())
+    {
+        FIG_LOG_INFO("Vulkan is supported");
+    }
+    else
+    {
+        FIGMENT_ASSERT(false, "Vulkan is not supported");
+    }
+
+    uint32_t count;
+    const char **extensions = glfwGetRequiredInstanceExtensions(&count);
+
     FIG_LOG_INFO("GLFW version: %s", glfwGetVersionString());
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -23,16 +35,15 @@ Figment::VulkanWindow::VulkanWindow(const std::string &title, uint32_t width, ui
         FIGMENT_ASSERT(false, "Failed to create GLFW window");
     }
 
-    // glfwSetWindowSizeCallback(m_Window, glfwWindowSizeCallback);
-    // glfwSetFramebufferSizeCallback(m_Window, glfwFramebufferSizeCallback);
-
+    glfwShowWindow(m_Window);
+    glfwSetWindowUserPointer(m_Window, this);
 
     m_RenderContext = std::make_shared<VulkanContext>(m_Window);
     m_RenderContext->Init(m_Width, m_Height);
 
+
     // Create vulkan surface
     // VkResult result = glfwCreateWindowSurface(instance, m_Window, nullptr, &surface);
-    glfwShowWindow(m_Window);
-    glfwSetWindowUserPointer(m_Window, this);
+
     FIG_LOG_INFO("Vulkan window created");
 }
