@@ -1,9 +1,8 @@
 #pragma once
 
-#define GLFW_INCLUDE_VULKAN
+#include "vulkan/vulkan.h"
 #include <GLFW/glfw3.h>
 #include "RenderContext.h"
-#include "vulkan/vulkan.h"
 #include "glm/vec3.hpp"
 #include <vector>
 
@@ -11,6 +10,8 @@
 
 namespace Figment
 {
+    class VulkanBuffer;
+
     struct SurfaceDetails
     {
         VkSurfaceCapabilitiesKHR surfaceCapabilities;
@@ -21,45 +22,50 @@ namespace Figment
     class VulkanContext : public RenderContext
     {
     public:
-        VulkanContext(GLFWwindow *window) : m_Window(window) { }
+        explicit VulkanContext(GLFWwindow *window) : m_Window(window) { }
         ~VulkanContext() override;
         void Init(uint32_t width, uint32_t height) override;
-        void BeginFrame();
-        void EndFrame();
+        void DebugDraw();
+
         VkDevice GetDevice() { return m_Device; }
         VkInstance GetInstance() { return m_Instance; }
         VkPhysicalDevice GetPhysicalDevice() { return m_PhysicalDevice; }
-        VkQueue GetGraphicsQueue() { return m_GraphicsQueue; }
+        // VkQueue GetGraphicsQueue() { return m_GraphicsQueue; }
 
         VkDescriptorPool GetDescriptorPool() { return m_DescriptorPool; }
         SurfaceDetails SurfaceDetails() { return m_SurfaceDetails; }
         VkRenderPass GetRenderPass() { return m_RenderPass; }
         VkCommandBuffer GetCommandBuffer() { return m_CommandBuffers[m_ImageIndex]; }
         VkPipeline GetPipeline() { return m_Pipeline; }
+        VkFramebuffer GetFramebuffer() { return m_SwapChainFramebuffers[m_ImageIndex]; }
     private:
         GLFWwindow *m_Window;
-        VkInstance m_Instance;
-        VkPhysicalDevice m_PhysicalDevice;
-        VkDevice m_Device;
-        VkSurfaceKHR m_Surface;
-        VkSwapchainKHR m_SwapChain;
-        VkCommandPool m_CommandPool;
-        VkRenderPass m_RenderPass;
-        VkPipeline m_Pipeline;
+        VkInstance m_Instance = VK_NULL_HANDLE;
+        VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;
+        VkDevice m_Device = VK_NULL_HANDLE;
+        VkSurfaceKHR m_Surface = VK_NULL_HANDLE;
+        VkSwapchainKHR m_SwapChain = VK_NULL_HANDLE;
+        VkCommandPool m_CommandPool = VK_NULL_HANDLE;
+        VkRenderPass m_RenderPass = VK_NULL_HANDLE;
+        VkPipeline m_Pipeline = VK_NULL_HANDLE;
         std::vector<VkCommandBuffer> m_CommandBuffers;
         std::vector<VkFramebuffer> m_SwapChainFramebuffers;
 
         VkPipelineCache m_PipelineCache = VK_NULL_HANDLE;
         VkDescriptorPool m_DescriptorPool = VK_NULL_HANDLE;
 
-        VkQueue m_GraphicsQueue;
-        VkQueue m_PresentationQueue;
+        uint32_t m_GraphicsQueueIndex = UINT32_MAX;
+        uint32_t m_PresentQueueIndex = UINT32_MAX;
+        VkQueue m_GraphicsQueue = VK_NULL_HANDLE;
+        // VkQueue m_PresentationQueue = VK_NULL_HANDLE;
 
-        VkFormat m_SwapChainImageFormat;
-        VkExtent2D m_SwapChainExtent;
+        VkFormat m_SwapChainImageFormat = VK_FORMAT_UNDEFINED;
+        VkExtent2D m_SwapChainExtent = { 0, 0 };
 
         uint32_t m_CurrentFrame = 0;
-        uint32_t m_ImageIndex;
+        uint32_t m_ImageIndex = 0;
+
+        VulkanBuffer *m_Buffer = nullptr;
 
         struct SurfaceDetails m_SurfaceDetails;
 
@@ -98,6 +104,7 @@ namespace Figment
         void CreateCommandPool();
         void CreateCommandBuffers();
         void CreateFramebuffers();
+        void RecordCommands();
         void CreateSynchronization();
     };
 }
