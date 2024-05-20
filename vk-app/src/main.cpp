@@ -54,7 +54,7 @@ static VkRenderPass CreateImGuiRenderPass(VulkanContext *vkContext)
 int main()
 {
     Log::Init();
-    auto window = Figment::Window::Create("Figment", 1280, 720);
+    auto window = Figment::Window::Create("Figment", 800, 800);
     auto vkContext = window->GetContext<VulkanContext>();
 
     // auto renderPass = CreateImGuiRenderPass(vkContext.get());
@@ -95,8 +95,8 @@ int main()
         vkContext->DebugDraw();
     }
 
-    ImGui_ImplVulkan_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
+    // ImGui_ImplVulkan_Shutdown();
+    // ImGui_ImplGlfw_Shutdown();
     // ImGui::DestroyContext(context);
     return 0;
 }
