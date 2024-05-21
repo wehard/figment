@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 #include "RenderContext.h"
 #include "glm/vec3.hpp"
+#include "Log.h"
 #include <vector>
 
 #define MAX_FRAME_DRAWS 2
@@ -19,6 +20,15 @@ namespace Figment
         std::vector<VkPresentModeKHR> presentationModes;
     };
 
+    inline void CheckVkResult(VkResult result)
+    {
+        if (result == 0)
+            return;
+        FIG_LOG_ERROR("[Vulkan] Error: VkResult = %d\n", result);
+        if (result < 0)
+            abort();
+    }
+
     class VulkanContext : public RenderContext
     {
     public:
@@ -27,7 +37,7 @@ namespace Figment
         void Init(uint32_t width, uint32_t height) override;
         void DebugDraw();
 
-        VkDevice GetDevice() { return m_Device; }
+        VkDevice GetDevice() const { return m_Device; };
         VkInstance GetInstance() { return m_Instance; }
         VkPhysicalDevice GetPhysicalDevice() { return m_PhysicalDevice; }
         // VkQueue GetGraphicsQueue() { return m_GraphicsQueue; }

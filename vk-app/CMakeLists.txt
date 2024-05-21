@@ -38,15 +38,12 @@ target_link_libraries(vk-app "/opt/homebrew/Cellar/glfw/3.3.8/lib/libglfw.3.3.dy
 
 file(GLOB_RECURSE SRC_FILES
         "src/*.cpp"
+        "../engine/src/platform/vulkan/*.cpp"
 )
 
 target_sources(vk-app PRIVATE ${SRC_FILES})
 target_sources(vk-app PRIVATE ../engine/src/core/Window.cpp)
 target_sources(vk-app PRIVATE ../engine/src/core/Log.cpp)
-target_sources(vk-app PRIVATE
-        "../engine/src/platform/vulkan/VulkanWindow.cpp"
-        "../engine/src/platform/vulkan/VulkanContext.cpp"
-        "../engine/src/platform/vulkan/VulkanBuffer.cpp")
 
 target_sources(vk-app PRIVATE
         "../engine/lib/imgui/backends/imgui_impl_glfw.cpp"

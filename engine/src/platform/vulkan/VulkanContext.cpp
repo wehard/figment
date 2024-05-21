@@ -1,55 +1,16 @@
 #include "VulkanContext.h"
-#include "Log.h"
+#include "VulkanShader.h"
 
 #include <vector>
-#include <string>
-#include <fstream>
 #include <set>
 #include "VulkanBuffer.h"
 
 namespace Figment
 {
-    Figment::VulkanContext::~VulkanContext()
-    {
-
-    }
-
 #define VK_CHECK_RESULT(f, s, e) { VkResult res = (f); if (res != VK_SUCCESS) { FIG_LOG_ERROR("Vulkan error: %s", e); } else { FIG_LOG_INFO("Vulkan: %s", s); } }
 
-    static void CheckVkResult(VkResult err)
+    Figment::VulkanContext::~VulkanContext()
     {
-        if (err == 0)
-            return;
-        fprintf(stderr, "[vulkan] Error: VkResult = %d\n", err);
-        if (err < 0)
-            abort();
-    }
-
-    static std::vector<char> ReadFile(const std::string &filename)
-    {
-        std::ifstream file(filename, std::ios::binary | std::ios::ate);
-        if (!file.is_open())
-            throw std::runtime_error("Failed to open file!");
-        std::streamsize fileSize = file.tellg();
-        std::vector<char> fileBuffer(fileSize);
-        file.seekg(0); // move read pos to the start of file
-        file.read(fileBuffer.data(), fileSize);
-        file.close();
-        return (fileBuffer);
-    }
-
-    static VkShaderModule CreateShaderModule(VkDevice device, const std::vector<char> &code)
-    {
-        VkShaderModuleCreateInfo shaderModuleCreateInfo = {};
-        shaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-        shaderModuleCreateInfo.codeSize = code.size();
-        shaderModuleCreateInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());
-
-        VkShaderModule shaderModule;
-        VkResult result = vkCreateShaderModule(device, &shaderModuleCreateInfo, nullptr, &shaderModule);
-        if (result != VK_SUCCESS)
-            throw std::runtime_error("Failed to create shader module!");
-        return (shaderModule);
     }
 
     void Figment::VulkanContext::Init(uint32_t width, uint32_t height)
@@ -61,20 +22,14 @@ namespace Figment
         CreateSwapChain();
         CreateRenderPass();
 
-        const std::string vertexShaderPath = "res/shader.vert.spv";
-        const std::string fragmentShaderPath = "res/shader.frag.spv";
-        auto vertexShaderCode = ReadFile(vertexShaderPath);
-        auto fragmentShaderCode = ReadFile(fragmentShaderPath);
-        VkShaderModule vertexModule = CreateShaderModule(m_Device, vertexShaderCode);
-        VkShaderModule fragmentModule = CreateShaderModule(m_Device, fragmentShaderCode);
-
         std::vector<Vertex> vertices = {
                 {{ 0.0, -0.5, 0.0 }, { 1.0, 0.0, 0.0 }},
                 {{ 0.5, 0.5, 0.0 }, { 0.0, 1.0, 0.0 }},
                 {{ -0.5, 0.5, 0.0 }, { 0.0, 0.0, 1.0 }}};
         m_Buffer = new VulkanBuffer(this, vertices.data(), vertices.size() * sizeof(Vertex));
 
-        CreatePipeline(vertexModule, fragmentModule);
+        auto shader = new VulkanShader(*this, "res/shader.vert.spv", "res/shader.frag.spv");
+        CreatePipeline(shader->GetVertexModule(), shader->GetFragmentModule());
         CreateFramebuffers();
         CreateCommandPool();
         CreateCommandBuffers();
