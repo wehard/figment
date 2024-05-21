@@ -325,15 +325,7 @@ namespace Figment
         swapChainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
         swapChainCreateInfo.clipped = VK_TRUE;
 
-        VkResult result = vkCreateSwapchainKHR(m_Device, &swapChainCreateInfo, nullptr, &m_SwapChain);
-        if (result != VK_SUCCESS)
-        {
-            FIG_LOG_ERROR("Failed to create swap chain");
-        }
-        else
-        {
-            FIG_LOG_INFO("Swap chain created");
-        }
+        CheckVkResult(vkCreateSwapchainKHR(m_Device, &swapChainCreateInfo, nullptr, &m_SwapChain));
 
         m_SwapChainImageFormat = surfaceFormat.format;
         m_SwapChainExtent = extent;
@@ -779,11 +771,13 @@ namespace Figment
         {
             vkDestroyFramebuffer(m_Device, framebuffer, nullptr);
         }
+        m_SwapChainFramebuffers.clear();
 
         for (auto image : m_SwapChainImages)
         {
             vkDestroyImageView(m_Device, image.imageView, nullptr);
         }
+        m_SwapChainImages.clear();
 
         vkDestroySwapchainKHR(m_Device, m_SwapChain, nullptr);
     }
@@ -795,5 +789,8 @@ namespace Figment
         CleanupSwapChain();
         CreateSwapChain();
         CreateFramebuffers();
+
+        vkResetCommandPool(m_Device, m_CommandPool, 0);
+        RecordCommands();
     }
 }
