@@ -47,6 +47,22 @@ namespace Figment
         }
 
         ResizeEventCallbackFn ResizeEventCallback;
+        void OnResize(WindowResizeEventData resizeData)
+        {
+            m_Width = resizeData.Width;
+            m_Height = resizeData.Height;
+            m_FramebufferWidth = resizeData.FramebufferWidth;
+            m_FramebufferHeight = resizeData.FramebufferHeight;
+
+            // glfwSetWindowSize(m_Window, (int)m_Width, (int)m_Height);
+
+            m_RenderContext->OnResize(resizeData.Width, resizeData.Height);
+
+            if (ResizeEventCallback != nullptr)
+            {
+                ResizeEventCallback(resizeData);
+            }
+        }
     protected:
         GLFWwindow *m_Window;
         std::shared_ptr<RenderContext> m_RenderContext;
