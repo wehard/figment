@@ -54,7 +54,7 @@ static VkRenderPass CreateImGuiRenderPass(VulkanContext *vkContext)
 int main()
 {
     Log::Init();
-    auto window = Figment::Window::Create("Figment", 800, 800);
+    auto window = Figment::Window::Create("Figment", 1280, 720);
     auto vkContext = window->GetContext<VulkanContext>();
 
     // auto renderPass = CreateImGuiRenderPass(vkContext.get());

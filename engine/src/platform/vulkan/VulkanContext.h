@@ -12,6 +12,7 @@
 namespace Figment
 {
     class VulkanBuffer;
+    class VulkanShader;
 
     inline void CheckVkResult(VkResult result)
     {
@@ -80,6 +81,7 @@ namespace Figment
         uint32_t m_CurrentFrame = 0;
         uint32_t m_ImageIndex = 0;
 
+        VulkanShader *m_Shader = nullptr;
         VulkanBuffer *m_Buffer = nullptr;
 
         VulkanSurfaceDetails m_SurfaceDetails = {};

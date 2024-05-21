@@ -28,8 +28,8 @@ namespace Figment
                 {{ -0.5, 0.5, 0.0 }, { 0.0, 0.0, 1.0 }}};
         m_Buffer = new VulkanBuffer(this, vertices.data(), vertices.size() * sizeof(Vertex));
 
-        auto shader = new VulkanShader(*this, "res/shader.vert.spv", "res/shader.frag.spv");
-        CreatePipeline(shader->GetVertexModule(), shader->GetFragmentModule());
+        m_Shader = new VulkanShader(*this, "res/shader.vert.spv", "res/shader.frag.spv");
+        CreatePipeline(m_Shader->GetVertexModule(), m_Shader->GetFragmentModule());
         CreateFramebuffers();
         CreateCommandPool();
         CreateCommandBuffers();
@@ -780,6 +780,8 @@ namespace Figment
         m_SwapChainImages.clear();
 
         vkDestroySwapchainKHR(m_Device, m_SwapChain, nullptr);
+
+        vkDestroyPipeline(m_Device, m_Pipeline, nullptr);
     }
 
     void VulkanContext::RecreateSwapChain()
@@ -789,6 +791,7 @@ namespace Figment
         CleanupSwapChain();
         CreateSwapChain();
         CreateFramebuffers();
+        CreatePipeline(m_Shader->GetVertexModule(), m_Shader->GetFragmentModule());
 
         vkResetCommandPool(m_Device, m_CommandPool, 0);
         RecordCommands();
