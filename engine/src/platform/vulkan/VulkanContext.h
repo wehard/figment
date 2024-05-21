@@ -37,17 +37,20 @@ namespace Figment
         void Init(uint32_t width, uint32_t height) override;
         void DebugDraw();
 
+        [[nodiscard]] VkInstance GetInstance() const { return m_Instance; }
         [[nodiscard]] VkDevice GetDevice() const { return m_Device; };
-        VkInstance GetInstance() { return m_Instance; }
-        VkPhysicalDevice GetPhysicalDevice() { return m_PhysicalDevice; }
-        // VkQueue GetGraphicsQueue() { return m_GraphicsQueue; }
-
-        VkDescriptorPool GetDescriptorPool() { return m_DescriptorPool; }
-        VulkanSurfaceDetails SurfaceDetails() { return m_SurfaceDetails; }
-        VkRenderPass GetRenderPass() { return m_RenderPass; }
-        VkCommandBuffer GetCommandBuffer() { return m_CommandBuffers[m_ImageIndex]; }
-        VkPipeline GetPipeline() { return m_Pipeline; }
-        VkFramebuffer GetFramebuffer() { return m_SwapChainFramebuffers[m_ImageIndex]; }
+        [[nodiscard]] VkPhysicalDevice GetPhysicalDevice() const { return m_PhysicalDevice; }
+        [[nodiscard]] VkQueue GetGraphicsQueue() const { return m_GraphicsQueue; }
+        [[nodiscard]] VkQueue GetPresentQueue() const { return m_GraphicsQueue; }
+        [[nodiscard]] VkSurfaceKHR GetSurface() const { return m_Surface; }
+        [[nodiscard]] VkSwapchainKHR GetSwapChain() const { return m_SwapChain; }
+        [[nodiscard]] VkCommandPool GetCommandPool() const { return m_CommandPool; }
+        [[nodiscard]] VkDescriptorPool GetDescriptorPool() const { return m_DescriptorPool; }
+        [[nodiscard]] VulkanSurfaceDetails SurfaceDetails() const { return m_SurfaceDetails; }
+        [[nodiscard]] VkRenderPass GetRenderPass() const { return m_RenderPass; }
+        [[nodiscard]] VkCommandBuffer GetCommandBuffer() const { return m_CommandBuffers[m_ImageIndex]; }
+        [[nodiscard]] VkPipeline GetPipeline() const { return m_Pipeline; }
+        [[nodiscard]] VkFramebuffer GetFramebuffer() const { return m_SwapChainFramebuffers[m_ImageIndex]; }
     private:
 
         GLFWwindow *m_Window;
