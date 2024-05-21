@@ -309,7 +309,6 @@ namespace Figment
         VkSurfaceFormatKHR surfaceFormat = m_SurfaceDetails.formats[0];
         VkPresentModeKHR presentMode = m_SurfaceDetails.presentationModes[0];
         VkExtent2D extent = m_SurfaceDetails.surfaceCapabilities.currentExtent;
-
         uint32_t imageCount = m_SurfaceDetails.surfaceCapabilities.minImageCount + 1;
 
         VkSwapchainCreateInfoKHR swapChainCreateInfo = {};
@@ -630,7 +629,6 @@ namespace Figment
     void Figment::VulkanContext::CreateFramebuffers()
     {
         m_SwapChainFramebuffers.resize(m_SwapChainImages.size());
-
         for (size_t i = 0; i < m_SwapChainFramebuffers.size(); i++)
         {
             std::array<VkImageView, 1> attachments = {
@@ -768,5 +766,34 @@ namespace Figment
         CheckVkResult(vkQueuePresentKHR(m_GraphicsQueue, &presentInfo));
 
         m_CurrentFrame = (m_CurrentFrame + 1) % MAX_FRAME_DRAWS;
+    }
+
+    void VulkanContext::OnResize(uint32_t width, uint32_t height)
+    {
+        RecreateSwapChain();
+    }
+
+    void VulkanContext::CleanupSwapChain()
+    {
+        for (auto framebuffer : m_SwapChainFramebuffers)
+        {
+            vkDestroyFramebuffer(m_Device, framebuffer, nullptr);
+        }
+
+        for (auto image : m_SwapChainImages)
+        {
+            vkDestroyImageView(m_Device, image.imageView, nullptr);
+        }
+
+        vkDestroySwapchainKHR(m_Device, m_SwapChain, nullptr);
+    }
+
+    void VulkanContext::RecreateSwapChain()
+    {
+        vkDeviceWaitIdle(m_Device);
+
+        CleanupSwapChain();
+        CreateSwapChain();
+        CreateFramebuffers();
     }
 }

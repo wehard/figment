@@ -51,8 +51,9 @@ namespace Figment
         [[nodiscard]] VkCommandBuffer GetCommandBuffer() const { return m_CommandBuffers[m_ImageIndex]; }
         [[nodiscard]] VkPipeline GetPipeline() const { return m_Pipeline; }
         [[nodiscard]] VkFramebuffer GetFramebuffer() const { return m_SwapChainFramebuffers[m_ImageIndex]; }
-    private:
 
+        void OnResize(uint32_t width, uint32_t height) override;
+    private:
         GLFWwindow *m_Window;
         VkInstance m_Instance = VK_NULL_HANDLE;
         VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;
@@ -120,5 +121,8 @@ namespace Figment
         void CreateFramebuffers();
         void RecordCommands();
         void CreateSynchronization();
+
+        void CleanupSwapChain();
+        void RecreateSwapChain();
     };
 }
