@@ -4,11 +4,16 @@ project(vk-app)
 add_executable(vk-app)
 target_compile_definitions(vk-app PRIVATE VULKAN_BACKEND)
 set_property(TARGET vk-app PROPERTY CXX_STANDARD 20)
-#add_subdirectory(../engine engine)
-
-#add_dependencies(vk-app engine)
 
 message(STATUS "Configuring ${CMAKE_PROJECT_NAME} for ${CMAKE_BUILD_TYPE} (${CMAKE_SYSTEM_NAME})")
+
+if (CMAKE_BUILD_TYPE MATCHES Debug)
+    message(STATUS "Debug symbols enabled")
+    target_compile_definitions(vk-app PRIVATE DEBUG)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0")
+    message(STATUS "Optimization level: -O0")
+endif ()
 
 target_include_directories(vk-app
         PRIVATE
