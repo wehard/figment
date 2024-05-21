@@ -13,13 +13,6 @@ namespace Figment
 {
     class VulkanBuffer;
 
-    struct SurfaceDetails
-    {
-        VkSurfaceCapabilitiesKHR surfaceCapabilities;
-        std::vector<VkSurfaceFormatKHR> formats;
-        std::vector<VkPresentModeKHR> presentationModes;
-    };
-
     inline void CheckVkResult(VkResult result)
     {
         if (result == 0)
@@ -32,23 +25,31 @@ namespace Figment
     class VulkanContext : public RenderContext
     {
     public:
+        struct VulkanSurfaceDetails
+        {
+            VkSurfaceCapabilitiesKHR surfaceCapabilities = {};
+            std::vector<VkSurfaceFormatKHR> formats;
+            std::vector<VkPresentModeKHR> presentationModes;
+        };
+
         explicit VulkanContext(GLFWwindow *window) : m_Window(window) { }
         ~VulkanContext() override;
         void Init(uint32_t width, uint32_t height) override;
         void DebugDraw();
 
-        VkDevice GetDevice() const { return m_Device; };
+        [[nodiscard]] VkDevice GetDevice() const { return m_Device; };
         VkInstance GetInstance() { return m_Instance; }
         VkPhysicalDevice GetPhysicalDevice() { return m_PhysicalDevice; }
         // VkQueue GetGraphicsQueue() { return m_GraphicsQueue; }
 
         VkDescriptorPool GetDescriptorPool() { return m_DescriptorPool; }
-        SurfaceDetails SurfaceDetails() { return m_SurfaceDetails; }
+        VulkanSurfaceDetails SurfaceDetails() { return m_SurfaceDetails; }
         VkRenderPass GetRenderPass() { return m_RenderPass; }
         VkCommandBuffer GetCommandBuffer() { return m_CommandBuffers[m_ImageIndex]; }
         VkPipeline GetPipeline() { return m_Pipeline; }
         VkFramebuffer GetFramebuffer() { return m_SwapChainFramebuffers[m_ImageIndex]; }
     private:
+
         GLFWwindow *m_Window;
         VkInstance m_Instance = VK_NULL_HANDLE;
         VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;
@@ -77,7 +78,7 @@ namespace Figment
 
         VulkanBuffer *m_Buffer = nullptr;
 
-        struct SurfaceDetails m_SurfaceDetails;
+        VulkanSurfaceDetails m_SurfaceDetails = {};
 
         const std::vector<const char *> m_RequiredDeviceExtensions = {
                 VK_KHR_SWAPCHAIN_EXTENSION_NAME,

@@ -252,9 +252,9 @@ namespace Figment
         // vkGetDeviceQueue(m_Device, m_PresentQueueIndex, 0, &m_PresentationQueue);
     }
 
-    static Figment::SurfaceDetails GetSurfaceDetails(VkPhysicalDevice device, VkSurfaceKHR surface)
+    static VulkanContext::VulkanSurfaceDetails GetSurfaceDetails(VkPhysicalDevice device, VkSurfaceKHR surface)
     {
-        Figment::SurfaceDetails surfaceDetails;
+        VulkanContext::VulkanSurfaceDetails surfaceDetails;
 
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &surfaceDetails.surfaceCapabilities);
 
