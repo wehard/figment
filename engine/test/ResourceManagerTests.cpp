@@ -7,7 +7,8 @@ using namespace Figment;
 struct MockRenderContext : public RenderContext
 {
     MockRenderContext() : RenderContext() { }
-    void Init() override { };
+    void Init(uint32_t width, uint32_t height) override { }
+    void OnResize(uint32_t width, uint32_t height) override { }
 };
 
 TEST(ResourceManager, TestResourceManagerInitialization)
