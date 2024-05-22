@@ -89,7 +89,7 @@ namespace Figment
         VulkanSurfaceDetails m_SurfaceDetails = {};
 
         const std::vector<const char *> m_RequiredDeviceExtensions = {
-                VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+                "VK_KHR_swapchain",
                 "VK_KHR_portability_subset"
         };
 
