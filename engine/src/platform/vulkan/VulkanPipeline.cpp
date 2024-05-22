@@ -2,30 +2,10 @@
 
 namespace Figment
 {
-    VulkanPipeline::VulkanPipeline(const VulkanContext &context, const VulkanShader &shader) : m_Context(context),
-            m_Shader(shader)
+    VulkanPipeline::VulkanPipeline(const VulkanContext &context, const PipelineDescriptor &&descriptor) : m_Context(
+            context)
     {
-        CreatePipeline({
-                .VertexInput = {
-                        .Binding = 0,
-                        .Stride = 24,
-                        .InputRate = VK_VERTEX_INPUT_RATE_VERTEX,
-                        .Attributes = {
-                                {
-                                        .location = 0,
-                                        .binding = 0,
-                                        .format = VK_FORMAT_R32G32B32_SFLOAT,
-                                        .offset = 0
-                                },
-                                {
-                                        .location = 1,
-                                        .binding = 0,
-                                        .format = VK_FORMAT_R32G32B32_SFLOAT,
-                                        .offset = 12
-                                }
-                        }
-                }
-        });
+        CreatePipeline(descriptor);
     }
 
     VulkanPipeline::~VulkanPipeline()
@@ -33,19 +13,19 @@ namespace Figment
         vkDestroyPipeline(m_Context.GetDevice(), m_Pipeline, nullptr);
     }
 
-    void VulkanPipeline::CreatePipeline(const PipelineDescriptor &&descriptor)
+    void VulkanPipeline::CreatePipeline(const PipelineDescriptor &descriptor)
     {
         // shader stage create info for graphics pipeline
         VkPipelineShaderStageCreateInfo vertexShaderCreateInfo = {};
         vertexShaderCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
         vertexShaderCreateInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-        vertexShaderCreateInfo.module = m_Shader.GetVertexModule();
+        vertexShaderCreateInfo.module = descriptor.VertexModule;
         vertexShaderCreateInfo.pName = "main"; // points to first glsl function called
 
         VkPipelineShaderStageCreateInfo fragmentShaderCreateInfo = {};
         fragmentShaderCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
         fragmentShaderCreateInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-        fragmentShaderCreateInfo.module = m_Shader.GetFragmentModule();
+        fragmentShaderCreateInfo.module = descriptor.FragmentModule;
         fragmentShaderCreateInfo.pName = "main"; // points to first glsl function called
 
         VkPipelineShaderStageCreateInfo shaderStages[] = { vertexShaderCreateInfo, fragmentShaderCreateInfo };
@@ -57,18 +37,6 @@ namespace Figment
         bindingDescription.binding = descriptor.VertexInput.Binding;
         bindingDescription.stride = descriptor.VertexInput.Stride;
         bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX; // modify if instanced drawing
-
-        // define vertex attribute position
-        // std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions = {};
-        // attributeDescriptions[0].binding = 0;
-        // attributeDescriptions[0].location = 0;
-        // attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-        // attributeDescriptions[0].offset = offsetof(Vertex, Position);
-        // // color attribute
-        // attributeDescriptions[1].binding = 0;
-        // attributeDescriptions[1].location = 1;
-        // attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-        // attributeDescriptions[1].offset = offsetof(Vertex, Color);
 
         // -- vertex input --
         VkPipelineVertexInputStateCreateInfo vertexInputCreateInfo = {};

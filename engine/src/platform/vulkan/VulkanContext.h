@@ -13,6 +13,7 @@ namespace Figment
 {
     class VulkanBuffer;
     class VulkanShader;
+    class VulkanPipeline;
 
     inline void CheckVkResult(VkResult result)
     {
@@ -50,7 +51,7 @@ namespace Figment
         [[nodiscard]] VulkanSurfaceDetails SurfaceDetails() const { return m_SurfaceDetails; }
         [[nodiscard]] VkRenderPass GetRenderPass() const { return m_RenderPass; }
         [[nodiscard]] VkCommandBuffer GetCommandBuffer() const { return m_CommandBuffers[m_ImageIndex]; }
-        [[nodiscard]] VkPipeline GetPipeline() const { return m_Pipeline; }
+        // [[nodiscard]] VkPipeline GetPipeline() const { return m_Pipeline; }
         [[nodiscard]] VkFramebuffer GetFramebuffer() const { return m_SwapChainFramebuffers[m_ImageIndex]; }
 
         void OnResize(uint32_t width, uint32_t height) override;
@@ -63,7 +64,7 @@ namespace Figment
         VkSwapchainKHR m_SwapChain = VK_NULL_HANDLE;
         VkCommandPool m_CommandPool = VK_NULL_HANDLE;
         VkRenderPass m_RenderPass = VK_NULL_HANDLE;
-        VkPipeline m_Pipeline = VK_NULL_HANDLE;
+
         std::vector<VkCommandBuffer> m_CommandBuffers;
         std::vector<VkFramebuffer> m_SwapChainFramebuffers;
 
@@ -81,6 +82,7 @@ namespace Figment
         uint32_t m_CurrentFrame = 0;
         uint32_t m_ImageIndex = 0;
 
+        VulkanPipeline *m_Pipeline = nullptr;
         VulkanShader *m_Shader = nullptr;
         VulkanBuffer *m_Buffer = nullptr;
 

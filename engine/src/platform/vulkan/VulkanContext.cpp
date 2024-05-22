@@ -1,9 +1,10 @@
 #include "VulkanContext.h"
 #include "VulkanShader.h"
+#include "VulkanBuffer.h"
+#include "VulkanPipeline.h"
 
 #include <vector>
 #include <set>
-#include "VulkanBuffer.h"
 
 namespace Figment
 {
@@ -410,6 +411,37 @@ namespace Figment
 
     void Figment::VulkanContext::CreatePipeline(VkShaderModule vertexModule, VkShaderModule fragmentModule)
     {
+        m_Pipeline = new VulkanPipeline(*this, VulkanPipeline::PipelineDescriptor {
+                .ViewportWidth = m_SwapChainExtent.width,
+                .ViewportHeight = m_SwapChainExtent.height,
+                .VertexInput = {
+                        .Binding = 0,
+                        .Stride = sizeof(Vertex),
+                        .InputRate = VK_VERTEX_INPUT_RATE_VERTEX,
+                        .Attributes = {
+                                {
+                                        .location = 0,
+                                        .binding = 0,
+                                        .format = VK_FORMAT_R32G32B32_SFLOAT,
+                                        .offset = offsetof(Vertex, Position)
+                                },
+                                {
+                                        .location = 1,
+                                        .binding = 0,
+                                        .format = VK_FORMAT_R32G32B32_SFLOAT,
+                                        .offset = offsetof(Vertex, Color)
+                                }
+                        }
+                },
+                .RenderPass = m_RenderPass,
+                .VertexModule = vertexModule,
+                .FragmentModule = fragmentModule
+        });
+    }
+
+    /*
+    void Figment::VulkanContext::CreatePipeline(VkShaderModule vertexModule, VkShaderModule fragmentModule)
+    {
         // shader stage create info for graphics pipeline
         VkPipelineShaderStageCreateInfo vertexShaderCreateInfo = {};
         vertexShaderCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -572,6 +604,7 @@ namespace Figment
         if (result != VK_SUCCESS)
             throw std::runtime_error("Failed to create graphics pipeline!");
     }
+    */
 
     void Figment::VulkanContext::CreatePipelineCache()
     {
@@ -705,7 +738,7 @@ namespace Figment
             vkCmdBeginRenderPass(m_CommandBuffers[i], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
             // bind pipeline
-            vkCmdBindPipeline(m_CommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
+            vkCmdBindPipeline(m_CommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline->Get());
 
             VkBuffer buffers[] = { m_Buffer->Get() };
             VkDeviceSize offsets[] = { 0 };
@@ -781,7 +814,7 @@ namespace Figment
 
         vkDestroySwapchainKHR(m_Device, m_SwapChain, nullptr);
 
-        vkDestroyPipeline(m_Device, m_Pipeline, nullptr);
+        delete m_Pipeline;
     }
 
     void VulkanContext::RecreateSwapChain()

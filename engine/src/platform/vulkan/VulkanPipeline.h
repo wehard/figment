@@ -20,15 +20,17 @@ namespace Figment
             uint32_t ViewportHeight = 0;
             VertexInputDescriptor VertexInput;
             VkRenderPass RenderPass = VK_NULL_HANDLE;
+            VkShaderModule VertexModule = VK_NULL_HANDLE;
+            VkShaderModule FragmentModule = VK_NULL_HANDLE;
         };
-        
-        explicit VulkanPipeline(const VulkanContext &context, const VulkanShader &shader);
+
+        explicit VulkanPipeline(const VulkanContext &context, const PipelineDescriptor &&descriptor);
+        [[nodiscard]] VkPipeline Get() const { return m_Pipeline; }
         ~VulkanPipeline();
     private:
-        void CreatePipeline(const PipelineDescriptor &&descriptor);
+        void CreatePipeline(const PipelineDescriptor &descriptor);
 
         const VulkanContext &m_Context;
-        const VulkanShader &m_Shader;
         VkPipeline m_Pipeline = VK_NULL_HANDLE;
     };
 
