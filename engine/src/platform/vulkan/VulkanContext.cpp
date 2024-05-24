@@ -336,11 +336,12 @@ namespace Figment
         std::vector<VkImage> images(swapChainImageCount);
         vkGetSwapchainImagesKHR(m_Device, m_SwapChain, &swapChainImageCount, images.data());
 
-        for (VkImage image : images)
+        m_FrameData.Init(swapChainImageCount);
+        for (size_t i = 0; i < swapChainImageCount; i++)
         {
-            m_FrameData.Images.push_back(image);
-            m_FrameData.ImageViews.push_back(CreateVkImageView(m_Device, image, m_SwapChainImageFormat,
-                    VK_IMAGE_ASPECT_COLOR_BIT));
+            m_FrameData.Images[i] = images[i];
+            m_FrameData.ImageViews[i] = CreateVkImageView(m_Device, images[i], m_SwapChainImageFormat,
+                    VK_IMAGE_ASPECT_COLOR_BIT);
         }
     }
 

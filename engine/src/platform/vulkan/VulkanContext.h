@@ -111,6 +111,14 @@ namespace Figment
             std::vector<VkFramebuffer> Framebuffers;
             std::vector<VkImage> Images;
             std::vector<VkImageView> ImageViews;
+
+            void Init(uint32_t size)
+            {
+                CommandBuffers.resize(size);
+                Framebuffers.resize(size);
+                Images.resize(size);
+                ImageViews.resize(size);
+            }
         };
 
         FrameData m_FrameData;
