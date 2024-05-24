@@ -50,9 +50,9 @@ namespace Figment
         [[nodiscard]] VkDescriptorPool GetDescriptorPool() const { return m_DescriptorPool; }
         [[nodiscard]] VulkanSurfaceDetails SurfaceDetails() const { return m_SurfaceDetails; }
         [[nodiscard]] VkRenderPass GetRenderPass() const { return m_RenderPass; }
-        [[nodiscard]] VkCommandBuffer GetCommandBuffer() const { return m_CommandBuffers[m_ImageIndex]; }
+        [[nodiscard]] VkCommandBuffer GetCommandBuffer() const { return m_FrameData.CommandBuffers[m_ImageIndex]; }
         // [[nodiscard]] VkPipeline GetPipeline() const { return m_Pipeline; }
-        [[nodiscard]] VkFramebuffer GetFramebuffer() const { return m_SwapChainFramebuffers[m_ImageIndex]; }
+        [[nodiscard]] VkFramebuffer GetFramebuffer() const { return m_FrameData.Framebuffers[m_ImageIndex]; }
 
         void OnResize(uint32_t width, uint32_t height) override;
     private:
@@ -90,12 +90,6 @@ namespace Figment
                 "VK_KHR_portability_subset"
         };
 
-        struct SwapChainImage
-        {
-            VkImage image;
-            VkImageView imageView;
-        };
-
         struct Vertex
         {
             glm::vec3 Position;
@@ -113,15 +107,13 @@ namespace Figment
 
         struct FrameData
         {
-            VkCommandBuffer CommandBuffer;
-            VkFramebuffer FrameBuffer;
-            VkImage Image;
-            VkImageView ImageView;
+            std::vector<VkCommandBuffer> CommandBuffers;
+            std::vector<VkFramebuffer> Framebuffers;
+            std::vector<VkImage> Images;
+            std::vector<VkImageView> ImageViews;
         };
 
-        std::vector<SwapChainImage> m_SwapChainImages;
-        std::vector<VkCommandBuffer> m_CommandBuffers;
-        std::vector<VkFramebuffer> m_SwapChainFramebuffers;
+        FrameData m_FrameData;
 
         void CreateInstance();
         void CreateSurface();
@@ -134,8 +126,8 @@ namespace Figment
         void CreateCommandPool();
         void CreateCommandBuffers();
         void CreateFramebuffers();
-        void RecordCommands();
         void CreateSynchronization();
+        void RecordCommands();
 
         void CleanupSwapChain();
         void RecreateSwapChain();

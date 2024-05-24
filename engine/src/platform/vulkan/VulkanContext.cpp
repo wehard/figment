@@ -338,10 +338,9 @@ namespace Figment
 
         for (VkImage image : images)
         {
-            m_SwapChainImages.push_back({
-                    .image = image,
-                    .imageView = CreateVkImageView(m_Device, image, m_SwapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT)
-            });
+            m_FrameData.Images.push_back(image);
+            m_FrameData.ImageViews.push_back(CreateVkImageView(m_Device, image, m_SwapChainImageFormat,
+                    VK_IMAGE_ASPECT_COLOR_BIT));
         }
     }
 
@@ -653,11 +652,11 @@ namespace Figment
 
     void Figment::VulkanContext::CreateFramebuffers()
     {
-        m_SwapChainFramebuffers.resize(m_SwapChainImages.size());
-        for (size_t i = 0; i < m_SwapChainFramebuffers.size(); i++)
+        m_FrameData.Framebuffers.resize(m_FrameData.ImageViews.size());
+        for (size_t i = 0; i < m_FrameData.Framebuffers.size(); i++)
         {
             std::array<VkImageView, 1> attachments = {
-                    m_SwapChainImages[i].imageView };
+                    m_FrameData.ImageViews[i] };
 
             VkFramebufferCreateInfo framebufferCreateInfo = {};
             framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -669,7 +668,7 @@ namespace Figment
             framebufferCreateInfo.layers = 1;
 
             VkResult result = vkCreateFramebuffer(m_Device, &framebufferCreateInfo, nullptr,
-                    &m_SwapChainFramebuffers[i]);
+                    &m_FrameData.Framebuffers[i]);
             if (result != VK_SUCCESS)
                 throw std::runtime_error("Failed to create framebuffer!");
         }
@@ -677,14 +676,15 @@ namespace Figment
 
     void Figment::VulkanContext::CreateCommandBuffers()
     {
-        m_CommandBuffers.resize(m_SwapChainFramebuffers.size());
+        m_FrameData.CommandBuffers.resize(m_FrameData.Framebuffers.size());
         VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
         commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         commandBufferAllocateInfo.commandPool = m_CommandPool;
         commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY; // can only be executed by queue, not like secondary that can be executed by primary command buffers
-        commandBufferAllocateInfo.commandBufferCount = static_cast<uint32_t>(m_CommandBuffers.size());
+        commandBufferAllocateInfo.commandBufferCount = static_cast<uint32_t>(m_FrameData.CommandBuffers.size());
 
-        VkResult result = vkAllocateCommandBuffers(m_Device, &commandBufferAllocateInfo, &m_CommandBuffers[0]);
+        VkResult result = vkAllocateCommandBuffers(m_Device, &commandBufferAllocateInfo,
+                &m_FrameData.CommandBuffers[0]);
         if (result != VK_SUCCESS)
             throw std::runtime_error("Failed to allocate command buffers!");
     }
@@ -727,29 +727,29 @@ namespace Figment
         renderPassBeginInfo.pClearValues = clearValues;
         renderPassBeginInfo.clearValueCount = 1;
 
-        for (size_t i = 0; i < m_CommandBuffers.size(); i++)
+        for (size_t i = 0; i < m_FrameData.CommandBuffers.size(); i++)
         {
-            renderPassBeginInfo.framebuffer = m_SwapChainFramebuffers[i];
+            renderPassBeginInfo.framebuffer = m_FrameData.Framebuffers[i];
 
-            CheckVkResult(vkBeginCommandBuffer(m_CommandBuffers[i], &bufferBeginInfo));
+            CheckVkResult(vkBeginCommandBuffer(m_FrameData.CommandBuffers[i], &bufferBeginInfo));
 
             // begin render pass
-            vkCmdBeginRenderPass(m_CommandBuffers[i], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+            vkCmdBeginRenderPass(m_FrameData.CommandBuffers[i], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
             // bind pipeline
-            vkCmdBindPipeline(m_CommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline->Get());
+            vkCmdBindPipeline(m_FrameData.CommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline->Get());
 
             VkBuffer buffers[] = { m_Buffer->Get() };
             VkDeviceSize offsets[] = { 0 };
-            vkCmdBindVertexBuffers(m_CommandBuffers[i], 0, 1, buffers, offsets);
+            vkCmdBindVertexBuffers(m_FrameData.CommandBuffers[i], 0, 1, buffers, offsets);
 
             // execute pipeline
-            vkCmdDraw(m_CommandBuffers[i], 3, 1, 0, 0);
+            vkCmdDraw(m_FrameData.CommandBuffers[i], 3, 1, 0, 0);
 
             // end render pass
-            vkCmdEndRenderPass(m_CommandBuffers[i]);
+            vkCmdEndRenderPass(m_FrameData.CommandBuffers[i]);
 
-            CheckVkResult(vkEndCommandBuffer(m_CommandBuffers[i]));
+            CheckVkResult(vkEndCommandBuffer(m_FrameData.CommandBuffers[i]));
         }
     }
 
@@ -772,7 +772,7 @@ namespace Figment
                 VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
         submitInfo.pWaitDstStageMask = waitStages;
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &m_CommandBuffers[m_ImageIndex];
+        submitInfo.pCommandBuffers = &m_FrameData.CommandBuffers[m_ImageIndex];
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = &m_SynchronizationObjects[m_CurrentFrame].SemaphoreRenderFinished;
 
@@ -800,17 +800,17 @@ namespace Figment
 
     void VulkanContext::CleanupSwapChain()
     {
-        for (auto framebuffer : m_SwapChainFramebuffers)
+        for (auto framebuffer : m_FrameData.Framebuffers)
         {
             vkDestroyFramebuffer(m_Device, framebuffer, nullptr);
         }
-        m_SwapChainFramebuffers.clear();
+        m_FrameData.Framebuffers.clear();
 
-        for (auto image : m_SwapChainImages)
+        for (auto imageView : m_FrameData.ImageViews)
         {
-            vkDestroyImageView(m_Device, image.imageView, nullptr);
+            vkDestroyImageView(m_Device, imageView, nullptr);
         }
-        m_SwapChainImages.clear();
+        m_FrameData.ImageViews.clear();
 
         vkDestroySwapchainKHR(m_Device, m_SwapChain, nullptr);
 
