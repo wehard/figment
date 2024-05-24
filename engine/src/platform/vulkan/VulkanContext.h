@@ -76,7 +76,7 @@ namespace Figment
         VkFormat m_SwapChainImageFormat = VK_FORMAT_UNDEFINED;
         VkExtent2D m_SwapChainExtent = { 0, 0 };
 
-        uint32_t m_CurrentFrame = 0;
+        uint32_t m_FrameIndex = 0;
         uint32_t m_ImageIndex = 0;
 
         VulkanPipeline *m_Pipeline = nullptr;

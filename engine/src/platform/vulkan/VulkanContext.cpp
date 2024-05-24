@@ -755,42 +755,42 @@ namespace Figment
 
     void VulkanContext::DebugDraw()
     {
-        CheckVkResult(vkWaitForFences(m_Device, 1, &m_SynchronizationObjects[m_CurrentFrame].FenceDraw, VK_TRUE,
+        CheckVkResult(vkWaitForFences(m_Device, 1, &m_SynchronizationObjects[m_FrameIndex].FenceDraw, VK_TRUE,
                 std::numeric_limits<uint64_t>::max()));
-        CheckVkResult(vkResetFences(m_Device, 1, &m_SynchronizationObjects[m_CurrentFrame].FenceDraw));
+        CheckVkResult(vkResetFences(m_Device, 1, &m_SynchronizationObjects[m_FrameIndex].FenceDraw));
 
         // get next available image to draw to and set semaphore to signal when it's ready to be drawn to
         CheckVkResult(vkAcquireNextImageKHR(m_Device, m_SwapChain, std::numeric_limits<uint64_t>::max(),
-                m_SynchronizationObjects[m_CurrentFrame].SemaphoreImageAvailable, VK_NULL_HANDLE, &m_ImageIndex));
+                m_SynchronizationObjects[m_FrameIndex].SemaphoreImageAvailable, VK_NULL_HANDLE, &m_ImageIndex));
 
         // submit command buffer to queue for execution
         VkSubmitInfo submitInfo = {};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.waitSemaphoreCount = 1;
-        submitInfo.pWaitSemaphores = &m_SynchronizationObjects[m_CurrentFrame].SemaphoreImageAvailable;
+        submitInfo.pWaitSemaphores = &m_SynchronizationObjects[m_FrameIndex].SemaphoreImageAvailable;
         VkPipelineStageFlags waitStages[] = {
                 VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
         submitInfo.pWaitDstStageMask = waitStages;
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &m_FrameData.CommandBuffers[m_ImageIndex];
         submitInfo.signalSemaphoreCount = 1;
-        submitInfo.pSignalSemaphores = &m_SynchronizationObjects[m_CurrentFrame].SemaphoreRenderFinished;
+        submitInfo.pSignalSemaphores = &m_SynchronizationObjects[m_FrameIndex].SemaphoreRenderFinished;
 
         CheckVkResult(
-                vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_SynchronizationObjects[m_CurrentFrame].FenceDraw));
+                vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_SynchronizationObjects[m_FrameIndex].FenceDraw));
 
         // present image to screen when finished rendering
         VkPresentInfoKHR presentInfo = {};
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
         presentInfo.waitSemaphoreCount = 1;
-        presentInfo.pWaitSemaphores = &m_SynchronizationObjects[m_CurrentFrame].SemaphoreRenderFinished;
+        presentInfo.pWaitSemaphores = &m_SynchronizationObjects[m_FrameIndex].SemaphoreRenderFinished;
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = &m_SwapChain;
         presentInfo.pImageIndices = &m_ImageIndex;
 
         CheckVkResult(vkQueuePresentKHR(m_GraphicsQueue, &presentInfo));
 
-        m_CurrentFrame = (m_CurrentFrame + 1) % MAX_FRAME_DRAWS;
+        m_FrameIndex = (m_FrameIndex + 1) % MAX_FRAME_DRAWS;
     }
 
     void VulkanContext::OnResize(uint32_t width, uint32_t height)
