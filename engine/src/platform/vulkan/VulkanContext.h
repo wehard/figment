@@ -65,9 +65,6 @@ namespace Figment
         VkCommandPool m_CommandPool = VK_NULL_HANDLE;
         VkRenderPass m_RenderPass = VK_NULL_HANDLE;
 
-        std::vector<VkCommandBuffer> m_CommandBuffers;
-        std::vector<VkFramebuffer> m_SwapChainFramebuffers;
-
         VkPipelineCache m_PipelineCache = VK_NULL_HANDLE;
         VkDescriptorPool m_DescriptorPool = VK_NULL_HANDLE;
 
@@ -105,12 +102,26 @@ namespace Figment
             glm::vec3 Color;
         };
 
-        std::vector<SwapChainImage> m_SwapChainImages;
+        struct SynchronizationObjects
+        {
+            VkSemaphore SemaphoreImageAvailable;
+            VkSemaphore SemaphoreRenderFinished;
+            VkFence FenceDraw;
+        };
 
-        // Sync objects
-        std::vector<VkSemaphore> m_ImageAvailable;
-        std::vector<VkSemaphore> m_RenderFinished;
-        std::vector<VkFence> m_DrawFences;
+        SynchronizationObjects m_SynchronizationObjects[MAX_FRAME_DRAWS];
+
+        struct FrameData
+        {
+            VkCommandBuffer CommandBuffer;
+            VkFramebuffer FrameBuffer;
+            VkImage Image;
+            VkImageView ImageView;
+        };
+
+        std::vector<SwapChainImage> m_SwapChainImages;
+        std::vector<VkCommandBuffer> m_CommandBuffers;
+        std::vector<VkFramebuffer> m_SwapChainFramebuffers;
 
         void CreateInstance();
         void CreateSurface();

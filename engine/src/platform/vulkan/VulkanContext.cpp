@@ -691,10 +691,6 @@ namespace Figment
 
     void Figment::VulkanContext::CreateSynchronization()
     {
-        m_ImageAvailable.resize(MAX_FRAME_DRAWS);
-        m_RenderFinished.resize(MAX_FRAME_DRAWS);
-        m_DrawFences.resize(MAX_FRAME_DRAWS);
-
         VkSemaphoreCreateInfo semaphoreCreateInfo = {};
         semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
@@ -702,13 +698,16 @@ namespace Figment
         fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
         fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-        for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
+        for (auto &m_SynchronizationObject : m_SynchronizationObjects)
         {
-            if (vkCreateSemaphore(m_Device, &semaphoreCreateInfo, nullptr, &m_ImageAvailable[i]) != VK_SUCCESS
+            if (vkCreateSemaphore(m_Device, &semaphoreCreateInfo, nullptr,
+                    &m_SynchronizationObject.SemaphoreImageAvailable) != VK_SUCCESS
                     ||
-                            vkCreateSemaphore(m_Device, &semaphoreCreateInfo, nullptr, &m_RenderFinished[i])
+                            vkCreateSemaphore(m_Device, &semaphoreCreateInfo, nullptr,
+                                    &m_SynchronizationObject.SemaphoreRenderFinished)
                                     != VK_SUCCESS ||
-                    vkCreateFence(m_Device, &fenceCreateInfo, nullptr, &m_DrawFences[i]) != VK_SUCCESS)
+                    vkCreateFence(m_Device, &fenceCreateInfo, nullptr, &m_SynchronizationObject.FenceDraw)
+                            != VK_SUCCESS)
                 throw std::runtime_error("Failed to create semaphore or fence!");
         }
     }
@@ -756,34 +755,35 @@ namespace Figment
 
     void VulkanContext::DebugDraw()
     {
-        CheckVkResult(vkWaitForFences(m_Device, 1, &m_DrawFences[m_CurrentFrame], VK_TRUE,
+        CheckVkResult(vkWaitForFences(m_Device, 1, &m_SynchronizationObjects[m_CurrentFrame].FenceDraw, VK_TRUE,
                 std::numeric_limits<uint64_t>::max()));
-        CheckVkResult(vkResetFences(m_Device, 1, &m_DrawFences[m_CurrentFrame]));
+        CheckVkResult(vkResetFences(m_Device, 1, &m_SynchronizationObjects[m_CurrentFrame].FenceDraw));
 
         // get next available image to draw to and set semaphore to signal when it's ready to be drawn to
         CheckVkResult(vkAcquireNextImageKHR(m_Device, m_SwapChain, std::numeric_limits<uint64_t>::max(),
-                m_ImageAvailable[m_CurrentFrame], VK_NULL_HANDLE, &m_ImageIndex));
+                m_SynchronizationObjects[m_CurrentFrame].SemaphoreImageAvailable, VK_NULL_HANDLE, &m_ImageIndex));
 
         // submit command buffer to queue for execution
         VkSubmitInfo submitInfo = {};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.waitSemaphoreCount = 1;
-        submitInfo.pWaitSemaphores = &m_ImageAvailable[m_CurrentFrame];
+        submitInfo.pWaitSemaphores = &m_SynchronizationObjects[m_CurrentFrame].SemaphoreImageAvailable;
         VkPipelineStageFlags waitStages[] = {
                 VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
         submitInfo.pWaitDstStageMask = waitStages;
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &m_CommandBuffers[m_ImageIndex];
         submitInfo.signalSemaphoreCount = 1;
-        submitInfo.pSignalSemaphores = &m_RenderFinished[m_CurrentFrame];
+        submitInfo.pSignalSemaphores = &m_SynchronizationObjects[m_CurrentFrame].SemaphoreRenderFinished;
 
-        CheckVkResult(vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_DrawFences[m_CurrentFrame]));
+        CheckVkResult(
+                vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_SynchronizationObjects[m_CurrentFrame].FenceDraw));
 
         // present image to screen when finished rendering
         VkPresentInfoKHR presentInfo = {};
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
         presentInfo.waitSemaphoreCount = 1;
-        presentInfo.pWaitSemaphores = &m_RenderFinished[m_CurrentFrame];
+        presentInfo.pWaitSemaphores = &m_SynchronizationObjects[m_CurrentFrame].SemaphoreRenderFinished;
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = &m_SwapChain;
         presentInfo.pImageIndices = &m_ImageIndex;
