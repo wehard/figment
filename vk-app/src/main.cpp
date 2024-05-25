@@ -92,7 +92,9 @@ int main()
         // ImGui::Render();
         // ImGui::EndFrame();
 
+        vkContext->BeginFrame();
         vkContext->DebugDraw();
+        vkContext->EndFrame();
     }
 
     // ImGui_ImplVulkan_Shutdown();

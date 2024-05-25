@@ -55,6 +55,8 @@ namespace Figment
         [[nodiscard]] VkFramebuffer GetFramebuffer() const { return m_FrameData.Framebuffers[m_ImageIndex]; }
 
         void OnResize(uint32_t width, uint32_t height) override;
+        void BeginFrame();
+        void EndFrame();
     private:
         GLFWwindow *m_Window;
         VkInstance m_Instance = VK_NULL_HANDLE;
