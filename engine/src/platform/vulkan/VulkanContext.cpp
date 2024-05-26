@@ -764,10 +764,35 @@ namespace Figment
         // get next available image to draw to and set semaphore to signal when it's ready to be drawn to
         CheckVkResult(vkAcquireNextImageKHR(m_Device, m_SwapChain, std::numeric_limits<uint64_t>::max(),
                 m_SynchronizationObjects[m_FrameIndex].SemaphoreImageAvailable, VK_NULL_HANDLE, &m_ImageIndex));
+
+        VkCommandBufferBeginInfo bufferBeginInfo = {};
+        bufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+        VkRenderPassBeginInfo renderPassBeginInfo = {};
+        renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderPassBeginInfo.renderPass = m_RenderPass;
+        renderPassBeginInfo.renderArea.offset = { 0, 0 };
+        renderPassBeginInfo.renderArea.extent = m_SwapChainExtent;
+        VkClearValue clearValues[] = {
+                { 0.1f, 0.1f, 0.1f, 1.0f }};
+        renderPassBeginInfo.pClearValues = clearValues;
+        renderPassBeginInfo.clearValueCount = 1;
+
+        renderPassBeginInfo.framebuffer = m_FrameData.Framebuffers[m_ImageIndex];
+
+        CheckVkResult(vkBeginCommandBuffer(m_FrameData.CommandBuffers[m_ImageIndex], &bufferBeginInfo));
+
+        // begin render pass
+        vkCmdBeginRenderPass(m_FrameData.CommandBuffers[m_ImageIndex], &renderPassBeginInfo,
+                VK_SUBPASS_CONTENTS_INLINE);
     }
 
     void VulkanContext::EndFrame()
     {
+        vkCmdEndRenderPass(m_FrameData.CommandBuffers[m_ImageIndex]);
+
+        CheckVkResult(vkEndCommandBuffer(m_FrameData.CommandBuffers[m_ImageIndex]));
+
         // submit command buffer to queue for execution
         VkSubmitInfo submitInfo = {};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -800,41 +825,13 @@ namespace Figment
 
     void VulkanContext::DebugDraw()
     {
-        VkCommandBufferBeginInfo bufferBeginInfo = {};
-        bufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
-        VkRenderPassBeginInfo renderPassBeginInfo = {};
-        renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassBeginInfo.renderPass = m_RenderPass;
-        renderPassBeginInfo.renderArea.offset = { 0, 0 };
-        renderPassBeginInfo.renderArea.extent = m_SwapChainExtent;
-        VkClearValue clearValues[] = {
-                { 0.1f, 0.1f, 0.1f, 1.0f }};
-        renderPassBeginInfo.pClearValues = clearValues;
-        renderPassBeginInfo.clearValueCount = 1;
-
-        renderPassBeginInfo.framebuffer = m_FrameData.Framebuffers[m_ImageIndex];
-
-        CheckVkResult(vkBeginCommandBuffer(m_FrameData.CommandBuffers[m_ImageIndex], &bufferBeginInfo));
-
-        // begin render pass
-        vkCmdBeginRenderPass(m_FrameData.CommandBuffers[m_ImageIndex], &renderPassBeginInfo,
-                VK_SUBPASS_CONTENTS_INLINE);
-
-        // bind pipeline
         vkCmdBindPipeline(m_FrameData.CommandBuffers[m_ImageIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline->Get());
 
         VkBuffer buffers[] = { m_Buffer->Get() };
         VkDeviceSize offsets[] = { 0 };
         vkCmdBindVertexBuffers(m_FrameData.CommandBuffers[m_ImageIndex], 0, 1, buffers, offsets);
 
-        // execute pipeline
         vkCmdDraw(m_FrameData.CommandBuffers[m_ImageIndex], 3, 1, 0, 0);
-
-        // end render pass
-        vkCmdEndRenderPass(m_FrameData.CommandBuffers[m_ImageIndex]);
-
-        CheckVkResult(vkEndCommandBuffer(m_FrameData.CommandBuffers[m_ImageIndex]));
     }
 
     void VulkanContext::OnResize(uint32_t width, uint32_t height)
