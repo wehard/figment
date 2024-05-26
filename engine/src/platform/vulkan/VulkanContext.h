@@ -37,7 +37,6 @@ namespace Figment
         explicit VulkanContext(GLFWwindow *window) : m_Window(window) { }
         ~VulkanContext() override;
         void Init(uint32_t width, uint32_t height) override;
-        void DebugDraw();
 
         [[nodiscard]] VkInstance GetInstance() const { return m_Instance; }
         [[nodiscard]] VkDevice GetDevice() const { return m_Device; };
@@ -57,6 +56,14 @@ namespace Figment
         void OnResize(uint32_t width, uint32_t height) override;
         void BeginFrame();
         void EndFrame();
+        void DebugDraw(VulkanBuffer &buffer);
+
+        struct Vertex
+        {
+            glm::vec3 Position;
+            glm::vec3 Color;
+        };
+
     private:
         GLFWwindow *m_Window;
         VkInstance m_Instance = VK_NULL_HANDLE;
@@ -90,12 +97,6 @@ namespace Figment
         const std::vector<const char *> m_RequiredDeviceExtensions = {
                 "VK_KHR_swapchain",
                 "VK_KHR_portability_subset"
-        };
-
-        struct Vertex
-        {
-            glm::vec3 Position;
-            glm::vec3 Color;
         };
 
         struct SynchronizationObjects

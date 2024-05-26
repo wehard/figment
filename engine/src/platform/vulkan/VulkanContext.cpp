@@ -823,11 +823,11 @@ namespace Figment
         m_FrameIndex = (m_FrameIndex + 1) % MAX_FRAME_DRAWS;
     }
 
-    void VulkanContext::DebugDraw()
+    void VulkanContext::DebugDraw(VulkanBuffer &buffer)
     {
         vkCmdBindPipeline(m_FrameData.CommandBuffers[m_ImageIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline->Get());
 
-        VkBuffer buffers[] = { m_Buffer->Get() };
+        VkBuffer buffers[] = { buffer.Get() };
         VkDeviceSize offsets[] = { 0 };
         vkCmdBindVertexBuffers(m_FrameData.CommandBuffers[m_ImageIndex], 0, 1, buffers, offsets);
 

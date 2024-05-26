@@ -4,6 +4,7 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
+#include "VulkanBuffer.h"
 
 using namespace Figment;
 
@@ -79,6 +80,17 @@ int main()
     // initInfo.CheckVkResultFn = nullptr;
     // ImGui_ImplVulkan_Init(&initInfo);
     // ImGui_ImplVulkan_CreateFontsTexture();
+    std::vector<VulkanContext::Vertex> vertices = {
+            {{ 0.0, -0.5, 0.0 }, { 1.0, 0.0, 0.0 }},
+            {{ 0.5, 0.5, 0.0 }, { 0.0, 1.0, 0.0 }},
+            {{ -0.5, 0.5, 0.0 }, { 0.0, 0.0, 1.0 }}};
+    auto buffer = new VulkanBuffer(vkContext.get(), vertices.data(), vertices.size() * sizeof(VulkanContext::Vertex));
+
+    std::vector<VulkanContext::Vertex> vertices2 = {
+            {{ 0.0, 0.5, 0.0 }, { 1.0, 0.0, 0.0 }},
+            {{ -0.5, -0.5, 0.0 }, { 0.0, 1.0, 0.0 }},
+            {{ 0.5, -0.5, 0.0 }, { 0.0, 0.0, 1.0 }}};
+    auto buffer2 = new VulkanBuffer(vkContext.get(), vertices2.data(), vertices2.size() * sizeof(VulkanContext::Vertex));
 
     while (!window->ShouldClose())
     {
@@ -93,7 +105,8 @@ int main()
         // ImGui::EndFrame();
 
         vkContext->BeginFrame();
-        vkContext->DebugDraw();
+        vkContext->DebugDraw(*buffer);
+        vkContext->DebugDraw(*buffer2);
         vkContext->EndFrame();
     }
 
