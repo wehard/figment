@@ -5,6 +5,9 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
 #include "VulkanBuffer.h"
+#include "glm/glm.hpp"
+#include "glm/ext/matrix_transform.hpp"
+#include "glm/ext/matrix_clip_space.hpp"
 
 using namespace Figment;
 
@@ -86,7 +89,7 @@ int main()
             {{ -0.5, 0.5, 0.0 }, { 0.0, 0.0, 1.0 }}};
     auto buffer = new VulkanBuffer(vkContext.get(), {
         .Data = vertices.data(),
-        .ByteSize = static_cast<uint32_t>(vertices.size() * sizeof(VulkanContext::Vertex)),
+        .ByteSize = vertices.size() * sizeof(VulkanContext::Vertex),
         .Usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
     });
 
@@ -96,9 +99,25 @@ int main()
             {{ 0.5, -0.5, 0.0 }, { 1.0, 1.0, 0.0 }}};
     auto buffer2 = new VulkanBuffer(vkContext.get(), {
             .Data = vertices2.data(),
-            .ByteSize = static_cast<uint32_t>(vertices2.size() * sizeof(VulkanContext::Vertex)),
+            .ByteSize = vertices2.size() * sizeof(VulkanContext::Vertex),
             .Usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
     });
+
+    auto model = glm::mat4(1.0f);
+    auto view = glm::lookAt(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    auto projection = glm::perspective(glm::radians(45.0f), 1280.0f / 720.0f, 0.1f, 10.0f);
+
+    std::vector<glm::mat4> matrices = {projection, view, model};
+
+    auto uniformBuffer = new VulkanBuffer(vkContext.get(), {
+        .Name = "UniformBuffer",
+        .Data = matrices.data(),
+        .ByteSize = matrices.size() * sizeof(glm::mat4),
+        .Usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+        .MemoryProperties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+    });
+
+    uniformBuffer->SetData(matrices.data(), matrices.size() * sizeof(glm::mat4));
 
     while (!window->ShouldClose())
     {
