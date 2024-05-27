@@ -87,9 +87,9 @@ int main()
     auto buffer = new VulkanBuffer(vkContext.get(), vertices.data(), vertices.size() * sizeof(VulkanContext::Vertex));
 
     std::vector<VulkanContext::Vertex> vertices2 = {
-            {{ 0.0, 0.5, 0.0 }, { 1.0, 0.0, 0.0 }},
-            {{ -0.5, -0.5, 0.0 }, { 0.0, 1.0, 0.0 }},
-            {{ 0.5, -0.5, 0.0 }, { 0.0, 0.0, 1.0 }}};
+            {{ 0.0, 0.5, 0.0 }, { 1.0, 1.0, 0.0 }},
+            {{ -0.5, -0.5, 0.0 }, { 1.0, 1.0, 0.0 }},
+            {{ 0.5, -0.5, 0.0 }, { 1.0, 1.0, 0.0 }}};
     auto buffer2 = new VulkanBuffer(vkContext.get(), vertices2.data(), vertices2.size() * sizeof(VulkanContext::Vertex));
 
     while (!window->ShouldClose())
