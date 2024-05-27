@@ -411,7 +411,7 @@ namespace Figment
 
     void Figment::VulkanContext::CreatePipeline(VkShaderModule vertexModule, VkShaderModule fragmentModule)
     {
-        m_Pipeline = new VulkanPipeline(*this, VulkanPipeline::PipelineDescriptor {
+        m_Pipeline = new VulkanPipeline(*this, {
                 .ViewportWidth = m_SwapChainExtent.width,
                 .ViewportHeight = m_SwapChainExtent.height,
                 .VertexInput = {
