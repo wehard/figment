@@ -84,13 +84,21 @@ int main()
             {{ 0.0, -0.5, 0.0 }, { 1.0, 0.0, 0.0 }},
             {{ 0.5, 0.5, 0.0 }, { 0.0, 1.0, 0.0 }},
             {{ -0.5, 0.5, 0.0 }, { 0.0, 0.0, 1.0 }}};
-    auto buffer = new VulkanBuffer(vkContext.get(), vertices.data(), vertices.size() * sizeof(VulkanContext::Vertex));
+    auto buffer = new VulkanBuffer(vkContext.get(), {
+        .Data = vertices.data(),
+        .ByteSize = static_cast<uint32_t>(vertices.size() * sizeof(VulkanContext::Vertex)),
+        .Usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
+    });
 
     std::vector<VulkanContext::Vertex> vertices2 = {
             {{ 0.0, 0.5, 0.0 }, { 1.0, 1.0, 0.0 }},
             {{ -0.5, -0.5, 0.0 }, { 1.0, 1.0, 0.0 }},
             {{ 0.5, -0.5, 0.0 }, { 1.0, 1.0, 0.0 }}};
-    auto buffer2 = new VulkanBuffer(vkContext.get(), vertices2.data(), vertices2.size() * sizeof(VulkanContext::Vertex));
+    auto buffer2 = new VulkanBuffer(vkContext.get(), {
+            .Data = vertices2.data(),
+            .ByteSize = static_cast<uint32_t>(vertices2.size() * sizeof(VulkanContext::Vertex)),
+            .Usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
+    });
 
     while (!window->ShouldClose())
     {

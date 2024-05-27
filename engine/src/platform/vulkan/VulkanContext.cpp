@@ -27,7 +27,11 @@ namespace Figment
                 {{ 0.0, -0.5, 0.0 }, { 1.0, 0.0, 0.0 }},
                 {{ 0.5, 0.5, 0.0 }, { 0.0, 1.0, 0.0 }},
                 {{ -0.5, 0.5, 0.0 }, { 0.0, 0.0, 1.0 }}};
-        m_Buffer = new VulkanBuffer(this, vertices.data(), vertices.size() * sizeof(Vertex));
+        m_Buffer = new VulkanBuffer(this, {
+                .Data = vertices.data(),
+                .ByteSize = static_cast<uint32_t>(vertices.size() * sizeof(Vertex)),
+                .Usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
+        });
 
         m_Shader = new VulkanShader(*this, "res/shader.vert.spv", "res/shader.frag.spv");
         CreatePipeline(m_Shader->GetVertexModule(), m_Shader->GetFragmentModule());

@@ -22,12 +22,13 @@ namespace Figment
         return (-1);
     }
 
-    VulkanBuffer::VulkanBuffer(VulkanContext *context, void *bufferData, uint32_t byteSize) : m_ByteSize(byteSize)
+    VulkanBuffer::VulkanBuffer(VulkanContext *context, const VulkanBufferDescriptor &&descriptor) : m_ByteSize(
+            descriptor.ByteSize)
     {
         VkBufferCreateInfo bufferInfo = {};
         bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-        bufferInfo.size = byteSize;
-        bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+        bufferInfo.size = descriptor.ByteSize;
+        bufferInfo.usage = descriptor.Usage;
         bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
         VkResult result = vkCreateBuffer(context->GetDevice(), &bufferInfo, nullptr, &m_Buffer);
@@ -57,9 +58,9 @@ namespace Figment
         // map memory to vertex vuffer
         void *data;
         vkMapMemory(context->GetDevice(), m_BufferMemory, 0, bufferInfo.size, 0, &data);
-        memcpy(data, bufferData, (size_t)bufferInfo.size);
+        memcpy(data, descriptor.Data, (size_t)bufferInfo.size);
         vkUnmapMemory(context->GetDevice(), m_BufferMemory);
 
-        FIG_LOG_INFO("Vulkan buffer created: size = %d", byteSize);
+        FIG_LOG_INFO("Vulkan buffer created: size = %d", descriptor.ByteSize);
     }
 }
