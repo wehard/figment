@@ -72,3 +72,11 @@ add_custom_command(
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/res ${CMAKE_BINARY_DIR}/res
         COMMENT "Copied resources to ${CMAKE_BINARY_DIR}"
 )
+
+add_custom_target(compile_shaders
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/shaders
+        COMMAND glslangValidator ${CMAKE_SOURCE_DIR}/res/shader.vert -o ${CMAKE_BINARY_DIR}/res/shader.vert.spv -V
+        COMMAND glslangValidator ${CMAKE_SOURCE_DIR}/res/shader.frag -o ${CMAKE_BINARY_DIR}/res/shader.frag.spv -V
+        COMMENT "Compiling shaders")
+
+add_dependencies(vk-app compile_shaders)
