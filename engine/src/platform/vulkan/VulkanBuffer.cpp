@@ -22,8 +22,9 @@ namespace Figment
         return (-1);
     }
 
-    VulkanBuffer::VulkanBuffer(VulkanContext *context, const VulkanBufferDescriptor &&descriptor) : m_ByteSize(
-            descriptor.ByteSize)
+    VulkanBuffer::VulkanBuffer(VulkanContext *context, const VulkanBufferDescriptor &&descriptor) : m_Context(context),
+            m_ByteSize(
+                    descriptor.ByteSize)
     {
         VkBufferCreateInfo bufferInfo = {};
         bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -45,7 +46,7 @@ namespace Figment
         memoryAllocateInfo.allocationSize = memoryRequirements.size;
         memoryAllocateInfo.memoryTypeIndex = FindMemoryTypeIndex(context->GetPhysicalDevice(),
                 memoryRequirements.memoryTypeBits,
-                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+                descriptor.MemoryProperties);
 
         // allocate memory to device memory
         result = vkAllocateMemory(context->GetDevice(), &memoryAllocateInfo, nullptr, &m_BufferMemory);
@@ -61,6 +62,16 @@ namespace Figment
         memcpy(data, descriptor.Data, (size_t)bufferInfo.size);
         vkUnmapMemory(context->GetDevice(), m_BufferMemory);
 
-        FIG_LOG_INFO("Vulkan buffer created: size = %d", descriptor.ByteSize);
+        FIG_LOG_INFO("%s created: size = %d", descriptor.Name, descriptor.ByteSize);
+    }
+
+    void VulkanBuffer::SetData(void *data, size_t byteSize)
+    {
+        if (byteSize > m_ByteSize)
+            throw std::runtime_error("Data size exceeds buffer size!");
+        vkMapMemory(m_Context->GetDevice(), m_BufferMemory, 0, m_ByteSize, 0, &data);
+        memcpy(data, data, byteSize);
+        vkUnmapMemory(m_Context->GetDevice(), m_BufferMemory);
+        FIG_LOG_INFO("VulkanBuffer data updated: size = %d", byteSize);
     }
 }
