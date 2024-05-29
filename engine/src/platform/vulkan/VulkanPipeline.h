@@ -22,6 +22,7 @@ namespace Figment
             VkRenderPass RenderPass = VK_NULL_HANDLE;
             VkShaderModule VertexModule = VK_NULL_HANDLE;
             VkShaderModule FragmentModule = VK_NULL_HANDLE;
+            std::vector<VkDescriptorSetLayoutBinding> DescriptorSetLayoutBindings;
         };
 
         explicit VulkanPipeline(const VulkanContext &context, const PipelineDescriptor &&descriptor);
@@ -33,5 +34,4 @@ namespace Figment
         const VulkanContext &m_Context;
         VkPipeline m_Pipeline = VK_NULL_HANDLE;
     };
-
 }
