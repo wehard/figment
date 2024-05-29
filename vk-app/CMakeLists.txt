@@ -38,8 +38,8 @@ target_include_directories(vk-app PRIVATE ${VULKAN_SDK}/include)
 target_link_libraries(vk-app "/Users/willehard/dev/vulkansdk/1.3.283.0/macOS/lib/libvulkan.dylib")
 
 
-target_include_directories(vk-app PRIVATE "/opt/homebrew/Cellar/glfw/3.3.8/include")
-target_link_libraries(vk-app "/opt/homebrew/Cellar/glfw/3.3.8/lib/libglfw.3.3.dylib")
+target_include_directories(vk-app PRIVATE "/opt/homebrew/Cellar/glfw/3.4/include")
+target_link_libraries(vk-app "/opt/homebrew/Cellar/glfw/3.4/lib/libglfw.dylib")
 
 file(GLOB_RECURSE SRC_FILES
         "src/*.cpp"
