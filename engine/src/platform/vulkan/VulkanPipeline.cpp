@@ -121,24 +121,21 @@ namespace Figment
         colorBlendingCreateInfo.attachmentCount = 1;
         colorBlendingCreateInfo.pAttachments = &colorState;
 
-        std::vector<VkDescriptorSetLayout> descriptorSetLayouts;
-        for (auto &binding : descriptor.DescriptorSetLayoutBindings)
-        {
-            VkDescriptorSetLayoutCreateInfo layoutCreateInfo = {};
-            layoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-            layoutCreateInfo.bindingCount = 1;
-            layoutCreateInfo.pBindings = &binding;
+        VkDescriptorSetLayoutCreateInfo layoutCreateInfo = {};
+        layoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        layoutCreateInfo.bindingCount = descriptor.DescriptorSetLayoutBindings.size();
+        layoutCreateInfo.pBindings = descriptor.DescriptorSetLayoutBindings.data();
 
-            VkDescriptorSetLayout descriptorSetLayout;
-            VkResult result = vkCreateDescriptorSetLayout(m_Context.GetDevice(), &layoutCreateInfo, nullptr,
-                    &descriptorSetLayout);
-            descriptorSetLayouts.emplace_back(descriptorSetLayout);
-        }
+        VkDescriptorSetLayout descriptorSetLayout;
+        VkResult res = vkCreateDescriptorSetLayout(m_Context.GetDevice(), &layoutCreateInfo, nullptr,
+                &descriptorSetLayout);
+        if (res != VK_SUCCESS)
+            throw std::runtime_error("Failed to create descriptor set layout!");
 
         VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo = {};
         pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        // pipelineLayoutCreateInfo.setLayoutCount = descriptorSetLayouts.size();
-        // pipelineLayoutCreateInfo.pSetLayouts = descriptorSetLayouts.data();
+        // pipelineLayoutCreateInfo.setLayoutCount = 1;
+        // pipelineLayoutCreateInfo.pSetLayouts = &descriptorSetLayout;
         pipelineLayoutCreateInfo.setLayoutCount = 0;
         pipelineLayoutCreateInfo.pSetLayouts = nullptr;
         pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
