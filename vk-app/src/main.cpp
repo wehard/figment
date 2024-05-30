@@ -141,7 +141,7 @@ int main()
         // ImGui::EndFrame();
 
         zRotation += 1.0f;
-        xPosition = sinf(glfwGetTime()) * 0.5f;
+        xPosition = sinf((float)glfwGetTime()) * 0.5f;
         vkContext->BeginFrame();
         vkContext->DebugDraw(*buffer, Transform(
                 { xPosition, 0.0f, 0.0f },
