@@ -127,7 +127,7 @@ int main()
     auto zRotation = 0.0f;
     auto xPosition = 0.0f;
 
-    while (!window->ShouldClose())
+    while (!window->ShouldClose() && glfwGetKey((GLFWwindow *)window->GetNative(), GLFW_KEY_ESCAPE) != GLFW_PRESS)
     {
         glfwPollEvents();
         camera.Update();
