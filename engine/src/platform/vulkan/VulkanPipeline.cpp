@@ -126,9 +126,8 @@ namespace Figment
         layoutCreateInfo.bindingCount = descriptor.DescriptorSetLayoutBindings.size();
         layoutCreateInfo.pBindings = descriptor.DescriptorSetLayoutBindings.data();
 
-        VkDescriptorSetLayout descriptorSetLayout;
         VkResult res = vkCreateDescriptorSetLayout(m_Context.GetDevice(), &layoutCreateInfo, nullptr,
-                &descriptorSetLayout);
+                &m_DescriptorSetLayout);
         if (res != VK_SUCCESS)
             throw std::runtime_error("Failed to create descriptor set layout!");
 

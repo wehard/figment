@@ -34,6 +34,17 @@ namespace Figment
         });
 
         m_Shader = new VulkanShader(*this, "res/shader.vert.spv", "res/shader.frag.spv");
+
+        UniformBufferObject ubo = {};
+
+        m_UniformBuffer = new VulkanBuffer(this, {
+                .Name = "UniformBuffer",
+                .Data = &ubo,
+                .ByteSize = sizeof(UniformBufferObject),
+                .Usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                .MemoryProperties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+        });
+
         CreatePipeline(m_Shader->GetVertexModule(), m_Shader->GetFragmentModule());
         CreateFramebuffers();
         CreateCommandPool();
@@ -467,18 +478,47 @@ namespace Figment
 
     void Figment::VulkanContext::CreateDescriptorPool()
     {
-        VkDescriptorPoolSize pool_sizes[] =
-                {
-                        { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1 },
-                };
+        VkDescriptorPoolSize poolSize = {
+                .type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                .descriptorCount = 1
+        };
         VkDescriptorPoolCreateInfo descriptorPoolCreateInfo = {};
         descriptorPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-        descriptorPoolCreateInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
-        descriptorPoolCreateInfo.maxSets = 1;
+        descriptorPoolCreateInfo.flags = 0;
         descriptorPoolCreateInfo.poolSizeCount = 1;
-        descriptorPoolCreateInfo.pPoolSizes = pool_sizes;
+        descriptorPoolCreateInfo.pPoolSizes = &poolSize;
+        descriptorPoolCreateInfo.maxSets = 1;
 
         vkCreateDescriptorPool(m_Device, &descriptorPoolCreateInfo, nullptr, &m_DescriptorPool);
+    }
+
+    void Figment::VulkanContext::CreateDescriptorSets()
+    {
+        VkDescriptorSetAllocateInfo descriptorSetAllocateInfo = {};
+        descriptorSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+        descriptorSetAllocateInfo.descriptorPool = m_DescriptorPool;
+        descriptorSetAllocateInfo.descriptorSetCount = 1;
+        descriptorSetAllocateInfo.pSetLayouts = m_Pipeline->GetDescriptorSetLayout();
+
+        vkAllocateDescriptorSets(m_Device, &descriptorSetAllocateInfo, &m_DescriptorSet);
+
+        VkDescriptorBufferInfo bufferInfo {};
+        bufferInfo.buffer = m_UniformBuffer->Get();
+        bufferInfo.offset = 0;
+        bufferInfo.range = sizeof(UniformBufferObject);
+
+        VkWriteDescriptorSet descriptorWrite = {};
+        descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptorWrite.dstSet = m_DescriptorSet;
+        descriptorWrite.dstBinding = 0;
+        descriptorWrite.dstArrayElement = 0;
+        descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        descriptorWrite.descriptorCount = 1;
+        descriptorWrite.pBufferInfo = &bufferInfo;
+        descriptorWrite.pImageInfo = nullptr;
+        descriptorWrite.pTexelBufferView = nullptr;
+
+        vkUpdateDescriptorSets(m_Device, 1, &descriptorWrite, 0, nullptr);
     }
 
     void Figment::VulkanContext::CreateCommandPool()

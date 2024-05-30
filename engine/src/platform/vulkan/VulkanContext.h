@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 #include "RenderContext.h"
 #include "glm/vec3.hpp"
+#include "glm/mat4x4.hpp"
 #include "Log.h"
 #include <vector>
 
@@ -32,6 +33,13 @@ namespace Figment
             VkSurfaceCapabilitiesKHR surfaceCapabilities = {};
             std::vector<VkSurfaceFormatKHR> formats;
             std::vector<VkPresentModeKHR> presentationModes;
+        };
+
+        struct UniformBufferObject
+        {
+            glm::mat4 Model;
+            glm::mat4 View;
+            glm::mat4 Projection;
         };
 
         explicit VulkanContext(GLFWwindow *window) : m_Window(window) { }
@@ -125,6 +133,8 @@ namespace Figment
         };
 
         FrameData m_FrameData;
+        VkDescriptorSet m_DescriptorSet = VK_NULL_HANDLE;
+        VulkanBuffer *m_UniformBuffer = nullptr;
 
         void CreateInstance();
         void CreateSurface();
@@ -134,6 +144,7 @@ namespace Figment
         void CreatePipeline(VkShaderModule vertexModule, VkShaderModule fragmentModule);
         void CreatePipelineCache();
         void CreateDescriptorPool();
+        void CreateDescriptorSets();
         void CreateCommandPool();
         void CreateCommandBuffers();
         void CreateFramebuffers();
