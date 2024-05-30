@@ -69,9 +69,12 @@ namespace Figment
     {
         if (byteSize > m_ByteSize)
             throw std::runtime_error("Data size exceeds buffer size!");
-        vkMapMemory(m_Context->GetDevice(), m_BufferMemory, 0, m_ByteSize, 0, &data);
-        memcpy(data, data, byteSize);
+        void *dst;
+        auto result = vkMapMemory(m_Context->GetDevice(), m_BufferMemory, 0, m_ByteSize, 0, &dst);
+        if (result != VK_SUCCESS)
+            throw std::runtime_error("Failed to map buffer memory!");
+        memcpy(dst, data, byteSize);
         vkUnmapMemory(m_Context->GetDevice(), m_BufferMemory);
-        FIG_LOG_INFO("VulkanBuffer data updated: size = %d", byteSize);
+        // FIG_LOG_INFO("VulkanBuffer data updated: size = %d", byteSize);
     }
 }

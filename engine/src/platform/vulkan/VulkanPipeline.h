@@ -29,11 +29,13 @@ namespace Figment
         [[nodiscard]] VkPipeline Get() const { return m_Pipeline; }
         ~VulkanPipeline();
         [[nodiscard]] VkDescriptorSetLayout const *GetDescriptorSetLayout() { return &m_DescriptorSetLayout; }
+        VkPipelineLayout GetLayout() const { return m_PipelineLayout; }
     private:
         void CreatePipeline(const PipelineDescriptor &descriptor);
 
         const VulkanContext &m_Context;
         VkPipeline m_Pipeline = VK_NULL_HANDLE;
+        VkPipelineLayout m_PipelineLayout = VK_NULL_HANDLE;
         VkDescriptorSetLayout m_DescriptorSetLayout = VK_NULL_HANDLE;
     };
 }

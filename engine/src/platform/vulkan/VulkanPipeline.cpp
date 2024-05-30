@@ -89,7 +89,7 @@ namespace Figment
         rasterizationCreateInfo.rasterizerDiscardEnable = VK_FALSE;
         rasterizationCreateInfo.polygonMode = VK_POLYGON_MODE_FILL;
         rasterizationCreateInfo.lineWidth = 1.0f;
-        rasterizationCreateInfo.cullMode = VK_CULL_MODE_BACK_BIT;
+        rasterizationCreateInfo.cullMode = VK_CULL_MODE_NONE; // TODO: Decide on culling
         rasterizationCreateInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
         rasterizationCreateInfo.depthBiasEnable = VK_FALSE;
 
@@ -133,17 +133,16 @@ namespace Figment
 
         VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo = {};
         pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        // pipelineLayoutCreateInfo.setLayoutCount = 1;
-        // pipelineLayoutCreateInfo.pSetLayouts = &descriptorSetLayout;
-        pipelineLayoutCreateInfo.setLayoutCount = 0;
-        pipelineLayoutCreateInfo.pSetLayouts = nullptr;
+        pipelineLayoutCreateInfo.setLayoutCount = 1;
+        pipelineLayoutCreateInfo.pSetLayouts = &m_DescriptorSetLayout;
+        // pipelineLayoutCreateInfo.setLayoutCount = 0;
+        // pipelineLayoutCreateInfo.pSetLayouts = nullptr;
         pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
         pipelineLayoutCreateInfo.pPushConstantRanges = nullptr;
 
         // create pipeline layout
-        VkPipelineLayout pipelineLayout;
         VkResult result = vkCreatePipelineLayout(m_Context.GetDevice(), &pipelineLayoutCreateInfo, nullptr,
-                &pipelineLayout);
+                &m_PipelineLayout);
         if (result != VK_SUCCESS)
             throw std::runtime_error("Failed to create pipeline layout!");
 
@@ -163,7 +162,7 @@ namespace Figment
         pipelineCreateInfo.pMultisampleState = &multisamplingCreateInfo;
         pipelineCreateInfo.pColorBlendState = &colorBlendingCreateInfo;
         pipelineCreateInfo.pDepthStencilState = nullptr;
-        pipelineCreateInfo.layout = pipelineLayout;
+        pipelineCreateInfo.layout = m_PipelineLayout;
         pipelineCreateInfo.renderPass = descriptor.RenderPass;
         pipelineCreateInfo.subpass = 0;
 

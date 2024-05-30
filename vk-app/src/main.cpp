@@ -1,5 +1,6 @@
 #include "Window.h"
 #include "VulkanContext.h"
+#include "PerspectiveCamera.h"
 #include "Log.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -61,6 +62,11 @@ int main()
     auto window = Figment::Window::Create("Figment", 1280, 720);
     auto vkContext = window->GetContext<VulkanContext>();
 
+    PerspectiveCamera camera(1280.0 / 720.0);
+    auto p = camera.GetPositionPtr();
+    p->y = 2.0f;
+    p->z = 2.0f;
+    camera.Update();
     // auto renderPass = CreateImGuiRenderPass(vkContext.get());
 
     // auto context = ImGui::CreateContext();
@@ -84,9 +90,12 @@ int main()
     // ImGui_ImplVulkan_Init(&initInfo);
     // ImGui_ImplVulkan_CreateFontsTexture();
     std::vector<VulkanContext::Vertex> vertices = {
-            {{ 0.0, -0.5, 0.0 }, { 1.0, 0.0, 0.0 }},
-            {{ 0.5, 0.5, 0.0 }, { 0.0, 1.0, 0.0 }},
-            {{ -0.5, 0.5, 0.0 }, { 0.0, 0.0, 1.0 }}};
+            {{ -0.5, -0.5, 0.0 }, { 1.0, 0.0, 0.0 }},
+            {{ -0.5, 0.5, 0.0 }, { 0.0, 1.0, 0.0 }},
+            {{ 0.5, 0.5, 0.0 }, { 0.0, 0.0, 1.0 }},
+            {{ -0.5, -0.5, 0.0 }, { 0.0, 0.0, 1.0 }},
+            {{ 0.5, 0.5, 0.0 }, { 1.0, 0.0, 0.0 }},
+            {{ 0.5, -0.5, 0.0 }, { 0.0, 1.0, 0.0 }}};
     auto buffer = new VulkanBuffer(vkContext.get(), {
         .Data = vertices.data(),
         .ByteSize = vertices.size() * sizeof(VulkanContext::Vertex),
@@ -122,6 +131,7 @@ int main()
     while (!window->ShouldClose())
     {
         glfwPollEvents();
+        camera.Update();
         // ImGui_ImplGlfw_NewFrame();
         // ImGui_ImplVulkan_NewFrame();
         // ImGui::NewFrame();
@@ -132,8 +142,8 @@ int main()
         // ImGui::EndFrame();
 
         vkContext->BeginFrame();
-        vkContext->DebugDraw(*buffer);
-        vkContext->DebugDraw(*buffer2);
+        vkContext->DebugDraw(*buffer, camera);
+        // vkContext->DebugDraw(*buffer2);
         vkContext->EndFrame();
     }
 

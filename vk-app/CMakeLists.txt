@@ -44,6 +44,7 @@ target_link_libraries(vk-app "/opt/homebrew/Cellar/glfw/3.4/lib/libglfw.dylib")
 file(GLOB_RECURSE SRC_FILES
         "src/*.cpp"
         "../engine/src/platform/vulkan/*.cpp"
+        "../engine/src/renderer/PerspectiveCamera.cpp"
 )
 
 target_sources(vk-app PRIVATE ${SRC_FILES})

@@ -6,6 +6,7 @@
 #include "glm/vec3.hpp"
 #include "glm/mat4x4.hpp"
 #include "Log.h"
+#include "Camera.h"
 #include <vector>
 
 #define MAX_FRAME_DRAWS 2
@@ -64,7 +65,7 @@ namespace Figment
         void OnResize(uint32_t width, uint32_t height) override;
         void BeginFrame();
         void EndFrame();
-        void DebugDraw(VulkanBuffer &buffer);
+        void DebugDraw(VulkanBuffer &buffer, Camera &camera);
 
         struct Vertex
         {
@@ -135,6 +136,8 @@ namespace Figment
         FrameData m_FrameData;
         VkDescriptorSet m_DescriptorSet = VK_NULL_HANDLE;
         VulkanBuffer *m_UniformBuffer = nullptr;
+        UniformBufferObject m_UBO;
+        float m_Rotation = 0.0f;
 
         void CreateInstance();
         void CreateSurface();

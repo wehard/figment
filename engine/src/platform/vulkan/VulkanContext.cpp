@@ -3,6 +3,12 @@
 #include "VulkanBuffer.h"
 #include "VulkanPipeline.h"
 
+#include "glm/glm.hpp"
+#include "glm/ext/matrix_transform.hpp"
+#include "glm/ext/matrix_clip_space.hpp"
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/gtx/euler_angles.hpp"
+
 #include <vector>
 #include <set>
 
@@ -35,11 +41,20 @@ namespace Figment
 
         m_Shader = new VulkanShader(*this, "res/shader.vert.spv", "res/shader.frag.spv");
 
-        UniformBufferObject ubo = {};
+        m_UBO = {
+                .Model = glm::rotate(glm::mat4(1.0f), m_Rotation, glm::vec3(0.0f, 0.0f, 1.0f)),
+                .View = glm::lookAt(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f),
+                        glm::vec3(0.0f, 1.0f, 0.0f)),
+                .Projection = glm::perspective(glm::radians(45.0f),
+                        (float)m_SwapChainExtent.width / (float)m_SwapChainExtent.height, 0.1f, 100.0f)
+        };
+
+        // Flip the projection matrix on the y-axis
+        m_UBO.Projection[1][1] *= -1;
 
         m_UniformBuffer = new VulkanBuffer(this, {
                 .Name = "UniformBuffer",
-                .Data = &ubo,
+                .Data = &m_UBO,
                 .ByteSize = sizeof(UniformBufferObject),
                 .Usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                 .MemoryProperties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
@@ -669,15 +684,24 @@ namespace Figment
         m_FrameIndex = (m_FrameIndex + 1) % MAX_FRAME_DRAWS;
     }
 
-    void VulkanContext::DebugDraw(VulkanBuffer &buffer)
+    void VulkanContext::DebugDraw(VulkanBuffer &buffer, Camera &camera)
     {
         vkCmdBindPipeline(m_FrameData.CommandBuffers[m_ImageIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline->Get());
+
+        m_Rotation += 0.01f;
+        m_UBO.Model = glm::rotate(glm::mat4(1.0f), m_Rotation, glm::vec3(0.0f, 0.0f, 1.0f));
+        // m_UBO.View = camera.GetViewMatrix();
+        // m_UBO.Projection = camera.GetProjectionMatrix();
+        m_UniformBuffer->SetData(&m_UBO, sizeof(UniformBufferObject));
 
         VkBuffer buffers[] = { buffer.Get() };
         VkDeviceSize offsets[] = { 0 };
         vkCmdBindVertexBuffers(m_FrameData.CommandBuffers[m_ImageIndex], 0, 1, buffers, offsets);
 
-        vkCmdDraw(m_FrameData.CommandBuffers[m_ImageIndex], 3, 1, 0, 0);
+        vkCmdBindDescriptorSets(m_FrameData.CommandBuffers[m_ImageIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
+                m_Pipeline->GetLayout(),
+                0, 1, &m_DescriptorSet, 0, nullptr);
+        vkCmdDraw(m_FrameData.CommandBuffers[m_ImageIndex], 6, 1, 0, 0);
     }
 
     void VulkanContext::OnResize(uint32_t width, uint32_t height)
