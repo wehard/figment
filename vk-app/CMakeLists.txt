@@ -63,21 +63,28 @@ target_sources(vk-app PRIVATE
         "../engine/lib/imgui/imgui_tables.cpp"
 )
 
-
-target_link_directories(vk-app PRIVATE ${CMAKE_BINARY_DIR}/engine)
+#target_link_directories(vk-app PRIVATE ${CMAKE_BINARY_DIR}/engine)
 #target_link_libraries(vk-app libengine.a)
 
+# Build list of all shaders in the res directory
+file(GLOB_RECURSE SHADER_FILES
+        "${CMAKE_SOURCE_DIR}/res/*.vert"
+        "${CMAKE_SOURCE_DIR}/res/*.frag"
+)
+
+add_custom_target(shaders DEPENDS ${SHADER_FILES})
+
 add_custom_command(
-        TARGET vk-app
+        TARGET shaders
+        PRE_BUILD
+        COMMAND for file in "${CMAKE_SOURCE_DIR}/res/*.vert" ";" do glslangValidator $\${file} -o $\${file}.spv -V --quiet ";" done
+        COMMAND for file in "${CMAKE_SOURCE_DIR}/res/*.frag" ";" do glslangValidator $\${file} -o $\${file}.spv -V --quiet ";" done
+        COMMENT "Compiling shaders"
+)
+
+add_custom_command(
+        TARGET shaders
         PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/res ${CMAKE_BINARY_DIR}/res
         COMMENT "Copied resources to ${CMAKE_BINARY_DIR}"
 )
-
-add_custom_target(compile_shaders
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/shaders
-        COMMAND glslangValidator ${CMAKE_SOURCE_DIR}/res/shader.vert -o ${CMAKE_BINARY_DIR}/res/shader.vert.spv -V
-        COMMAND glslangValidator ${CMAKE_SOURCE_DIR}/res/shader.frag -o ${CMAKE_BINARY_DIR}/res/shader.frag.spv -V
-        COMMENT "Compiling shaders")
-
-add_dependencies(vk-app compile_shaders)
