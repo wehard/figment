@@ -77,4 +77,10 @@ namespace Figment
         vkUnmapMemory(m_Context->GetDevice(), m_BufferMemory);
         // FIG_LOG_INFO("VulkanBuffer data updated: size = %d", byteSize);
     }
+
+    VulkanBuffer::~VulkanBuffer()
+    {
+        vkDestroyBuffer(m_Context->GetDevice(), m_Buffer, nullptr);
+        vkFreeMemory(m_Context->GetDevice(), m_BufferMemory, nullptr);
+    }
 }

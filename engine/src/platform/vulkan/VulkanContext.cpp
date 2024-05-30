@@ -690,8 +690,9 @@ namespace Figment
 
         m_Rotation += 0.01f;
         m_UBO.Model = glm::rotate(glm::mat4(1.0f), m_Rotation, glm::vec3(0.0f, 0.0f, 1.0f));
-        // m_UBO.View = camera.GetViewMatrix();
-        // m_UBO.Projection = camera.GetProjectionMatrix();
+        m_UBO.View = camera.GetViewMatrix();
+        m_UBO.Projection = camera.GetProjectionMatrix();
+        // m_UBO.Projection[1][1] *= -1;
         m_UniformBuffer->SetData(&m_UBO, sizeof(UniformBufferObject));
 
         VkBuffer buffers[] = { buffer.Get() };
@@ -738,6 +739,5 @@ namespace Figment
         CreatePipeline(m_Shader->GetVertexModule(), m_Shader->GetFragmentModule());
 
         vkResetCommandPool(m_Device, m_CommandPool, 0);
-        // RecordCommands();
     }
 }

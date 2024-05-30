@@ -63,10 +63,7 @@ int main()
     auto vkContext = window->GetContext<VulkanContext>();
 
     PerspectiveCamera camera(1280.0 / 720.0);
-    auto p = camera.GetPositionPtr();
-    p->y = 2.0f;
-    p->z = 2.0f;
-    camera.Update();
+    camera.SetPosition({0.0f, 0.0f, 2.0f});
     // auto renderPass = CreateImGuiRenderPass(vkContext.get());
 
     // auto context = ImGui::CreateContext();

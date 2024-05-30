@@ -19,7 +19,7 @@ namespace Figment
     {
     public:
         VulkanBuffer(VulkanContext *context, const VulkanBufferDescriptor &&descriptor);
-        ~VulkanBuffer() = default;
+        ~VulkanBuffer();
         void SetData(void *data, size_t byteSize);
         VkBuffer Get() { return m_Buffer; }
         [[nodiscard]] uint32_t ByteSize() const { return m_ByteSize; }
