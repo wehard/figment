@@ -74,8 +74,16 @@ int main()
     auto window = Figment::Window::Create("Figment", 1280, 720);
     auto vkContext = window->GetContext<VulkanContext>();
 
+
+
     PerspectiveCamera camera(1280.0 / 720.0);
     camera.SetPosition({ 0.0f, 0.0f, 2.0f });
+
+    window->SetResizeEventCallback([&camera](WindowResizeEventData eventData)
+    {
+        camera.Resize((float)eventData.Width, (float)eventData.Height);
+    });
+
     // auto renderPass = CreateImGuiRenderPass(vkContext.get());
 
     // auto context = ImGui::CreateContext();
