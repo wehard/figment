@@ -65,7 +65,7 @@ namespace Figment
         void OnResize(uint32_t width, uint32_t height) override;
         void BeginFrame();
         void EndFrame();
-        void DebugDraw(VulkanBuffer &buffer, Camera &camera);
+        void DebugDraw(VulkanBuffer &buffer, glm::mat4 transform, Camera &camera);
 
         struct Vertex
         {
@@ -137,7 +137,6 @@ namespace Figment
         VkDescriptorSet m_DescriptorSet = VK_NULL_HANDLE;
         VulkanBuffer *m_UniformBuffer = nullptr;
         UniformBufferObject m_UBO;
-        float m_Rotation = 0.0f;
 
         void CreateInstance();
         void CreateSurface();

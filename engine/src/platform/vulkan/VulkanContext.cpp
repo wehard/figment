@@ -41,17 +41,6 @@ namespace Figment
 
         m_Shader = new VulkanShader(*this, "res/shader.vert.spv", "res/shader.frag.spv");
 
-        m_UBO = {
-                .Model = glm::rotate(glm::mat4(1.0f), m_Rotation, glm::vec3(0.0f, 0.0f, 1.0f)),
-                .View = glm::lookAt(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f),
-                        glm::vec3(0.0f, 1.0f, 0.0f)),
-                .Projection = glm::perspective(glm::radians(45.0f),
-                        (float)m_SwapChainExtent.width / (float)m_SwapChainExtent.height, 0.1f, 100.0f)
-        };
-
-        // Flip the projection matrix on the y-axis
-        m_UBO.Projection[1][1] *= -1;
-
         m_UniformBuffer = new VulkanBuffer(this, {
                 .Name = "UniformBuffer",
                 .Data = &m_UBO,
@@ -684,12 +673,11 @@ namespace Figment
         m_FrameIndex = (m_FrameIndex + 1) % MAX_FRAME_DRAWS;
     }
 
-    void VulkanContext::DebugDraw(VulkanBuffer &buffer, Camera &camera)
+    void VulkanContext::DebugDraw(VulkanBuffer &buffer, glm::mat4 transform, Camera &camera)
     {
         vkCmdBindPipeline(m_FrameData.CommandBuffers[m_ImageIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline->Get());
 
-        m_Rotation += 0.01f;
-        m_UBO.Model = glm::rotate(glm::mat4(1.0f), m_Rotation, glm::vec3(0.0f, 0.0f, 1.0f));
+        m_UBO.Model = transform;
         m_UBO.View = camera.GetViewMatrix();
         m_UBO.Projection = camera.GetProjectionMatrix();
         // m_UBO.Projection[1][1] *= -1;

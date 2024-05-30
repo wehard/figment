@@ -9,8 +9,19 @@
 #include "glm/glm.hpp"
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/ext/matrix_clip_space.hpp"
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/gtx/euler_angles.hpp"
 
 using namespace Figment;
+
+static glm::mat4 Transform(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)
+{
+    glm::mat4 matScale = glm::scale(glm::mat4(1.0f), scale);
+    glm::mat4 matTranslate = glm::translate(glm::mat4(1.0), position);
+    glm::mat4 matRotate = glm::eulerAngleXYZ(glm::radians(rotation.x), glm::radians(rotation.y),
+            glm::radians(rotation.z));
+    return matTranslate * matRotate * matScale;
+}
 
 static VkRenderPass CreateImGuiRenderPass(VulkanContext *vkContext)
 {
@@ -50,7 +61,8 @@ static VkRenderPass CreateImGuiRenderPass(VulkanContext *vkContext)
     info.dependencyCount = 1;
     info.pDependencies = &subpassDependency;
     VkRenderPass renderPass;
-    if (vkCreateRenderPass(vkContext->GetDevice(), &info, nullptr, &renderPass) != VK_SUCCESS) {
+    if (vkCreateRenderPass(vkContext->GetDevice(), &info, nullptr, &renderPass) != VK_SUCCESS)
+    {
         throw std::runtime_error("Could not create Dear ImGui's render pass");
     }
     return renderPass;
@@ -63,7 +75,7 @@ int main()
     auto vkContext = window->GetContext<VulkanContext>();
 
     PerspectiveCamera camera(1280.0 / 720.0);
-    camera.SetPosition({0.0f, 0.0f, 2.0f});
+    camera.SetPosition({ 0.0f, 0.0f, 2.0f });
     // auto renderPass = CreateImGuiRenderPass(vkContext.get());
 
     // auto context = ImGui::CreateContext();
@@ -94,36 +106,18 @@ int main()
             {{ 0.5, 0.5, 0.0 }, { 1.0, 0.0, 0.0 }},
             {{ 0.5, -0.5, 0.0 }, { 0.0, 1.0, 0.0 }}};
     auto buffer = new VulkanBuffer(vkContext.get(), {
-        .Data = vertices.data(),
-        .ByteSize = vertices.size() * sizeof(VulkanContext::Vertex),
-        .Usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
+            .Data = vertices.data(),
+            .ByteSize = vertices.size() * sizeof(VulkanContext::Vertex),
+            .Usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
     });
 
     std::vector<VulkanContext::Vertex> vertices2 = {
             {{ 0.0, 0.5, 0.0 }, { 1.0, 1.0, 0.0 }},
             {{ -0.5, -0.5, 0.0 }, { 1.0, 1.0, 0.0 }},
             {{ 0.5, -0.5, 0.0 }, { 1.0, 1.0, 0.0 }}};
-    auto buffer2 = new VulkanBuffer(vkContext.get(), {
-            .Data = vertices2.data(),
-            .ByteSize = vertices2.size() * sizeof(VulkanContext::Vertex),
-            .Usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
-    });
 
-    auto model = glm::mat4(1.0f);
-    auto view = glm::lookAt(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    auto projection = glm::perspective(glm::radians(45.0f), 1280.0f / 720.0f, 0.1f, 10.0f);
-
-    std::vector<glm::mat4> matrices = {projection, view, model};
-
-    auto uniformBuffer = new VulkanBuffer(vkContext.get(), {
-        .Name = "UniformBuffer",
-        .Data = matrices.data(),
-        .ByteSize = matrices.size() * sizeof(glm::mat4),
-        .Usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-        .MemoryProperties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
-    });
-
-    uniformBuffer->SetData(matrices.data(), matrices.size() * sizeof(glm::mat4));
+    auto zRotation = 0.0f;
+    auto xPosition = 0.0f;
 
     while (!window->ShouldClose())
     {
@@ -138,8 +132,14 @@ int main()
         // ImGui::Render();
         // ImGui::EndFrame();
 
+        zRotation += 1.0f;
+        xPosition = sinf(glfwGetTime()) * 0.5f;
         vkContext->BeginFrame();
-        vkContext->DebugDraw(*buffer, camera);
+        vkContext->DebugDraw(*buffer, Transform(
+                { xPosition, 0.0f, 0.0f },
+                { 0.0f, 0.0f, zRotation },
+                { 1.0f, 1.0f, 1.0f }),
+                camera);
         // vkContext->DebugDraw(*buffer2);
         vkContext->EndFrame();
     }
