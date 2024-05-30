@@ -50,6 +50,7 @@ namespace Figment
         CreateCommandPool();
         CreateCommandBuffers();
         CreateDescriptorPool();
+        CreateDescriptorSets();
         // RecordCommands();
         CreateSynchronization();
 
@@ -596,47 +597,6 @@ namespace Figment
                     vkCreateFence(m_Device, &fenceCreateInfo, nullptr, &m_SynchronizationObject.FenceDraw)
                             != VK_SUCCESS)
                 throw std::runtime_error("Failed to create semaphore or fence!");
-        }
-    }
-
-    void Figment::VulkanContext::RecordCommands()
-    {
-        VkCommandBufferBeginInfo bufferBeginInfo = {};
-        bufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
-        VkRenderPassBeginInfo renderPassBeginInfo = {};
-        renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassBeginInfo.renderPass = m_RenderPass;
-        renderPassBeginInfo.renderArea.offset = { 0, 0 };
-        renderPassBeginInfo.renderArea.extent = m_SwapChainExtent;
-        VkClearValue clearValues[] = {
-                { 0.6f, 0.65f, 0.4f, 1.0f }};
-        renderPassBeginInfo.pClearValues = clearValues;
-        renderPassBeginInfo.clearValueCount = 1;
-
-        for (size_t i = 0; i < m_FrameData.CommandBuffers.size(); i++)
-        {
-            renderPassBeginInfo.framebuffer = m_FrameData.Framebuffers[i];
-
-            CheckVkResult(vkBeginCommandBuffer(m_FrameData.CommandBuffers[i], &bufferBeginInfo));
-
-            // begin render pass
-            vkCmdBeginRenderPass(m_FrameData.CommandBuffers[i], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-            // bind pipeline
-            vkCmdBindPipeline(m_FrameData.CommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline->Get());
-
-            VkBuffer buffers[] = { m_Buffer->Get() };
-            VkDeviceSize offsets[] = { 0 };
-            vkCmdBindVertexBuffers(m_FrameData.CommandBuffers[i], 0, 1, buffers, offsets);
-
-            // execute pipeline
-            vkCmdDraw(m_FrameData.CommandBuffers[i], 3, 1, 0, 0);
-
-            // end render pass
-            vkCmdEndRenderPass(m_FrameData.CommandBuffers[i]);
-
-            CheckVkResult(vkEndCommandBuffer(m_FrameData.CommandBuffers[i]));
         }
     }
 

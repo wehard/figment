@@ -149,7 +149,6 @@ namespace Figment
         void CreateCommandBuffers();
         void CreateFramebuffers();
         void CreateSynchronization();
-        void RecordCommands();
 
         void CleanupSwapChain();
         void RecreateSwapChain();
