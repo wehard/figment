@@ -38,14 +38,10 @@ namespace Figment
         void UpdateViewMatrix();
         void Resize(float width, float height) override;
 
-        glm::mat4 GetViewMatrix() override
-        { return m_ViewMatrix; };
-        glm::mat4 GetProjectionMatrix() override
-        { return m_ProjectionMatrix; }
-        glm::vec3 GetPosition() override
-        { return m_Position; }
-        float GetAspectRatio() override
-        { return m_AspectRatio; };
+        glm::mat4 GetViewMatrix() override { return m_ViewMatrix; };
+        glm::mat4 GetProjectionMatrix() override { return m_ProjectionMatrix; }
+        glm::vec3 GetPosition() override { return m_Position; }
+        float GetAspectRatio() override { return m_AspectRatio; };
 
         void SetPosition(const glm::vec3 &position) override
         {
@@ -61,8 +57,7 @@ namespace Figment
             m_ViewMatrix = glm::lookAt(m_Position, m_Position + m_Forward, m_Up);
         }
 
-        glm::vec3 *GetPositionPtr()
-        { return &m_Position; }
+        glm::vec3 *GetPositionPtr() { return &m_Position; }
 
         CameraSettings GetSettings() const
         {
