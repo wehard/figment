@@ -4,6 +4,7 @@
 #include "VulkanPipeline.h"
 
 #include "glm/glm.hpp"
+#include "VulkanRenderPass.h"
 
 #include <vector>
 #include <set>
@@ -330,66 +331,18 @@ namespace Figment
 
     void Figment::VulkanContext::CreateRenderPass()
     {
-        // color attachment of render pass
-        VkAttachmentDescription colorAttachment = {};
-        colorAttachment.format = m_SwapChainImageFormat;
-        colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-        colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-
-        // framebuffer data will be stored as image but images can be given different data layouts
-        colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-        // subpass: reference for subpass, cant link colorAttachment directly
-        VkAttachmentReference colorAttachmentReference = {};
-        colorAttachmentReference.attachment = 0;                                    // index
-        colorAttachmentReference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL; // converted to this during subpass (between initialLayout and finalLayout)
-
-        // -- subpass --
-        VkSubpassDescription subpass = {};
-        subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-        subpass.colorAttachmentCount = 1;
-        subpass.pColorAttachments = &colorAttachmentReference;
-
-        // determine when layout transitions occur using subpass dependencies
-        VkSubpassDependency subpassDependencies[2];
-
-        // transition: initialLayout > subpassLayout (VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
-        subpassDependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
-        subpassDependencies[0].srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-        subpassDependencies[0].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-        subpassDependencies[0].dstSubpass = 0; //index
-        subpassDependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        subpassDependencies[0].dstAccessMask =
-                VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-        subpassDependencies[0].dependencyFlags = 0;
-
-        // transition: subpassLayout > finalLayout
-        subpassDependencies[1].srcSubpass = 0;
-        subpassDependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        subpassDependencies[1].srcAccessMask =
-                VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-        subpassDependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL; //index
-        subpassDependencies[1].dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-        subpassDependencies[1].dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-        subpassDependencies[1].dependencyFlags = 0;
-
-        // renderpass info
-        VkRenderPassCreateInfo renderPassCreateInfo = {};
-        renderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-        renderPassCreateInfo.attachmentCount = 1;
-        renderPassCreateInfo.pAttachments = &colorAttachment;
-        renderPassCreateInfo.subpassCount = 1;
-        renderPassCreateInfo.pSubpasses = &subpass;
-        renderPassCreateInfo.dependencyCount = 2;
-        renderPassCreateInfo.pDependencies = subpassDependencies;
-
-        VK_CHECK_RESULT(vkCreateRenderPass(m_Device, &renderPassCreateInfo, nullptr, &m_RenderPass),
-                "Render pass created",
-                "Failed to create render pass");
+        m_RenderPass = new VulkanRenderPass(*this, {
+                .ColorAttachment = {
+                        .Format = m_SwapChainImageFormat,
+                        .Samples = VK_SAMPLE_COUNT_1_BIT,
+                        .LoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+                        .StoreOp = VK_ATTACHMENT_STORE_OP_STORE,
+                        .StencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+                        .StencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+                        .InitialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+                        .FinalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+                }
+        });
     }
 
     void Figment::VulkanContext::CreatePipeline(VkShaderModule vertexModule, VkShaderModule fragmentModule)
@@ -416,7 +369,7 @@ namespace Figment
                                 }
                         }
                 },
-                .RenderPass = m_RenderPass,
+                .RenderPass = m_RenderPass->Get(),
                 .VertexModule = vertexModule,
                 .FragmentModule = fragmentModule,
                 .DescriptorSetLayoutBindings = {
@@ -517,7 +470,7 @@ namespace Figment
 
             VkFramebufferCreateInfo framebufferCreateInfo = {};
             framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-            framebufferCreateInfo.renderPass = m_RenderPass;
+            framebufferCreateInfo.renderPass = m_RenderPass->Get();
             framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
             framebufferCreateInfo.pAttachments = attachments.data();
             framebufferCreateInfo.width = m_SwapChainExtent.width;
@@ -585,7 +538,7 @@ namespace Figment
 
         VkRenderPassBeginInfo renderPassBeginInfo = {};
         renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassBeginInfo.renderPass = m_RenderPass;
+        renderPassBeginInfo.renderPass = m_RenderPass->Get();
         renderPassBeginInfo.renderArea.offset = { 0, 0 };
         renderPassBeginInfo.renderArea.extent = m_SwapChainExtent;
         VkClearValue clearValues[] = {

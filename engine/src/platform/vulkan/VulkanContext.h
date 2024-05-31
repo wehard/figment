@@ -16,6 +16,7 @@ namespace Figment
     class VulkanBuffer;
     class VulkanShader;
     class VulkanPipeline;
+    class VulkanRenderPass;
 
     inline void CheckVkResult(VkResult result)
     {
@@ -57,7 +58,7 @@ namespace Figment
         [[nodiscard]] VkCommandPool GetCommandPool() const { return m_CommandPool; }
         [[nodiscard]] VkDescriptorPool GetDescriptorPool() const { return m_DescriptorPool; }
         [[nodiscard]] VulkanSurfaceDetails SurfaceDetails() const { return m_SurfaceDetails; }
-        [[nodiscard]] VkRenderPass GetRenderPass() const { return m_RenderPass; }
+        // [[nodiscard]] VkRenderPass GetRenderPass() const { return m_RenderPass; }
         [[nodiscard]] VkCommandBuffer GetCommandBuffer() const { return m_FrameData.CommandBuffers[m_ImageIndex]; }
         // [[nodiscard]] VkPipeline GetPipeline() const { return m_Pipeline; }
         [[nodiscard]] VkFramebuffer GetFramebuffer() const { return m_FrameData.Framebuffers[m_ImageIndex]; }
@@ -81,7 +82,7 @@ namespace Figment
         VkSurfaceKHR m_Surface = VK_NULL_HANDLE;
         VkSwapchainKHR m_SwapChain = VK_NULL_HANDLE;
         VkCommandPool m_CommandPool = VK_NULL_HANDLE;
-        VkRenderPass m_RenderPass = VK_NULL_HANDLE;
+        VulkanRenderPass *m_RenderPass = nullptr;
 
         VkPipelineCache m_PipelineCache = VK_NULL_HANDLE;
         VkDescriptorPool m_DescriptorPool = VK_NULL_HANDLE;

@@ -1,5 +1,6 @@
 #include "Window.h"
 #include "VulkanContext.h"
+#include "VulkanRenderPass.h"
 #include "PerspectiveCamera.h"
 #include "Log.h"
 #include "imgui.h"
@@ -74,8 +75,6 @@ int main()
     auto window = Figment::Window::Create("Figment", 1280, 720);
     auto vkContext = window->GetContext<VulkanContext>();
 
-
-
     PerspectiveCamera camera(1280.0 / 720.0);
     camera.SetPosition({ 0.0f, 0.0f, 2.0f });
 
@@ -83,6 +82,12 @@ int main()
     {
         camera.Resize((float)eventData.Width, (float)eventData.Height);
     });
+
+    // auto rp = new VulkanRenderPass(*vkContext, {
+    //     .ColorAttachment = {
+    //             .Format= VK_FORMAT_B8G8R8A8_UNORM,
+    //     }
+    // });
 
     // auto renderPass = CreateImGuiRenderPass(vkContext.get());
 
@@ -141,7 +146,7 @@ int main()
         // ImGui::EndFrame();
 
         zRotation += 1.0f;
-        xPosition = sinf((float)glfwGetTime()) * 0.5f;
+        xPosition = sinf((float)glfwGetTime() * 2.0f); // * 0.5f;
         vkContext->BeginFrame();
         vkContext->DebugDraw(*buffer, Transform(
                 { xPosition, 0.0f, 0.0f },
