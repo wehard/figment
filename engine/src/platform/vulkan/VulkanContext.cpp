@@ -41,13 +41,22 @@ namespace Figment
 
         m_Shader = new VulkanShader(*this, "res/shader.vert.spv", "res/shader.frag.spv");
 
-        m_UniformBuffer = new VulkanBuffer(this, {
-                .Name = "UniformBuffer",
-                .Data = &m_UBO,
-                .ByteSize = sizeof(UniformBufferObject),
-                .Usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                .MemoryProperties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
-        });
+        UniformBufferObject ubo = {
+                .Model = glm::mat4(1.0f),
+                .View = glm::mat4(1.0f),
+                .Projection = glm::mat4(1.0f)
+        };
+
+        for (int i = 0; i < MAX_FRAME_DRAWS; i++)
+        {
+            m_UniformBuffers.push_back(new VulkanBuffer(this, {
+                    .Name = "UniformBuffer",
+                    .Data = &ubo,
+                    .ByteSize = sizeof(UniformBufferObject),
+                    .Usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                    .MemoryProperties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+            }));
+        }
 
         CreatePipeline(m_Shader->GetVertexModule(), m_Shader->GetFragmentModule());
         CreateFramebuffers();
@@ -485,45 +494,51 @@ namespace Figment
     {
         VkDescriptorPoolSize poolSize = {
                 .type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                .descriptorCount = 1
+                .descriptorCount = static_cast<uint32_t>(MAX_FRAME_DRAWS)
         };
         VkDescriptorPoolCreateInfo descriptorPoolCreateInfo = {};
         descriptorPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
         descriptorPoolCreateInfo.flags = 0;
         descriptorPoolCreateInfo.poolSizeCount = 1;
         descriptorPoolCreateInfo.pPoolSizes = &poolSize;
-        descriptorPoolCreateInfo.maxSets = 1;
+        descriptorPoolCreateInfo.maxSets = static_cast<uint32_t>(MAX_FRAME_DRAWS);
 
         vkCreateDescriptorPool(m_Device, &descriptorPoolCreateInfo, nullptr, &m_DescriptorPool);
     }
 
     void Figment::VulkanContext::CreateDescriptorSets()
     {
+        std::vector<VkDescriptorSetLayout> layouts(MAX_FRAME_DRAWS, *m_Pipeline->GetDescriptorSetLayout());
         VkDescriptorSetAllocateInfo descriptorSetAllocateInfo = {};
         descriptorSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
         descriptorSetAllocateInfo.descriptorPool = m_DescriptorPool;
-        descriptorSetAllocateInfo.descriptorSetCount = 1;
-        descriptorSetAllocateInfo.pSetLayouts = m_Pipeline->GetDescriptorSetLayout();
+        descriptorSetAllocateInfo.descriptorSetCount = layouts.size();
+        descriptorSetAllocateInfo.pSetLayouts = layouts.data();
 
-        vkAllocateDescriptorSets(m_Device, &descriptorSetAllocateInfo, &m_DescriptorSet);
+        m_DescriptorSets.resize(MAX_FRAME_DRAWS);
+        CheckVkResult(vkAllocateDescriptorSets(m_Device, &descriptorSetAllocateInfo, m_DescriptorSets.data()));
 
-        VkDescriptorBufferInfo bufferInfo {};
-        bufferInfo.buffer = m_UniformBuffer->Get();
-        bufferInfo.offset = 0;
-        bufferInfo.range = sizeof(UniformBufferObject);
+        for (int i = 0; i < MAX_FRAME_DRAWS; i++)
+        {
+            VkDescriptorBufferInfo bufferInfo {};
+            bufferInfo.buffer = m_UniformBuffers[i]->Get();
+            bufferInfo.offset = 0;
+            bufferInfo.range = sizeof(UniformBufferObject);
 
-        VkWriteDescriptorSet descriptorWrite = {};
-        descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrite.dstSet = m_DescriptorSet;
-        descriptorWrite.dstBinding = 0;
-        descriptorWrite.dstArrayElement = 0;
-        descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        descriptorWrite.descriptorCount = 1;
-        descriptorWrite.pBufferInfo = &bufferInfo;
-        descriptorWrite.pImageInfo = nullptr;
-        descriptorWrite.pTexelBufferView = nullptr;
+            VkWriteDescriptorSet descriptorWrite = {};
+            descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            descriptorWrite.dstSet = m_DescriptorSets[i];
+            descriptorWrite.dstBinding = 0;
+            descriptorWrite.dstArrayElement = 0;
+            descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            descriptorWrite.descriptorCount = 1;
+            descriptorWrite.pBufferInfo = &bufferInfo;
+            descriptorWrite.pImageInfo = nullptr;
+            descriptorWrite.pTexelBufferView = nullptr;
 
-        vkUpdateDescriptorSets(m_Device, 1, &descriptorWrite, 0, nullptr);
+            vkUpdateDescriptorSets(m_Device, 1, &descriptorWrite, 0, nullptr);
+        }
+
     }
 
     void Figment::VulkanContext::CreateCommandPool()
@@ -677,11 +692,13 @@ namespace Figment
     {
         vkCmdBindPipeline(m_FrameData.CommandBuffers[m_ImageIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline->Get());
 
-        m_UBO.Model = transform;
-        m_UBO.View = camera.GetViewMatrix();
-        m_UBO.Projection = camera.GetProjectionMatrix();
+        UniformBufferObject ubo = {
+                .Model = transform,
+                .View = camera.GetViewMatrix(),
+                .Projection = camera.GetProjectionMatrix(),
+        };
         // m_UBO.Projection[1][1] *= -1;
-        m_UniformBuffer->SetData(&m_UBO, sizeof(UniformBufferObject));
+        m_UniformBuffers[m_FrameIndex]->SetData(&ubo, sizeof(UniformBufferObject));
 
         VkBuffer buffers[] = { buffer.Get() };
         VkDeviceSize offsets[] = { 0 };
@@ -689,7 +706,7 @@ namespace Figment
 
         vkCmdBindDescriptorSets(m_FrameData.CommandBuffers[m_ImageIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
                 m_Pipeline->GetLayout(),
-                0, 1, &m_DescriptorSet, 0, nullptr);
+                0, 1, &m_DescriptorSets[m_FrameIndex], 0, nullptr);
         vkCmdDraw(m_FrameData.CommandBuffers[m_ImageIndex], 6, 1, 0, 0);
     }
 

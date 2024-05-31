@@ -134,9 +134,11 @@ namespace Figment
         };
 
         FrameData m_FrameData;
-        VkDescriptorSet m_DescriptorSet = VK_NULL_HANDLE;
-        VulkanBuffer *m_UniformBuffer = nullptr;
-        UniformBufferObject m_UBO;
+        std::vector<VkDescriptorSet> m_DescriptorSets;
+        // VkDescriptorSet m_DescriptorSet = VK_NULL_HANDLE;
+        // VulkanBuffer *m_UniformBuffer = nullptr;
+        std::vector<VulkanBuffer *> m_UniformBuffers;
+        // UniformBufferObject m_UBO;
 
         void CreateInstance();
         void CreateSurface();
