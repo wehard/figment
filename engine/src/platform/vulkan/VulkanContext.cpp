@@ -4,10 +4,6 @@
 #include "VulkanPipeline.h"
 
 #include "glm/glm.hpp"
-#include "glm/ext/matrix_transform.hpp"
-#include "glm/ext/matrix_clip_space.hpp"
-#define GLM_ENABLE_EXPERIMENTAL
-#include "glm/gtx/euler_angles.hpp"
 
 #include <vector>
 #include <set>
@@ -64,7 +60,6 @@ namespace Figment
         CreateCommandBuffers();
         CreateDescriptorPool();
         CreateDescriptorSets();
-        // RecordCommands();
         CreateSynchronization();
 
         if (glfwGetPhysicalDevicePresentationSupport(m_Instance, m_PhysicalDevice, 0))
@@ -150,43 +145,6 @@ namespace Figment
                 "Failed to create Vulkan surface");
     }
 
-    /*
-    static void GetQueueFamilyIndices(VkPhysicalDevice device, VkSurfaceKHR surface, uint32_t &graphicsFamily,
-            uint32_t &presentFamily)
-    {
-        uint32_t queueFamilyCount = 0;
-        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
-
-        std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
-
-        graphicsFamily = UINT32_MAX;
-        presentFamily = UINT32_MAX;
-
-        for (uint32_t i = 0; i < queueFamilyCount; i++)
-        {
-            VkBool32 presentSupport = false;
-            vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
-
-            if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
-            {
-                graphicsFamily = i;
-            }
-
-            if (presentSupport)
-            {
-                presentFamily = i;
-            }
-
-            if (graphicsFamily != UINT32_MAX && presentFamily != UINT32_MAX)
-            {
-                break;
-            }
-        }
-        FIG_LOG_INFO("Queue family indices: graphics = %d, present = %d", graphicsFamily, presentFamily);
-    }
-    */
-
     static bool CheckDeviceExtensionSupport(VkPhysicalDevice device,
             const std::vector<const char *> &requiredExtensions)
     {
@@ -216,10 +174,9 @@ namespace Figment
 
     void Figment::VulkanContext::CreateDevice()
     {
-// Create Vulkan device
+        // Create Vulkan device
         uint32_t deviceCount = 0;
         vkEnumeratePhysicalDevices(m_Instance, &deviceCount, nullptr);
-        // VK_KHR_portability_subset device extension
 
         if (deviceCount == 0)
         {
@@ -238,8 +195,6 @@ namespace Figment
 
         // Logical device
 
-        // uint32_t graphicsFamily, presentFamily;
-        // GetQueueFamilyIndices(m_PhysicalDevice, m_Surface, graphicsFamily, presentFamily);
         uint32_t count;
         vkGetPhysicalDeviceQueueFamilyProperties(m_PhysicalDevice, &count, nullptr);
         VkQueueFamilyProperties *queues = (VkQueueFamilyProperties *)malloc(sizeof(VkQueueFamilyProperties) * count);
@@ -279,7 +234,6 @@ namespace Figment
                 "Failed to create logical device")
 
         vkGetDeviceQueue(m_Device, m_GraphicsQueueIndex, 0, &m_GraphicsQueue);
-        // vkGetDeviceQueue(m_Device, m_PresentQueueIndex, 0, &m_PresentationQueue);
     }
 
     static VulkanContext::VulkanSurfaceDetails GetSurfaceDetails(VkPhysicalDevice device, VkSurfaceKHR surface)
@@ -361,9 +315,9 @@ namespace Figment
         m_SwapChainExtent = extent;
 
         uint32_t swapChainImageCount = 0;
-        vkGetSwapchainImagesKHR(m_Device, m_SwapChain, &swapChainImageCount, nullptr);
+        CheckVkResult(vkGetSwapchainImagesKHR(m_Device, m_SwapChain, &swapChainImageCount, nullptr));
         std::vector<VkImage> images(swapChainImageCount);
-        vkGetSwapchainImagesKHR(m_Device, m_SwapChain, &swapChainImageCount, images.data());
+        CheckVkResult(vkGetSwapchainImagesKHR(m_Device, m_SwapChain, &swapChainImageCount, images.data()));
 
         m_FrameData.Init(swapChainImageCount);
         for (size_t i = 0; i < swapChainImageCount; i++)
@@ -543,15 +497,11 @@ namespace Figment
 
     void Figment::VulkanContext::CreateCommandPool()
     {
-        // uint32_t graphicsFamily, presentFamily;
-        // GetQueueFamilyIndices(m_PhysicalDevice, m_Surface, graphicsFamily, presentFamily);
-
         VkCommandPoolCreateInfo poolInfo = {};
         poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         poolInfo.queueFamilyIndex = m_GraphicsQueueIndex;
         poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
-        // create graphics queue family command pool
         VkResult result = vkCreateCommandPool(m_Device, &poolInfo, nullptr, &m_CommandPool);
         if (result != VK_SUCCESS)
             throw std::runtime_error("Failed to create command pool!");

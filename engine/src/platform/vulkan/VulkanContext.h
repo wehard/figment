@@ -87,9 +87,7 @@ namespace Figment
         VkDescriptorPool m_DescriptorPool = VK_NULL_HANDLE;
 
         uint32_t m_GraphicsQueueIndex = UINT32_MAX;
-        uint32_t m_PresentQueueIndex = UINT32_MAX;
         VkQueue m_GraphicsQueue = VK_NULL_HANDLE;
-        // VkQueue m_PresentationQueue = VK_NULL_HANDLE;
 
         VkFormat m_SwapChainImageFormat = VK_FORMAT_UNDEFINED;
         VkExtent2D m_SwapChainExtent = { 0, 0 };
@@ -135,10 +133,7 @@ namespace Figment
 
         FrameData m_FrameData;
         std::vector<VkDescriptorSet> m_DescriptorSets;
-        // VkDescriptorSet m_DescriptorSet = VK_NULL_HANDLE;
-        // VulkanBuffer *m_UniformBuffer = nullptr;
         std::vector<VulkanBuffer *> m_UniformBuffers;
-        // UniformBufferObject m_UBO;
 
         void CreateInstance();
         void CreateSurface();
