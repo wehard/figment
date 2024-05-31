@@ -583,7 +583,7 @@ namespace Figment
 
     void Figment::VulkanContext::CreateCommandBuffers()
     {
-        m_FrameData.CommandBuffers.resize(m_FrameData.Framebuffers.size());
+        m_FrameData.CommandBuffers.resize(MAX_FRAME_DRAWS);
         VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
         commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         commandBufferAllocateInfo.commandPool = m_CommandPool;
