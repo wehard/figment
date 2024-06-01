@@ -52,6 +52,6 @@ namespace Figment
 
     VulkanBindGroup::~VulkanBindGroup()
     {
-
+        // TODO: Implement destructor
     }
 }
