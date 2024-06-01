@@ -5,6 +5,7 @@
 
 #include "glm/glm.hpp"
 #include "VulkanRenderPass.h"
+#include "VulkanBindGroup.h"
 
 #include <vector>
 #include <set>
@@ -415,6 +416,22 @@ namespace Figment
 
     void Figment::VulkanContext::CreateDescriptorSets()
     {
+        // auto x = new VulkanBindGroup(*this, {
+        //         .DescriptorPool = m_DescriptorPool,
+        //         .Bindings = {
+        //                 {
+        //                         .DescriptorSetLayoutBinding = {
+        //                                 .binding = 0,
+        //                                 .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+        //                                 .descriptorCount = 1,
+        //                                 .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
+        //                                 .pImmutableSamplers = nullptr
+        //                         },
+        //                         .Buffer = m_UniformBuffers[0],
+        //                 }
+        //         }
+        // });
+
         std::vector<VkDescriptorSetLayout> layouts(MAX_FRAME_DRAWS, *m_Pipeline->GetDescriptorSetLayout());
         VkDescriptorSetAllocateInfo descriptorSetAllocateInfo = {};
         descriptorSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
