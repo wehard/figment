@@ -26,7 +26,7 @@ namespace Figment
     public:
         VulkanBindGroup(const VulkanContext &context, const BindGroupDescriptor &descriptor);
         ~VulkanBindGroup();
-        [[nodiscard]] VkDescriptorSet Get() const { return m_DescriptorSet; }
+        [[nodiscard]] VkDescriptorSet *Get() { return &m_DescriptorSet; }
         [[nodiscard]] VkDescriptorSetLayout GetLayout() const { return m_DescriptorSetLayout; }
     private:
         const VulkanContext &m_Context;

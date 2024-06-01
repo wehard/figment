@@ -17,6 +17,7 @@ namespace Figment
     class VulkanShader;
     class VulkanPipeline;
     class VulkanRenderPass;
+    class VulkanBindGroup;
 
     inline void CheckVkResult(VkResult result)
     {
@@ -133,7 +134,8 @@ namespace Figment
         };
 
         FrameData m_FrameData;
-        std::vector<VkDescriptorSet> m_DescriptorSets;
+        // std::vector<VkDescriptorSet> m_DescriptorSets;
+        std::vector<VulkanBindGroup *> m_BindGroups;
         std::vector<VulkanBuffer *> m_UniformBuffers;
 
         void CreateInstance();

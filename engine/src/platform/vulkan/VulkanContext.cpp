@@ -416,51 +416,25 @@ namespace Figment
 
     void Figment::VulkanContext::CreateDescriptorSets()
     {
-        // auto x = new VulkanBindGroup(*this, {
-        //         .DescriptorPool = m_DescriptorPool,
-        //         .Bindings = {
-        //                 {
-        //                         .DescriptorSetLayoutBinding = {
-        //                                 .binding = 0,
-        //                                 .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-        //                                 .descriptorCount = 1,
-        //                                 .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
-        //                                 .pImmutableSamplers = nullptr
-        //                         },
-        //                         .Buffer = m_UniformBuffers[0],
-        //                 }
-        //         }
-        // });
-
-        std::vector<VkDescriptorSetLayout> layouts(MAX_FRAME_DRAWS, *m_Pipeline->GetDescriptorSetLayout());
-        VkDescriptorSetAllocateInfo descriptorSetAllocateInfo = {};
-        descriptorSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-        descriptorSetAllocateInfo.descriptorPool = m_DescriptorPool;
-        descriptorSetAllocateInfo.descriptorSetCount = layouts.size();
-        descriptorSetAllocateInfo.pSetLayouts = layouts.data();
-
-        m_DescriptorSets.resize(MAX_FRAME_DRAWS);
-        CheckVkResult(vkAllocateDescriptorSets(m_Device, &descriptorSetAllocateInfo, m_DescriptorSets.data()));
+        m_BindGroups.resize(MAX_FRAME_DRAWS);
 
         for (int i = 0; i < MAX_FRAME_DRAWS; i++)
         {
-            VkDescriptorBufferInfo bufferInfo {};
-            bufferInfo.buffer = m_UniformBuffers[i]->Get();
-            bufferInfo.offset = 0;
-            bufferInfo.range = sizeof(UniformBufferObject);
-
-            VkWriteDescriptorSet descriptorWrite = {};
-            descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            descriptorWrite.dstSet = m_DescriptorSets[i];
-            descriptorWrite.dstBinding = 0;
-            descriptorWrite.dstArrayElement = 0;
-            descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            descriptorWrite.descriptorCount = 1;
-            descriptorWrite.pBufferInfo = &bufferInfo;
-            descriptorWrite.pImageInfo = nullptr;
-            descriptorWrite.pTexelBufferView = nullptr;
-
-            vkUpdateDescriptorSets(m_Device, 1, &descriptorWrite, 0, nullptr);
+            m_BindGroups[i] = new VulkanBindGroup(*this, {
+                    .DescriptorPool = m_DescriptorPool,
+                    .Bindings = {
+                            {
+                                    .DescriptorSetLayoutBinding = {
+                                            .binding = 0,
+                                            .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                                            .descriptorCount = 1,
+                                            .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
+                                            .pImmutableSamplers = nullptr
+                                    },
+                                    .Buffer = m_UniformBuffers[i],
+                            }
+                    }
+            });
         }
 
     }
@@ -626,7 +600,7 @@ namespace Figment
 
         vkCmdBindDescriptorSets(m_FrameData.CommandBuffers[m_FrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
                 m_Pipeline->GetLayout(),
-                0, 1, &m_DescriptorSets[m_FrameIndex], 0, nullptr);
+                0, 1, m_BindGroups[m_FrameIndex]->Get(), 0, nullptr);
         vkCmdDraw(m_FrameData.CommandBuffers[m_FrameIndex], 6, 1, 0, 0);
     }
 
