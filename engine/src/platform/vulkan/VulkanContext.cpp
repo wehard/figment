@@ -65,7 +65,7 @@ namespace Figment
                         .type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
                         .descriptorCount = static_cast<uint32_t>(MAX_FRAME_DRAWS)
                 }
-        });
+        }, MAX_FRAME_DRAWS);
         CreateDescriptorSets();
         CreateSynchronization();
 
@@ -403,14 +403,14 @@ namespace Figment
                 "PipelineCache created", "Failed to create PipelineCache!")
     }
 
-    VkDescriptorPool VulkanContext::CreateDescriptorPool(std::vector<VkDescriptorPoolSize> poolSizes)
+    VkDescriptorPool VulkanContext::CreateDescriptorPool(std::vector<VkDescriptorPoolSize> poolSizes, uint32_t maxSets)
     {
         VkDescriptorPoolCreateInfo descriptorPoolCreateInfo = {};
         descriptorPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
         descriptorPoolCreateInfo.flags = 0;
         descriptorPoolCreateInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
         descriptorPoolCreateInfo.pPoolSizes = poolSizes.data();
-        descriptorPoolCreateInfo.maxSets = static_cast<uint32_t>(MAX_FRAME_DRAWS);
+        descriptorPoolCreateInfo.maxSets = maxSets;
 
         VkDescriptorPool descriptorPool;
         vkCreateDescriptorPool(m_Device, &descriptorPoolCreateInfo, nullptr, &descriptorPool);
