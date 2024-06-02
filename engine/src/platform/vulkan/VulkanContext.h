@@ -69,6 +69,8 @@ namespace Figment
         void BeginFrame();
         void EndFrame();
         void DebugDraw(VulkanBuffer &buffer, glm::mat4 transform, Camera &camera);
+        VkCommandBuffer BeginSingleTimeCommands(VkCommandPool commandPool);
+        void EndSingleTimeCommands(VkCommandBuffer commandBuffer);
 
         struct Vertex
         {
