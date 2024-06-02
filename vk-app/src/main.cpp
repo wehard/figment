@@ -83,13 +83,18 @@ int main()
         camera.Resize((float)eventData.Width, (float)eventData.Height);
     });
 
-    // auto rp = new VulkanRenderPass(*vkContext, {
-    //     .ColorAttachment = {
-    //             .Format= VK_FORMAT_B8G8R8A8_UNORM,
-    //     }
-    // });
-
-    // auto renderPass = CreateImGuiRenderPass(vkContext.get());
+    auto renderPass = new VulkanRenderPass(*vkContext, {
+        .ColorAttachment = {
+                .Format= VK_FORMAT_B8G8R8A8_UNORM,
+                .Samples = VK_SAMPLE_COUNT_1_BIT,
+                .LoadOp = VK_ATTACHMENT_LOAD_OP_LOAD,
+                .StoreOp = VK_ATTACHMENT_STORE_OP_STORE,
+                .StencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+                .StencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+                .InitialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                .FinalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+        }
+    });
 
     // auto context = ImGui::CreateContext();
     // ImGui_ImplGlfw_InitForVulkan((GLFWwindow*)window->GetNative(), true);
@@ -101,16 +106,32 @@ int main()
     // initInfo.Queue = vkContext->GetGraphicsQueue();
     // initInfo.QueueFamily = 0;
     // initInfo.PipelineCache = VK_NULL_HANDLE;
-    // initInfo.DescriptorPool = vkContext->GetDescriptorPool();
-    // initInfo.RenderPass = renderPass;
+    // initInfo.DescriptorPool = vkContext->CreateDescriptorPool({
+    //         { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
+    //         { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
+    //         { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
+    //         { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
+    //         { VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
+    //         { VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
+    //         { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
+    //         { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
+    //         { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
+    //         { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
+    //         { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
+    // }, 1000);
+    // initInfo.RenderPass = renderPass->Get();
     // initInfo.Subpass = 0;
     // initInfo.MinImageCount = vkContext->SurfaceDetails().surfaceCapabilities.minImageCount;
     // initInfo.ImageCount = vkContext->SurfaceDetails().surfaceCapabilities.minImageCount + 1;
     // initInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
     // initInfo.Allocator = nullptr;
-    // initInfo.CheckVkResultFn = nullptr;
+    // initInfo.CheckVkResultFn = CheckVkResult;
     // ImGui_ImplVulkan_Init(&initInfo);
+
+    // auto cb = vkContext->BeginSingleTimeCommands(vkContext->GetCommandPool());
     // ImGui_ImplVulkan_CreateFontsTexture();
+    // vkContext->EndSingleTimeCommands(cb);
+
     std::vector<VulkanContext::Vertex> vertices = {
             {{ -0.5, -0.5, 0.0 }, { 1.0, 0.0, 0.0 }},
             {{ -0.5, 0.5, 0.0 }, { 0.0, 1.0, 0.0 }},
@@ -136,14 +157,6 @@ int main()
     {
         glfwPollEvents();
         camera.Update();
-        // ImGui_ImplGlfw_NewFrame();
-        // ImGui_ImplVulkan_NewFrame();
-        // ImGui::NewFrame();
-        // ImGui::Begin("Hello, world!");
-        // ImGui::Text("This is some useful text.");
-        // ImGui::End();
-        // ImGui::Render();
-        // ImGui::EndFrame();
 
         zRotation += 1.0f;
         xPosition = sinf((float)glfwGetTime() * 2.0f); // * 0.5f;
@@ -155,6 +168,19 @@ int main()
                 camera);
         // vkContext->DebugDraw(*buffer2);
         vkContext->EndFrame();
+
+        // ImGui_ImplGlfw_NewFrame();
+        // ImGui_ImplVulkan_NewFrame();
+        // ImGui::NewFrame();
+        // ImGui::Begin("Hello, world!");
+        // ImGui::Text("This is some useful text.");
+        // ImGui::End();
+        // ImGui::Render();
+        // ImGui::EndFrame();
+        //
+        // auto commandBuffer = vkContext->BeginSingleTimeCommands(vkContext->GetCommandPool());
+        // ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
+        // vkContext->EndSingleTimeCommands(commandBuffer);
     }
 
     // ImGui_ImplVulkan_Shutdown();
