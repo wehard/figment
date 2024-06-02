@@ -63,6 +63,7 @@ namespace Figment
         [[nodiscard]] VkCommandBuffer GetCommandBuffer() const { return m_FrameData.CommandBuffers[m_ImageIndex]; }
         // [[nodiscard]] VkPipeline GetPipeline() const { return m_Pipeline; }
         [[nodiscard]] VkFramebuffer GetFramebuffer() const { return m_FrameData.Framebuffers[m_ImageIndex]; }
+        [[nodiscard]]VkDescriptorPool CreateDescriptorPool(std::vector<VkDescriptorPoolSize> poolSizes);
 
         void OnResize(uint32_t width, uint32_t height) override;
         void BeginFrame();
@@ -145,7 +146,6 @@ namespace Figment
         void CreateRenderPass();
         void CreatePipeline(VkShaderModule vertexModule, VkShaderModule fragmentModule);
         void CreatePipelineCache();
-        void CreateDescriptorPool();
         void CreateDescriptorSets();
         void CreateCommandPool();
         void CreateCommandBuffers();
