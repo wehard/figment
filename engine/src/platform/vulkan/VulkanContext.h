@@ -110,8 +110,7 @@ namespace Figment
 
         const std::vector<const char *> m_RequiredDeviceExtensions = {
                 "VK_KHR_swapchain",
-                "VK_KHR_portability_subset",
-                "VK_KHR_dynamic_rendering"
+                "VK_KHR_portability_subset"
         };
 
         struct SynchronizationObjects
