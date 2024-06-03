@@ -120,8 +120,6 @@ namespace Figment
             VkFence FenceDraw;
         };
 
-        SynchronizationObjects m_SynchronizationObjects[MAX_FRAME_DRAWS];
-
         struct FrameData
         {
             std::vector<VkFramebuffer> Framebuffers;
@@ -138,6 +136,7 @@ namespace Figment
 
         FrameData m_FrameData;
         std::vector<VkCommandBuffer> m_CommandBuffers;
+        std::vector<SynchronizationObjects> m_SynchronizationObjects;
         std::vector<VulkanBindGroup *> m_BindGroups;
         std::vector<VulkanBuffer *> m_UniformBuffers;
 

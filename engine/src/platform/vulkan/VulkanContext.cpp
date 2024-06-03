@@ -503,6 +503,8 @@ namespace Figment
         fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
         fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
+        m_SynchronizationObjects.resize(MAX_FRAME_DRAWS);
+
         for (auto &m_SynchronizationObject : m_SynchronizationObjects)
         {
             if (vkCreateSemaphore(m_Device, &semaphoreCreateInfo, nullptr,
