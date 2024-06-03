@@ -64,6 +64,7 @@ namespace Figment
         [[nodiscard]] VkCommandBuffer GetCommandBuffer() const { return m_FrameData.CommandBuffers[m_ImageIndex]; }
         // [[nodiscard]] VkPipeline GetPipeline() const { return m_Pipeline; }
         [[nodiscard]] VkFramebuffer GetFramebuffer() const { return m_FrameData.Framebuffers[m_ImageIndex]; }
+        [[nodiscard]] VkImageView GetCurrentImageView() const { return m_FrameData.ImageViews[m_ImageIndex]; }
         [[nodiscard]]VkDescriptorPool CreateDescriptorPool(std::vector<VkDescriptorPoolSize> poolSizes, uint32_t maxSets);
 
         void OnResize(uint32_t width, uint32_t height) override;
@@ -109,7 +110,8 @@ namespace Figment
 
         const std::vector<const char *> m_RequiredDeviceExtensions = {
                 "VK_KHR_swapchain",
-                "VK_KHR_portability_subset"
+                "VK_KHR_portability_subset",
+                "VK_KHR_dynamic_rendering"
         };
 
         struct SynchronizationObjects
