@@ -45,6 +45,7 @@ namespace Figment
             glm::mat4 Projection;
         };
 
+    public:
         explicit VulkanContext(GLFWwindow *window) : m_Window(window) { }
         ~VulkanContext() override;
         void Init(uint32_t width, uint32_t height) override;
@@ -55,7 +56,7 @@ namespace Figment
         [[nodiscard]] VkQueue GetGraphicsQueue() const { return m_GraphicsQueue; }
         [[nodiscard]] VkQueue GetPresentQueue() const { return m_GraphicsQueue; }
         [[nodiscard]] VkSurfaceKHR GetSurface() const { return m_Surface; }
-        [[nodiscard]] VkSwapchainKHR GetSwapChain() const { return m_SwapChain; }
+        [[nodiscard]] VkSwapchainKHR GetSwapchain() const { return m_Swapchain; }
         [[nodiscard]] VkCommandPool GetCommandPool() const { return m_CommandPool; }
         [[nodiscard]] VkDescriptorPool GetDescriptorPool() const { return m_DescriptorPool; }
         [[nodiscard]] VulkanSurfaceDetails SurfaceDetails() const { return m_SurfaceDetails; }
@@ -84,7 +85,7 @@ namespace Figment
         VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;
         VkDevice m_Device = VK_NULL_HANDLE;
         VkSurfaceKHR m_Surface = VK_NULL_HANDLE;
-        VkSwapchainKHR m_SwapChain = VK_NULL_HANDLE;
+        VkSwapchainKHR m_Swapchain = VK_NULL_HANDLE;
         VkCommandPool m_CommandPool = VK_NULL_HANDLE;
         VulkanRenderPass *m_RenderPass = nullptr;
 
@@ -94,8 +95,8 @@ namespace Figment
         uint32_t m_GraphicsQueueIndex = UINT32_MAX;
         VkQueue m_GraphicsQueue = VK_NULL_HANDLE;
 
-        VkFormat m_SwapChainImageFormat = VK_FORMAT_UNDEFINED;
-        VkExtent2D m_SwapChainExtent = { 0, 0 };
+        VkFormat m_SwapchainImageFormat = VK_FORMAT_UNDEFINED;
+        VkExtent2D m_SwapchainExtent = { 0, 0 };
 
         uint32_t m_FrameIndex = 0;
         uint32_t m_ImageIndex = 0;
@@ -144,7 +145,7 @@ namespace Figment
         void CreateInstance();
         void CreateSurface();
         void CreateDevice();
-        void CreateSwapChain();
+        void CreateSwapchain();
         void CreateRenderPass();
         void CreatePipeline(VkShaderModule vertexModule, VkShaderModule fragmentModule);
         void CreatePipelineCache();
@@ -154,7 +155,7 @@ namespace Figment
         void CreateFramebuffers();
         void CreateSynchronization();
 
-        void CleanupSwapChain();
-        void RecreateSwapChain();
+        void CleanupSwapchain();
+        void RecreateSwapchain();
     };
 }

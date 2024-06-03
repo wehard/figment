@@ -24,7 +24,7 @@ namespace Figment
         CreateInstance();
         CreateSurface();
         CreateDevice();
-        CreateSwapChain();
+        CreateSwapchain();
         CreateRenderPass();
 
         std::vector<Vertex> vertices = {
@@ -294,7 +294,7 @@ namespace Figment
         return imageView;
     }
 
-    void Figment::VulkanContext::CreateSwapChain()
+    void Figment::VulkanContext::CreateSwapchain()
     {
         m_SurfaceDetails = GetSurfaceDetails(m_PhysicalDevice, m_Surface);
         VkSurfaceFormatKHR surfaceFormat = m_SurfaceDetails.formats[0];
@@ -302,35 +302,35 @@ namespace Figment
         VkExtent2D extent = m_SurfaceDetails.surfaceCapabilities.currentExtent;
         uint32_t imageCount = m_SurfaceDetails.surfaceCapabilities.minImageCount + 1;
 
-        VkSwapchainCreateInfoKHR swapChainCreateInfo = {};
-        swapChainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-        swapChainCreateInfo.surface = m_Surface;
-        swapChainCreateInfo.imageFormat = surfaceFormat.format;
-        swapChainCreateInfo.imageColorSpace = surfaceFormat.colorSpace;
-        swapChainCreateInfo.presentMode = presentMode;
-        swapChainCreateInfo.imageExtent = extent;
-        swapChainCreateInfo.minImageCount = imageCount;
-        swapChainCreateInfo.imageArrayLayers = 1;
-        swapChainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-        swapChainCreateInfo.preTransform = m_SurfaceDetails.surfaceCapabilities.currentTransform;
-        swapChainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-        swapChainCreateInfo.clipped = VK_TRUE;
+        VkSwapchainCreateInfoKHR swapchainCreateInfo = {};
+        swapchainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+        swapchainCreateInfo.surface = m_Surface;
+        swapchainCreateInfo.imageFormat = surfaceFormat.format;
+        swapchainCreateInfo.imageColorSpace = surfaceFormat.colorSpace;
+        swapchainCreateInfo.presentMode = presentMode;
+        swapchainCreateInfo.imageExtent = extent;
+        swapchainCreateInfo.minImageCount = imageCount;
+        swapchainCreateInfo.imageArrayLayers = 1;
+        swapchainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        swapchainCreateInfo.preTransform = m_SurfaceDetails.surfaceCapabilities.currentTransform;
+        swapchainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+        swapchainCreateInfo.clipped = VK_TRUE;
 
-        CheckVkResult(vkCreateSwapchainKHR(m_Device, &swapChainCreateInfo, nullptr, &m_SwapChain));
+        CheckVkResult(vkCreateSwapchainKHR(m_Device, &swapchainCreateInfo, nullptr, &m_Swapchain));
 
-        m_SwapChainImageFormat = surfaceFormat.format;
-        m_SwapChainExtent = extent;
+        m_SwapchainImageFormat = surfaceFormat.format;
+        m_SwapchainExtent = extent;
 
         uint32_t swapChainImageCount = 0;
-        CheckVkResult(vkGetSwapchainImagesKHR(m_Device, m_SwapChain, &swapChainImageCount, nullptr));
+        CheckVkResult(vkGetSwapchainImagesKHR(m_Device, m_Swapchain, &swapChainImageCount, nullptr));
         std::vector<VkImage> images(swapChainImageCount);
-        CheckVkResult(vkGetSwapchainImagesKHR(m_Device, m_SwapChain, &swapChainImageCount, images.data()));
+        CheckVkResult(vkGetSwapchainImagesKHR(m_Device, m_Swapchain, &swapChainImageCount, images.data()));
 
         m_FrameData.Init(swapChainImageCount);
         for (size_t i = 0; i < swapChainImageCount; i++)
         {
             m_FrameData.Images[i] = images[i];
-            m_FrameData.ImageViews[i] = CreateVkImageView(m_Device, images[i], m_SwapChainImageFormat,
+            m_FrameData.ImageViews[i] = CreateVkImageView(m_Device, images[i], m_SwapchainImageFormat,
                     VK_IMAGE_ASPECT_COLOR_BIT);
         }
     }
@@ -339,7 +339,7 @@ namespace Figment
     {
         m_RenderPass = new VulkanRenderPass(*this, {
                 .ColorAttachment = {
-                        .Format = m_SwapChainImageFormat,
+                        .Format = m_SwapchainImageFormat,
                         .Samples = VK_SAMPLE_COUNT_1_BIT,
                         .LoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
                         .StoreOp = VK_ATTACHMENT_STORE_OP_STORE,
@@ -354,8 +354,8 @@ namespace Figment
     void Figment::VulkanContext::CreatePipeline(VkShaderModule vertexModule, VkShaderModule fragmentModule)
     {
         m_Pipeline = new VulkanPipeline(*this, {
-                .ViewportWidth = m_SwapChainExtent.width,
-                .ViewportHeight = m_SwapChainExtent.height,
+                .ViewportWidth = m_SwapchainExtent.width,
+                .ViewportHeight = m_SwapchainExtent.height,
                 .VertexInput = {
                         .Binding = 0,
                         .Stride = sizeof(Vertex),
@@ -468,8 +468,8 @@ namespace Figment
             framebufferCreateInfo.renderPass = m_RenderPass->Get();
             framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
             framebufferCreateInfo.pAttachments = attachments.data();
-            framebufferCreateInfo.width = m_SwapChainExtent.width;
-            framebufferCreateInfo.height = m_SwapChainExtent.height;
+            framebufferCreateInfo.width = m_SwapchainExtent.width;
+            framebufferCreateInfo.height = m_SwapchainExtent.height;
             framebufferCreateInfo.layers = 1;
 
             VkResult result = vkCreateFramebuffer(m_Device, &framebufferCreateInfo, nullptr,
@@ -525,7 +525,7 @@ namespace Figment
         CheckVkResult(vkResetFences(m_Device, 1, &m_SynchronizationObjects[m_FrameIndex].FenceDraw));
 
         // get next available image to draw to and set semaphore to signal when it's ready to be drawn to
-        CheckVkResult(vkAcquireNextImageKHR(m_Device, m_SwapChain, std::numeric_limits<uint64_t>::max(),
+        CheckVkResult(vkAcquireNextImageKHR(m_Device, m_Swapchain, std::numeric_limits<uint64_t>::max(),
                 m_SynchronizationObjects[m_FrameIndex].SemaphoreImageAvailable, VK_NULL_HANDLE, &m_ImageIndex));
 
         VkCommandBufferBeginInfo bufferBeginInfo = {};
@@ -535,7 +535,7 @@ namespace Figment
         renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
         renderPassBeginInfo.renderPass = m_RenderPass->Get();
         renderPassBeginInfo.renderArea.offset = { 0, 0 };
-        renderPassBeginInfo.renderArea.extent = m_SwapChainExtent;
+        renderPassBeginInfo.renderArea.extent = m_SwapchainExtent;
         VkClearValue clearValues[] = {
                 { 0.1f, 0.1f, 0.1f, 1.0f }};
         renderPassBeginInfo.pClearValues = clearValues;
@@ -578,7 +578,7 @@ namespace Figment
         presentInfo.waitSemaphoreCount = 1;
         presentInfo.pWaitSemaphores = &m_SynchronizationObjects[m_FrameIndex].SemaphoreRenderFinished;
         presentInfo.swapchainCount = 1;
-        presentInfo.pSwapchains = &m_SwapChain;
+        presentInfo.pSwapchains = &m_Swapchain;
         presentInfo.pImageIndices = &m_ImageIndex;
 
         CheckVkResult(vkQueuePresentKHR(m_GraphicsQueue, &presentInfo));
@@ -610,10 +610,10 @@ namespace Figment
 
     void VulkanContext::OnResize(uint32_t width, uint32_t height)
     {
-        RecreateSwapChain();
+        RecreateSwapchain();
     }
 
-    void VulkanContext::CleanupSwapChain()
+    void VulkanContext::CleanupSwapchain()
     {
         for (auto framebuffer : m_FrameData.Framebuffers)
         {
@@ -627,17 +627,17 @@ namespace Figment
         }
         m_FrameData.ImageViews.clear();
 
-        vkDestroySwapchainKHR(m_Device, m_SwapChain, nullptr);
+        vkDestroySwapchainKHR(m_Device, m_Swapchain, nullptr);
 
         delete m_Pipeline;
     }
 
-    void VulkanContext::RecreateSwapChain()
+    void VulkanContext::RecreateSwapchain()
     {
         vkDeviceWaitIdle(m_Device);
 
-        CleanupSwapChain();
-        CreateSwapChain();
+        CleanupSwapchain();
+        CreateSwapchain();
         CreateFramebuffers();
         CreatePipeline(m_Shader->GetVertexModule(), m_Shader->GetFragmentModule());
 
