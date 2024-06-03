@@ -481,15 +481,15 @@ namespace Figment
 
     void Figment::VulkanContext::CreateCommandBuffers()
     {
-        m_FrameData.CommandBuffers.resize(MAX_FRAME_DRAWS);
+        m_CommandBuffers.resize(MAX_FRAME_DRAWS);
         VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
         commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         commandBufferAllocateInfo.commandPool = m_CommandPool;
         commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY; // can only be executed by queue, not like secondary that can be executed by primary command buffers
-        commandBufferAllocateInfo.commandBufferCount = static_cast<uint32_t>(m_FrameData.CommandBuffers.size());
+        commandBufferAllocateInfo.commandBufferCount = static_cast<uint32_t>(m_CommandBuffers.size());
 
         VkResult result = vkAllocateCommandBuffers(m_Device, &commandBufferAllocateInfo,
-                &m_FrameData.CommandBuffers[0]);
+                &m_CommandBuffers[0]);
         if (result != VK_SUCCESS)
             throw std::runtime_error("Failed to allocate command buffers!");
     }
@@ -543,18 +543,18 @@ namespace Figment
 
         renderPassBeginInfo.framebuffer = m_FrameData.Framebuffers[m_ImageIndex];
 
-        CheckVkResult(vkBeginCommandBuffer(m_FrameData.CommandBuffers[m_FrameIndex], &bufferBeginInfo));
+        CheckVkResult(vkBeginCommandBuffer(m_CommandBuffers[m_FrameIndex], &bufferBeginInfo));
 
         // begin render pass
-        vkCmdBeginRenderPass(m_FrameData.CommandBuffers[m_FrameIndex], &renderPassBeginInfo,
+        vkCmdBeginRenderPass(m_CommandBuffers[m_FrameIndex], &renderPassBeginInfo,
                 VK_SUBPASS_CONTENTS_INLINE);
     }
 
     void VulkanContext::EndFrame()
     {
-        vkCmdEndRenderPass(m_FrameData.CommandBuffers[m_FrameIndex]);
+        vkCmdEndRenderPass(m_CommandBuffers[m_FrameIndex]);
 
-        CheckVkResult(vkEndCommandBuffer(m_FrameData.CommandBuffers[m_FrameIndex]));
+        CheckVkResult(vkEndCommandBuffer(m_CommandBuffers[m_FrameIndex]));
 
         // submit command buffer to queue for execution
         VkSubmitInfo submitInfo = {};
@@ -565,7 +565,7 @@ namespace Figment
                 VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
         submitInfo.pWaitDstStageMask = waitStages;
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &m_FrameData.CommandBuffers[m_FrameIndex];
+        submitInfo.pCommandBuffers = &m_CommandBuffers[m_FrameIndex];
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = &m_SynchronizationObjects[m_FrameIndex].SemaphoreRenderFinished;
 
@@ -588,7 +588,7 @@ namespace Figment
 
     void VulkanContext::DebugDraw(VulkanBuffer &buffer, glm::mat4 transform, Camera &camera)
     {
-        vkCmdBindPipeline(m_FrameData.CommandBuffers[m_FrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline->Get());
+        vkCmdBindPipeline(m_CommandBuffers[m_FrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline->Get());
 
         UniformBufferObject ubo = {
                 .Model = transform,
@@ -600,12 +600,12 @@ namespace Figment
 
         VkBuffer buffers[] = { buffer.Get() };
         VkDeviceSize offsets[] = { 0 };
-        vkCmdBindVertexBuffers(m_FrameData.CommandBuffers[m_FrameIndex], 0, 1, buffers, offsets);
+        vkCmdBindVertexBuffers(m_CommandBuffers[m_FrameIndex], 0, 1, buffers, offsets);
 
-        vkCmdBindDescriptorSets(m_FrameData.CommandBuffers[m_FrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
+        vkCmdBindDescriptorSets(m_CommandBuffers[m_FrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
                 m_Pipeline->GetLayout(),
                 0, 1, m_BindGroups[m_FrameIndex]->Get(), 0, nullptr);
-        vkCmdDraw(m_FrameData.CommandBuffers[m_FrameIndex], 6, 1, 0, 0);
+        vkCmdDraw(m_CommandBuffers[m_FrameIndex], 6, 1, 0, 0);
     }
 
     void VulkanContext::OnResize(uint32_t width, uint32_t height)

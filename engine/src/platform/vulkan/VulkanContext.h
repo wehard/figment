@@ -61,7 +61,7 @@ namespace Figment
         [[nodiscard]] VkDescriptorPool GetDescriptorPool() const { return m_DescriptorPool; }
         [[nodiscard]] VulkanSurfaceDetails SurfaceDetails() const { return m_SurfaceDetails; }
         // [[nodiscard]] VkRenderPass GetRenderPass() const { return m_RenderPass; }
-        [[nodiscard]] VkCommandBuffer GetCommandBuffer() const { return m_FrameData.CommandBuffers[m_ImageIndex]; }
+        [[nodiscard]] VkCommandBuffer GetCommandBuffer() const { return m_CommandBuffers[m_ImageIndex]; }
         // [[nodiscard]] VkPipeline GetPipeline() const { return m_Pipeline; }
         [[nodiscard]] VkFramebuffer GetFramebuffer() const { return m_FrameData.Framebuffers[m_ImageIndex]; }
         [[nodiscard]] VkImageView GetCurrentImageView() const { return m_FrameData.ImageViews[m_ImageIndex]; }
@@ -124,14 +124,12 @@ namespace Figment
 
         struct FrameData
         {
-            std::vector<VkCommandBuffer> CommandBuffers;
             std::vector<VkFramebuffer> Framebuffers;
             std::vector<VkImage> Images;
             std::vector<VkImageView> ImageViews;
 
             void Init(uint32_t size)
             {
-                CommandBuffers.resize(size);
                 Framebuffers.resize(size);
                 Images.resize(size);
                 ImageViews.resize(size);
@@ -139,7 +137,7 @@ namespace Figment
         };
 
         FrameData m_FrameData;
-        // std::vector<VkDescriptorSet> m_DescriptorSets;
+        std::vector<VkCommandBuffer> m_CommandBuffers;
         std::vector<VulkanBindGroup *> m_BindGroups;
         std::vector<VulkanBuffer *> m_UniformBuffers;
 
