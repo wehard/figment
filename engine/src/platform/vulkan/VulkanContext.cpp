@@ -350,7 +350,7 @@ namespace Figment
                         .StencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
                         .StencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
                         .InitialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-                        .FinalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+                        .FinalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
                 }
         });
     }
@@ -635,6 +635,9 @@ namespace Figment
 
     void VulkanContext::EndFrame()
     {
+        std::array<VkCommandBuffer, 2> submitCommandBuffers =
+                { m_CommandBuffers[m_FrameIndex], m_ImGuiCommandBuffers[m_FrameIndex] };
+
         // submit command buffer to queue for execution
         VkSubmitInfo submitInfo = {};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -643,8 +646,8 @@ namespace Figment
         VkPipelineStageFlags waitStages[] = {
                 VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
         submitInfo.pWaitDstStageMask = waitStages;
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &m_CommandBuffers[m_FrameIndex];
+        submitInfo.commandBufferCount = 2;
+        submitInfo.pCommandBuffers = submitCommandBuffers.data();
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = &m_SynchronizationObjects[m_FrameIndex].SemaphoreRenderFinished;
 

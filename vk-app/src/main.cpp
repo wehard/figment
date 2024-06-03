@@ -157,43 +157,40 @@ int main()
         // vkContext->DebugDraw(*buffer2);
         vkContext->EndMainPass();
 
-        // ImGui_ImplGlfw_NewFrame();
-        // ImGui_ImplVulkan_NewFrame();
-        // ImGui::NewFrame();
-        // ImGui::Begin("Hello, world!");
-        // ImGui::Text("This is some useful text.");
-        // ImGui::End();
-        // ImGui::Render();
-        // ImGui::EndFrame();
-        //
-        // {
-        //     CheckVkResult(vkResetCommandPool(vkContext->GetDevice(), vkContext->GetImGuiCommandPool(), 0));
-        //     VkCommandBufferBeginInfo info = {};
-        //     info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        //     info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-        //     CheckVkResult((vkBeginCommandBuffer(vkContext->GetImGuiCommandBuffer(), &info)));
-        // }
-        //
-        // {
-        //     VkRenderPassBeginInfo renderPassBeginInfo = {};
-        //     renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        //     renderPassBeginInfo.renderPass = vkContext->GetImGuiRenderPass()->Get();
-        //     renderPassBeginInfo.framebuffer = vkContext->GetImGuiFramebuffer();
-        //     renderPassBeginInfo.renderArea.extent.width = vkContext->SurfaceDetails().surfaceCapabilities.currentExtent.width;
-        //     renderPassBeginInfo.renderArea.extent.height = vkContext->SurfaceDetails().surfaceCapabilities.currentExtent.height;
-        //     VkClearValue clearValues[] = {
-        //             { 0.1f, 0.1f, 0.1f, 1.0f }};
-        //     renderPassBeginInfo.pClearValues = clearValues;
-        //     renderPassBeginInfo.clearValueCount = 1;
-        //     vkCmdBeginRenderPass(vkContext->GetImGuiCommandBuffer(), &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
-        // }
-        //
-        // ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), vkContext->GetImGuiCommandBuffer());
-        //
-        // {
-        //     vkCmdEndRenderPass(vkContext->GetImGuiCommandBuffer());
-        //     CheckVkResult(vkEndCommandBuffer(vkContext->GetImGuiCommandBuffer()));
-        // }
+        ImGui_ImplGlfw_NewFrame();
+        ImGui_ImplVulkan_NewFrame();
+        ImGui::NewFrame();
+        ImGui::ShowDemoWindow();
+        ImGui::Render();
+        ImGui::EndFrame();
+
+        {
+            VkCommandBufferBeginInfo info = {};
+            info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+            CheckVkResult((vkBeginCommandBuffer(vkContext->GetImGuiCommandBuffer(), &info)));
+        }
+
+        {
+            VkRenderPassBeginInfo renderPassBeginInfo = {};
+            renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+            renderPassBeginInfo.renderPass = vkContext->GetImGuiRenderPass()->Get();
+            renderPassBeginInfo.framebuffer = vkContext->GetImGuiFramebuffer();
+            renderPassBeginInfo.renderArea.extent.width = vkContext->SurfaceDetails().surfaceCapabilities.currentExtent.width;
+            renderPassBeginInfo.renderArea.extent.height = vkContext->SurfaceDetails().surfaceCapabilities.currentExtent.height;
+            VkClearValue clearValues[] = {
+                    { 0.1f, 0.1f, 0.1f, 1.0f }};
+            renderPassBeginInfo.pClearValues = clearValues;
+            renderPassBeginInfo.clearValueCount = 1;
+            vkCmdBeginRenderPass(vkContext->GetImGuiCommandBuffer(), &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+        }
+
+        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), vkContext->GetImGuiCommandBuffer());
+
+        {
+            vkCmdEndRenderPass(vkContext->GetImGuiCommandBuffer());
+            CheckVkResult(vkEndCommandBuffer(vkContext->GetImGuiCommandBuffer()));
+        }
 
         vkContext->EndFrame();
     }

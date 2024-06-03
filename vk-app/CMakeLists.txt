@@ -61,6 +61,7 @@ target_sources(vk-app PRIVATE
         "../engine/lib/imgui/imgui_draw.cpp"
         "../engine/lib/imgui/imgui_widgets.cpp"
         "../engine/lib/imgui/imgui_tables.cpp"
+        "../engine/lib/imgui/imgui_demo.cpp"
 )
 
 #target_link_directories(vk-app PRIVATE ${CMAKE_BINARY_DIR}/engine)
