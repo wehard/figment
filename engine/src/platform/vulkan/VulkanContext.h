@@ -57,21 +57,25 @@ namespace Figment
         [[nodiscard]] VkQueue GetPresentQueue() const { return m_GraphicsQueue; }
         [[nodiscard]] VkSurfaceKHR GetSurface() const { return m_Surface; }
         [[nodiscard]] VkSwapchainKHR GetSwapchain() const { return m_Swapchain; }
-        [[nodiscard]] VkCommandPool GetCommandPool() const { return m_CommandPool; }
+        [[nodiscard]] VkCommandPool GetImGuiCommandPool() const { return m_ImGuiCommandPool; }
         [[nodiscard]] VkDescriptorPool GetDescriptorPool() const { return m_DescriptorPool; }
         [[nodiscard]] VulkanSurfaceDetails SurfaceDetails() const { return m_SurfaceDetails; }
         // [[nodiscard]] VkRenderPass GetRenderPass() const { return m_RenderPass; }
-        [[nodiscard]] VkCommandBuffer GetCommandBuffer() const { return m_CommandBuffers[m_ImageIndex]; }
+        [[nodiscard]] VkCommandBuffer GetImGuiCommandBuffer() const { return m_ImGuiCommandBuffers[m_ImageIndex]; }
         // [[nodiscard]] VkPipeline GetPipeline() const { return m_Pipeline; }
-        [[nodiscard]] VkFramebuffer GetFramebuffer() const { return m_FrameData.Framebuffers[m_ImageIndex]; }
+        [[nodiscard]] VkFramebuffer GetImGuiFramebuffer() const { return m_FrameData.ImGuiFramebuffers[m_ImageIndex]; }
         [[nodiscard]] VkImageView GetCurrentImageView() const { return m_FrameData.ImageViews[m_ImageIndex]; }
         [[nodiscard]]VkDescriptorPool CreateDescriptorPool(std::vector<VkDescriptorPoolSize> poolSizes, uint32_t maxSets);
+
+        VulkanRenderPass *GetImGuiRenderPass() { return m_ImGuiRenderPass; }
 
         void OnResize(uint32_t width, uint32_t height) override;
         void BeginFrame();
         void EndFrame();
+        void BeginMainPass();
+        void EndMainPass();
         void DebugDraw(VulkanBuffer &buffer, glm::mat4 transform, Camera &camera);
-        VkCommandBuffer BeginSingleTimeCommands(VkCommandPool commandPool);
+        VkCommandBuffer BeginSingleTimeCommands();
         void EndSingleTimeCommands(VkCommandBuffer commandBuffer);
 
         struct Vertex
@@ -123,12 +127,14 @@ namespace Figment
         struct FrameData
         {
             std::vector<VkFramebuffer> Framebuffers;
+            std::vector<VkFramebuffer> ImGuiFramebuffers;
             std::vector<VkImage> Images;
             std::vector<VkImageView> ImageViews;
 
             void Init(uint32_t size)
             {
                 Framebuffers.resize(size);
+                ImGuiFramebuffers.resize(size);
                 Images.resize(size);
                 ImageViews.resize(size);
             }
@@ -140,17 +146,26 @@ namespace Figment
         std::vector<VulkanBindGroup *> m_BindGroups;
         std::vector<VulkanBuffer *> m_UniformBuffers;
 
+
+        VulkanRenderPass *m_ImGuiRenderPass = nullptr;
+        std::vector<VkCommandBuffer> m_ImGuiCommandBuffers;
+        VkCommandPool m_ImGuiCommandPool = VK_NULL_HANDLE;
+
         void CreateInstance();
         void CreateSurface();
         void CreateDevice();
         void CreateSwapchain();
         void CreateRenderPass();
+        void CreateImGuiRenderPass();
         void CreatePipeline(VkShaderModule vertexModule, VkShaderModule fragmentModule);
         void CreatePipelineCache();
         void CreateDescriptorSets();
         void CreateCommandPool();
+        void CreateImGuiCommandPool();
         void CreateCommandBuffers();
+        void CreateImGuiCommandBuffers();
         void CreateFramebuffers();
+        void CreateImGuiFramebuffers();
         void CreateSynchronization();
 
         void CleanupSwapchain();

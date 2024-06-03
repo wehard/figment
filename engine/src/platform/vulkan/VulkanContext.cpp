@@ -26,6 +26,7 @@ namespace Figment
         CreateDevice();
         CreateSwapchain();
         CreateRenderPass();
+        CreateImGuiRenderPass();
 
         std::vector<Vertex> vertices = {
                 {{ 0.0, -0.5, 0.0 }, { 1.0, 0.0, 0.0 }},
@@ -58,8 +59,11 @@ namespace Figment
 
         CreatePipeline(m_Shader->GetVertexModule(), m_Shader->GetFragmentModule());
         CreateFramebuffers();
+        CreateImGuiFramebuffers();
         CreateCommandPool();
+        CreateImGuiCommandPool();
         CreateCommandBuffers();
+        CreateImGuiCommandBuffers();
         m_DescriptorPool = CreateDescriptorPool({
                 {
                         .type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
@@ -351,6 +355,22 @@ namespace Figment
         });
     }
 
+    void Figment::VulkanContext::CreateImGuiRenderPass()
+    {
+        m_ImGuiRenderPass = new VulkanRenderPass(*this, {
+                .ColorAttachment = {
+                        .Format= VK_FORMAT_B8G8R8A8_UNORM,
+                        .Samples = VK_SAMPLE_COUNT_1_BIT,
+                        .LoadOp = VK_ATTACHMENT_LOAD_OP_LOAD,
+                        .StoreOp = VK_ATTACHMENT_STORE_OP_STORE,
+                        .StencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+                        .StencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+                        .InitialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                        .FinalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+                }
+        });
+    }
+
     void Figment::VulkanContext::CreatePipeline(VkShaderModule vertexModule, VkShaderModule fragmentModule)
     {
         m_Pipeline = new VulkanPipeline(*this, {
@@ -455,6 +475,18 @@ namespace Figment
             throw std::runtime_error("Failed to create command pool!");
     }
 
+    void Figment::VulkanContext::CreateImGuiCommandPool()
+    {
+        VkCommandPoolCreateInfo poolInfo = {};
+        poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+        poolInfo.queueFamilyIndex = m_GraphicsQueueIndex;
+        poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+
+        VkResult result = vkCreateCommandPool(m_Device, &poolInfo, nullptr, &m_ImGuiCommandPool);
+        if (result != VK_SUCCESS)
+            throw std::runtime_error("Failed to create ImGui command pool!");
+    }
+
     void Figment::VulkanContext::CreateFramebuffers()
     {
         m_FrameData.Framebuffers.resize(m_FrameData.ImageViews.size());
@@ -479,6 +511,30 @@ namespace Figment
         }
     }
 
+    void Figment::VulkanContext::CreateImGuiFramebuffers()
+    {
+        m_FrameData.ImGuiFramebuffers.resize(m_FrameData.ImageViews.size());
+        for (size_t i = 0; i < m_FrameData.ImGuiFramebuffers.size(); i++)
+        {
+            std::array<VkImageView, 1> attachments = {
+                    m_FrameData.ImageViews[i] };
+
+            VkFramebufferCreateInfo framebufferCreateInfo = {};
+            framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+            framebufferCreateInfo.renderPass = m_ImGuiRenderPass->Get();
+            framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+            framebufferCreateInfo.pAttachments = attachments.data();
+            framebufferCreateInfo.width = m_SwapchainExtent.width;
+            framebufferCreateInfo.height = m_SwapchainExtent.height;
+            framebufferCreateInfo.layers = 1;
+
+            VkResult result = vkCreateFramebuffer(m_Device, &framebufferCreateInfo, nullptr,
+                    &m_FrameData.ImGuiFramebuffers[i]);
+            if (result != VK_SUCCESS)
+                throw std::runtime_error("Failed to create ImGui framebuffer!");
+        }
+    }
+
     void Figment::VulkanContext::CreateCommandBuffers()
     {
         m_CommandBuffers.resize(MAX_FRAME_DRAWS);
@@ -490,6 +546,21 @@ namespace Figment
 
         VkResult result = vkAllocateCommandBuffers(m_Device, &commandBufferAllocateInfo,
                 &m_CommandBuffers[0]);
+        if (result != VK_SUCCESS)
+            throw std::runtime_error("Failed to allocate command buffers!");
+    }
+
+    void Figment::VulkanContext::CreateImGuiCommandBuffers()
+    {
+        m_ImGuiCommandBuffers.resize(MAX_FRAME_DRAWS);
+        VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
+        commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        commandBufferAllocateInfo.commandPool = m_ImGuiCommandPool;
+        commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY; // can only be executed by queue, not like secondary that can be executed by primary command buffers
+        commandBufferAllocateInfo.commandBufferCount = static_cast<uint32_t>(m_ImGuiCommandBuffers.size());
+
+        VkResult result = vkAllocateCommandBuffers(m_Device, &commandBufferAllocateInfo,
+                &m_ImGuiCommandBuffers[0]);
         if (result != VK_SUCCESS)
             throw std::runtime_error("Failed to allocate command buffers!");
     }
@@ -529,7 +600,10 @@ namespace Figment
         // get next available image to draw to and set semaphore to signal when it's ready to be drawn to
         CheckVkResult(vkAcquireNextImageKHR(m_Device, m_Swapchain, std::numeric_limits<uint64_t>::max(),
                 m_SynchronizationObjects[m_FrameIndex].SemaphoreImageAvailable, VK_NULL_HANDLE, &m_ImageIndex));
+    }
 
+    void VulkanContext::BeginMainPass()
+    {
         VkCommandBufferBeginInfo bufferBeginInfo = {};
         bufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
@@ -552,12 +626,15 @@ namespace Figment
                 VK_SUBPASS_CONTENTS_INLINE);
     }
 
-    void VulkanContext::EndFrame()
+    void VulkanContext::EndMainPass()
     {
         vkCmdEndRenderPass(m_CommandBuffers[m_FrameIndex]);
 
         CheckVkResult(vkEndCommandBuffer(m_CommandBuffers[m_FrameIndex]));
+    }
 
+    void VulkanContext::EndFrame()
+    {
         // submit command buffer to queue for execution
         VkSubmitInfo submitInfo = {};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -646,12 +723,12 @@ namespace Figment
         vkResetCommandPool(m_Device, m_CommandPool, 0);
     }
 
-    VkCommandBuffer VulkanContext::BeginSingleTimeCommands(VkCommandPool commandPool)
+    VkCommandBuffer VulkanContext::BeginSingleTimeCommands()
     {
         VkCommandBufferAllocateInfo allocInfo = {};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocInfo.commandPool = commandPool;
+        allocInfo.commandPool = m_CommandPool;
         allocInfo.commandBufferCount = 1;
 
         VkCommandBuffer commandBuffer;
@@ -680,5 +757,4 @@ namespace Figment
 
         vkFreeCommandBuffers(m_Device, m_CommandPool, 1, &commandBuffer);
     }
-
 }
