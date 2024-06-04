@@ -195,6 +195,8 @@ int main()
         vkContext->EndFrame();
     }
 
+    vkContext->Cleanup();
+
     ImGui_ImplVulkan_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext(context);

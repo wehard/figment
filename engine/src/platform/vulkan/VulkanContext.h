@@ -2,11 +2,15 @@
 
 #include "vulkan/vulkan.h"
 #include <GLFW/glfw3.h>
+
 #include "RenderContext.h"
-#include "glm/vec3.hpp"
-#include "glm/mat4x4.hpp"
 #include "Log.h"
 #include "Camera.h"
+#include "DeletionQueue.h"
+
+#include "glm/vec3.hpp"
+#include "glm/mat4x4.hpp"
+
 #include <vector>
 
 #define MAX_FRAME_DRAWS 2
@@ -57,7 +61,7 @@ namespace Figment
         [[nodiscard]] VkQueue GetPresentQueue() const { return m_GraphicsQueue; }
         [[nodiscard]] VkSurfaceKHR GetSurface() const { return m_Surface; }
         [[nodiscard]] VkSwapchainKHR GetSwapchain() const { return m_Swapchain; }
-        [[nodiscard]] VkCommandPool GetImGuiCommandPool() const { return m_ImGuiCommandPool; }
+        [[nodiscard]] VkCommandPool GetImGuiCommandPool() const { return m_CommandPool; }
         [[nodiscard]] VkDescriptorPool GetDescriptorPool() const { return m_DescriptorPool; }
         [[nodiscard]] VulkanSurfaceDetails SurfaceDetails() const { return m_SurfaceDetails; }
         // [[nodiscard]] VkRenderPass GetRenderPass() const { return m_RenderPass; }
@@ -77,6 +81,7 @@ namespace Figment
         void DebugDraw(VulkanBuffer &buffer, glm::mat4 transform, Camera &camera);
         VkCommandBuffer BeginSingleTimeCommands();
         void EndSingleTimeCommands(VkCommandBuffer commandBuffer);
+        void Cleanup();
 
         struct Vertex
         {
@@ -93,6 +98,8 @@ namespace Figment
         VkSwapchainKHR m_Swapchain = VK_NULL_HANDLE;
         VkCommandPool m_CommandPool = VK_NULL_HANDLE;
         VulkanRenderPass *m_RenderPass = nullptr;
+
+        DeletionQueue m_DeletionQueue;
 
         VkPipelineCache m_PipelineCache = VK_NULL_HANDLE;
         VkDescriptorPool m_DescriptorPool = VK_NULL_HANDLE;

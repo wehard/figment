@@ -64,6 +64,5 @@ namespace Figment
 
     VulkanRenderPass::~VulkanRenderPass()
     {
-        vkDestroyRenderPass(m_Context.GetDevice(), m_RenderPass, nullptr);
     }
 }
