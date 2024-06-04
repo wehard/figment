@@ -57,12 +57,30 @@ target_include_directories(engine
 )
 
 file(GLOB_RECURSE SRC_FILES
-        "src/*.cpp"
+        "src/core/*.cpp"
+        "src/debug/*.cpp"
+        "src/physics/*.cpp"
+        "src/renderer/*.cpp"
+        "src/scene/*.cpp"
+        "src/App.cpp"
+        "PixelCanvas.cpp"
         "lib/imgui/imgui.cpp"
         "lib/imgui/imgui_draw.cpp"
         "lib/imgui/imgui_widgets.cpp"
         "lib/imgui/imgui_tables.cpp"
 )
+
+if (EMSCRIPTEN)
+    file(GLOB_RECURSE WEBGPU_SRC_FILES
+            "src/platform/webgpu/*.cpp"
+    )
+    target_sources(engine PRIVATE ${WEBGPU_SRC_FILES})
+else ()
+    file(GLOB_RECURSE VULKAN_SRC_FILES
+            "src/platform/vulkan/*.cpp"
+    )
+    target_sources(engine PRIVATE ${VULKAN_SRC_FILES})
+endif ()
 
 target_sources(engine PRIVATE ${SRC_FILES})
 
