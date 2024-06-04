@@ -3,6 +3,7 @@
 #include <emscripten/html5_webgpu.h>
 #include "GUIContext.h"
 #include "WebGPUContext.h"
+#include "imgui/imgui.h"
 
 namespace Figment
 {

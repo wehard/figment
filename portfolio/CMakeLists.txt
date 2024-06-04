@@ -7,6 +7,7 @@ add_executable(portfolio)
 
 add_dependencies(portfolio engine)
 
+target_compile_definitions(portfolio PRIVATE WEBGPU_BACKEND)
 target_compile_definitions(portfolio PRIVATE GL_SILENCE_DEPRECATION)
 target_compile_definitions(portfolio PRIVATE WEBGPU_BACKEND_EMSCRIPTEN)
 target_compile_options(portfolio PRIVATE -Wno-deprecated-literal-operator)
@@ -34,6 +35,7 @@ target_include_directories(portfolio
         ../engine/src/platform/webgpu
         ../engine/lib
         ../engine/lib/entt
+        ../engine/lib/imgui
         ../engine/lib/imgui/include
         ../engine/lib/glm
 )
