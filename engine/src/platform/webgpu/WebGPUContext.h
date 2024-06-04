@@ -11,6 +11,7 @@ namespace Figment
     {
     public:
         void Init(uint32_t width, uint32_t height) override;
+        void OnResize(uint32_t width, uint32_t height) override;
         WGPUDevice GetDevice() { return m_WebGPUDevice; }
         WGPUSurface GetSurface() { return m_WebGPUSurface; }
         WGPUSwapChain GetSwapChain() { return m_SwapChain; }

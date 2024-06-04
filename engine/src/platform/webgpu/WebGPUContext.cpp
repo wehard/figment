@@ -148,4 +148,9 @@ namespace Figment
     {
         wgpuTextureViewRelease(m_DefaultRenderTarget.Color.TextureView);
     }
+    
+    void WebGPUContext::OnResize(uint32_t width, uint32_t height)
+    {
+
+    }
 }
