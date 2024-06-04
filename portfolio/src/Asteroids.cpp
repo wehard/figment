@@ -5,7 +5,7 @@ Asteroids::Asteroids(const PerspectiveCamera &camera, bool enabled) : Layer("Ast
 
     auto m_Window = Figment::App::Instance()->GetWindow();
     auto webGpuWindow = std::dynamic_pointer_cast<Figment::WebGPUWindow>(m_Window);
-    auto context = webGpuWindow->GetContext();
+    auto context = webGpuWindow->GetContext<WebGPUContext>();
     m_Renderer = std::make_unique<Figment::MeshRenderer>(*context);
 
     auto asteroidMeshData = ModelLoader::LoadObj("res/asteroid.obj");

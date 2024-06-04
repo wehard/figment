@@ -1,10 +1,11 @@
 #include "Cube.h"
+#include "WebGPUWindow.h"
 
 Cube::Cube(std::shared_ptr<PerspectiveCamera> camera, bool enabled) : Layer("Cube", enabled), m_Camera(camera)
 {
     auto window = Figment::App::Instance()->GetWindow();
     m_Window = std::dynamic_pointer_cast<Figment::WebGPUWindow>(window);
-    m_Renderer = std::make_unique<MeshRenderer>(*m_Window->GetContext());
+    m_Renderer = std::make_unique<MeshRenderer>(*m_Window->GetContext<WebGPUContext>());
 
     std::vector<Mesh::Vertex> vertices = {
             {{ -0.5, -0.5, 0.5 }, { 0.0, 0.0 }},
@@ -26,10 +27,10 @@ Cube::Cube(std::shared_ptr<PerspectiveCamera> camera, bool enabled) : Layer("Cub
             3, 2, 6, 6, 7, 3
     };
 
-    m_Mesh = std::make_unique<Mesh>(m_Window->GetContext()->GetDevice(), vertices, indices);
+    m_Mesh = std::make_unique<Mesh>(m_Window->GetContext<WebGPUContext>()->GetDevice(), vertices, indices);
 
     auto image = Image::Load("res/2k_earth_daymap.png");
-    m_Texture = WebGPUTexture::Create(m_Window->GetContext()->GetDevice(), image);
+    m_Texture = WebGPUTexture::Create(m_Window->GetContext<WebGPUContext>()->GetDevice(), image);
 }
 
 void Cube::OnAttach()

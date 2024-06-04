@@ -7,8 +7,8 @@ Particles::Particles(std::shared_ptr<PerspectiveCamera> camera, bool enabled) : 
 {
     auto m_Window = Figment::App::Instance()->GetWindow();
     auto webGpuWindow = std::dynamic_pointer_cast<Figment::WebGPUWindow>(m_Window);
-    m_Context = webGpuWindow->GetContext();
-    m_Renderer = std::make_unique<ParticleRenderer>(*webGpuWindow->GetContext());
+    m_Context = webGpuWindow->GetContext<WebGPUContext>();
+    m_Renderer = std::make_unique<ParticleRenderer>(*m_Context);
     m_ComputeShader = std::make_unique<WebGPUShader>(m_Context->GetDevice(),
             "res/shaders/particles.wgsl", "ParticlesCompute");
     m_ParticleShader = std::make_unique<WebGPUShader>(m_Context->GetDevice(),

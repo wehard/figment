@@ -189,7 +189,7 @@ void MainLayer::OnImGuiRender()
             auto bump = worldMap->GetHeightMap();
             auto aspect = (float)texture->GetHeight() / (float)texture->GetWidth();
             auto bumpAspect = (float)bump->GetHeight() / (float)bump->GetWidth();
-            auto contentWidth = ImGui::GetWindowContentRegionWidth();
+            auto contentWidth = ImGui::GetWindowWidth();
             ImGui::Image((ImTextureID)texture->GetTextureView(), ImVec2(contentWidth, contentWidth * aspect));
             ImGui::Image((ImTextureID)bump->GetTextureView(), ImVec2(contentWidth, contentWidth * bumpAspect));
         });
