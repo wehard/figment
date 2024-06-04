@@ -18,13 +18,18 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0 -Wno-dangling-else")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -Wno-dangling-else")
 else ()
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 --closure 1")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 --closure 1")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
 endif ()
 
 target_include_directories(portfolio
         PRIVATE
-        src
+        src/Asteroids
+        src/Cube
+        src/Galaxy
+        src/GameOfLife
+        src/Shapes
+        src/Worlds
         ../engine/src
         ../engine/src/core
         ../engine/src/scene
