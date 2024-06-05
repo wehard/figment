@@ -7,7 +7,7 @@ using namespace Figment;
 class MainLayer : public Figment::Layer
 {
 public:
-    MainLayer();
+    MainLayer(const char *initialLayerName);
     void OnAttach() override;
     void OnDetach() override;
     void OnUpdate(float deltaTime) override;

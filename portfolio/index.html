@@ -49,6 +49,13 @@
         href="https://caniuse.com/webgpu">https://caniuse.com/webgpu</a></div>
 <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
 <script type='text/javascript'>
+    const urlParams = new URLSearchParams(window.location.search);
+    const layer = urlParams.get('layer');
+    const arguments = [window.innerWidth.toString(), window.innerHeight.toString()];
+    if (layer) {
+        arguments.push(layer);
+    }
+
     var Module;
     (async () => {
         Module = {
@@ -73,7 +80,7 @@
             monitorRunDependencies: function (left) {
                 // no run dependencies to log
             },
-            arguments: [window.innerWidth.toString(), window.innerHeight.toString()]
+            arguments: arguments,
         };
         window.onerror = function () {
             console.log("onerror: " + event);

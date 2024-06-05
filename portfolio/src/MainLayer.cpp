@@ -9,7 +9,7 @@
 
 #include <emscripten.h>
 
-MainLayer::MainLayer() : Layer("Main")
+MainLayer::MainLayer(const char *initialLayerName) : Layer("Main")
 {
     auto m_Window = Figment::App::Instance()->GetWindow();
     auto webGpuWindow = std::dynamic_pointer_cast<Figment::WebGPUWindow>(m_Window);
@@ -21,16 +21,25 @@ MainLayer::MainLayer() : Layer("Main")
     m_CameraController->SetMovementSpeed(1.0f);
 
     m_Layers.push_back(new MetaGameSim(true));
-    // m_Layers.push_back(new WorldMap(m_Camera, true));
-    // m_Layers.push_back(new Particles(m_Camera, false));
-    // m_Layers.push_back(new GameOfLife(*webGpuWindow->GetContext(), *m_Camera));
+    m_Layers.push_back(new WorldMap(m_Camera, true));
+    m_Layers.push_back(new Particles(m_Camera, false));
+    m_Layers.push_back(new GameOfLife(*webGpuWindow->GetContext<WebGPUContext>(), *m_Camera));
     // m_Layers.push_back(new Asteroids(*m_Camera, false));
-    // m_Layers.push_back(new Shapes(*webGpuWindow->GetContext(), *m_Camera));
+    // m_Layers.push_back(new Shapes(*webGpuWindow->GetContext<WebGPUContext>(), *m_Camera));
     // m_Layers.push_back(new Cube(m_Camera, true));
 
     for (auto layer : m_Layers)
     {
         App::Instance()->AddLayer(layer);
+        if (strcmp(layer->GetName().c_str(), initialLayerName) == 0)
+        {
+            m_SelectedLayer = layer;
+            layer->SetEnabled(true);
+        }
+        else
+        {
+            layer->SetEnabled(false);
+        }
     }
 }
 
