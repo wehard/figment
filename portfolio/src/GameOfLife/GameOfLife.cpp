@@ -98,7 +98,6 @@ void GameOfLife::OnUpdate(float deltaTime)
     }
 
     auto time = glfwGetTime();
-    // m_Rotation.x = sin(time * 0.25f) * 15.0f;
     m_Rotation.y = cos(time * 0.25f) * 15.0f;
     m_Rotation.z = sin(time * 0.25f) * 15.0f;
 
@@ -118,13 +117,14 @@ void GameOfLife::OnEvent(Figment::AppEvent event, void *eventData)
 void GameOfLife::Randomize()
 {
     m_PixelCanvas->Fill(s_DeadColor);
-    for (auto i = 0; i < s_Width * s_Height; i++)
+    for (auto y = 0; y < s_Height; y++)
     {
-        auto x = i % s_Width;
-        auto y = i / s_Width;
-        auto r = Random::Float();
-        if (r < 0.5)
-            m_PixelCanvas->SetPixel(x, y, s_LiveColor);
+        for (auto x = 0; x < s_Width; x++)
+        {
+            if (Random::Float() < 0.5)
+                m_PixelCanvas->SetPixel(x, y, s_LiveColor);
+        }
     }
     m_PixelCanvas->UpdateTexture();
+    memcpy(m_PrevPixelData, m_PixelCanvas->GetPixelData(), s_Width * s_Height * sizeof(uint32_t));
 }

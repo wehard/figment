@@ -9,8 +9,6 @@ class GameOfLife : public Figment::Layer
 public:
     constexpr static uint32_t s_DeadColor = 0xff855826;
     constexpr static uint32_t s_LiveColor = 0xff3486eb;
-
-    void Randomize();
 public:
     GameOfLife(WebGPUContext &context, PerspectiveCamera &camera);
     ~GameOfLife() override = default;
@@ -19,6 +17,8 @@ public:
     void OnUpdate(float deltaTime) override;
     void OnImGuiRender() override;
     void OnEvent(Figment::AppEvent event, void *eventData) override;
+
+    void Randomize();
 private:
     struct TextureData
     {
