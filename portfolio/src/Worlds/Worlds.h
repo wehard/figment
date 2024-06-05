@@ -70,5 +70,5 @@ private:
     ComputePipeline *m_InitPipeline;
     ComputePipeline *m_SimulatePipeline;
     float m_TimeSinceLastCycle = 0.0f;
-    float m_CycleInterval = 2.0f;
+    float m_CycleInterval = 3.0f;
 };
