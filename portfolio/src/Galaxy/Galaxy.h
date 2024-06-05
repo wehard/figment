@@ -21,11 +21,11 @@ struct ParticlesData
     glm::vec2 Seed;
 };
 
-class Particles : public Layer
+class Galaxy : public Layer
 {
 public:
-    Particles(std::shared_ptr<PerspectiveCamera> camera, bool enabled);
-    ~Particles() override;
+    Galaxy(std::shared_ptr<PerspectiveCamera> camera, bool enabled);
+    ~Galaxy() override;
     void OnAttach() override;
     void OnDetach() override;
     void OnUpdate(float deltaTime) override;

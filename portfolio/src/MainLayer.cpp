@@ -1,6 +1,6 @@
 #include "MainLayer.h"
 #include "Cube.h"
-#include "Particles.h"
+#include "Galaxy.h"
 #include "WorldMap.h"
 #include "Asteroids.h"
 #include "GameOfLife.h"
@@ -22,7 +22,7 @@ MainLayer::MainLayer(const char *initialLayerName) : Layer("Main")
 
     m_Layers.push_back(new MetaGameSim(true));
     m_Layers.push_back(new WorldMap(m_Camera, true));
-    m_Layers.push_back(new Particles(m_Camera, false));
+    m_Layers.push_back(new Galaxy(m_Camera, false));
     m_Layers.push_back(new GameOfLife(*webGpuWindow->GetContext<WebGPUContext>(), *m_Camera));
     // m_Layers.push_back(new Asteroids(*m_Camera, false));
     // m_Layers.push_back(new Shapes(*webGpuWindow->GetContext<WebGPUContext>(), *m_Camera));
@@ -182,7 +182,7 @@ void MainLayer::OnImGuiRender()
             ImGui::Text("It's a cube.");
         });
 
-        LayerDetails<Particles>(m_SelectedLayer, [](Particles *galaxy)
+        LayerDetails<Galaxy>(m_SelectedLayer, [](Galaxy *galaxy)
         {
             ImGui::SliderFloat("Particle size", &galaxy->m_ParticleSize, 0.001, 0.1);
             ImGui::DragFloat3("Position", &galaxy->m_Position[0], 0.1f);

@@ -1,6 +1,6 @@
 #pragma once
 #include "Figment.h"
-#include "Particles.h"
+#include "Galaxy.h"
 #include "ParticleRenderer.h"
 
 using namespace Figment;

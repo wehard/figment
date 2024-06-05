@@ -1,8 +1,8 @@
-#include "Particles.h"
+#include "Galaxy.h"
 #include "ComputePass.h"
 #include "Figment.h"
 
-Particles::Particles(std::shared_ptr<PerspectiveCamera> camera, bool enabled) : Layer("Galaxy", enabled),
+Galaxy::Galaxy(std::shared_ptr<PerspectiveCamera> camera, bool enabled) : Layer("Galaxy", enabled),
         m_Camera(camera)
 {
     auto m_Window = Figment::App::Instance()->GetWindow();
@@ -46,7 +46,7 @@ Particles::Particles(std::shared_ptr<PerspectiveCamera> camera, bool enabled) : 
     m_SimulatePipeline->Build("simulate", m_ComputeShader->GetShaderModule());
 }
 
-Particles::~Particles()
+Galaxy::~Galaxy()
 {
 
 }
@@ -81,7 +81,7 @@ static void Error(WGPUErrorType type, char const *message, void *userdata)
     FIG_LOG_ERROR("%s - %s", errorType, message);
 }
 
-void Particles::OnAttach()
+void Galaxy::OnAttach()
 {
     // wgpuDevicePushErrorScope(m_Context->GetDevice(), WGPUErrorFilter_Internal);
     // wgpuDevicePushErrorScope(m_Context->GetDevice(), WGPUErrorFilter_Validation);
@@ -103,12 +103,12 @@ void Particles::OnAttach()
     // wgpuDevicePopErrorScope(m_Context->GetDevice(), &Error, nullptr);
 }
 
-void Particles::OnDetach()
+void Galaxy::OnDetach()
 {
 
 }
 
-void Particles::OnUpdate(float deltaTime)
+void Galaxy::OnUpdate(float deltaTime)
 {
     ParticlesData d = {};
     d.DeltaTime = deltaTime;
@@ -133,11 +133,11 @@ void Particles::OnUpdate(float deltaTime)
 
 }
 
-void Particles::OnImGuiRender()
+void Galaxy::OnImGuiRender()
 {
 }
 
-void Particles::OnEvent(AppEvent event, void *eventData)
+void Galaxy::OnEvent(AppEvent event, void *eventData)
 {
     auto ev = (Figment::WindowResizeEventData *)eventData;
     m_Renderer->OnResize(ev->Width, ev->Height);
