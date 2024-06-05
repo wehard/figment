@@ -61,7 +61,6 @@ void MetaGameSim::OnImGuiRender()
     auto size = ImGui::GetIO().DisplaySize;
     ImGui::SetNextWindowSize(ImVec2(size.x / 2, size.y / 3), ImGuiCond_Once);
     ImGui::SetNextWindowPos(ImVec2(size.x / 2, size.y / 2), ImGuiCond_Once, ImVec2(0.5, 0.5));
-    ImGui::SetNextWindowFocus();
     ImGui::Begin("MetaGameSim");
 
     for (auto &action : m_Actions)
