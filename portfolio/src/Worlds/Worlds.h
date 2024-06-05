@@ -1,4 +1,5 @@
 #pragma once
+
 #include "Figment.h"
 #include "Galaxy.h"
 #include "ParticleRenderer.h"
@@ -33,11 +34,11 @@ struct WorldParticlesData
     glm::vec2 MouseWorldPosition;
 };
 
-class WorldMap : public Layer
+class Worlds : public Layer
 {
 public:
-    WorldMap(std::shared_ptr<PerspectiveCamera> camera, bool enabled);
-    ~WorldMap() override;
+    Worlds(std::shared_ptr<PerspectiveCamera> camera, bool enabled);
+    ~Worlds() override;
     void OnAttach() override;
     void OnDetach() override;
     void OnUpdate(float deltaTime) override;

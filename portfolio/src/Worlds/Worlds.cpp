@@ -1,6 +1,6 @@
-#include "WorldMap.h"
+#include "Worlds.h"
 
-WorldMap::WorldMap(std::shared_ptr<PerspectiveCamera> camera, bool enabled) : Layer("World", enabled), m_Camera(camera)
+Worlds::Worlds(std::shared_ptr<PerspectiveCamera> camera, bool enabled) : Layer("Worlds", enabled), m_Camera(camera)
 {
     auto m_Window = Figment::App::Instance()->GetWindow();
     auto webGpuWindow = std::dynamic_pointer_cast<Figment::WebGPUWindow>(m_Window);
@@ -51,7 +51,7 @@ WorldMap::WorldMap(std::shared_ptr<PerspectiveCamera> camera, bool enabled) : La
     m_SimulatePipeline->Build("simulate", m_ComputeShader->GetShaderModule());
 }
 
-WorldMap::~WorldMap()
+Worlds::~Worlds()
 {
     for (auto &wd : m_WorldData)
     {
@@ -61,7 +61,7 @@ WorldMap::~WorldMap()
     }
 }
 
-void WorldMap::LoadWorld(const std::string &colorMapPath, const std::string &heightMapPath, float relativeSize)
+void Worlds::LoadWorld(const std::string &colorMapPath, const std::string &heightMapPath, float relativeSize)
 {
     auto colorMapImage = Image::Load(colorMapPath);
     auto colorMap = WebGPUTexture::Create(m_Context->GetDevice(), colorMapImage);
@@ -82,12 +82,12 @@ void WorldMap::LoadWorld(const std::string &colorMapPath, const std::string &hei
     });
 }
 
-void WorldMap::OnAttach()
+void Worlds::OnAttach()
 {
     ResetParticles();
 }
 
-void WorldMap::OnDetach()
+void Worlds::OnDetach()
 {
 
 }
@@ -111,7 +111,7 @@ static bool intersectSphere(glm::vec3 ro, glm::vec3 rd, glm::vec3 sc, float sr, 
     return *t >= 0.0;
 }
 
-void WorldMap::OnUpdate(float deltaTime)
+void Worlds::OnUpdate(float deltaTime)
 {
     m_TimeSinceLastCycle += deltaTime;
     if (AutoCycleWorlds && m_TimeSinceLastCycle >= m_CycleInterval)
@@ -153,7 +153,7 @@ void WorldMap::OnUpdate(float deltaTime)
     m_Renderer->EndFrame();
 }
 
-void WorldMap::OnImGuiRender()
+void Worlds::OnImGuiRender()
 {
     bool shouldRecreatePipeline = false;
     auto size = ImGui::GetWindowWidth();
@@ -196,18 +196,18 @@ void WorldMap::OnImGuiRender()
     }
 }
 
-void WorldMap::OnEvent(AppEvent event, void *eventData)
+void Worlds::OnEvent(AppEvent event, void *eventData)
 {
     auto ev = (Figment::WindowResizeEventData *)eventData;
     m_Renderer->OnResize(ev->Width, ev->Height);
 }
 
-uint32_t WorldMap::GetParticleCount()
+uint32_t Worlds::GetParticleCount()
 {
     return m_ParticleCount;
 }
 
-void WorldMap::ResetParticles()
+void Worlds::ResetParticles()
 {
     WorldParticlesData d = {};
     d.DeltaTime = 0.0;
@@ -223,7 +223,7 @@ void WorldMap::ResetParticles()
     computePass.End();
 }
 
-void WorldMap::RecreatePipelines()
+void Worlds::RecreatePipelines()
 {
     delete m_InitPipeline;
     delete m_SimulatePipeline;

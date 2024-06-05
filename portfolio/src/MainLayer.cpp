@@ -1,7 +1,7 @@
 #include "MainLayer.h"
 #include "Cube.h"
 #include "Galaxy.h"
-#include "WorldMap.h"
+#include "Worlds.h"
 #include "Asteroids.h"
 #include "GameOfLife.h"
 #include "Shapes.h"
@@ -21,7 +21,7 @@ MainLayer::MainLayer(const char *initialLayerName) : Layer("Main")
     m_CameraController->SetMovementSpeed(1.0f);
 
     m_Layers.push_back(new MetaGameSim(true));
-    m_Layers.push_back(new WorldMap(m_Camera, true));
+    m_Layers.push_back(new Worlds(m_Camera, true));
     m_Layers.push_back(new Galaxy(m_Camera, false));
     m_Layers.push_back(new GameOfLife(*webGpuWindow->GetContext<WebGPUContext>(), *m_Camera));
     // m_Layers.push_back(new Asteroids(*m_Camera, false));
@@ -190,7 +190,7 @@ void MainLayer::OnImGuiRender()
             ImGui::DragFloat3("Scale", &galaxy->m_Scale[0], 0.1f);
         });
 
-        LayerDetails<WorldMap>(m_SelectedLayer, [](WorldMap *worldMap)
+        LayerDetails<Worlds>(m_SelectedLayer, [](Worlds *worldMap)
         {
             ImGui::Text("Particle count: %d", worldMap->GetParticleCount());
             ImGui::Checkbox("Auto cycle", &worldMap->AutoCycleWorlds);
