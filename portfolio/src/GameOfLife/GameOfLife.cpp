@@ -7,17 +7,7 @@ GameOfLife::GameOfLife(Figment::WebGPUContext &context, PerspectiveCamera &camer
     PixelCanvasDescriptor descriptor = { s_Width, s_Height, false };
     m_PixelCanvas = new PixelCanvas(context, &descriptor);
 
-    m_PixelCanvas->Fill(s_DeadColor);
-
-    for (auto x = 0; x < s_Width * s_Height; x++)
-    {
-        auto i = x % s_Width;
-        auto j = x / s_Width;
-        auto r = Random::Float();
-        if (r < 0.2)
-            m_PixelCanvas->SetPixel(i, j, s_LiveColor);
-    }
-    m_PixelCanvas->UpdateTexture();
+    Randomize();
 
     m_UniformBuffer = new WebGPUUniformBuffer<TextureData>(context.GetDevice(), "TextureDataUniformBuffer",
             sizeof(TextureData));
@@ -61,6 +51,15 @@ static uint32_t GetLiveNeighbours(uint32_t *canvas, int w, int h, int cx, int cy
     return count;
 }
 
+static glm::mat4 Transform(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)
+{
+    glm::mat4 matScale = glm::scale(glm::mat4(1.0f), scale);
+    glm::mat4 matTranslate = glm::translate(glm::mat4(1.0), position);
+    glm::mat4 matRotate = glm::eulerAngleXYZ(glm::radians(rotation.x), glm::radians(rotation.y),
+            glm::radians(rotation.z));
+    return matTranslate * matRotate * matScale;
+}
+
 static float counter = 0.0f;
 
 void GameOfLife::OnUpdate(float deltaTime)
@@ -98,7 +97,12 @@ void GameOfLife::OnUpdate(float deltaTime)
         counter = 0.0f;
     }
 
-    m_PixelCanvas->OnUpdate(m_Camera, deltaTime);
+    auto time = glfwGetTime();
+    // m_Rotation.x = sin(time * 0.25f) * 15.0f;
+    m_Rotation.y = cos(time * 0.25f) * 15.0f;
+    m_Rotation.z = sin(time * 0.25f) * 15.0f;
+
+    m_PixelCanvas->OnUpdate(m_Camera, Transform(m_Position, m_Rotation, m_Scale));
 }
 
 void GameOfLife::OnImGuiRender()
@@ -109,4 +113,18 @@ void GameOfLife::OnImGuiRender()
 void GameOfLife::OnEvent(Figment::AppEvent event, void *eventData)
 {
 
+}
+
+void GameOfLife::Randomize()
+{
+    m_PixelCanvas->Fill(s_DeadColor);
+    for (auto i = 0; i < s_Width * s_Height; i++)
+    {
+        auto x = i % s_Width;
+        auto y = i / s_Width;
+        auto r = Random::Float();
+        if (r < 0.5)
+            m_PixelCanvas->SetPixel(x, y, s_LiveColor);
+    }
+    m_PixelCanvas->UpdateTexture();
 }

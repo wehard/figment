@@ -68,10 +68,10 @@ namespace Figment
         m_Texture.SetData(m_Pixels, m_Width * m_Height * sizeof(uint32_t));
     }
 
-    void PixelCanvas::OnUpdate(PerspectiveCamera &camera, float deltaTime)
+    void PixelCanvas::OnUpdate(PerspectiveCamera &camera, glm::mat4 transform)
     {
         m_MeshRenderer.BeginFrame(camera);
-        m_MeshRenderer.DrawTextured(*m_Mesh, glm::mat4(1.0f), m_Texture);
+        m_MeshRenderer.DrawTextured(*m_Mesh, transform, m_Texture);
         m_MeshRenderer.EndFrame();
     }
 }

@@ -204,6 +204,14 @@ void MainLayer::OnImGuiRender()
             ImGui::Image((ImTextureID)texture->GetTextureView(), ImVec2(contentWidth, contentWidth * aspect));
             ImGui::Image((ImTextureID)bump->GetTextureView(), ImVec2(contentWidth, contentWidth * bumpAspect));
         });
+
+        LayerDetails<GameOfLife>(m_SelectedLayer, [](GameOfLife *gameOfLife)
+        {
+            if (ImGui::Button("Randomize"))
+            {
+                gameOfLife->Randomize();
+            }
+        });
     }
     ImGui::End();
     DrawDebugPanel(*m_Camera, true);

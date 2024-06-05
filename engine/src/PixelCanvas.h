@@ -21,7 +21,7 @@ namespace Figment
         PixelCanvas(WebGPUContext &context, PixelCanvasDescriptor *descriptor);
         ~PixelCanvas() = default;
 
-        void OnUpdate(PerspectiveCamera &camera, float deltaTime);
+        void OnUpdate(PerspectiveCamera &camera, glm::mat4 transform);
         void SetPixel(uint32_t x, uint32_t y, uint32_t color);
         void Fill(uint32_t color);
         uint32_t GetPixel(uint32_t x, uint32_t y) { return m_Pixels[y * m_Width + x]; }

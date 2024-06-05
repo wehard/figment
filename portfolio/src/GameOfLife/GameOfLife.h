@@ -7,9 +7,10 @@ using namespace Figment;
 class GameOfLife : public Figment::Layer
 {
 public:
-    constexpr static uint32_t s_DeadColor = 0xffffb273;
-    constexpr static uint32_t s_LiveColor = 0xff0000ff;
+    constexpr static uint32_t s_DeadColor = 0xff855826;
+    constexpr static uint32_t s_LiveColor = 0xff3486eb;
 
+    void Randomize();
 public:
     GameOfLife(WebGPUContext &context, PerspectiveCamera &camera);
     ~GameOfLife() override = default;
@@ -30,6 +31,10 @@ private:
     PixelCanvas *m_PixelCanvas;
     WebGPUUniformBuffer<TextureData> *m_UniformBuffer;
     uint32_t *m_PrevPixelData;
+
+    glm::vec3 m_Position = glm::vec3(0.0);
+    glm::vec3 m_Rotation = glm::vec3(0.0);
+    glm::vec3 m_Scale = glm::vec3(3.0);
 
     constexpr static uint32_t s_Width = 320;
     constexpr static uint32_t s_Height = 200;
