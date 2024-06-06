@@ -20,7 +20,7 @@ MainLayer::MainLayer(const char *initialLayerName) : Layer("Main")
     m_CameraController = std::make_shared<CameraController>(m_Camera);
     m_CameraController->SetMovementSpeed(1.0f);
 
-    m_Layers.push_back(new MetaGameSim(true));
+    // m_Layers.push_back(new MetaGameSim(true));
     m_Layers.push_back(new Worlds(m_Camera, true));
     m_Layers.push_back(new Galaxy(m_Camera, false));
     m_Layers.push_back(new GameOfLife(*webGpuWindow->GetContext<WebGPUContext>(), *m_Camera));
@@ -156,7 +156,6 @@ void MainLayer::OnImGuiRender()
     {
         auto enabled = layer->IsEnabled();
         bool selected = m_SelectedLayer == layer;
-        // if (ImGui::Checkbox(("##" + layer->GetName()).c_str(), &enabled))
         if (ImGui::RadioButton(("##" + layer->GetName()).c_str(), enabled))
         {
             m_SelectedLayer = layer;
@@ -167,6 +166,9 @@ void MainLayer::OnImGuiRender()
                     continue;
                 other->SetEnabled(false);
             }
+
+            Figment::WindowResizeEventData ev = { (int)appWindowSize.x, (int)appWindowSize.y };
+            layer->OnEvent(Figment::AppEvent::WindowResize, &ev);
         }
         ImGui::SameLine();
         if (ImGui::Selectable(layer->GetName().c_str(), &selected))
