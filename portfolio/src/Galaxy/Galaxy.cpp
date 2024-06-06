@@ -121,6 +121,10 @@ void Galaxy::OnUpdate(float deltaTime)
     computePass.Dispatch("simulate", m_VertexBuffer->Count());
     computePass.End();
 
+    auto time = glfwGetTime();
+    m_Rotation.y = cos(time * 0.25f) * 15.0f;
+    m_Rotation.z = sin(time * 0.25f) * 15.0f;
+
     glm::mat4 matScale = glm::scale(glm::mat4(1.0f), m_Scale);
     glm::mat4 matTranslate = glm::translate(glm::mat4(1.0), m_Position);
     glm::mat4 matRotate = glm::eulerAngleXYZ(glm::radians(m_Rotation.x), glm::radians(m_Rotation.y),

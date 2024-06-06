@@ -15,7 +15,7 @@ MainLayer::MainLayer(const char *initialLayerName) : Layer("Main")
     auto webGpuWindow = std::dynamic_pointer_cast<Figment::WebGPUWindow>(m_Window);
     m_Camera = std::make_shared<PerspectiveCamera>(
             (float)webGpuWindow->GetWidth() / (float)webGpuWindow->GetHeight());
-    m_Camera->SetPosition(glm::vec3(0.0, 0.0, 3.0));
+    m_Camera->SetPosition(glm::vec3(0.0, 0.0, 2.0));
 
     m_CameraController = std::make_shared<CameraController>(m_Camera);
     m_CameraController->SetMovementSpeed(1.0f);

@@ -34,7 +34,7 @@ private:
 
     glm::vec3 m_Position = glm::vec3(0.0);
     glm::vec3 m_Rotation = glm::vec3(0.0);
-    glm::vec3 m_Scale = glm::vec3(3.0);
+    glm::vec3 m_Scale = glm::vec3(2.0);
 
     constexpr static uint32_t s_Width = 320;
     constexpr static uint32_t s_Height = 200;

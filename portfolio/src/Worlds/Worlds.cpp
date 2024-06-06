@@ -12,9 +12,9 @@ Worlds::Worlds(std::shared_ptr<PerspectiveCamera> camera, bool enabled) : Layer(
     m_ParticleShader = std::make_unique<WebGPUShader>(m_Context->GetDevice(),
             "res/shaders/particle_disc_billboard.wgsl",
             "WorldParticle");
-    m_VertexBuffer = std::make_unique < WebGPUVertexBuffer < Particle >>
-                                                                      (m_Context->GetDevice(), "ParticlesBuffer",
-                                                                              m_ParticleCount * sizeof(Particle));
+    m_VertexBuffer = std::make_unique<WebGPUVertexBuffer<Particle >>
+            (m_Context->GetDevice(), "ParticlesBuffer",
+                    m_ParticleCount * sizeof(Particle));
     auto layout = std::vector<WGPUVertexAttribute>({
             {
                     .format = WGPUVertexFormat_Float32x3,
@@ -28,7 +28,7 @@ Worlds::Worlds(std::shared_ptr<PerspectiveCamera> camera, bool enabled) : Layer(
             }
     });
     m_VertexBuffer->SetVertexLayout(layout, sizeof(Particle), WGPUVertexStepMode_Instance);
-    m_UniformBuffer = std::make_unique < WebGPUUniformBuffer < WorldParticlesData >> (m_Context->GetDevice(),
+    m_UniformBuffer = std::make_unique<WebGPUUniformBuffer<WorldParticlesData >>(m_Context->GetDevice(),
             "ParticlesDataUniformBuffer", sizeof(WorldParticlesData));
 
     LoadWorld("res/earth_color_map.png", "res/earth_height_map.jpg", 1.0);
