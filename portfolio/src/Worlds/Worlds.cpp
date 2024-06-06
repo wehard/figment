@@ -159,7 +159,7 @@ void Worlds::OnImGuiRender()
             ImGuiCond_Always, ImVec2(0.5, 1.0));
     ImGui::Begin("World", nullptr,
             ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_AlwaysAutoResize);
-    ImVec2 buttonSize = ImVec2(40, 40);
+    ImVec2 buttonSize = ImVec2(30, 20);
     auto buttonColor = ImGui::GetStyleColorVec4(ImGuiCol_Button);
     buttonColor.x *= 0.5;
     buttonColor.y *= 0.5;
