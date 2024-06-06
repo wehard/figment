@@ -51,9 +51,9 @@
 <script type='text/javascript'>
     const urlParams = new URLSearchParams(window.location.search);
     const layer = urlParams.get('layer');
-    const arguments = [window.innerWidth.toString(), window.innerHeight.toString()];
+    const arguments = [window.innerWidth.toString(), window.innerHeight.toString(), "Worlds"];
     if (layer) {
-        arguments.push(layer);
+        arguments[2] = layer;
     }
 
     var Module;
