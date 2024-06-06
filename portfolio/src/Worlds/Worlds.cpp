@@ -9,35 +9,26 @@ Worlds::Worlds(std::shared_ptr<PerspectiveCamera> camera, bool enabled) : Layer(
     m_Renderer = std::make_unique<ParticleRenderer>(*m_Context);
     m_ComputeShader = std::make_unique<WebGPUShader>(m_Context->GetDevice(), "res/shaders/world_compute.wgsl",
             "WorldCompute");
-    m_ParticleShader = std::make_unique<WebGPUShader>(m_Context->GetDevice(), "res/shaders/world_particle.wgsl",
+    m_ParticleShader = std::make_unique<WebGPUShader>(m_Context->GetDevice(),
+            "res/shaders/particle_disc_billboard.wgsl",
             "WorldParticle");
-    m_VertexBuffer = std::make_unique<WebGPUVertexBuffer<WorldParticle>>
-            (m_Context->GetDevice(), "ParticlesBuffer",
-                    m_ParticleCount * sizeof(WorldParticle));
+    m_VertexBuffer = std::make_unique < WebGPUVertexBuffer < Particle >>
+                                                                      (m_Context->GetDevice(), "ParticlesBuffer",
+                                                                              m_ParticleCount * sizeof(Particle));
     auto layout = std::vector<WGPUVertexAttribute>({
             {
                     .format = WGPUVertexFormat_Float32x3,
                     .offset = 0,
-                    .shaderLocation = 0,
+                    .shaderLocation = 1,
             },
             {
                     .format = WGPUVertexFormat_Float32x4,
                     .offset = 16,
-                    .shaderLocation = 1,
-            },
-            {
-                    .format = WGPUVertexFormat_Float32x3,
-                    .offset = 32,
                     .shaderLocation = 2,
-            },
-            {
-                    .format = WGPUVertexFormat_Float32x3,
-                    .offset = 48,
-                    .shaderLocation = 3,
-            },
+            }
     });
-    m_VertexBuffer->SetVertexLayout(layout, sizeof(WorldParticle), WGPUVertexStepMode_Vertex);
-    m_UniformBuffer = std::make_unique<WebGPUUniformBuffer<WorldParticlesData>>(m_Context->GetDevice(),
+    m_VertexBuffer->SetVertexLayout(layout, sizeof(Particle), WGPUVertexStepMode_Instance);
+    m_UniformBuffer = std::make_unique < WebGPUUniformBuffer < WorldParticlesData >> (m_Context->GetDevice(),
             "ParticlesDataUniformBuffer", sizeof(WorldParticlesData));
 
     LoadWorld("res/earth_color_map.png", "res/earth_height_map.jpg", 1.0);
@@ -148,8 +139,14 @@ void Worlds::OnUpdate(float deltaTime)
     computePass.Dispatch("simulate", m_VertexBuffer->Count() / 32);
     computePass.End();
 
+    glm::mat4 matScale = glm::scale(glm::mat4(1.0f), { 1.0, 1.0, 1.0 });
+    glm::mat4 matTranslate = glm::translate(glm::mat4(1.0), { 0.0, 0.0, 0.0 });
+    glm::mat4 matRotate = glm::eulerAngleXYZ(glm::radians(0.0), glm::radians(0.0),
+            glm::radians(0.0));
+    glm::mat4 transform = matTranslate * matRotate * matScale;
+
     m_Renderer->BeginFrame(*m_Camera);
-    m_Renderer->DrawPoints(*m_VertexBuffer, *m_ParticleShader);
+    m_Renderer->DrawQuads(*m_VertexBuffer, transform, 0.002, *m_ParticleShader);
     m_Renderer->EndFrame();
 }
 

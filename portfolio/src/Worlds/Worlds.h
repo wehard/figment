@@ -14,16 +14,16 @@ struct WorldData
     float RelativeSize = 1.0f;
 };
 
-struct WorldParticle
-{
-    glm::vec3 Position;
-    uint32_t _Padding[1];
-    glm::vec4 Color;
-    glm::vec3 Velocity;
-    uint32_t _Padding2[1];
-    glm::vec3 PrevPosition;
-    uint32_t _Padding3[1];
-};
+// struct WorldParticle
+// {
+//     glm::vec3 Position;
+//     uint32_t _Padding[1];
+//     glm::vec4 Color;
+//     glm::vec3 Velocity;
+//     uint32_t _Padding2[1];
+//     glm::vec3 PrevPosition;
+//     uint32_t _Padding3[1];
+// };
 
 struct WorldParticlesData
 {
@@ -61,14 +61,17 @@ private:
     std::unique_ptr<ParticleRenderer> m_Renderer;
     std::unique_ptr<WebGPUShader> m_ComputeShader;
     std::unique_ptr<WebGPUShader> m_ParticleShader;
-    std::unique_ptr<WebGPUVertexBuffer<WorldParticle>> m_VertexBuffer;
+    std::unique_ptr<WebGPUVertexBuffer<Particle>> m_VertexBuffer;
     std::unique_ptr<WebGPUUniformBuffer<WorldParticlesData>> m_UniformBuffer;
     std::vector<WorldData> m_WorldData;
     uint32_t m_CurrentWorld = 0;
     uint32_t m_ParticleCount = 1024 * 1024;
-    float m_Rotation = -120.0f;
     ComputePipeline *m_InitPipeline;
     ComputePipeline *m_SimulatePipeline;
     float m_TimeSinceLastCycle = 0.0f;
     float m_CycleInterval = 3.0f;
+
+    glm::vec3 m_Position = { 0.0f, 0.0f, 0.0f };
+    glm::vec3 m_Rotation = { 0.0f, 0.0f, 0.0f };
+    glm::vec3 m_Scale = { 1.0f, 1.0f, 1.0f };
 };
