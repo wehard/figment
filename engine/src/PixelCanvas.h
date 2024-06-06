@@ -33,6 +33,7 @@ namespace Figment
         WebGPUTexture &GetComputeTexture() { return *m_ComputeTexture; }
         uint32_t *GetPixelData() { return m_Pixels; }
 
+        void OnResize(int width, int height);
     private:
         WebGPUContext &m_Context;
         MeshRenderer m_MeshRenderer;

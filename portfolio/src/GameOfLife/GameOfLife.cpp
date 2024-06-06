@@ -111,7 +111,8 @@ void GameOfLife::OnImGuiRender()
 
 void GameOfLife::OnEvent(Figment::AppEvent event, void *eventData)
 {
-
+    auto ev = (Figment::WindowResizeEventData *)eventData;
+    m_PixelCanvas->OnResize(ev->Width, ev->Height);
 }
 
 void GameOfLife::Randomize()

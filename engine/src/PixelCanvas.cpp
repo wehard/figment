@@ -74,4 +74,9 @@ namespace Figment
         m_MeshRenderer.DrawTextured(*m_Mesh, transform, m_Texture);
         m_MeshRenderer.EndFrame();
     }
+
+    void PixelCanvas::OnResize(int width, int height)
+    {
+        m_MeshRenderer.OnResize(width, height);
+    }
 }
