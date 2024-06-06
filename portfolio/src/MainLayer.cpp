@@ -159,6 +159,7 @@ void MainLayer::OnImGuiRender()
         // if (ImGui::Checkbox(("##" + layer->GetName()).c_str(), &enabled))
         if (ImGui::RadioButton(("##" + layer->GetName()).c_str(), enabled))
         {
+            m_SelectedLayer = layer;
             layer->SetEnabled(!layer->IsEnabled());
             for (auto other : m_Layers)
             {
