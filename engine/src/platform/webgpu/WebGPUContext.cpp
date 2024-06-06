@@ -112,7 +112,7 @@ namespace Figment
         if (!m_SwapChain)
             FIG_LOG_ERROR("Failed to create WebGPU swap chain!\n");
 
-        FIG_LOG_INFO("Created WebGPU swap chain (%dx%d)", m_SwapChainWidth, m_SwapChainHeight);
+        // FIG_LOG_INFO("Created WebGPU swap chain (%dx%d)", m_SwapChainWidth, m_SwapChainHeight);
 
         CreateDefaultRenderTarget();
     }
@@ -135,7 +135,7 @@ namespace Figment
                         .TextureFormat = m_DepthTexture->GetTextureFormat(),
                 }
         };
-        FIG_LOG_INFO("Created default render target");
+        // FIG_LOG_INFO("Created default render target");
     }
 
     // TODO: Figure out where this belongs
@@ -148,7 +148,7 @@ namespace Figment
     {
         wgpuTextureViewRelease(m_DefaultRenderTarget.Color.TextureView);
     }
-    
+
     void WebGPUContext::OnResize(uint32_t width, uint32_t height)
     {
 
