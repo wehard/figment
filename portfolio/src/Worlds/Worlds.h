@@ -50,6 +50,7 @@ public:
     float RotationSpeed = 10.0f;
     float BumpMultiplier = 0.06f;
     bool AutoCycleWorlds = true;
+    float ParticleSize = 0.002f;
     void ResetParticles();
 private:
 

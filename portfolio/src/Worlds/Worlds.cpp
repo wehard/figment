@@ -111,14 +111,13 @@ void Worlds::OnUpdate(float deltaTime)
         m_TimeSinceLastCycle = 0.0;
         RecreatePipelines();
     }
-    m_Rotation -= RotationSpeed * deltaTime;
 
     auto mw = m_Camera->ScreenToWorldSpace(Input::GetMousePosition(),
             glm::vec2(m_Context->GetSwapChainWidth(), m_Context->GetSwapChainHeight()));
 
     WorldParticlesData d = {};
     d.DeltaTime = deltaTime;
-    d.Rotation = m_Rotation;
+    d.Rotation = 0.0;
     d.BumpMultiplier = BumpMultiplier;
     d.MouseWorldPosition = mw;
     d.RelativeSize = m_WorldData[m_CurrentWorld].RelativeSize;
@@ -139,14 +138,16 @@ void Worlds::OnUpdate(float deltaTime)
     computePass.Dispatch("simulate", m_VertexBuffer->Count() / 32);
     computePass.End();
 
-    glm::mat4 matScale = glm::scale(glm::mat4(1.0f), { 1.0, 1.0, 1.0 });
-    glm::mat4 matTranslate = glm::translate(glm::mat4(1.0), { 0.0, 0.0, 0.0 });
-    glm::mat4 matRotate = glm::eulerAngleXYZ(glm::radians(0.0), glm::radians(0.0),
-            glm::radians(0.0));
+    m_Rotation.y += RotationSpeed * deltaTime;
+
+    glm::mat4 matScale = glm::scale(glm::mat4(1.0f), m_Scale);
+    glm::mat4 matTranslate = glm::translate(glm::mat4(1.0), m_Position);
+    glm::mat4 matRotate = glm::eulerAngleXYZ(glm::radians(m_Rotation.x), glm::radians(m_Rotation.y),
+            glm::radians(m_Rotation.z));
     glm::mat4 transform = matTranslate * matRotate * matScale;
 
     m_Renderer->BeginFrame(*m_Camera);
-    m_Renderer->DrawQuads(*m_VertexBuffer, transform, 0.002, *m_ParticleShader);
+    m_Renderer->DrawQuads(*m_VertexBuffer, transform, ParticleSize, *m_ParticleShader);
     m_Renderer->EndFrame();
 }
 
@@ -208,7 +209,7 @@ void Worlds::ResetParticles()
 {
     WorldParticlesData d = {};
     d.DeltaTime = 0.0;
-    d.Rotation = m_Rotation;
+    d.Rotation = 0.0;
     d.BumpMultiplier = BumpMultiplier;
     d.MouseWorldPosition = glm::vec2(0, 0);
     d.RelativeSize = m_WorldData[m_CurrentWorld].RelativeSize;

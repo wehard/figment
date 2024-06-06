@@ -61,13 +61,13 @@ fn init(@builtin(global_invocation_id) id: vec3<u32>) {
     let colIdx = id.x % height;
 
     var particle: WorldParticle;
-    particle.position = init_position(colIdx, rowIdx, data.rotation);
 
     let uv = vec2<f32>(f32(colIdx) / f32(width), f32(rowIdx) / f32(height));
     particle.color = textureSampleLevel(worldTexture, sampler1, uv, 0.0);
 
     let height = textureSampleLevel(bumpMap, sampler1, uv, 0.0);
-    particle.position += normalize(particle.position) * height.r * data.bumpMultiplier;
+    var initPosition = init_position(colIdx, rowIdx, data.rotation);
+    particle.position = initPosition + normalize(particle.position) * height.r * data.bumpMultiplier;
 
     vertexBuffer[id.x] = particle;
 }
@@ -77,14 +77,15 @@ fn simulate(@builtin(global_invocation_id) id: vec3<u32>) {
     let rowIdx = id.x / width;
     let colIdx = id.x % height;
 
-    var particle: WorldParticle;
-    particle.position = init_position(colIdx, rowIdx, data.rotation);
-
+    var particle: WorldParticle = vertexBuffer[id.x];
     let uv = vec2<f32>(f32(colIdx) / f32(width), f32(rowIdx) / f32(height));
-    particle.color = textureSampleLevel(worldTexture, sampler1, uv, 0.0);
-
     let height = textureSampleLevel(bumpMap, sampler1, uv, 0.0);
-    particle.position += normalize(particle.position) * height.r * data.bumpMultiplier;
+
+    var targetPosition = init_position(colIdx, rowIdx, data.rotation);
+    targetPosition += normalize(targetPosition) * height.r * data.bumpMultiplier;
+
+    particle.color = textureSampleLevel(worldTexture, sampler1, uv, 0.0);
+    particle.position = mix(particle.position, targetPosition, data.deltaTime * 3.5);
 
     vertexBuffer[id.x] = particle;
 }
