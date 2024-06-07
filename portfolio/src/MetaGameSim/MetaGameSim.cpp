@@ -38,7 +38,6 @@ MetaGameSim::MetaGameSim(bool enabled) : Layer("MetaGameSim", enabled)
         newState.Resources["Parts"].Amount +=
                 Random::Float() > 0.95 / newState.Items["Vehicle"].Level ? newState.Items["Weapon"].Level : 0;
 
-        PushHistory(newState, m_PlayLabel);
         return newState;
     };
 
@@ -52,7 +51,6 @@ MetaGameSim::MetaGameSim(bool enabled) : Layer("MetaGameSim", enabled)
                 newState.Items["Vehicle"].Level);
         newState.Resources["Parts"].Amount += 1;
 
-        PushHistory(newState, m_BuyPartsLabel);
         return newState;
     };
 
@@ -65,7 +63,6 @@ MetaGameSim::MetaGameSim(bool enabled) : Layer("MetaGameSim", enabled)
         newState.Resources["Parts"].Amount -= cost;
         newState.Items["Weapon"].Level += 1;
 
-        PushHistory(newState, m_UpgradeWeaponLabel);
         return newState;
     };
 
@@ -78,7 +75,6 @@ MetaGameSim::MetaGameSim(bool enabled) : Layer("MetaGameSim", enabled)
         newState.Resources["Parts"].Amount -= cost;
         newState.Items["Vehicle"].Level += 1;
 
-        PushHistory(newState, m_UpgradeVehicleLabel);
         return newState;
     };
 }
@@ -106,8 +102,8 @@ void MetaGameSim::OnUpdate(float deltaTime)
         if (!m_NextAction.empty())
         {
             auto Action = m_Actions[m_NextAction];
-            FIG_LOG_INFO("Simulated action: %s", m_NextAction.c_str());
             m_GameState = Action(m_GameState);
+            PushHistory(m_GameState, m_NextAction);
             m_NextAction.clear();
         }
         m_SimulationStepCounter = 0.0f;
@@ -125,13 +121,17 @@ void MetaGameSim::OnImGuiRender()
 
     for (auto &action : m_Actions)
     {
-        ImGui::SameLine();
         if (ImGui::Button(action.first.c_str(), ImVec2(120, 20)))
         {
-            action.second(m_GameState);
+            m_GameState = action.second(m_GameState);
+            PushHistory(m_GameState, action.first);
         }
+        ImGui::SameLine();
     }
-    ImGui::SameLine();
+
+    ImGui::NewLine();
+    ImGui::Separator();
+
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2, 0.8, 0.2, 1.0));
     if (ImGui::Button("Simulate", ImVec2(120, 20)))
     {
@@ -168,29 +168,33 @@ void MetaGameSim::OnImGuiRender()
 
     ImGui::Separator();
 
-    // for (auto &history : m_GameHistory)
-    // {
-    //     ImGui::PlotLines(resource.first.c_str(), resource.second.data(), (int)resource.second.size(), 0,
-    //             nullptr, 0, m_GameHistory.ResourceMax[resource.first] + 2,
-    //             ImVec2(0, 30));
-    //     ImGui::SameLine();
-    //     ImGui::Text("%d", m_GameState.Resources[resource.first].Amount);
-    // }
-    //
-    // for (auto &item : m_GameHistory.Items)
-    // {
-    //     ImGui::PlotLines(item.first.c_str(), item.second.data(), (int)item.second.size(), 0,
-    //             nullptr, 0, m_GameHistory.ItemMax[item.first] + 2,
-    //             ImVec2(0, 30));
-    //     ImGui::SameLine();
-    //     ImGui::Text("%d", m_GameState.Items[item.first].Level);
-    // }
-
-    for (auto &history : m_ResourceHistory)
+    for (auto &history : m_GameHistory.Resources)
     {
-        ImGui::Text("%f", history);
+        ImGui::PlotLines(history.first.c_str(), history.second.data(), (int)history.second.size(), 0,
+                nullptr, 0, m_GameHistory.ResourceMax[history.first] + 2,
+                ImVec2(0, 30));
+        ImGui::SameLine();
+        ImGui::Text("%d", m_GameState.Resources[history.first].Amount);
     }
 
+    for (auto &item : m_GameHistory.Items)
+    {
+        ImGui::PlotLines(item.first.c_str(), item.second.data(), (int)item.second.size(), 0,
+                nullptr, 0, m_GameHistory.ItemMax[item.first] + 2,
+                ImVec2(0, 30));
+        ImGui::SameLine();
+        ImGui::Text("%d", m_GameState.Items[item.first].Level);
+    }
+
+    if (!m_GameHistory.ActionNames.empty())
+    {
+        ImGui::BeginChildFrame(1, ImVec2(0, 0));
+        for (auto &action : m_GameHistory.ActionNames)
+        {
+            ImGui::Text("%s", action.c_str());
+        }
+        ImGui::EndChildFrame();
+    }
     ImGui::End();
 }
 
@@ -221,14 +225,12 @@ void MetaGameSim::SimulateStep(const std::string &resourceName)
 {
 
     GameState bestState = GameState(m_GameState);
-    std::string bestActionName;
+    std::string bestActionName = m_PlayLabel;
     for (auto &action : m_Actions)
     {
         auto newState = TryAction(m_GameState, action.second);
         if (newState.Resources[resourceName].Amount > bestState.Resources[resourceName].Amount)
         {
-            FIG_LOG_INFO("New best state: %d, Action = %s", newState.Resources[resourceName].Amount,
-                    action.first.c_str());
             bestState = GameState(newState);
             bestActionName = action.first;
         }
@@ -243,7 +245,7 @@ void MetaGameSim::ResetGameState()
     m_GameState.Resources["Parts"].Amount = 0;
     m_GameState.Items["Weapon"].Level = 1;
     m_GameState.Items["Vehicle"].Level = 1;
-    m_GameHistory.clear();
+    m_GameHistory = GameHistory();
 }
 
 void MetaGameSim::ResetSimulation()
@@ -265,6 +267,21 @@ void MetaGameSim::StopSimulation()
 
 void MetaGameSim::PushHistory(GameState state, const std::string &actionName)
 {
-    m_ResourceHistory.push_back((float)state.Resources[m_SimulationMaximiseResource].Amount);
-    m_GameHistory.emplace_back(actionName, state);
+    m_GameHistory.ActionNames.push_back(actionName);
+    for (auto &resource : state.Resources)
+    {
+        m_GameHistory.Resources[resource.first].push_back((float)resource.second.Amount);
+        if ((float)resource.second.Amount > m_GameHistory.ResourceMax[resource.first])
+        {
+            m_GameHistory.ResourceMax[resource.first] = (float)resource.second.Amount;
+        }
+    }
+    for (auto &item : state.Items)
+    {
+        m_GameHistory.Items[item.first].push_back((float)item.second.Level);
+        if ((float)item.second.Level > m_GameHistory.ItemMax[item.first])
+        {
+            m_GameHistory.ItemMax[item.first] = (float)item.second.Level;
+        }
+    }
 }

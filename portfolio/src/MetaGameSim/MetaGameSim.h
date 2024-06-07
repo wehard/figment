@@ -47,14 +47,14 @@ public:
         }
     };
 
-    // struct GameHistory
-    // {
-    //     std::vector<std::string> ActionNames = {};
-    //     std::map<std::string, std::vector<float>> Resources = {};
-    //     std::map<std::string, std::vector<float>> Items = {};
-    //     std::map<std::string, float> ResourceMax = {};
-    //     std::map<std::string, float> ItemMax = {};
-    // };
+    struct GameHistory
+    {
+        std::vector<std::string> ActionNames = {};
+        std::map<std::string, std::vector<float>> Resources = {};
+        std::map<std::string, std::vector<float>> Items = {};
+        std::map<std::string, float> ResourceMax = {};
+        std::map<std::string, float> ItemMax = {};
+    };
 
     struct Action
     {
@@ -90,7 +90,6 @@ private:
 
     std::map<std::string, std::function<GameState(GameState &)>> m_Actions;
 
-    std::vector<float> m_ResourceHistory;
-    std::vector<std::pair<std::string, GameState>> m_GameHistory;
+    GameHistory m_GameHistory;
     std::string m_NextAction;
 };
