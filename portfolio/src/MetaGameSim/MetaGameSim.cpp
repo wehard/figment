@@ -1,26 +1,5 @@
 #include "MetaGameSim.h"
 
-// static void PushHistory(MetaGameSim::GameState &state, MetaGameSim::GameHistory &history, const std::string &actionName)
-// {
-//     history.ActionNames.push_back(actionName);
-//     for (auto &resource : state.Resources)
-//     {
-//         history.Resources[resource.first].push_back((float)resource.second.Amount);
-//         if ((float)resource.second.Amount > history.ResourceMax[resource.first])
-//         {
-//             history.ResourceMax[resource.first] = (float)resource.second.Amount;
-//         }
-//     }
-//     for (auto &item : state.Items)
-//     {
-//         history.Items[item.first].push_back((float)item.second.Level);
-//         if ((float)item.second.Level > history.ItemMax[item.first])
-//         {
-//             history.ItemMax[item.first] = (float)item.second.Level;
-//         }
-//     }
-// }
-
 static uint32_t CashIncrease(uint32_t weaponLevel, uint32_t vehicleLevel)
 {
     return weaponLevel * 5 + vehicleLevel * 10;
