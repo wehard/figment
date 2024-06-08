@@ -120,21 +120,25 @@ void MetaGameSim::OnImGuiRender()
     if (m_SimulationStarted)
     {
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8, 0.2, 0.2, 1.0));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9, 0.4, 0.4, 1.0));
         if (ImGui::Button("Stop", ImVec2(120, 20)))
         {
             StopSimulation();
         }
         ImGui::PopStyleColor();
+        ImGui::PopStyleColor();
     }
     else
     {
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2, 0.8, 0.2, 1.0));
-        if (ImGui::Button("Start", ImVec2(120, 20)))
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.4, 0.9, 0.4, 1.0));
+        if (ImGui::Button("Simulate", ImVec2(120, 20)))
         {
             ResetGameState();
             ResetSimulation();
             StartSimulation();
         }
+        ImGui::PopStyleColor();
         ImGui::PopStyleColor();
     }
 
