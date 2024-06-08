@@ -9,43 +9,34 @@ MetaGameSim::MetaGameSim(bool enabled) : Layer("MetaGameSim", enabled)
 {
     ResetGameState();
 
-    m_Actions[m_PlayLabel] = [](GameState &state) -> GameState
-    {
-        auto newState = GameState(state);
-        newState.Resources["Cash"].Amount += CashIncrease(newState.Items["Weapon"].Level,
-                newState.Items["Vehicle"].Level);
-        newState.Resources["Parts"].Amount +=
-                Random::Float() > 0.95 / newState.Items["Vehicle"].Level ? newState.Items["Weapon"].Level : 0;
+    m_Actions.emplace_back(
+            Action { .Name = m_PlayLabel, .Description = "Play", .Function = [](GameState &state) -> GameState
+            {
+                auto newState = GameState(state);
+                newState.Resources["Cash"].Amount += CashIncrease(newState.Items["Weapon"].Level,
+                        newState.Items["Vehicle"].Level);
+                newState.Resources["Parts"].Amount +=
+                        Random::Float() > 0.95 / newState.Items["Vehicle"].Level ? newState.Items["Weapon"].Level : 0;
 
-        return newState;
-    };
+                return newState;
+            }});
 
-    m_Actions[m_BuyPartsLabel] = [](GameState &state) -> GameState
-    {
-        auto newState = GameState(state);
-        if (newState.Resources["Cash"].Amount
-                < CashIncrease(newState.Items["Weapon"].Level, newState.Items["Vehicle"].Level))
-            return newState;
-        newState.Resources["Cash"].Amount -= CashIncrease(newState.Items["Weapon"].Level,
-                newState.Items["Vehicle"].Level);
-        newState.Resources["Parts"].Amount += 1;
+    m_Actions.emplace_back(
+            Action { .Name = m_BuyPartsLabel, .Description = "Buy Parts", .Function = [](GameState &state) -> GameState
+            {
+                auto newState = GameState(state);
+                if (newState.Resources["Cash"].Amount
+                        < CashIncrease(newState.Items["Weapon"].Level, newState.Items["Vehicle"].Level))
+                    return newState;
+                newState.Resources["Cash"].Amount -= CashIncrease(newState.Items["Weapon"].Level,
+                        newState.Items["Vehicle"].Level);
+                newState.Resources["Parts"].Amount += 1;
 
-        return newState;
-    };
+                return newState;
+            }});
 
-    m_Actions[m_UpgradeWeaponLabel] = [](GameState &state) -> GameState
-    {
-        auto newState = GameState(state);
-        auto cost = 10 * state.Items["Weapon"].Level;
-        if (newState.Resources["Parts"].Amount < cost)
-            return newState;
-        newState.Resources["Parts"].Amount -= cost;
-        newState.Items["Weapon"].Level += 1;
-
-        return newState;
-    };
-
-    m_Actions[m_UpgradeVehicleLabel] = [](GameState &state) -> GameState
+    m_Actions.emplace_back(Action { .Name = m_UpgradeVehicleLabel, .Description = "Upgrade Vehicle", .Function = [](
+            GameState &state) -> GameState
     {
         auto newState = GameState(state);
         auto cost = 60 * newState.Items["Vehicle"].Level;
@@ -55,16 +46,26 @@ MetaGameSim::MetaGameSim(bool enabled) : Layer("MetaGameSim", enabled)
         newState.Items["Vehicle"].Level += 1;
 
         return newState;
-    };
+    }});
+
+    m_Actions.emplace_back(Action { .Name = m_UpgradeWeaponLabel, .Description = "Upgrade Weapon", .Function = [](
+            GameState &state) -> GameState
+    {
+        auto newState = GameState(state);
+        auto cost = 10 * state.Items["Weapon"].Level;
+        if (newState.Resources["Parts"].Amount < cost)
+            return newState;
+        newState.Resources["Parts"].Amount -= cost;
+        newState.Items["Weapon"].Level += 1;
+
+        return newState;
+    }});
+
 }
 
-void MetaGameSim::OnAttach()
-{
-}
+void MetaGameSim::OnAttach() { }
 
-void MetaGameSim::OnDetach()
-{
-}
+void MetaGameSim::OnDetach() { }
 
 void MetaGameSim::OnUpdate(float deltaTime)
 {
@@ -78,12 +79,11 @@ void MetaGameSim::OnUpdate(float deltaTime)
             && m_SimulationStepCount <= m_MaxSimulationSteps)
     {
         SimulateStep(m_SimulationMaximiseResource);
-        if (!m_NextAction.empty())
+        if (m_NextAction)
         {
-            auto Action = m_Actions[m_NextAction];
-            m_GameState = Action(m_GameState);
-            PushHistory(m_GameState, m_NextAction);
-            m_NextAction.clear();
+            m_GameState = m_NextAction->Function(m_GameState);
+            PushHistory(m_GameState, m_NextAction->Name);
+            m_NextAction = nullptr;
         }
         m_SimulationStepCounter = 0.0f;
     }
@@ -100,10 +100,10 @@ void MetaGameSim::OnImGuiRender()
 
     for (auto &action : m_Actions)
     {
-        if (ImGui::Button(action.first.c_str(), ImVec2(120, 20)))
+        if (ImGui::Button(action.Name.c_str(), ImVec2(120, 20)))
         {
-            m_GameState = action.second(m_GameState);
-            PushHistory(m_GameState, action.first);
+            m_GameState = action.Function(m_GameState);
+            PushHistory(m_GameState, action.Name);
         }
         ImGui::SameLine();
     }
@@ -200,9 +200,7 @@ void MetaGameSim::OnImGuiRender()
     ImGui::End();
 }
 
-void MetaGameSim::OnEvent(AppEvent event, void *eventData)
-{
-}
+void MetaGameSim::OnEvent(AppEvent event, void *eventData) { }
 
 static bool IsResourceAvailable(const MetaGameSim::GameState &state, const std::string &resourceName, uint32_t amount)
 {
@@ -227,17 +225,17 @@ void MetaGameSim::SimulateStep(const std::string &resourceName)
 {
 
     GameState bestState = GameState(m_GameState);
-    std::string bestActionName = m_PlayLabel;
+    Action *bestAction = &m_Actions[0];
     for (auto &action : m_Actions)
     {
-        auto newState = TryAction(m_GameState, action.second);
+        auto newState = TryAction(m_GameState, action.Function);
         if (newState.Resources[resourceName].Amount > bestState.Resources[resourceName].Amount)
         {
             bestState = GameState(newState);
-            bestActionName = action.first;
+            bestAction = &action;
         }
     }
-    m_NextAction = bestActionName;
+    m_NextAction = bestAction;
     m_SimulationStepCount++;
 }
 
@@ -255,7 +253,7 @@ void MetaGameSim::ResetSimulation()
 {
     m_SimulationStepCounter = 0.0f;
     m_SimulationStepCount = 0;
-    m_NextAction.clear();
+    m_NextAction = nullptr;
 }
 
 void MetaGameSim::StartSimulation()

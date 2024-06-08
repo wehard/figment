@@ -88,8 +88,9 @@ private:
 
     GameState m_GameState;
 
-    std::map<std::string, std::function<GameState(GameState &)>> m_Actions;
+    // std::map<std::string, std::function<GameState(GameState &)>> m_Actions;
+    std::vector<Action> m_Actions;
+    Action *m_NextAction = nullptr;
 
     GameHistory m_GameHistory;
-    std::string m_NextAction;
 };
