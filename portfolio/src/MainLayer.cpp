@@ -114,7 +114,10 @@ void MainLayer::OnImGuiRender()
 
     ImGui::SetNextWindowCollapsed(false, ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowPos(ImVec2(padding, padding), ImGuiCond_FirstUseEver);
-    ImGui::Begin("Willehard Korander | Software Engineer", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+
+    ImGui::Begin("Willehard Korander | Software Engineer", nullptr,
+            ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoBringToFrontOnFocus
+                    | ImGuiWindowFlags_NoFocusOnAppearing);
     ImGui::Text("CONTACT");
     ImGui::Text("Email:              ");
     ImGui::SameLine(0.0, 0.0);
@@ -150,7 +153,7 @@ void MainLayer::OnImGuiRender()
 
     ImGui::SetNextWindowPos(ImVec2(appWindowSize.x - width - padding, padding + 20), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(width, appWindowSize.y / 1.5), ImGuiCond_FirstUseEver);
-    ImGui::Begin("Layers");
+    ImGui::Begin("Layers", nullptr, ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoFocusOnAppearing);
 
     for (auto layer : m_Layers)
     {
