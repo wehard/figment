@@ -9,7 +9,7 @@ MetaGameSim::MetaGameSim(bool enabled) : Layer("MetaGameSim", enabled)
 {
     ResetGameState();
 
-    m_Actions[m_PlayLabel] = [this](GameState &state) -> GameState
+    m_Actions[m_PlayLabel] = [](GameState &state) -> GameState
     {
         auto newState = GameState(state);
         newState.Resources["Cash"].Amount += CashIncrease(newState.Items["Weapon"].Level,
@@ -20,7 +20,7 @@ MetaGameSim::MetaGameSim(bool enabled) : Layer("MetaGameSim", enabled)
         return newState;
     };
 
-    m_Actions[m_BuyPartsLabel] = [this](GameState &state) -> GameState
+    m_Actions[m_BuyPartsLabel] = [](GameState &state) -> GameState
     {
         auto newState = GameState(state);
         if (newState.Resources["Cash"].Amount
@@ -33,7 +33,7 @@ MetaGameSim::MetaGameSim(bool enabled) : Layer("MetaGameSim", enabled)
         return newState;
     };
 
-    m_Actions[m_UpgradeWeaponLabel] = [this](GameState &state) -> GameState
+    m_Actions[m_UpgradeWeaponLabel] = [](GameState &state) -> GameState
     {
         auto newState = GameState(state);
         auto cost = 10 * state.Items["Weapon"].Level;
@@ -45,7 +45,7 @@ MetaGameSim::MetaGameSim(bool enabled) : Layer("MetaGameSim", enabled)
         return newState;
     };
 
-    m_Actions[m_UpgradeVehicleLabel] = [this](GameState &state) -> GameState
+    m_Actions[m_UpgradeVehicleLabel] = [](GameState &state) -> GameState
     {
         auto newState = GameState(state);
         auto cost = 60 * newState.Items["Vehicle"].Level;
