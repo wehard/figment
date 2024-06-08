@@ -108,17 +108,35 @@ void MetaGameSim::OnImGuiRender()
         ImGui::SameLine();
     }
 
-    ImGui::NewLine();
-    ImGui::Separator();
-
-    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2, 0.8, 0.2, 1.0));
-    if (ImGui::Button("Simulate", ImVec2(120, 20)))
+    ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 130);
+    if (ImGui::Button("Reset", ImVec2(120, 20)))
     {
         ResetGameState();
         ResetSimulation();
-        StartSimulation();
     }
-    ImGui::PopStyleColor();
+
+    ImGui::Separator();
+
+    if (m_SimulationStarted)
+    {
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8, 0.2, 0.2, 1.0));
+        if (ImGui::Button("Stop", ImVec2(120, 20)))
+        {
+            StopSimulation();
+        }
+        ImGui::PopStyleColor();
+    }
+    else
+    {
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2, 0.8, 0.2, 1.0));
+        if (ImGui::Button("Start", ImVec2(120, 20)))
+        {
+            ResetGameState();
+            ResetSimulation();
+            StartSimulation();
+        }
+        ImGui::PopStyleColor();
+    }
 
     ImGui::SameLine();
     ImGui::Text("Maximize Resource:");
@@ -139,6 +157,9 @@ void MetaGameSim::OnImGuiRender()
         ImGui::EndPopup();
     }
 
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(120);
+    ImGui::InputInt("Max Steps", &m_MaxSimulationSteps, 1, 1);
     if (m_SimulationStarted)
     {
         ImGui::SameLine();
@@ -167,12 +188,14 @@ void MetaGameSim::OnImGuiRender()
 
     if (!m_GameHistory.ActionNames.empty())
     {
-        ImGui::BeginChildFrame(1, ImVec2(0, 0));
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.1, 0.1, 0.1, 1.0));
+        ImGui::BeginChild(1, ImVec2(0, 0));
         for (auto &action : m_GameHistory.ActionNames)
         {
             ImGui::Text("%s", action.c_str());
         }
-        ImGui::EndChildFrame();
+        ImGui::EndChild();
+        ImGui::PopStyleColor();
     }
     ImGui::End();
 }
@@ -225,6 +248,7 @@ void MetaGameSim::ResetGameState()
     m_GameState.Items["Weapon"].Level = 1;
     m_GameState.Items["Vehicle"].Level = 1;
     m_GameHistory = GameHistory();
+    PushHistory(m_GameState, "Start");
 }
 
 void MetaGameSim::ResetSimulation()

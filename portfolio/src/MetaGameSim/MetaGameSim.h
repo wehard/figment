@@ -80,7 +80,7 @@ private:
 
     std::string m_SimulationMaximiseResource = "Cash";
 
-    const int m_MaxSimulationSteps = 100;
+    int m_MaxSimulationSteps = 100;
     bool m_SimulationStarted = false;
     float m_SimulationStepInterval = 0.01f;
     float m_SimulationStepCounter = 0.0f;
