@@ -98,10 +98,15 @@ if (NOT EMSCRIPTEN)
 
     add_executable(
             figment_tests
-            test/PoolTests.cpp
-            test/HandleTests.cpp
-            test/ResourceManagerTests.cpp
             src/core/ResourceManager.cpp
+    )
+
+    file(GLOB_RECURSE TEST_SRC_FILES
+            "test/*.cpp"
+    )
+
+    target_sources(figment_tests PRIVATE
+            ${TEST_SRC_FILES}
     )
 
     set_property(TARGET figment_tests PROPERTY CXX_STANDARD 20)
