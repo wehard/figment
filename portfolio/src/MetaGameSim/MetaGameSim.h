@@ -36,13 +36,13 @@ public:
         GameState() = default;
         GameState(const GameState &src)
         {
-            for (const auto &resource : src.Resources)
+            for (const auto &[name, resource] : src.Resources)
             {
-                Resources[resource.first] = GameResource { resource.second.Name, resource.second.Amount };
+                Resources[name] = GameResource { resource.Name, resource.Amount };
             }
-            for (const auto &item : src.Items)
+            for (const auto &[name, item] : src.Items)
             {
-                Items[item.first] = GameItem { item.second.Name, item.second.Level };
+                Items[name] = GameItem { item.Name, item.Level };
             }
         }
     };

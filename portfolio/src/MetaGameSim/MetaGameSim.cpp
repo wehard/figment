@@ -172,22 +172,22 @@ void MetaGameSim::OnImGuiRender()
 
     ImGui::Separator();
 
-    for (auto &history : m_GameHistory.Resources)
+    for (auto &[name, values] : m_GameHistory.Resources)
     {
-        ImGui::PlotLines(history.first.c_str(), history.second.data(), (int)history.second.size(), 0,
-                nullptr, 0, m_GameHistory.ResourceMax[history.first] + 2,
+        ImGui::PlotLines(name.c_str(), values.data(), (int)values.size(), 0,
+                nullptr, 0, m_GameHistory.ResourceMax[name] + 2,
                 ImVec2(0, 30));
         ImGui::SameLine();
-        ImGui::Text("%d", m_GameState.Resources[history.first].Amount);
+        ImGui::Text("%d", m_GameState.Resources[name].Amount);
     }
 
-    for (auto &item : m_GameHistory.Items)
+    for (auto &[name, values] : m_GameHistory.Items)
     {
-        ImGui::PlotLines(item.first.c_str(), item.second.data(), (int)item.second.size(), 0,
-                nullptr, 0, m_GameHistory.ItemMax[item.first] + 2,
+        ImGui::PlotLines(name.c_str(), values.data(), (int)values.size(), 0,
+                nullptr, 0, m_GameHistory.ItemMax[name] + 2,
                 ImVec2(0, 30));
         ImGui::SameLine();
-        ImGui::Text("%d", m_GameState.Items[item.first].Level);
+        ImGui::Text("%d", m_GameState.Items[name].Level);
     }
 
     if (!m_GameHistory.ActionNames.empty())
@@ -208,11 +208,11 @@ void MetaGameSim::OnEvent(AppEvent event, void *eventData) { }
 
 static bool IsResourceAvailable(const MetaGameSim::GameState &state, const std::string &resourceName, uint32_t amount)
 {
-    for (const auto &resource : state.Resources)
+    for (const auto &[name, resource] : state.Resources)
     {
-        if (resource.first == resourceName)
+        if (name == resourceName)
         {
-            return resource.second.Amount >= amount;
+            return resource.Amount >= amount;
         }
     }
     return false;
@@ -227,7 +227,6 @@ static MetaGameSim::GameState TryAction(MetaGameSim::GameState &state,
 
 void MetaGameSim::SimulateStep(const std::string &resourceName)
 {
-
     GameState bestState = GameState(m_GameState);
     Action *bestAction = &m_Actions[0];
     for (auto &action : m_Actions)
@@ -273,20 +272,20 @@ void MetaGameSim::StopSimulation()
 void MetaGameSim::PushHistory(GameState state, const std::string &actionName)
 {
     m_GameHistory.ActionNames.push_back(actionName);
-    for (auto &resource : state.Resources)
+    for (auto &[name, resource] : state.Resources)
     {
-        m_GameHistory.Resources[resource.first].push_back((float)resource.second.Amount);
-        if ((float)resource.second.Amount > m_GameHistory.ResourceMax[resource.first])
+        m_GameHistory.Resources[name].push_back((float)resource.Amount);
+        if ((float)resource.Amount > m_GameHistory.ResourceMax[name])
         {
-            m_GameHistory.ResourceMax[resource.first] = (float)resource.second.Amount;
+            m_GameHistory.ResourceMax[name] = (float)resource.Amount;
         }
     }
-    for (auto &item : state.Items)
+    for (auto &[name, item] : state.Items)
     {
-        m_GameHistory.Items[item.first].push_back((float)item.second.Level);
-        if ((float)item.second.Level > m_GameHistory.ItemMax[item.first])
+        m_GameHistory.Items[name].push_back((float)item.Level);
+        if ((float)item.Level > m_GameHistory.ItemMax[name])
         {
-            m_GameHistory.ItemMax[item.first] = (float)item.second.Level;
+            m_GameHistory.ItemMax[name] = (float)item.Level;
         }
     }
 }
