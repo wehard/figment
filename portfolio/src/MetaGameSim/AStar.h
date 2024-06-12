@@ -3,25 +3,25 @@
 #include "MetaGameSim.h"
 #include <queue>
 
-struct ActionState
-{
-    std::string ActionName;
-    MetaGameSim::GameState GameState;
-    int GScore = 0; // Steps taken to reach this state
-    int HScore = 0; // Estimated steps to reach the end state
-    std::shared_ptr<ActionState> parent = nullptr;
-    [[nodiscard]] uint32_t FScore() const
-    {
-        return GScore + HScore;
-    };
-};
-
 class AStar
 {
 public:
+    struct Node
+    {
+        std::string ActionName;
+        MetaGameSim::GameState GameState;
+        int GScore = 0; // Steps taken to reach this state
+        int HScore = 0; // Estimated steps to reach the end state
+        std::shared_ptr<Node> parent = nullptr;
+        [[nodiscard]] uint32_t FScore() const
+        {
+            return GScore + HScore;
+        };
+    };
+
     struct SearchResult
     {
-        std::vector<std::shared_ptr<ActionState>> Path;
+        std::vector<std::shared_ptr<Node>> Path;
         uint32_t VisitedCount = 0;
     };
 
@@ -33,18 +33,18 @@ public:
             const std::function<int(const MetaGameSim::GameState &,
                     const MetaGameSim::GameState &)> &calculateHScore)
     {
-        auto comp = [](const std::shared_ptr<ActionState> &a, const std::shared_ptr<ActionState> &b)
+        auto comp = [](const std::shared_ptr<Node> &a, const std::shared_ptr<Node> &b)
         { return a->FScore() < b->FScore(); };
-        std::multiset<std::shared_ptr<ActionState>, decltype(comp)> openSet(comp);
-        std::vector<std::shared_ptr<ActionState>> closedSet;
+        std::multiset<std::shared_ptr<Node>, decltype(comp)> openSet(comp);
+        std::vector<std::shared_ptr<Node>> closedSet;
 
-        auto endActionState = std::make_shared<ActionState>(ActionState {
+        auto endActionState = std::make_shared<Node>(Node {
                 .ActionName = "End",
                 .GameState = endState,
                 .GScore = 0,
                 .HScore = 0 });
 
-        auto startActionState = std::make_shared<ActionState>(ActionState {
+        auto startActionState = std::make_shared<Node>(Node {
                 .ActionName = "Start",
                 .GameState = startState,
                 .GScore = 0,
@@ -68,7 +68,7 @@ public:
             for (auto &action : m_Actions)
             {
                 auto newGameState = action.Function(currentState->GameState);
-                auto newActionState = std::make_shared<ActionState>(ActionState {
+                auto newActionState = std::make_shared<Node>(Node {
                         .ActionName = action.Name,
                         .GameState = newGameState,
                         .GScore = currentState->GScore + 1,
@@ -77,7 +77,7 @@ public:
                 });
 
                 auto it = std::find_if(openSet.begin(), openSet.end(),
-                        [calculateHScore, &newActionState](const std::shared_ptr<ActionState> &as)
+                        [calculateHScore, &newActionState](const std::shared_ptr<Node> &as)
                         {
                             return as->FScore() == newActionState->FScore();
                         });
@@ -98,8 +98,8 @@ public:
             }
             closedSet.push_back(currentState);
         }
-        std::vector<std::shared_ptr<ActionState>> path;
-        std::shared_ptr<ActionState> state = endActionState;
+        std::vector<std::shared_ptr<Node>> path;
+        std::shared_ptr<Node> state = endActionState;
         while (state != nullptr)
         {
             path.push_back(state);
