@@ -72,13 +72,6 @@ void MetaGameSim::OnDetach() { }
 
 void MetaGameSim::OnUpdate(float deltaTime) { }
 
-static MetaGameSim::GameState TryAction(MetaGameSim::GameState &state,
-        const std::function<MetaGameSim::GameState(MetaGameSim::GameState &)> &action)
-{
-    auto newState = action(state);
-    return newState;
-}
-
 void MetaGameSim::OnImGuiRender()
 {
     auto size = ImGui::GetIO().DisplaySize;
@@ -192,18 +185,6 @@ void MetaGameSim::OnImGuiRender()
 }
 
 void MetaGameSim::OnEvent(AppEvent event, void *eventData) { }
-
-static bool IsResourceAvailable(const MetaGameSim::GameState &state, const std::string &resourceName, uint32_t amount)
-{
-    for (const auto &[name, resource] : state.Resources)
-    {
-        if (name == resourceName)
-        {
-            return resource.Amount >= amount;
-        }
-    }
-    return false;
-}
 
 void MetaGameSim::ResetGameState()
 {
