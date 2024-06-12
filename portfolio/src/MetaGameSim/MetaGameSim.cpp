@@ -68,28 +68,7 @@ void MetaGameSim::OnAttach() { }
 
 void MetaGameSim::OnDetach() { }
 
-void MetaGameSim::OnUpdate(float deltaTime)
-{
-    if (m_SimulationStepCount >= m_MaxSimulationSteps)
-    {
-        StopSimulation();
-    }
-    if (!m_SimulationStarted)
-        return;
-    if (m_SimulationStepCounter >= m_SimulationStepInterval
-            && m_SimulationStepCount <= m_MaxSimulationSteps)
-    {
-        SimulateStep(m_SimulationMaximiseResource);
-        if (m_NextAction)
-        {
-            m_GameState = m_NextAction->Function(m_GameState);
-            PushHistory(m_GameState, m_NextAction->Name);
-            m_NextAction = nullptr;
-        }
-        m_SimulationStepCounter = 0.0f;
-    }
-    m_SimulationStepCounter += deltaTime;
-}
+void MetaGameSim::OnUpdate(float deltaTime) { }
 
 static MetaGameSim::GameState TryAction(MetaGameSim::GameState &state,
         const std::function<MetaGameSim::GameState(MetaGameSim::GameState &)> &action)
@@ -175,15 +154,6 @@ void MetaGameSim::OnImGuiRender()
     ImGui::SetNextItemWidth(120);
     ImGui::InputInt("Amount", &m_SimulationMaximiseResourceAmount, 1, 1);
 
-    ImGui::SameLine();
-    ImGui::SetNextItemWidth(120);
-    ImGui::InputInt("Max Steps", &m_MaxSimulationSteps, 1, 1);
-    if (m_SimulationStarted)
-    {
-        ImGui::SameLine();
-        ImGui::Text("Simulation Step: %d", m_SimulationStepCount);
-    }
-
     ImGui::Separator();
 
     for (auto &[name, values] : m_GameHistory.Resources)
@@ -232,23 +202,6 @@ static bool IsResourceAvailable(const MetaGameSim::GameState &state, const std::
     return false;
 }
 
-void MetaGameSim::SimulateStep(const std::string &resourceName)
-{
-    GameState bestState = GameState(m_GameState);
-    Action *bestAction = &m_Actions[0];
-    for (auto &action : m_Actions)
-    {
-        auto newState = TryAction(m_GameState, action.Function);
-        if (newState.Resources[resourceName].Amount > bestState.Resources[resourceName].Amount)
-        {
-            bestState = GameState(newState);
-            bestAction = &action;
-        }
-    }
-    m_NextAction = bestAction;
-    m_SimulationStepCount++;
-}
-
 void MetaGameSim::ResetGameState()
 {
     m_GameState.Resources["Cash"].Amount = 0;
@@ -259,22 +212,7 @@ void MetaGameSim::ResetGameState()
     PushHistory(m_GameState, "Start");
 }
 
-void MetaGameSim::ResetSimulation()
-{
-    m_SimulationStepCounter = 0.0f;
-    m_SimulationStepCount = 0;
-    m_NextAction = nullptr;
-}
-
-void MetaGameSim::StartSimulation()
-{
-    m_SimulationStarted = true;
-}
-
-void MetaGameSim::StopSimulation()
-{
-    m_SimulationStarted = false;
-}
+void MetaGameSim::ResetSimulation() { }
 
 void MetaGameSim::PushHistory(GameState state, const std::string &actionName)
 {

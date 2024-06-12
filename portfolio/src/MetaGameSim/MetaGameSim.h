@@ -64,11 +64,8 @@ public:
     };
 
 private:
-    void SimulateStep(const std::string &resourceName);
     void ResetGameState();
     void ResetSimulation();
-    void StartSimulation();
-    void StopSimulation();
     void PushHistory(GameState state, const std::string &actionName);
 
 private:
@@ -81,17 +78,9 @@ private:
     std::string m_SimulationMaximiseResource = "Cash";
     int m_SimulationMaximiseResourceAmount = 1000;
 
-    int m_MaxSimulationSteps = 10000;
-    bool m_SimulationStarted = false;
-    float m_SimulationStepInterval = 0.01f;
-    float m_SimulationStepCounter = 0.0f;
-    uint32_t m_SimulationStepCount = 0;
-
     GameState m_GameState;
 
-    // std::map<std::string, std::function<GameState(GameState &)>> m_Actions;
     std::vector<Action> m_Actions;
-    Action *m_NextAction = nullptr;
 
     GameHistory m_GameHistory;
 };
