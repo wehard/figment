@@ -1,5 +1,5 @@
 #include "MetaGameSim.h"
-#include "ActionPathSearch.h"
+#include "PathSearch.h"
 
 static uint32_t CashIncrease(uint32_t weaponLevel, uint32_t vehicleLevel)
 {
@@ -130,7 +130,8 @@ void MetaGameSim::OnImGuiRender()
     {
         ResetGameState();
         ResetSimulation();
-        ActionPathSearch search(m_Actions);
+
+        PathSearch search(m_Actions);
         GameState start = GameState(m_GameState);
         GameState end = GameState(m_GameState);
         end.Resources[m_SimulationMaximiseResource].Amount = m_SimulationMaximiseResourceAmount;

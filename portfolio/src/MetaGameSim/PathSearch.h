@@ -16,11 +16,11 @@ struct ActionState
     };
 };
 
-class ActionPathSearch
+class PathSearch
 {
 public:
 
-    explicit ActionPathSearch(const std::vector<MetaGameSim::Action> &actions) : m_Actions(actions) { }
+    explicit PathSearch(const std::vector<MetaGameSim::Action> &actions) : m_Actions(actions) { }
 
     std::vector<std::shared_ptr<ActionState>> AStar(const MetaGameSim::GameState &startState,
             const MetaGameSim::GameState &endState,
