@@ -181,11 +181,18 @@ void MetaGameSim::OnImGuiRender()
     ImGui::Separator();
     if (ImGui::Button("Dijkstra"))
     {
+        ResetGameState();
+        ResetSimulation();
+
         ActionPathSearch search(m_Actions);
         GameState start = GameState(m_GameState);
         GameState end = GameState(m_GameState);
-        end.Resources["Cash"].Amount = 15000;
-        auto actionStates = search.AStar(start, end, m_MaxSimulationSteps);
+        end.Resources[m_SimulationMaximiseResource].Amount = 15000;
+        auto actionStates = search.AStar(start, end, [this](const GameState &start, const GameState &end) -> uint32_t
+        {
+            return end.Resources.at(m_SimulationMaximiseResource).Amount
+                    - start.Resources.at(m_SimulationMaximiseResource).Amount;
+        }, m_MaxSimulationSteps);
         for (auto &actionState : actionStates)
         {
             auto getAction = std::find_if(m_Actions.begin(), m_Actions.end(),
