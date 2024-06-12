@@ -92,11 +92,6 @@ public:
             }
             closedSet.push_back(currentState);
         }
-        // for (auto &state : closedSet)
-        // {
-        //     Log::Info("State: Action = %s, Cash = %d", state.ActionName.c_str(),
-        //             state.GameState.Resources.at("Cash").Amount);
-        // }
         return closedSet;
     }
 
