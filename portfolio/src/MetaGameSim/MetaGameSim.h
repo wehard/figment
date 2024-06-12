@@ -79,8 +79,9 @@ private:
     const std::string m_UpgradeVehicleLabel = "Upgrade Vehicle";
 
     std::string m_SimulationMaximiseResource = "Cash";
+    int m_SimulationMaximiseResourceAmount = 1000;
 
-    int m_MaxSimulationSteps = 100;
+    int m_MaxSimulationSteps = 10000;
     bool m_SimulationStarted = false;
     float m_SimulationStepInterval = 0.01f;
     float m_SimulationStepCounter = 0.0f;

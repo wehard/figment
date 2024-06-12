@@ -125,30 +125,52 @@ void MetaGameSim::OnImGuiRender()
 
     ImGui::Separator();
 
-    if (m_SimulationStarted)
+    // if (m_SimulationStarted)
+    // {
+    //     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8, 0.2, 0.2, 1.0));
+    //     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9, 0.4, 0.4, 1.0));
+    //     if (ImGui::Button("Stop", ImVec2(120, 20)))
+    //     {
+    //         StopSimulation();
+    //     }
+    //     ImGui::PopStyleColor();
+    //     ImGui::PopStyleColor();
+    // }
+    // else
+    // {
+    //     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2, 0.8, 0.2, 1.0));
+    //     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.4, 0.9, 0.4, 1.0));
+    //     if (ImGui::Button("Simulate", ImVec2(120, 20)))
+    //     {
+    //         ResetGameState();
+    //         ResetSimulation();
+    //         StartSimulation();
+    //     }
+    //     ImGui::PopStyleColor();
+    //     ImGui::PopStyleColor();
+    // }
+
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2, 0.8, 0.2, 1.0));
+    if (ImGui::Button("A*", ImVec2(120, 20)))
     {
-        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8, 0.2, 0.2, 1.0));
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9, 0.4, 0.4, 1.0));
-        if (ImGui::Button("Stop", ImVec2(120, 20)))
+        ResetGameState();
+        ResetSimulation();
+        ActionPathSearch search(m_Actions);
+        GameState start = GameState(m_GameState);
+        GameState end = GameState(m_GameState);
+        end.Resources[m_SimulationMaximiseResource].Amount = m_SimulationMaximiseResourceAmount;
+        auto actionStates = search.AStar(start, end, [this](const GameState &start, const GameState &end) -> uint32_t
         {
-            StopSimulation();
-        }
-        ImGui::PopStyleColor();
-        ImGui::PopStyleColor();
-    }
-    else
-    {
-        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2, 0.8, 0.2, 1.0));
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.4, 0.9, 0.4, 1.0));
-        if (ImGui::Button("Simulate", ImVec2(120, 20)))
+            return end.Resources.at(m_SimulationMaximiseResource).Amount
+                    - start.Resources.at(m_SimulationMaximiseResource).Amount;
+        }, m_MaxSimulationSteps);
+        for (auto &actionState : actionStates)
         {
-            ResetGameState();
-            ResetSimulation();
-            StartSimulation();
+            m_GameState = actionState->GameState;// getAction->Function(m_GameState);
+            PushHistory(m_GameState, actionState->ActionName);
         }
-        ImGui::PopStyleColor();
-        ImGui::PopStyleColor();
     }
+    ImGui::PopStyleColor();
 
     ImGui::SameLine();
     ImGui::Text("Maximize Resource:");
@@ -168,6 +190,9 @@ void MetaGameSim::OnImGuiRender()
         }
         ImGui::EndPopup();
     }
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(120);
+    ImGui::InputInt("Amount", &m_SimulationMaximiseResourceAmount, 1, 1);
 
     ImGui::SameLine();
     ImGui::SetNextItemWidth(120);
@@ -176,35 +201,6 @@ void MetaGameSim::OnImGuiRender()
     {
         ImGui::SameLine();
         ImGui::Text("Simulation Step: %d", m_SimulationStepCount);
-    }
-
-    ImGui::Separator();
-    if (ImGui::Button("Dijkstra"))
-    {
-        ResetGameState();
-        ResetSimulation();
-
-        ActionPathSearch search(m_Actions);
-        GameState start = GameState(m_GameState);
-        GameState end = GameState(m_GameState);
-        end.Resources[m_SimulationMaximiseResource].Amount = 15000;
-        auto actionStates = search.AStar(start, end, [this](const GameState &start, const GameState &end) -> uint32_t
-        {
-            return end.Resources.at(m_SimulationMaximiseResource).Amount
-                    - start.Resources.at(m_SimulationMaximiseResource).Amount;
-        }, m_MaxSimulationSteps);
-        for (auto &actionState : actionStates)
-        {
-            auto getAction = std::find_if(m_Actions.begin(), m_Actions.end(),
-                    [&actionState](const Action &action)
-                    {
-                        return action.Name == actionState.ActionName;
-                    });
-            if (getAction == m_Actions.end())
-                continue;
-            m_GameState = getAction->Function(m_GameState);
-            PushHistory(m_GameState, actionState.ActionName);
-        }
     }
 
     ImGui::Separator();
