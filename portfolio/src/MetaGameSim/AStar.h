@@ -16,17 +16,22 @@ struct ActionState
     };
 };
 
-class PathSearch
+struct SearchResult
+{
+    std::vector<std::shared_ptr<ActionState>> Path;
+    uint32_t VisitedCount = 0;
+};
+
+class AStar
 {
 public:
 
-    explicit PathSearch(const std::vector<MetaGameSim::Action> &actions) : m_Actions(actions) { }
+    explicit AStar(const std::vector<MetaGameSim::Action> &actions) : m_Actions(actions) { }
 
-    std::vector<std::shared_ptr<ActionState>> AStar(const MetaGameSim::GameState &startState,
+    SearchResult Search(const MetaGameSim::GameState &startState,
             const MetaGameSim::GameState &endState,
             const std::function<int(const MetaGameSim::GameState &,
-                    const MetaGameSim::GameState &)> &calculateHCost,
-            uint32_t maxIterations)
+                    const MetaGameSim::GameState &)> &calculateHScore)
     {
         auto comp = [](const std::shared_ptr<ActionState> &a, const std::shared_ptr<ActionState> &b)
         { return a->FScore() < b->FScore(); };
@@ -43,13 +48,13 @@ public:
                 .ActionName = "Start",
                 .GameState = startState,
                 .GScore = 0,
-                .HScore = calculateHCost(startState,
-                        endState) });
+                .HScore = calculateHScore(startState, endState)
+        });
         openSet.insert(startActionState);
 
-        uint32_t iterations = 0;
+        uint32_t visitedCount = 0;
 
-        while (!openSet.empty() && iterations++ < maxIterations)
+        while (!openSet.empty())
         {
             auto currentState = *openSet.begin();
             openSet.erase(openSet.begin());
@@ -62,17 +67,17 @@ public:
 
             for (auto &action : m_Actions)
             {
-                auto newState = action.Function(currentState->GameState);
+                auto newGameState = action.Function(currentState->GameState);
                 auto newActionState = std::make_shared<ActionState>(ActionState {
                         .ActionName = action.Name,
-                        .GameState = newState,
+                        .GameState = newGameState,
                         .GScore = currentState->GScore + 1,
-                        .HScore = calculateHCost(newState, endState),
+                        .HScore = calculateHScore(newGameState, endState),
                         .parent = currentState
                 });
 
                 auto it = std::find_if(openSet.begin(), openSet.end(),
-                        [calculateHCost, &newActionState](const std::shared_ptr<ActionState> &as)
+                        [calculateHScore, &newActionState](const std::shared_ptr<ActionState> &as)
                         {
                             return as->FScore() == newActionState->FScore();
                         });
@@ -89,6 +94,7 @@ public:
                 {
                     openSet.insert(newActionState);
                 }
+                visitedCount++;
             }
             closedSet.push_back(currentState);
         }
@@ -100,7 +106,8 @@ public:
             state = state->parent;
         }
         std::reverse(path.begin(), path.end());
-        return path;
+
+        return { path, visitedCount };
     }
 
 private:

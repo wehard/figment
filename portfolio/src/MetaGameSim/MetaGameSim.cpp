@@ -1,5 +1,5 @@
 #include "MetaGameSim.h"
-#include "PathSearch.h"
+#include "AStar.h"
 
 static uint32_t CashIncrease(uint32_t weaponLevel, uint32_t vehicleLevel)
 {
@@ -125,28 +125,33 @@ void MetaGameSim::OnImGuiRender()
 
     ImGui::Separator();
 
+    static SearchResult latestResult = {};
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2, 0.8, 0.2, 1.0));
     if (ImGui::Button("A*", ImVec2(120, 20)))
     {
         ResetGameState();
         ResetSimulation();
 
-        PathSearch search(m_Actions);
+        AStar search(m_Actions);
         GameState start = GameState(m_GameState);
         GameState end = GameState(m_GameState);
         end.Resources[m_SimulationMaximiseResource].Amount = m_SimulationMaximiseResourceAmount;
-        auto actionStates = search.AStar(start, end, [this](const GameState &start, const GameState &end) -> uint32_t
+        auto result = search.Search(start, end, [this](const GameState &start, const GameState &end) -> uint32_t
         {
             return end.Resources.at(m_SimulationMaximiseResource).Amount
                     - start.Resources.at(m_SimulationMaximiseResource).Amount;
-        }, m_MaxSimulationSteps);
-        for (auto &actionState : actionStates)
+        });
+        for (auto &actionState : result.Path)
         {
             m_GameState = actionState->GameState;
             PushHistory(m_GameState, actionState->ActionName);
         }
+        latestResult = result;
     }
     ImGui::PopStyleColor();
+
+    ImGui::SameLine();
+    ImGui::Text("Visited: %d", latestResult.VisitedCount);
 
     ImGui::SameLine();
     ImGui::Text("Maximize Resource:");
