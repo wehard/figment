@@ -10,8 +10,6 @@ MetaGameSim::MetaGameSim(bool enabled) : Layer("MetaGameSim", enabled)
 {
     ResetGameState();
 
-    PushHistory(m_GameState, "Initial");
-
     m_Actions.emplace_back(
             Action { .Name = m_PlayLabel, .Description = "Play", .Function = [](GameState &state) -> GameState
             {
