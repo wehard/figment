@@ -167,17 +167,14 @@ void MetaGameSim::OnImGuiRender()
             ImGui::Text("%d", m_GameState.Items[name].Level);
         }
 
-        if (!m_GameHistory.ActionNames.empty())
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.1, 0.1, 0.1, 1.0));
+        ImGui::BeginChild("#actions");
+        for (auto &action : m_GameHistory.ActionNames)
         {
-            ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.1, 0.1, 0.1, 1.0));
-            ImGui::BeginChild(1, ImVec2(0, 0));
-            for (auto &action : m_GameHistory.ActionNames)
-            {
-                ImGui::Text("%s", action.c_str());
-            }
-            ImGui::EndChild();
-            ImGui::PopStyleColor();
+            ImGui::Text("%s", action.c_str());
         }
+        ImGui::EndChild();
+        ImGui::PopStyleColor();
 
         ImGui::End();
     }
