@@ -1,4 +1,5 @@
 #include "MetaGameSim.h"
+#include "ActionPathSearch.h"
 
 static uint32_t CashIncrease(uint32_t weaponLevel, uint32_t vehicleLevel)
 {
@@ -90,6 +91,13 @@ void MetaGameSim::OnUpdate(float deltaTime)
     m_SimulationStepCounter += deltaTime;
 }
 
+static MetaGameSim::GameState TryAction(MetaGameSim::GameState &state,
+        const std::function<MetaGameSim::GameState(MetaGameSim::GameState &)> &action)
+{
+    auto newState = action(state);
+    return newState;
+}
+
 void MetaGameSim::OnImGuiRender()
 {
     auto size = ImGui::GetIO().DisplaySize;
@@ -171,6 +179,28 @@ void MetaGameSim::OnImGuiRender()
     }
 
     ImGui::Separator();
+    if (ImGui::Button("Dijkstra"))
+    {
+        ActionPathSearch search(m_Actions);
+        GameState start = GameState(m_GameState);
+        GameState end = GameState(m_GameState);
+        end.Resources["Cash"].Amount = 15000;
+        auto actionStates = search.AStar(start, end, m_MaxSimulationSteps);
+        for (auto &actionState : actionStates)
+        {
+            auto getAction = std::find_if(m_Actions.begin(), m_Actions.end(),
+                    [&actionState](const Action &action)
+                    {
+                        return action.Name == actionState.ActionName;
+                    });
+            if (getAction == m_Actions.end())
+                continue;
+            m_GameState = getAction->Function(m_GameState);
+            PushHistory(m_GameState, actionState.ActionName);
+        }
+    }
+
+    ImGui::Separator();
 
     for (auto &[name, values] : m_GameHistory.Resources)
     {
@@ -216,13 +246,6 @@ static bool IsResourceAvailable(const MetaGameSim::GameState &state, const std::
         }
     }
     return false;
-}
-
-static MetaGameSim::GameState TryAction(MetaGameSim::GameState &state,
-        const std::function<MetaGameSim::GameState(MetaGameSim::GameState &)> &action)
-{
-    auto newState = action(state);
-    return newState;
 }
 
 void MetaGameSim::SimulateStep(const std::string &resourceName)
