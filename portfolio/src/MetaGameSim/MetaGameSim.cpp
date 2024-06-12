@@ -10,6 +10,8 @@ MetaGameSim::MetaGameSim(bool enabled) : Layer("MetaGameSim", enabled)
 {
     ResetGameState();
 
+    PushHistory(m_GameState, "Initial");
+
     m_Actions.emplace_back(
             Action { .Name = m_PlayLabel, .Description = "Play", .Function = [](GameState &state) -> GameState
             {
@@ -185,6 +187,7 @@ void MetaGameSim::OnImGuiRender()
         ImGui::EndChild();
         ImGui::PopStyleColor();
     }
+
     ImGui::End();
 }
 
@@ -209,7 +212,6 @@ void MetaGameSim::ResetGameState()
     m_GameState.Items["Weapon"].Level = 1;
     m_GameState.Items["Vehicle"].Level = 1;
     m_GameHistory = GameHistory();
-    PushHistory(m_GameState, "Start");
 }
 
 void MetaGameSim::ResetSimulation() { }
