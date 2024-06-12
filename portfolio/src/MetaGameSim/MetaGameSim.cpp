@@ -77,109 +77,110 @@ void MetaGameSim::OnImGuiRender()
     ImGui::SetNextWindowSize(ImVec2(size.x * 0.60f, size.y * 0.60f), ImGuiCond_Once);
     ImGui::SetNextWindowPos(ImVec2(size.x / 2, size.y / 2), ImGuiCond_Once, ImVec2(0.5, 0.5));
     ImGui::Begin("MetaGameSim");
-
-    for (auto &action : m_Actions)
     {
-        if (ImGui::Button(action.Name.c_str(), ImVec2(120, 20)))
+        for (auto &action : m_Actions)
         {
-            m_GameState = action.Function(m_GameState);
-            PushHistory(m_GameState, action.Name);
-        }
-        ImGui::SameLine();
-    }
-
-    ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 130);
-    if (ImGui::Button("Reset", ImVec2(120, 20)))
-    {
-        ResetGameState();
-        ResetSimulation();
-    }
-
-    ImGui::Separator();
-
-    static AStar::SearchResult latestResult = {};
-    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2, 0.8, 0.2, 1.0));
-    if (ImGui::Button("A*", ImVec2(120, 20)))
-    {
-        ResetGameState();
-        ResetSimulation();
-
-        AStar search(m_Actions);
-        GameState start = GameState(m_GameState);
-        GameState end = GameState(m_GameState);
-        end.Resources[m_SimulationMaximiseResource].Amount = m_SimulationMaximiseResourceAmount;
-        auto result = search.Search(start, end, [this](const GameState &start, const GameState &end) -> uint32_t
-        {
-            return end.Resources.at(m_SimulationMaximiseResource).Amount
-                    - start.Resources.at(m_SimulationMaximiseResource).Amount;
-        });
-        for (auto &actionState : result.Path)
-        {
-            m_GameState = actionState->GameState;
-            PushHistory(m_GameState, actionState->ActionName);
-        }
-        latestResult = result;
-    }
-    ImGui::PopStyleColor();
-
-    ImGui::SameLine();
-    ImGui::Text("Visited: %d", latestResult.VisitedCount);
-
-    ImGui::SameLine();
-    ImGui::Text("Maximize Resource:");
-    ImGui::SameLine();
-    if (ImGui::Button(m_SimulationMaximiseResource.c_str(), ImVec2(120, 20)))
-        ImGui::OpenPopup("#selectresource");
-
-    if (ImGui::BeginPopup("#selectresource"))
-    {
-        for (auto &resource : m_GameState.Resources)
-        {
-            if (ImGui::MenuItem(resource.first.c_str()))
+            if (ImGui::Button(action.Name.c_str(), ImVec2(120, 20)))
             {
-                m_SimulationMaximiseResource = resource.first;
-                ImGui::CloseCurrentPopup();
+                m_GameState = action.Function(m_GameState);
+                PushHistory(m_GameState, action.Name);
             }
+            ImGui::SameLine();
         }
-        ImGui::EndPopup();
-    }
-    ImGui::SameLine();
-    ImGui::SetNextItemWidth(120);
-    ImGui::InputInt("Amount", &m_SimulationMaximiseResourceAmount, 1, 1);
 
-    ImGui::Separator();
-
-    for (auto &[name, values] : m_GameHistory.Resources)
-    {
-        ImGui::PlotLines(name.c_str(), values.data(), (int)values.size(), 0,
-                nullptr, 0, m_GameHistory.ResourceMax[name] + 2,
-                ImVec2(0, 30));
-        ImGui::SameLine();
-        ImGui::Text("%d", m_GameState.Resources[name].Amount);
-    }
-
-    for (auto &[name, values] : m_GameHistory.Items)
-    {
-        ImGui::PlotLines(name.c_str(), values.data(), (int)values.size(), 0,
-                nullptr, 0, m_GameHistory.ItemMax[name] + 2,
-                ImVec2(0, 30));
-        ImGui::SameLine();
-        ImGui::Text("%d", m_GameState.Items[name].Level);
-    }
-
-    if (!m_GameHistory.ActionNames.empty())
-    {
-        ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.1, 0.1, 0.1, 1.0));
-        ImGui::BeginChild(1, ImVec2(0, 0));
-        for (auto &action : m_GameHistory.ActionNames)
+        ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 130);
+        if (ImGui::Button("Reset", ImVec2(120, 20)))
         {
-            ImGui::Text("%s", action.c_str());
+            ResetGameState();
+            ResetSimulation();
         }
-        ImGui::EndChild();
-        ImGui::PopStyleColor();
-    }
 
-    ImGui::End();
+        ImGui::Separator();
+
+        static AStar::SearchResult latestResult = {};
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2, 0.8, 0.2, 1.0));
+        if (ImGui::Button("A*", ImVec2(120, 20)))
+        {
+            ResetGameState();
+            ResetSimulation();
+
+            AStar search(m_Actions);
+            GameState start = GameState(m_GameState);
+            GameState end = GameState(m_GameState);
+            end.Resources[m_SimulationMaximiseResource].Amount = m_SimulationMaximiseResourceAmount;
+            auto result = search.Search(start, end, [this](const GameState &start, const GameState &end) -> uint32_t
+            {
+                return end.Resources.at(m_SimulationMaximiseResource).Amount
+                        - start.Resources.at(m_SimulationMaximiseResource).Amount;
+            });
+            for (auto &actionState : result.Path)
+            {
+                m_GameState = actionState->GameState;
+                PushHistory(m_GameState, actionState->ActionName);
+            }
+            latestResult = result;
+        }
+        ImGui::PopStyleColor();
+
+        ImGui::SameLine();
+        ImGui::Text("Visited: %d", latestResult.VisitedCount);
+
+        ImGui::SameLine();
+        ImGui::Text("Maximize Resource:");
+        ImGui::SameLine();
+        if (ImGui::Button(m_SimulationMaximiseResource.c_str(), ImVec2(120, 20)))
+            ImGui::OpenPopup("#selectresource");
+
+        if (ImGui::BeginPopup("#selectresource"))
+        {
+            for (auto &resource : m_GameState.Resources)
+            {
+                if (ImGui::MenuItem(resource.first.c_str()))
+                {
+                    m_SimulationMaximiseResource = resource.first;
+                    ImGui::CloseCurrentPopup();
+                }
+            }
+            ImGui::EndPopup();
+        }
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(120);
+        ImGui::InputInt("Amount", &m_SimulationMaximiseResourceAmount, 1, 1);
+
+        ImGui::Separator();
+
+        for (auto &[name, values] : m_GameHistory.Resources)
+        {
+            ImGui::PlotLines(name.c_str(), values.data(), (int)values.size(), 0,
+                    nullptr, 0, m_GameHistory.ResourceMax[name] + 2,
+                    ImVec2(0, 30));
+            ImGui::SameLine();
+            ImGui::Text("%d", m_GameState.Resources[name].Amount);
+        }
+
+        for (auto &[name, values] : m_GameHistory.Items)
+        {
+            ImGui::PlotLines(name.c_str(), values.data(), (int)values.size(), 0,
+                    nullptr, 0, m_GameHistory.ItemMax[name] + 2,
+                    ImVec2(0, 30));
+            ImGui::SameLine();
+            ImGui::Text("%d", m_GameState.Items[name].Level);
+        }
+
+        if (!m_GameHistory.ActionNames.empty())
+        {
+            ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.1, 0.1, 0.1, 1.0));
+            ImGui::BeginChild(1, ImVec2(0, 0));
+            for (auto &action : m_GameHistory.ActionNames)
+            {
+                ImGui::Text("%s", action.c_str());
+            }
+            ImGui::EndChild();
+            ImGui::PopStyleColor();
+        }
+
+        ImGui::End();
+    }
 }
 
 void MetaGameSim::OnEvent(AppEvent event, void *eventData) { }
