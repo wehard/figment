@@ -125,7 +125,7 @@ void MetaGameSim::OnImGuiRender()
 
     ImGui::Separator();
 
-    static SearchResult latestResult = {};
+    static AStar::SearchResult latestResult = {};
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2, 0.8, 0.2, 1.0));
     if (ImGui::Button("A*", ImVec2(120, 20)))
     {

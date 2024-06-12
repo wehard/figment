@@ -16,16 +16,16 @@ struct ActionState
     };
 };
 
-struct SearchResult
-{
-    std::vector<std::shared_ptr<ActionState>> Path;
-    uint32_t VisitedCount = 0;
-};
-
 class AStar
 {
 public:
+    struct SearchResult
+    {
+        std::vector<std::shared_ptr<ActionState>> Path;
+        uint32_t VisitedCount = 0;
+    };
 
+public:
     explicit AStar(const std::vector<MetaGameSim::Action> &actions) : m_Actions(actions) { }
 
     SearchResult Search(const MetaGameSim::GameState &startState,
