@@ -125,31 +125,6 @@ void MetaGameSim::OnImGuiRender()
 
     ImGui::Separator();
 
-    // if (m_SimulationStarted)
-    // {
-    //     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8, 0.2, 0.2, 1.0));
-    //     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9, 0.4, 0.4, 1.0));
-    //     if (ImGui::Button("Stop", ImVec2(120, 20)))
-    //     {
-    //         StopSimulation();
-    //     }
-    //     ImGui::PopStyleColor();
-    //     ImGui::PopStyleColor();
-    // }
-    // else
-    // {
-    //     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2, 0.8, 0.2, 1.0));
-    //     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.4, 0.9, 0.4, 1.0));
-    //     if (ImGui::Button("Simulate", ImVec2(120, 20)))
-    //     {
-    //         ResetGameState();
-    //         ResetSimulation();
-    //         StartSimulation();
-    //     }
-    //     ImGui::PopStyleColor();
-    //     ImGui::PopStyleColor();
-    // }
-
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2, 0.8, 0.2, 1.0));
     if (ImGui::Button("A*", ImVec2(120, 20)))
     {
@@ -166,7 +141,7 @@ void MetaGameSim::OnImGuiRender()
         }, m_MaxSimulationSteps);
         for (auto &actionState : actionStates)
         {
-            m_GameState = actionState->GameState;// getAction->Function(m_GameState);
+            m_GameState = actionState->GameState;
             PushHistory(m_GameState, actionState->ActionName);
         }
     }
