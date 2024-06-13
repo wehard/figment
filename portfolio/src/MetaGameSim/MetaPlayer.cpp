@@ -1,4 +1,4 @@
-#include "MetaGameSim.h"
+#include "MetaPlayer.h"
 #include "AStar.h"
 
 static uint32_t CashIncrease(uint32_t weaponLevel, uint32_t vehicleLevel)
@@ -6,7 +6,7 @@ static uint32_t CashIncrease(uint32_t weaponLevel, uint32_t vehicleLevel)
     return weaponLevel * 5 + vehicleLevel * 10;
 }
 
-MetaGameSim::MetaGameSim(bool enabled) : Layer("MetaGameSim", enabled)
+MetaPlayer::MetaPlayer(bool enabled) : Layer("MetaPlayer", enabled)
 {
     ResetGameState();
 
@@ -66,19 +66,19 @@ MetaGameSim::MetaGameSim(bool enabled) : Layer("MetaGameSim", enabled)
 
 }
 
-void MetaGameSim::OnAttach() { }
+void MetaPlayer::OnAttach() { }
 
-void MetaGameSim::OnDetach() { }
+void MetaPlayer::OnDetach() { }
 
-void MetaGameSim::OnUpdate(float deltaTime) { }
+void MetaPlayer::OnUpdate(float deltaTime) { }
 
-void MetaGameSim::OnImGuiRender()
+void MetaPlayer::OnImGuiRender()
 {
     auto size = ImGui::GetIO().DisplaySize;
 
-    ImGui::SetNextWindowSize(ImVec2(size.x * 0.60f, size.y * 0.60f), ImGuiCond_Once);
+    ImGui::SetNextWindowSize(ImVec2(size.x * 0.55f, size.y * 0.60f), ImGuiCond_Once);
     ImGui::SetNextWindowPos(ImVec2(size.x / 2, size.y / 2), ImGuiCond_Once, ImVec2(0.5, 0.5));
-    ImGui::Begin(Title);
+    ImGui::Begin(m_Name.c_str());
     {
         for (auto &action : m_Actions)
         {
@@ -105,7 +105,7 @@ void MetaGameSim::OnImGuiRender()
 
         static AStar::SearchResult latestResult = {};
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2, 0.8, 0.2, 1.0));
-        if (ImGui::Button("A*", ImVec2(120, 20)))
+        if (ImGui::Button("Start", ImVec2(120, 20)))
         {
             ResetGameState();
             ResetSimulation();
@@ -178,9 +178,9 @@ void MetaGameSim::OnImGuiRender()
     }
 }
 
-void MetaGameSim::OnEvent(AppEvent event, void *eventData) { }
+void MetaPlayer::OnEvent(AppEvent event, void *eventData) { }
 
-void MetaGameSim::ResetGameState()
+void MetaPlayer::ResetGameState()
 {
     m_GameState.Variables.clear();
     m_GameState.Variables[Cash] = { .Name = Cash, .Value = 0, .DefaultMaximizeValue = DefaultCashMaximizeValue };
@@ -190,9 +190,9 @@ void MetaGameSim::ResetGameState()
     m_GameHistory = GameHistory();
 }
 
-void MetaGameSim::ResetSimulation() { }
+void MetaPlayer::ResetSimulation() { }
 
-void MetaGameSim::PushHistory(GameState state, const std::string &actionName)
+void MetaPlayer::PushHistory(GameState state, const std::string &actionName)
 {
     m_GameHistory.ActionNames.push_back(actionName);
     for (auto &[name, variable] : state.Variables)

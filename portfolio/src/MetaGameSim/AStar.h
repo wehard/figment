@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MetaGameSim.h"
+#include "MetaPlayer.h"
 #include <queue>
 
 class AStar
@@ -9,7 +9,7 @@ public:
     struct Node
     {
         std::string ActionName;
-        MetaGameSim::GameState GameState;
+        MetaPlayer::GameState GameState;
         int GScore = 0; // Steps taken to reach this state
         int HScore = 0; // Estimated steps to reach the end state
         std::shared_ptr<Node> parent = nullptr;
@@ -26,12 +26,12 @@ public:
     };
 
 public:
-    explicit AStar(const std::vector<MetaGameSim::Action> &actions) : m_Actions(actions) { }
+    explicit AStar(const std::vector<MetaPlayer::Action> &actions) : m_Actions(actions) { }
 
-    SearchResult Search(const MetaGameSim::GameState &startState,
-            const MetaGameSim::GameState &endState,
-            const std::function<int(const MetaGameSim::GameState &,
-                    const MetaGameSim::GameState &)> &calculateHScore)
+    SearchResult Search(const MetaPlayer::GameState &startState,
+            const MetaPlayer::GameState &endState,
+            const std::function<int(const MetaPlayer::GameState &,
+                    const MetaPlayer::GameState &)> &calculateHScore)
     {
         auto comp = [](const std::shared_ptr<Node> &a, const std::shared_ptr<Node> &b)
         { return a->FScore() < b->FScore(); };
@@ -111,5 +111,5 @@ public:
     }
 
 private:
-    const std::vector<MetaGameSim::Action> &m_Actions;
+    const std::vector<MetaPlayer::Action> &m_Actions;
 };

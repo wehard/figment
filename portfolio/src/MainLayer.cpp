@@ -5,7 +5,7 @@
 #include "Asteroids.h"
 #include "GameOfLife.h"
 #include "Shapes.h"
-#include "MetaGameSim.h"
+#include "MetaPlayer.h"
 
 #include <emscripten.h>
 
@@ -23,7 +23,7 @@ MainLayer::MainLayer(const char *initialLayerName) : Layer("Main")
     m_Layers.push_back(new Worlds(m_Camera, false));
     m_Layers.push_back(new Galaxy(m_Camera, false));
     m_Layers.push_back(new GameOfLife(*webGpuWindow->GetContext<WebGPUContext>(), *m_Camera));
-    m_Layers.push_back(new MetaGameSim(false));
+    m_Layers.push_back(new MetaPlayer(false));
     // m_Layers.push_back(new Asteroids(*m_Camera, false));
     // m_Layers.push_back(new Shapes(*webGpuWindow->GetContext<WebGPUContext>(), *m_Camera));
     // m_Layers.push_back(new Cube(m_Camera, true));
@@ -220,12 +220,25 @@ void MainLayer::OnImGuiRender()
             }
         });
 
-        LayerDetails<MetaGameSim>(m_SelectedLayer, [](MetaGameSim *metaGameSim)
+        LayerDetails<MetaPlayer>(m_SelectedLayer, [](MetaPlayer *metaGameSim)
         {
             ImGui::Text("MetaPlayer");
             ImGui::Spacing();
             ImGui::TextWrapped(
-                    "A* search attempts to find shortest sequence of actions to maximize the selected game variable.");
+                    "A* search attempts to find optimal sequence of actions to maximize the selected game variable.");
+            ImGui::Spacing();
+            ImGui::TextWrapped(
+                    "Select a game variable to maximize and the amount to maximize it to and press Start to perform search.");
+            ImGui::Spacing();
+            ImGui::TextWrapped(
+                    "Meta game can be manually played by pressing the top buttons:");
+            ImGui::BulletText("Play Game: Play core game");
+            ImGui::BulletText("Buy Parts: Buy parts used for upgrading items");
+            ImGui::BulletText("Upgrade Weapon: Upgrade weapon level");
+            ImGui::BulletText("Upgrade Vehicle: Upgrade vehicle level");
+            ImGui::BulletText("Reset: Reset game state");
+            ImGui::Spacing();
+
             ImGui::Spacing();
             HyperLink("Source code on GitHub", "https://github.com/wehard/figment/tree/main/portfolio/src/MetaGameSim");
         });

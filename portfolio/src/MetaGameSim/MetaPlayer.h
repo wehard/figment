@@ -5,10 +5,10 @@
 
 using namespace Figment;
 
-class MetaGameSim : public Layer
+class MetaPlayer : public Layer
 {
 public:
-    explicit MetaGameSim(bool enabled);
+    explicit MetaPlayer(bool enabled);
     void OnAttach() override;
     void OnDetach() override;
     void OnUpdate(float deltaTime) override;
@@ -48,7 +48,6 @@ private:
     void PushHistory(GameState state, const std::string &actionName);
 
 private:
-    static constexpr const char *Title = "Meta Game Simulator";
     static constexpr const char *Play = "Play Game";
     static constexpr const char *BuyParts = "Buy Parts";
     static constexpr const char *UpgradeWeapon = "Upgrade Weapon";
