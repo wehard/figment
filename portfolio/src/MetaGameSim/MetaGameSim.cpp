@@ -128,18 +128,19 @@ void MetaGameSim::OnImGuiRender()
         ImGui::Text("Visited: %d", latestResult.VisitedCount);
 
         ImGui::SameLine();
-        ImGui::Text("Maximize Resource:");
+        ImGui::Text("Maximize:");
         ImGui::SameLine();
         if (ImGui::Button(m_SimulationMaximiseGameVariable.c_str(), ImVec2(120, 20)))
-            ImGui::OpenPopup("#selectresource");
+            ImGui::OpenPopup("#selectvariable");
 
-        if (ImGui::BeginPopup("#selectresource"))
+        if (ImGui::BeginPopup("#selectvariable"))
         {
-            for (auto &resource : m_GameState.Variables)
+            for (auto &[name, variable] : m_GameState.Variables)
             {
-                if (ImGui::MenuItem(resource.first.c_str()))
+                if (ImGui::MenuItem(name.c_str()))
                 {
-                    m_SimulationMaximiseGameVariable = resource.first;
+                    m_SimulationMaximiseGameVariable = name;
+                    m_SimulationMaximiseGameVariableValue = (int)variable.DefaultMaximizeValue;
                     ImGui::CloseCurrentPopup();
                 }
             }
@@ -177,10 +178,11 @@ void MetaGameSim::OnEvent(AppEvent event, void *eventData) { }
 
 void MetaGameSim::ResetGameState()
 {
-    m_GameState.Variables[Cash].Value = 0;
-    m_GameState.Variables[Parts].Value = 0;
-    m_GameState.Variables[WeaponLevel].Value = 1;
-    m_GameState.Variables[VehicleLevel].Value = 1;
+    m_GameState.Variables.clear();
+    m_GameState.Variables[Cash] = { .Name = Cash, .Value = 0, .DefaultMaximizeValue = 1000 };
+    m_GameState.Variables[Parts] = { .Name = Parts, .Value = 0, .DefaultMaximizeValue = 100 };
+    m_GameState.Variables[WeaponLevel] = { .Name = WeaponLevel, .Value = 1, .DefaultMaximizeValue = 10 };
+    m_GameState.Variables[VehicleLevel] = { .Name = VehicleLevel, .Value = 1, .DefaultMaximizeValue = 10 };
     m_GameHistory = GameHistory();
 }
 

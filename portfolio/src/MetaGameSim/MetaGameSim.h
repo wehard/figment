@@ -20,6 +20,7 @@ public:
     {
         std::string Name = "GameVariable";
         uint32_t Value = 0;
+        uint32_t DefaultMaximizeValue = 0;
     };
 
     struct GameState
@@ -29,9 +30,9 @@ public:
         GameState() = default;
         GameState(const GameState &src)
         {
-            for (const auto &[name, resource] : src.Variables)
+            for (const auto &[name, variable] : src.Variables)
             {
-                Variables[name] = GameVariable { resource.Name, resource.Value };
+                Variables[name] = variable;
             }
         }
     };
@@ -67,10 +68,15 @@ private:
     static constexpr const char *WeaponLevel = "Weapon Level";
     static constexpr const char *VehicleLevel = "Vehicle Level";
 
+    static constexpr uint32_t DefaultCashMaximizeValue = 1000;
+    static constexpr uint32_t DefaultPartsMaximizeValue = 100;
+    static constexpr uint32_t DefaultWeaponLevelMaximizeValue = 10;
+    static constexpr uint32_t DefaultVehicleLevelMaximizeValue = 10;
+
     GameState m_GameState;
     GameHistory m_GameHistory;
     std::vector<Action> m_Actions;
 
     std::string m_SimulationMaximiseGameVariable = "Cash";
-    int m_SimulationMaximiseGameVariableValue = 1000;
+    int m_SimulationMaximiseGameVariableValue = DefaultCashMaximizeValue;
 };
