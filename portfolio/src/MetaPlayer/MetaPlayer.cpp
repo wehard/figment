@@ -129,9 +129,6 @@ void MetaPlayer::OnImGuiRender()
         ImGui::PopStyleColor();
 
         ImGui::SameLine();
-        ImGui::Text("Visited: %d", latestResult.VisitedCount);
-
-        ImGui::SameLine();
         ImGui::Text("Maximize:");
         ImGui::SameLine();
         if (ImGui::Button(m_SimulationMaximiseGameVariable.c_str(), ImVec2(120, 20)))
@@ -156,22 +153,44 @@ void MetaPlayer::OnImGuiRender()
 
         ImGui::Separator();
 
-        for (auto &[name, values] : m_GameHistory.VariableValues)
+        for (auto &[name, variable] : m_GameState.Variables)
         {
+            std::vector<float> values = { (float)variable.Value, (float)variable.Value };
+            if (m_GameHistory.VariableValues.find(name) != m_GameHistory.VariableValues.end())
+                values = m_GameHistory.VariableValues[name];
+            float max = 10;
+            if (m_GameHistory.VariableValueMax.find(name) != m_GameHistory.VariableValueMax.end())
+                max = m_GameHistory.VariableValueMax[name] + 2;
             ImGui::PlotLines(name.c_str(), values.data(), (int)values.size(), 0,
-                    nullptr, 0, m_GameHistory.VariableValueMax[name] + 2,
+                    nullptr, 0, max,
                     ImVec2(0, 30));
             ImGui::SameLine();
             ImGui::Text("%d", m_GameState.Variables[name].Value);
         }
 
-        ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.1, 0.1, 0.1, 1.0));
-        ImGui::BeginChild("#actions");
-        for (auto &action : m_GameHistory.ActionNames)
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.1, 0.1, 0.1, 0.5));
+        if (ImGui::BeginTable("Search Results", 2))
         {
-            ImGui::Text("%s", action.c_str());
+            ImGui::TableNextRow();
+            ImGui::TableSetColumnIndex(0);
+            ImGui::Text("Actions");
+            ImGui::TableSetColumnIndex(1);
+            ImGui::Text("Results");
+            ImGui::TableNextRow();
+            ImGui::TableSetColumnIndex(0);
+            ImGui::BeginChild("#actions");
+            for (auto &action : m_GameHistory.ActionNames)
+            {
+                ImGui::Text("%s", action.c_str());
+            }
+            ImGui::EndChild();
+            ImGui::TableSetColumnIndex(1);
+            ImGui::BeginChild("#results");
+            ImGui::Text("Actions taken: %zu", latestResult.Path.size());
+            ImGui::Text("Nodes visited: %d", latestResult.VisitedCount);
+            ImGui::EndChild();
+            ImGui::EndTable();
         }
-        ImGui::EndChild();
         ImGui::PopStyleColor();
 
         ImGui::End();
