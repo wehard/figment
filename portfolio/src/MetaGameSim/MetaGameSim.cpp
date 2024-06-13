@@ -11,53 +11,55 @@ MetaGameSim::MetaGameSim(bool enabled) : Layer("MetaGameSim", enabled)
     ResetGameState();
 
     m_Actions.emplace_back(
-            Action { .Name = m_PlayLabel, .Description = "Play", .Function = [](GameState &state) -> GameState
+            Action { .Name = Play, .Description = "Get Cash", .Function = [](GameState &state) -> GameState
             {
                 auto newState = GameState(state);
-                newState.Resources["Cash"].Amount += CashIncrease(newState.Items["Weapon"].Level,
-                        newState.Items["Vehicle"].Level);
-                newState.Resources["Parts"].Amount +=
-                        Random::Float() > 0.95 / newState.Items["Vehicle"].Level ? newState.Items["Weapon"].Level : 0;
+                newState.Variables[Cash].Value += CashIncrease(newState.Variables[WeaponLevel].Value,
+                        newState.Variables[VehicleLevel].Value);
+                newState.Variables[Parts].Value +=
+                        Random::Float() > 0.95 / newState.Variables[VehicleLevel].Value
+                        ? newState.Variables[WeaponLevel].Value : 0;
 
                 return newState;
             }});
 
     m_Actions.emplace_back(
-            Action { .Name = m_BuyPartsLabel, .Description = "Buy Parts", .Function = [](GameState &state) -> GameState
+            Action { .Name = BuyParts, .Description = "Buy Parts for Cash", .Function = [](
+                    GameState &state) -> GameState
             {
                 auto newState = GameState(state);
-                if (newState.Resources["Cash"].Amount
-                        < CashIncrease(newState.Items["Weapon"].Level, newState.Items["Vehicle"].Level))
+                if (newState.Variables[Cash].Value
+                        < CashIncrease(newState.Variables[WeaponLevel].Value, newState.Variables[VehicleLevel].Value))
                     return newState;
-                newState.Resources["Cash"].Amount -= CashIncrease(newState.Items["Weapon"].Level,
-                        newState.Items["Vehicle"].Level);
-                newState.Resources["Parts"].Amount += 1;
+                newState.Variables[Cash].Value -= CashIncrease(newState.Variables[WeaponLevel].Value,
+                        newState.Variables[VehicleLevel].Value);
+                newState.Variables[Parts].Value += 1;
 
                 return newState;
             }});
 
-    m_Actions.emplace_back(Action { .Name = m_UpgradeVehicleLabel, .Description = "Upgrade Vehicle", .Function = [](
+    m_Actions.emplace_back(Action { .Name = UpgradeVehicle, .Description = "Upgrade Vehicle for Parts", .Function = [](
             GameState &state) -> GameState
     {
         auto newState = GameState(state);
-        auto cost = 60 * newState.Items["Vehicle"].Level;
-        if (newState.Resources["Parts"].Amount < cost)
+        auto cost = 60 * newState.Variables[VehicleLevel].Value;
+        if (newState.Variables[Parts].Value < cost)
             return newState;
-        newState.Resources["Parts"].Amount -= cost;
-        newState.Items["Vehicle"].Level += 1;
+        newState.Variables[Parts].Value -= cost;
+        newState.Variables[VehicleLevel].Value += 1;
 
         return newState;
     }});
 
-    m_Actions.emplace_back(Action { .Name = m_UpgradeWeaponLabel, .Description = "Upgrade Weapon", .Function = [](
+    m_Actions.emplace_back(Action { .Name = UpgradeWeapon, .Description = "Upgrade Weapon for Parts", .Function = [](
             GameState &state) -> GameState
     {
         auto newState = GameState(state);
-        auto cost = 10 * state.Items["Weapon"].Level;
-        if (newState.Resources["Parts"].Amount < cost)
+        auto cost = 10 * state.Variables[WeaponLevel].Value;
+        if (newState.Variables[Parts].Value < cost)
             return newState;
-        newState.Resources["Parts"].Amount -= cost;
-        newState.Items["Weapon"].Level += 1;
+        newState.Variables[Parts].Value -= cost;
+        newState.Variables[WeaponLevel].Value += 1;
 
         return newState;
     }});
@@ -76,7 +78,7 @@ void MetaGameSim::OnImGuiRender()
 
     ImGui::SetNextWindowSize(ImVec2(size.x * 0.60f, size.y * 0.60f), ImGuiCond_Once);
     ImGui::SetNextWindowPos(ImVec2(size.x / 2, size.y / 2), ImGuiCond_Once, ImVec2(0.5, 0.5));
-    ImGui::Begin("MetaGameSim");
+    ImGui::Begin(Title);
     {
         for (auto &action : m_Actions)
         {
@@ -107,11 +109,11 @@ void MetaGameSim::OnImGuiRender()
             AStar search(m_Actions);
             GameState start = GameState(m_GameState);
             GameState end = GameState(m_GameState);
-            end.Resources[m_SimulationMaximiseResource].Amount = m_SimulationMaximiseResourceAmount;
+            end.Variables[m_SimulationMaximiseGameVariable].Value = m_SimulationMaximiseGameVariableValue;
             auto result = search.Search(start, end, [this](const GameState &start, const GameState &end) -> uint32_t
             {
-                return end.Resources.at(m_SimulationMaximiseResource).Amount
-                        - start.Resources.at(m_SimulationMaximiseResource).Amount;
+                return end.Variables.at(m_SimulationMaximiseGameVariable).Value
+                        - start.Variables.at(m_SimulationMaximiseGameVariable).Value;
             });
             for (auto &actionState : result.Path)
             {
@@ -128,16 +130,16 @@ void MetaGameSim::OnImGuiRender()
         ImGui::SameLine();
         ImGui::Text("Maximize Resource:");
         ImGui::SameLine();
-        if (ImGui::Button(m_SimulationMaximiseResource.c_str(), ImVec2(120, 20)))
+        if (ImGui::Button(m_SimulationMaximiseGameVariable.c_str(), ImVec2(120, 20)))
             ImGui::OpenPopup("#selectresource");
 
         if (ImGui::BeginPopup("#selectresource"))
         {
-            for (auto &resource : m_GameState.Resources)
+            for (auto &resource : m_GameState.Variables)
             {
                 if (ImGui::MenuItem(resource.first.c_str()))
                 {
-                    m_SimulationMaximiseResource = resource.first;
+                    m_SimulationMaximiseGameVariable = resource.first;
                     ImGui::CloseCurrentPopup();
                 }
             }
@@ -145,26 +147,17 @@ void MetaGameSim::OnImGuiRender()
         }
         ImGui::SameLine();
         ImGui::SetNextItemWidth(120);
-        ImGui::InputInt("Amount", &m_SimulationMaximiseResourceAmount, 1, 1);
+        ImGui::InputInt("Amount", &m_SimulationMaximiseGameVariableValue, 1, 1);
 
         ImGui::Separator();
 
-        for (auto &[name, values] : m_GameHistory.Resources)
+        for (auto &[name, values] : m_GameHistory.VariableValues)
         {
             ImGui::PlotLines(name.c_str(), values.data(), (int)values.size(), 0,
-                    nullptr, 0, m_GameHistory.ResourceMax[name] + 2,
+                    nullptr, 0, m_GameHistory.VariableValueMax[name] + 2,
                     ImVec2(0, 30));
             ImGui::SameLine();
-            ImGui::Text("%d", m_GameState.Resources[name].Amount);
-        }
-
-        for (auto &[name, values] : m_GameHistory.Items)
-        {
-            ImGui::PlotLines(name.c_str(), values.data(), (int)values.size(), 0,
-                    nullptr, 0, m_GameHistory.ItemMax[name] + 2,
-                    ImVec2(0, 30));
-            ImGui::SameLine();
-            ImGui::Text("%d", m_GameState.Items[name].Level);
+            ImGui::Text("%d", m_GameState.Variables[name].Value);
         }
 
         ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.1, 0.1, 0.1, 1.0));
@@ -184,10 +177,10 @@ void MetaGameSim::OnEvent(AppEvent event, void *eventData) { }
 
 void MetaGameSim::ResetGameState()
 {
-    m_GameState.Resources["Cash"].Amount = 0;
-    m_GameState.Resources["Parts"].Amount = 0;
-    m_GameState.Items["Weapon"].Level = 1;
-    m_GameState.Items["Vehicle"].Level = 1;
+    m_GameState.Variables[Cash].Value = 0;
+    m_GameState.Variables[Parts].Value = 0;
+    m_GameState.Variables[WeaponLevel].Value = 1;
+    m_GameState.Variables[VehicleLevel].Value = 1;
     m_GameHistory = GameHistory();
 }
 
@@ -196,20 +189,12 @@ void MetaGameSim::ResetSimulation() { }
 void MetaGameSim::PushHistory(GameState state, const std::string &actionName)
 {
     m_GameHistory.ActionNames.push_back(actionName);
-    for (auto &[name, resource] : state.Resources)
+    for (auto &[name, variable] : state.Variables)
     {
-        m_GameHistory.Resources[name].push_back((float)resource.Amount);
-        if ((float)resource.Amount > m_GameHistory.ResourceMax[name])
+        m_GameHistory.VariableValues[name].push_back((float)variable.Value);
+        if ((float)variable.Value > m_GameHistory.VariableValueMax[name])
         {
-            m_GameHistory.ResourceMax[name] = (float)resource.Amount;
-        }
-    }
-    for (auto &[name, item] : state.Items)
-    {
-        m_GameHistory.Items[name].push_back((float)item.Level);
-        if ((float)item.Level > m_GameHistory.ItemMax[name])
-        {
-            m_GameHistory.ItemMax[name] = (float)item.Level;
+            m_GameHistory.VariableValueMax[name] = (float)variable.Value;
         }
     }
 }

@@ -16,33 +16,22 @@ public:
     void OnEvent(AppEvent event, void *eventData) override;
 
 public:
-    struct GameResource
+    struct GameVariable
     {
-        std::string Name = "Resource";
-        uint32_t Amount = 0;
-    };
-
-    struct GameItem
-    {
-        std::string Name = "Item";
-        uint32_t Level = 0;
+        std::string Name = "GameVariable";
+        uint32_t Value = 0;
     };
 
     struct GameState
     {
-        std::map<std::string, GameResource> Resources;
-        std::map<std::string, GameItem> Items;
+        std::map<std::string, GameVariable> Variables;
 
         GameState() = default;
         GameState(const GameState &src)
         {
-            for (const auto &[name, resource] : src.Resources)
+            for (const auto &[name, resource] : src.Variables)
             {
-                Resources[name] = GameResource { resource.Name, resource.Amount };
-            }
-            for (const auto &[name, item] : src.Items)
-            {
-                Items[name] = GameItem { item.Name, item.Level };
+                Variables[name] = GameVariable { resource.Name, resource.Value };
             }
         }
     };
@@ -50,10 +39,8 @@ public:
     struct GameHistory
     {
         std::vector<std::string> ActionNames = {};
-        std::map<std::string, std::vector<float>> Resources = {};
-        std::map<std::string, std::vector<float>> Items = {};
-        std::map<std::string, float> ResourceMax = {};
-        std::map<std::string, float> ItemMax = {};
+        std::map<std::string, std::vector<float>> VariableValues = {};
+        std::map<std::string, float> VariableValueMax = {};
     };
 
     struct Action
@@ -69,18 +56,21 @@ private:
     void PushHistory(GameState state, const std::string &actionName);
 
 private:
-    const std::string m_Title = "Meta Game Simulator";
-    const std::string m_PlayLabel = "Play Game";
-    const std::string m_BuyPartsLabel = "Buy Parts";
-    const std::string m_UpgradeWeaponLabel = "Upgrade Weapon";
-    const std::string m_UpgradeVehicleLabel = "Upgrade Vehicle";
+    static constexpr const char *Title = "Meta Game Simulator";
+    static constexpr const char *Play = "Play Game";
+    static constexpr const char *BuyParts = "Buy Parts";
+    static constexpr const char *UpgradeWeapon = "Upgrade Weapon";
+    static constexpr const char *UpgradeVehicle = "Upgrade Vehicle";
 
-    std::string m_SimulationMaximiseResource = "Cash";
-    int m_SimulationMaximiseResourceAmount = 1000;
+    static constexpr const char *Cash = "Cash";
+    static constexpr const char *Parts = "Parts";
+    static constexpr const char *WeaponLevel = "Weapon Level";
+    static constexpr const char *VehicleLevel = "Vehicle Level";
 
     GameState m_GameState;
-
+    GameHistory m_GameHistory;
     std::vector<Action> m_Actions;
 
-    GameHistory m_GameHistory;
+    std::string m_SimulationMaximiseGameVariable = "Cash";
+    int m_SimulationMaximiseGameVariableValue = 1000;
 };
