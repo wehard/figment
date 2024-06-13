@@ -26,15 +26,6 @@ public:
     struct GameState
     {
         std::map<std::string, GameVariable> Variables;
-
-        GameState() = default;
-        GameState(const GameState &src)
-        {
-            for (const auto &[name, variable] : src.Variables)
-            {
-                Variables[name] = variable;
-            }
-        }
     };
 
     struct GameHistory
