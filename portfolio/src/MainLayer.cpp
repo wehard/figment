@@ -219,6 +219,16 @@ void MainLayer::OnImGuiRender()
                 gameOfLife->Randomize();
             }
         });
+
+        LayerDetails<MetaGameSim>(m_SelectedLayer, [](MetaGameSim *metaGameSim)
+        {
+            ImGui::Text("MetaPlayer");
+            ImGui::Spacing();
+            ImGui::TextWrapped(
+                    "A* search attempts to find shortest sequence of actions to maximize the selected game variable.");
+            ImGui::Spacing();
+            HyperLink("Source code on GitHub", "https://github.com/wehard/figment/tree/main/portfolio/src/MetaGameSim");
+        });
     }
     ImGui::End();
     DrawDebugPanel(*m_Camera, true);
