@@ -179,10 +179,10 @@ void MetaGameSim::OnEvent(AppEvent event, void *eventData) { }
 void MetaGameSim::ResetGameState()
 {
     m_GameState.Variables.clear();
-    m_GameState.Variables[Cash] = { .Name = Cash, .Value = 0, .DefaultMaximizeValue = 1000 };
-    m_GameState.Variables[Parts] = { .Name = Parts, .Value = 0, .DefaultMaximizeValue = 100 };
-    m_GameState.Variables[WeaponLevel] = { .Name = WeaponLevel, .Value = 1, .DefaultMaximizeValue = 10 };
-    m_GameState.Variables[VehicleLevel] = { .Name = VehicleLevel, .Value = 1, .DefaultMaximizeValue = 10 };
+    m_GameState.Variables[Cash] = { .Name = Cash, .Value = 0, .DefaultMaximizeValue = DefaultCashMaximizeValue };
+    m_GameState.Variables[Parts] = { .Name = Parts, .Value = 0, .DefaultMaximizeValue = DefaultPartsMaximizeValue };
+    m_GameState.Variables[WeaponLevel] = { .Name = WeaponLevel, .Value = 1, .DefaultMaximizeValue = DefaultWeaponLevelMaximizeValue };
+    m_GameState.Variables[VehicleLevel] = { .Name = VehicleLevel, .Value = 1, .DefaultMaximizeValue = DefaultVehicleLevelMaximizeValue };
     m_GameHistory = GameHistory();
 }
 
