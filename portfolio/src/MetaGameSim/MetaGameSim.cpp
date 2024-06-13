@@ -87,6 +87,10 @@ void MetaGameSim::OnImGuiRender()
                 m_GameState = action.Function(m_GameState);
                 PushHistory(m_GameState, action.Name);
             }
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::SetTooltip("%s", action.Description.c_str());
+            }
             ImGui::SameLine();
         }
 
