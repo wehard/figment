@@ -28,7 +28,7 @@ target_include_directories(portfolio
         src/Cube
         src/Galaxy
         src/GameOfLife
-        src/MetaGameSim
+        src/MetaPlayer
         src/Shapes
         src/Worlds
         ../engine/src
