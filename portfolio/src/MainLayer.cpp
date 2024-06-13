@@ -240,7 +240,8 @@ void MainLayer::OnImGuiRender()
             ImGui::Spacing();
 
             ImGui::Spacing();
-            HyperLink("Source code on GitHub", "https://github.com/wehard/figment/tree/main/portfolio/src/MetaGameSim");
+            HyperLink("Source code on GitHub",
+                    "https://github.com/wehard/figment/tree/main/portfolio/src/MetaPlayer");
         });
     }
     ImGui::End();
