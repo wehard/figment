@@ -36,6 +36,7 @@ target_include_directories(portfolio
         ../engine/src/scene
         ../engine/src/debug
         ../engine/src/scene/components
+        ../engine/src/utils
         ../engine/src/physics
         ../engine/src/renderer
         ../engine/src/platform/webgpu

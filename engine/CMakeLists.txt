@@ -48,6 +48,7 @@ target_include_directories(engine
         src/renderer
         src/scene
         src/scene/components
+        src/utils
         src/physics
         lib
         lib/glm
@@ -62,6 +63,7 @@ file(GLOB_RECURSE SRC_FILES
         "src/physics/*.cpp"
         "src/renderer/*.cpp"
         "src/scene/*.cpp"
+        "src/utils/*.cpp"
         "src/App.cpp"
         "PixelCanvas.cpp"
         "lib/imgui/imgui.cpp"
@@ -111,7 +113,11 @@ if (NOT EMSCRIPTEN)
 
     set_property(TARGET figment_tests PROPERTY CXX_STANDARD 20)
 
-    target_include_directories(figment_tests PRIVATE ../engine/src/core ../engine/src/renderer)
+    target_include_directories(figment_tests PRIVATE
+            ../engine/src/core
+            ../engine/src/renderer
+            ../engine/src/utils
+    )
     target_link_libraries(
             figment_tests
             GTest::gtest_main
