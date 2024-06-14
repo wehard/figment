@@ -1,15 +1,19 @@
 #include "MetaPlayer.h"
 #include "AStar.h"
 
+MetaPlayer::MetaPlayer(bool enabled) : Layer("MetaPlayer", enabled)
+{
+    ResetGameState();
+    InitializeActions();
+}
+
 static uint32_t CashIncrease(uint32_t weaponLevel, uint32_t vehicleLevel)
 {
     return weaponLevel * 5 + vehicleLevel * 10;
 }
 
-MetaPlayer::MetaPlayer(bool enabled) : Layer("MetaPlayer", enabled)
+void MetaPlayer::InitializeActions()
 {
-    ResetGameState();
-
     m_Actions.emplace_back(
             Action { .Name = Play, .Description = "Get Cash", .Function = [](GameState &state) -> GameState
             {
@@ -63,14 +67,28 @@ MetaPlayer::MetaPlayer(bool enabled) : Layer("MetaPlayer", enabled)
 
         return newState;
     }});
-
 }
 
-void MetaPlayer::OnAttach() { }
+void MetaPlayer::StartSearch()
+{
+    ResetGameState();
+    ResetSimulation();
 
-void MetaPlayer::OnDetach() { }
-
-void MetaPlayer::OnUpdate(float deltaTime) { }
+    AStar search(m_Actions);
+    GameState start = GameState(m_GameState);
+    GameState end = GameState(m_GameState);
+    end.Variables[m_SimulationMaximiseGameVariable].Value = m_SimulationMaximiseGameVariableValue;
+    auto result = search.Search(start, end, [this](const GameState &start, const GameState &end) -> uint32_t
+    {
+        return end.Variables.at(m_SimulationMaximiseGameVariable).Value
+                - start.Variables.at(m_SimulationMaximiseGameVariable).Value;
+    });
+    for (auto &actionState : result.Path)
+    {
+        m_GameState = actionState->GameState;
+        PushHistory(m_GameState, actionState->ActionName);
+    }
+}
 
 void MetaPlayer::OnImGuiRender()
 {
@@ -196,8 +214,6 @@ void MetaPlayer::OnImGuiRender()
         ImGui::End();
     }
 }
-
-void MetaPlayer::OnEvent(AppEvent event, void *eventData) { }
 
 void MetaPlayer::ResetGameState()
 {

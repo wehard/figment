@@ -8,14 +8,6 @@ using namespace Figment;
 class MetaPlayer : public Layer
 {
 public:
-    explicit MetaPlayer(bool enabled);
-    void OnAttach() override;
-    void OnDetach() override;
-    void OnUpdate(float deltaTime) override;
-    void OnImGuiRender() override;
-    void OnEvent(AppEvent event, void *eventData) override;
-
-public:
     struct GameVariable
     {
         std::string Name = "GameVariable";
@@ -42,7 +34,17 @@ public:
         std::function<GameState(GameState &)> Function;
     };
 
+public:
+    explicit MetaPlayer(bool enabled);
+    void OnAttach() override { };
+    void OnDetach() override { };
+    void OnUpdate(float deltaTime) override { };
+    void OnImGuiRender() override;
+    void OnEvent(AppEvent event, void *eventData) override { };
+
 private:
+    void InitializeActions();
+    void StartSearch();
     void ResetGameState();
     void ResetSimulation();
     void PushHistory(GameState state, const std::string &actionName);
@@ -60,13 +62,13 @@ private:
 
     static constexpr uint32_t DefaultCashMaximizeValue = 1000;
     static constexpr uint32_t DefaultPartsMaximizeValue = 100;
-    static constexpr uint32_t DefaultWeaponLevelMaximizeValue = 10;
-    static constexpr uint32_t DefaultVehicleLevelMaximizeValue = 10;
+    static constexpr uint32_t DefaultWeaponLevelMaximizeValue = 5;
+    static constexpr uint32_t DefaultVehicleLevelMaximizeValue = 5;
 
     GameState m_GameState;
     GameHistory m_GameHistory;
     std::vector<Action> m_Actions;
 
-    std::string m_SimulationMaximiseGameVariable = "Cash";
+    std::string m_SimulationMaximiseGameVariable = Cash;
     int m_SimulationMaximiseGameVariableValue = DefaultCashMaximizeValue;
 };
