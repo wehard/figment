@@ -17,7 +17,25 @@ public:
 
     struct GameState
     {
+        std::string ActionName;
         std::map<std::string, GameVariable> Variables;
+
+        // bool operator==(const GameState &other) const
+        // {
+        //     if (Variables.size() != other.Variables.size())
+        //         return false;
+        //
+        //     for (const auto &variable : Variables)
+        //     {
+        //         if (other.Variables.find(variable.first) == other.Variables.end())
+        //             return false;
+        //
+        //         if (variable.second.Value != other.Variables.at(variable.first).Value)
+        //             return false;
+        //     }
+        //
+        //     return true;
+        // }
     };
 
     struct GameHistory
@@ -31,7 +49,7 @@ public:
     {
         std::string Name;
         std::string Description;
-        std::function<GameState(GameState &)> Function;
+        std::function<GameState(const GameState &)> Function;
     };
 
 public:
@@ -44,7 +62,6 @@ public:
 
 private:
     void InitializeActions();
-    void StartSearch();
     void ResetGameState();
     void ResetSimulation();
     void PushHistory(GameState state, const std::string &actionName);

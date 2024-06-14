@@ -1,5 +1,4 @@
 #include "MetaPlayer.h"
-#include "AStar.h"
 
 MetaPlayer::MetaPlayer(bool enabled) : Layer("MetaPlayer", enabled)
 {
@@ -15,7 +14,7 @@ static uint32_t CashIncrease(uint32_t weaponLevel, uint32_t vehicleLevel)
 void MetaPlayer::InitializeActions()
 {
     m_Actions.emplace_back(
-            Action { .Name = Play, .Description = "Get Cash", .Function = [](GameState &state) -> GameState
+            Action { .Name = Play, .Description = "Get Cash", .Function = [](const GameState &state) -> GameState
             {
                 auto newState = GameState(state);
                 newState.Variables[Cash].Value += CashIncrease(newState.Variables[WeaponLevel].Value,
@@ -29,7 +28,7 @@ void MetaPlayer::InitializeActions()
 
     m_Actions.emplace_back(
             Action { .Name = BuyParts, .Description = "Buy Parts for Cash", .Function = [](
-                    GameState &state) -> GameState
+                    const GameState &state) -> GameState
             {
                 auto newState = GameState(state);
                 if (newState.Variables[Cash].Value
@@ -43,7 +42,7 @@ void MetaPlayer::InitializeActions()
             }});
 
     m_Actions.emplace_back(Action { .Name = UpgradeVehicle, .Description = "Upgrade Vehicle for Parts", .Function = [](
-            GameState &state) -> GameState
+            const GameState &state) -> GameState
     {
         auto newState = GameState(state);
         auto cost = 60 * newState.Variables[VehicleLevel].Value;
@@ -56,10 +55,10 @@ void MetaPlayer::InitializeActions()
     }});
 
     m_Actions.emplace_back(Action { .Name = UpgradeWeapon, .Description = "Upgrade Weapon for Parts", .Function = [](
-            GameState &state) -> GameState
+            const GameState &state) -> GameState
     {
         auto newState = GameState(state);
-        auto cost = 10 * state.Variables[WeaponLevel].Value;
+        auto cost = 10 * newState.Variables[WeaponLevel].Value;
         if (newState.Variables[Parts].Value < cost)
             return newState;
         newState.Variables[Parts].Value -= cost;
@@ -67,27 +66,6 @@ void MetaPlayer::InitializeActions()
 
         return newState;
     }});
-}
-
-void MetaPlayer::StartSearch()
-{
-    ResetGameState();
-    ResetSimulation();
-
-    AStar search(m_Actions);
-    GameState start = GameState(m_GameState);
-    GameState end = GameState(m_GameState);
-    end.Variables[m_SimulationMaximiseGameVariable].Value = m_SimulationMaximiseGameVariableValue;
-    auto result = search.Search(start, end, [this](const GameState &start, const GameState &end) -> uint32_t
-    {
-        return end.Variables.at(m_SimulationMaximiseGameVariable).Value
-                - start.Variables.at(m_SimulationMaximiseGameVariable).Value;
-    });
-    for (auto &actionState : result.Path)
-    {
-        m_GameState = actionState->GameState;
-        PushHistory(m_GameState, actionState->ActionName);
-    }
 }
 
 void MetaPlayer::OnImGuiRender()
@@ -121,26 +99,39 @@ void MetaPlayer::OnImGuiRender()
 
         ImGui::Separator();
 
-        static AStar::SearchResult latestResult = {};
+        static Figment::AStar<GameState>::SearchResult latestResult = {};
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2, 0.8, 0.2, 1.0));
         if (ImGui::Button("Start", ImVec2(120, 20)))
         {
             ResetGameState();
             ResetSimulation();
 
-            AStar search(m_Actions);
+            Figment::AStar<GameState> aStar;
             GameState start = GameState(m_GameState);
             GameState end = GameState(m_GameState);
             end.Variables[m_SimulationMaximiseGameVariable].Value = m_SimulationMaximiseGameVariableValue;
-            auto result = search.Search(start, end, [this](const GameState &start, const GameState &end) -> uint32_t
+            auto result = aStar.Search(start, end,
+                    [this](const GameState &start, const GameState &end) -> uint32_t
+                    {
+                        return end.Variables.at(m_SimulationMaximiseGameVariable).Value
+                                - start.Variables.at(m_SimulationMaximiseGameVariable).Value;
+                    },
+                    [this](const GameState &state) -> std::vector<GameState>
+                    {
+                        // TODO: Remove unavailable actions
+                        std::vector<GameState> states;
+                        for (auto &action : m_Actions)
+                        {
+                            auto newGameState = action.Function(state);
+                            newGameState.ActionName = action.Name;
+                            states.push_back(newGameState);
+                        }
+                        return states;
+                    });
+            for (auto &node : result.Path)
             {
-                return end.Variables.at(m_SimulationMaximiseGameVariable).Value
-                        - start.Variables.at(m_SimulationMaximiseGameVariable).Value;
-            });
-            for (auto &actionState : result.Path)
-            {
-                m_GameState = actionState->GameState;
-                PushHistory(m_GameState, actionState->ActionName);
+                m_GameState = node->UserData;
+                PushHistory(m_GameState, m_GameState.ActionName);
             }
             latestResult = result;
         }

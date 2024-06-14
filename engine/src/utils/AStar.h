@@ -85,9 +85,10 @@ namespace Figment
                     });
 
                     auto it = std::find_if(openSet.begin(), openSet.end(),
-                            [&neighbor](const std::shared_ptr<Node> &node)
+                            [&neighborNode](const std::shared_ptr<Node> &node)
                             {
-                                return node->UserData == neighbor;
+                                // return node->UserData == neighbor;
+                                return node->HScore <= neighborNode->HScore; // TODO: Pass equals function
                             });
 
                     if (it != openSet.end())
