@@ -108,8 +108,10 @@ void MetaPlayer::OnImGuiRender()
 
             Figment::AStar<GameState> aStar;
             GameState start = GameState(m_GameState);
+            start.ActionName = "Start";
             GameState end = GameState(m_GameState);
             end.Variables[m_SimulationMaximiseGameVariable].Value = m_SimulationMaximiseGameVariableValue;
+            end.ActionName = "End";
             auto result = aStar.Search(start, end,
                     [this](const GameState &start, const GameState &end) -> uint32_t
                     {
@@ -182,7 +184,7 @@ void MetaPlayer::OnImGuiRender()
         {
             ImGui::TableNextRow();
             ImGui::TableSetColumnIndex(0);
-            ImGui::Text("Actions");
+            ImGui::Text("Actions (%zu)", m_GameHistory.ActionNames.size());
             ImGui::TableSetColumnIndex(1);
             ImGui::Text("Results");
             ImGui::TableNextRow();
@@ -195,7 +197,6 @@ void MetaPlayer::OnImGuiRender()
             ImGui::EndChild();
             ImGui::TableSetColumnIndex(1);
             ImGui::BeginChild("#results");
-            ImGui::Text("Actions taken: %zu", latestResult.Path.size());
             ImGui::Text("Nodes visited: %d", latestResult.VisitedCount);
             ImGui::EndChild();
             ImGui::EndTable();
