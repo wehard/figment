@@ -97,8 +97,8 @@ void MetaPlayer::StartSearch()
     auto result = aStar.Search(start, end,
             [this](const GameState &start, const GameState &end) -> uint32_t
             {
-                return end.Variables.at(m_SimulationMaximiseGameVariable).Value
-                        - start.Variables.at(m_SimulationMaximiseGameVariable).Value;
+                return (int)end.Variables.at(m_SimulationMaximiseGameVariable).Value
+                        - (int)start.Variables.at(m_SimulationMaximiseGameVariable).Value;
             },
             [this](const GameState &state) -> std::vector<GameState>
             {
