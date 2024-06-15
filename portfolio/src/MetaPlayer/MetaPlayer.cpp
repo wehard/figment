@@ -198,7 +198,7 @@ void MetaPlayer::OnImGuiRender()
             ImGui::EndChild();
             ImGui::TableSetColumnIndex(1);
             ImGui::BeginChild("#results");
-            ImGui::Text("Nodes visited: %d", latestResult.VisitedCount);
+            ImGui::Text("Nodes visited: %d", latestResult.NumVisited);
             ImGui::EndChild();
             ImGui::EndTable();
         }

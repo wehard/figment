@@ -23,7 +23,7 @@ namespace Figment
         struct SearchResult
         {
             std::vector<std::shared_ptr<Node>> Path;
-            uint32_t VisitedCount = 0;
+            uint32_t NumVisited = 0;
         };
 
     public:
@@ -54,7 +54,6 @@ namespace Figment
 
             openSet.insert(startNode);
 
-            uint32_t visitedCount = 0;
             while (!openSet.empty())
             {
                 auto currentNode = *openSet.begin();
@@ -70,7 +69,7 @@ namespace Figment
                         node = node->parent;
                     }
                     std::reverse(path.begin(), path.end());
-                    return SearchResult { .Path = path, .VisitedCount = visitedCount };
+                    return SearchResult { .Path = path, .NumVisited = (uint32_t)closedSet.size() };
                 }
 
                 auto neighbors = getNeighbors(currentNode->UserData);
@@ -109,9 +108,8 @@ namespace Figment
                 }
 
                 closedSet.push_back(currentNode);
-                visitedCount++;
             }
-            return SearchResult { .Path = {}, .VisitedCount = visitedCount };
+            return SearchResult { .Path = {}, .NumVisited = (uint32_t)closedSet.size() };
         }
     };
 
