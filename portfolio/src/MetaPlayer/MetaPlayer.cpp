@@ -130,6 +130,11 @@ void MetaPlayer::OnImGuiRender()
                             states.push_back(newGameState);
                         }
                         return states;
+                    }, [this](const GameState &a, const GameState &b) -> bool
+                    {
+                        // Economy as modelled can overshoot the target
+                        return a.Variables.at(m_SimulationMaximiseGameVariable).Value
+                                >= b.Variables.at(m_SimulationMaximiseGameVariable).Value;
                     });
             for (auto &node : result.Path)
             {
