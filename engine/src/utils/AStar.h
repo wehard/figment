@@ -33,7 +33,8 @@ namespace Figment
         SearchResult Search(const NodeUserData &start, const NodeUserData &end,
                 const std::function<int(const NodeUserData &,
                         const NodeUserData &)> &calculateHScore,
-                const std::function<std::vector<NodeUserData>(const NodeUserData &)> &getNeighbors)
+                const std::function<std::vector<NodeUserData>(const NodeUserData &)> &getNeighbors,
+                const std::function<bool(const NodeUserData &a, const NodeUserData &b)> &equals)
         {
             auto comp = [](const std::shared_ptr<Node> &a, const std::shared_ptr<Node> &b)
             { return a->FScore() < b->FScore(); };
@@ -59,7 +60,7 @@ namespace Figment
                 auto currentNode = *openSet.begin();
                 openSet.erase(openSet.begin());
 
-                if (currentNode->HScore <= endNode->HScore)
+                if (equals(currentNode->UserData, endNode->UserData))
                 {
                     std::vector<std::shared_ptr<Node>> path;
                     auto node = currentNode;
@@ -84,10 +85,9 @@ namespace Figment
                     });
 
                     auto it = std::find_if(openSet.begin(), openSet.end(),
-                            [&neighborNode](const std::shared_ptr<Node> &node)
+                            [&equals, &neighborNode](const std::shared_ptr<Node> &node)
                             {
-                                // return node->UserData == neighbor;
-                                return node->HScore <= neighborNode->HScore; // TODO: Pass equals function
+                                return equals(node->UserData, neighborNode->UserData);
                             });
 
                     if (it != openSet.end())
