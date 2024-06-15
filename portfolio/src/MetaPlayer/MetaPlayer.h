@@ -46,6 +46,7 @@ public:
 
 private:
     void InitializeActions();
+    static bool IsActionAvailable(const GameState &state, const std::string &actionName);
     void StartSearch();
     void ResetGameState();
     void PushHistory(GameState state, const std::string &actionName);

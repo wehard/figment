@@ -68,6 +68,22 @@ void MetaPlayer::InitializeActions()
     }});
 }
 
+bool MetaPlayer::IsActionAvailable(const GameState &state, const std::string &actionName)
+{
+    if (actionName == Play)
+        return true;
+    if (actionName == BuyParts)
+        return state.Variables.at(Cash).Value
+                >= CashIncrease(state.Variables.at(WeaponLevel).Value, state.Variables.at(VehicleLevel).Value);
+    if (actionName == UpgradeVehicle)
+        return state.Variables.at(Parts).Value
+                >= 60 * state.Variables.at(VehicleLevel).Value;
+    if (actionName == UpgradeWeapon)
+        return state.Variables.at(Parts).Value
+                >= 10 * state.Variables.at(WeaponLevel).Value;
+    return false;
+}
+
 void MetaPlayer::StartSearch()
 {
     ResetGameState();
@@ -86,10 +102,11 @@ void MetaPlayer::StartSearch()
             },
             [this](const GameState &state) -> std::vector<GameState>
             {
-                // TODO: Remove unavailable actions
                 std::vector<GameState> states;
                 for (auto &action : m_Actions)
                 {
+                    if (!IsActionAvailable(state, action.Name))
+                        continue;
                     auto newGameState = action.Function(state);
                     newGameState.ActionName = action.Name;
                     states.push_back(newGameState);
@@ -119,11 +136,13 @@ void MetaPlayer::OnImGuiRender()
     {
         for (auto &action : m_Actions)
         {
+            ImGui::BeginDisabled(!IsActionAvailable(m_GameState, action.Name));
             if (ImGui::Button(action.Name.c_str(), ImVec2(120, 20)))
             {
                 m_GameState = action.Function(m_GameState);
                 PushHistory(m_GameState, action.Name);
             }
+            ImGui::EndDisabled();
             if (ImGui::IsItemHovered())
             {
                 ImGui::SetTooltip("%s", action.Description.c_str());
