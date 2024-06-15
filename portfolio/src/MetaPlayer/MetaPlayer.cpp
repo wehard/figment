@@ -1,5 +1,4 @@
 #include "MetaPlayer.h"
-#include "AStar.h"
 
 MetaPlayer::MetaPlayer(bool enabled) : Layer("MetaPlayer", enabled)
 {
@@ -100,7 +99,6 @@ void MetaPlayer::OnImGuiRender()
 
         ImGui::Separator();
 
-        static Figment::AStar<GameState>::SearchResult latestResult = {};
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2, 0.8, 0.2, 1.0));
         if (ImGui::Button("Start", ImVec2(120, 20)))
         {
@@ -141,7 +139,7 @@ void MetaPlayer::OnImGuiRender()
                 m_GameState = node->UserData;
                 PushHistory(m_GameState, m_GameState.ActionName);
             }
-            latestResult = result;
+            m_AStarSearchResult = std::make_unique<AStar<GameState>::SearchResult>(result);
         }
         ImGui::PopStyleColor();
 
@@ -203,8 +201,11 @@ void MetaPlayer::OnImGuiRender()
             ImGui::EndChild();
             ImGui::TableSetColumnIndex(1);
             ImGui::BeginChild("#results");
-            ImGui::Text("Nodes visited: %d", latestResult.NumVisited);
-            ImGui::Text("Nodes evaluated: %d", latestResult.NumEvaluated);
+            if (m_AStarSearchResult)
+            {
+                ImGui::Text("Nodes visited: %d", m_AStarSearchResult->NumVisited);
+                ImGui::Text("Nodes evaluated: %d", m_AStarSearchResult->NumEvaluated);
+            }
             ImGui::EndChild();
             ImGui::EndTable();
         }
@@ -222,6 +223,7 @@ void MetaPlayer::ResetGameState()
     m_GameState.Variables[WeaponLevel] = { .Name = WeaponLevel, .Value = 1, .DefaultMaximizeValue = DefaultWeaponLevelMaximizeValue };
     m_GameState.Variables[VehicleLevel] = { .Name = VehicleLevel, .Value = 1, .DefaultMaximizeValue = DefaultVehicleLevelMaximizeValue };
     m_GameHistory = GameHistory();
+    m_AStarSearchResult.reset();
 }
 
 void MetaPlayer::ResetSimulation() { }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Figment.h"
+#include "AStar.h"
 #include <stack>
 
 using namespace Figment;
@@ -69,6 +70,7 @@ private:
     GameHistory m_GameHistory;
     std::vector<Action> m_Actions;
 
+    std::unique_ptr<AStar<GameState>::SearchResult> m_AStarSearchResult;
     std::string m_SimulationMaximiseGameVariable = Cash;
     int m_SimulationMaximiseGameVariableValue = DefaultCashMaximizeValue;
 };
