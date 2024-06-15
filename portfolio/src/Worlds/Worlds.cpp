@@ -10,7 +10,7 @@ Worlds::Worlds(std::shared_ptr<PerspectiveCamera> camera, bool enabled) : Layer(
     m_ComputeShader = std::make_unique<WebGPUShader>(m_Context->GetDevice(), "res/shaders/world_compute.wgsl",
             "WorldCompute");
     m_ParticleShader = std::make_unique<WebGPUShader>(m_Context->GetDevice(),
-            "res/shaders/particle_disc_billboard.wgsl",
+            "res/shaders/particle_disc_billboard_worlds.wgsl",
             "WorldParticle");
     m_VertexBuffer = std::make_unique<WebGPUVertexBuffer<Particle >>
             (m_Context->GetDevice(), "ParticlesBuffer",
