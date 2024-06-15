@@ -71,7 +71,6 @@ void MetaPlayer::InitializeActions()
 void MetaPlayer::StartSearch()
 {
     ResetGameState();
-    ResetSimulation();
 
     Figment::AStar<GameState> aStar;
     GameState start = GameState(m_GameState);
@@ -136,7 +135,6 @@ void MetaPlayer::OnImGuiRender()
         if (ImGui::Button("Reset", ImVec2(120, 20)))
         {
             ResetGameState();
-            ResetSimulation();
         }
 
         ImGui::Separator();
@@ -230,8 +228,6 @@ void MetaPlayer::ResetGameState()
     m_GameHistory = GameHistory();
     m_AStarSearchResult.reset();
 }
-
-void MetaPlayer::ResetSimulation() { }
 
 void MetaPlayer::PushHistory(GameState state, const std::string &actionName)
 {

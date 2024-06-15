@@ -48,7 +48,6 @@ private:
     void InitializeActions();
     void StartSearch();
     void ResetGameState();
-    void ResetSimulation();
     void PushHistory(GameState state, const std::string &actionName);
 
 private:
