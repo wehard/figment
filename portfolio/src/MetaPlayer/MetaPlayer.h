@@ -19,23 +19,6 @@ public:
     {
         std::string ActionName;
         std::map<std::string, GameVariable> Variables;
-
-        // bool operator==(const GameState &other) const
-        // {
-        //     if (Variables.size() != other.Variables.size())
-        //         return false;
-        //
-        //     for (const auto &variable : Variables)
-        //     {
-        //         if (other.Variables.find(variable.first) == other.Variables.end())
-        //             return false;
-        //
-        //         if (variable.second.Value != other.Variables.at(variable.first).Value)
-        //             return false;
-        //     }
-        //
-        //     return true;
-        // }
     };
 
     struct GameHistory
