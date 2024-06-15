@@ -242,6 +242,8 @@ void MainLayer::OnImGuiRender()
             ImGui::Spacing();
             HyperLink("Source code on GitHub",
                     "https://github.com/wehard/figment/tree/main/portfolio/src/MetaPlayer");
+            HyperLink("A* implementation on GitHub",
+                    "https://github.com/wehard/figment/blob/main/engine/src/utils/AStar.h");
         });
     }
     ImGui::End();
