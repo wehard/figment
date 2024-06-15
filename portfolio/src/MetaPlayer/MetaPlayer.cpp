@@ -1,4 +1,5 @@
 #include "MetaPlayer.h"
+#include "AStar.h"
 
 MetaPlayer::MetaPlayer(bool enabled) : Layer("MetaPlayer", enabled)
 {

@@ -12,7 +12,6 @@
 #include "DebugPanel.h"
 #include "MeshRenderer.h"
 #include "RenderStats.h"
-#include "AStar.h"
 #if defined(WEBGPU_BACKEND)
 #include "WebGPUWindow.h"
 #endif
