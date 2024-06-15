@@ -68,6 +68,48 @@ void MetaPlayer::InitializeActions()
     }});
 }
 
+void MetaPlayer::StartSearch()
+{
+    ResetGameState();
+    ResetSimulation();
+
+    Figment::AStar<GameState> aStar;
+    GameState start = GameState(m_GameState);
+    start.ActionName = "Start";
+    GameState end = GameState(m_GameState);
+    end.Variables[m_SimulationMaximiseGameVariable].Value = m_SimulationMaximiseGameVariableValue;
+    end.ActionName = "End";
+    auto result = aStar.Search(start, end,
+            [this](const GameState &start, const GameState &end) -> uint32_t
+            {
+                return end.Variables.at(m_SimulationMaximiseGameVariable).Value
+                        - start.Variables.at(m_SimulationMaximiseGameVariable).Value;
+            },
+            [this](const GameState &state) -> std::vector<GameState>
+            {
+                // TODO: Remove unavailable actions
+                std::vector<GameState> states;
+                for (auto &action : m_Actions)
+                {
+                    auto newGameState = action.Function(state);
+                    newGameState.ActionName = action.Name;
+                    states.push_back(newGameState);
+                }
+                return states;
+            }, [this](const GameState &a, const GameState &b) -> bool
+            {
+                // Economy as modelled can overshoot the target
+                return a.Variables.at(m_SimulationMaximiseGameVariable).Value
+                        >= b.Variables.at(m_SimulationMaximiseGameVariable).Value;
+            });
+    for (auto &node : result.Path)
+    {
+        m_GameState = node->UserData;
+        PushHistory(m_GameState, m_GameState.ActionName);
+    }
+    m_AStarSearchResult = std::make_unique<AStar<GameState>::SearchResult>(result);
+}
+
 void MetaPlayer::OnImGuiRender()
 {
     auto size = ImGui::GetIO().DisplaySize;
@@ -102,44 +144,7 @@ void MetaPlayer::OnImGuiRender()
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2, 0.8, 0.2, 1.0));
         if (ImGui::Button("Start", ImVec2(120, 20)))
         {
-            ResetGameState();
-            ResetSimulation();
-
-            Figment::AStar<GameState> aStar;
-            GameState start = GameState(m_GameState);
-            start.ActionName = "Start";
-            GameState end = GameState(m_GameState);
-            end.Variables[m_SimulationMaximiseGameVariable].Value = m_SimulationMaximiseGameVariableValue;
-            end.ActionName = "End";
-            auto result = aStar.Search(start, end,
-                    [this](const GameState &start, const GameState &end) -> uint32_t
-                    {
-                        return end.Variables.at(m_SimulationMaximiseGameVariable).Value
-                                - start.Variables.at(m_SimulationMaximiseGameVariable).Value;
-                    },
-                    [this](const GameState &state) -> std::vector<GameState>
-                    {
-                        // TODO: Remove unavailable actions
-                        std::vector<GameState> states;
-                        for (auto &action : m_Actions)
-                        {
-                            auto newGameState = action.Function(state);
-                            newGameState.ActionName = action.Name;
-                            states.push_back(newGameState);
-                        }
-                        return states;
-                    }, [this](const GameState &a, const GameState &b) -> bool
-                    {
-                        // Economy as modelled can overshoot the target
-                        return a.Variables.at(m_SimulationMaximiseGameVariable).Value
-                                >= b.Variables.at(m_SimulationMaximiseGameVariable).Value;
-                    });
-            for (auto &node : result.Path)
-            {
-                m_GameState = node->UserData;
-                PushHistory(m_GameState, m_GameState.ActionName);
-            }
-            m_AStarSearchResult = std::make_unique<AStar<GameState>::SearchResult>(result);
+            StartSearch();
         }
         ImGui::PopStyleColor();
 
