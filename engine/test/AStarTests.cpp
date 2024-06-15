@@ -107,6 +107,7 @@ TEST(AStar, SearchReturnsOptimalPath)
             });
 
     ASSERT_EQ(result.NumVisited, 1);
+    ASSERT_EQ(result.NumEvaluated, 3);
     ASSERT_EQ(result.Path.size(), 2);
     ASSERT_EQ(result.Path.front()->UserData, positions.front());
     ASSERT_EQ(result.Path.back()->UserData, positions.back());
