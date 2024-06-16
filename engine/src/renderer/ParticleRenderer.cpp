@@ -7,10 +7,19 @@ namespace Figment
 
     ParticleRenderer::ParticleRenderer(WebGPUContext &context) : m_Context(context), m_Device(context.GetDevice())
     {
-        m_RenderTarget = wgpuSwapChainGetCurrentTextureView(m_Context.GetSwapChain());
-        m_RenderTargetTextureFormat = m_Context.GetTextureFormat();
         m_DepthTexture = WebGPUTexture::CreateDepthTexture(context.GetDevice(), WGPUTextureFormat_Depth24Plus,
                 context.GetSwapChainWidth(), context.GetSwapChainHeight());
+
+        m_RenderTarget = {
+                .Color = {
+                        .TextureView = wgpuSwapChainGetCurrentTextureView(m_Context.GetSwapChain()),
+                        .TextureFormat = m_Context.GetTextureFormat(),
+                },
+                .Depth = {
+                        .TextureView = m_DepthTexture->GetTextureView(),
+                        .TextureFormat = m_DepthTexture->GetTextureFormat(),
+                }
+        };
 
         m_CameraDataUniformBuffer = new WebGPUUniformBuffer<CameraData>(m_Context.GetDevice(),
                 "ParticleRendererCameraDataUniformBuffer",
@@ -29,6 +38,11 @@ namespace Figment
 
     void ParticleRenderer::BeginFrame(Camera &camera)
     {
+        m_RenderTarget.Color = {
+                .TextureView = wgpuSwapChainGetCurrentTextureView(m_Context.GetSwapChain()),
+                .TextureFormat = m_Context.GetTextureFormat(),
+        };
+
         m_CommandEncoder = WebGPUCommand::CreateCommandEncoder(m_Device, "ParticleRendererCommandEncoder");
 
         CameraData cameraData = {
@@ -43,10 +57,10 @@ namespace Figment
         colorAttachment.loadOp = WGPULoadOp_Clear;
         colorAttachment.storeOp = WGPUStoreOp_Store;
         colorAttachment.clearValue = { 0.0f, 0.0f, 0.0f, 0.0f };
-        colorAttachment.view = wgpuSwapChainGetCurrentTextureView(m_Context.GetSwapChain());
+        colorAttachment.view = m_RenderTarget.Color.TextureView;
 
         WGPURenderPassDepthStencilAttachment depthStencilAttachment = {};
-        depthStencilAttachment.view = m_DepthTexture->GetTextureView();
+        depthStencilAttachment.view = m_RenderTarget.Depth.TextureView;
         depthStencilAttachment.depthClearValue = 1.0f;
         depthStencilAttachment.depthLoadOp = WGPULoadOp_Clear;
         depthStencilAttachment.depthStoreOp = WGPUStoreOp_Store;
@@ -84,7 +98,13 @@ namespace Figment
         delete m_DepthTexture;
         m_DepthTexture = WebGPUTexture::CreateDepthTexture(m_Context.GetDevice(), WGPUTextureFormat_Depth24Plus,
                 width, height);
+
+        m_RenderTarget.Depth = {
+                .TextureView = m_DepthTexture->GetTextureView(),
+                .TextureFormat = m_DepthTexture->GetTextureFormat()
+        };
     }
+
     void ParticleRenderer::CreateDefaultPipeline(WebGPUShader &shader, WGPUVertexBufferLayout &vertexBufferLayout)
     {
         BindGroup bindGroup(m_Context.GetDevice(), WGPUShaderStage_Vertex | WGPUShaderStage_Fragment);
@@ -95,7 +115,7 @@ namespace Figment
                 WGPUFrontFace_CCW,
                 WGPUCullMode_None);
         pipeline.SetDepthStencilState(m_DepthTexture->GetTextureFormat(), true, WGPUCompareFunction_Less);
-        pipeline.AddColorTarget(m_RenderTargetTextureFormat, WGPUColorWriteMask_All);
+        pipeline.AddColorTarget(m_RenderTarget.Color.TextureFormat, WGPUColorWriteMask_All);
 
         m_Pipeline = pipeline.Get();
         m_BindGroup = bindGroup.Get();

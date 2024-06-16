@@ -80,7 +80,7 @@ namespace Figment
                         WGPUFrontFace_CCW,
                         WGPUCullMode_None);
                 pipeline.SetDepthStencilState(m_DepthTexture->GetTextureFormat(), true, WGPUCompareFunction_Less);
-                pipeline.AddColorTarget(m_RenderTargetTextureFormat, WGPUColorWriteMask_All);
+                pipeline.AddColorTarget(m_RenderTarget.Color.TextureFormat, WGPUColorWriteMask_All);
 
                 m_Pipeline = pipeline.Get();
                 m_BindGroup = bindGroup.Get();
@@ -121,8 +121,9 @@ namespace Figment
         WebGPUContext &m_Context;
         WGPUDevice m_Device;
         WGPUCommandEncoder m_CommandEncoder = nullptr;
-        WGPUTextureView m_RenderTarget = nullptr;
-        WGPUTextureFormat m_RenderTargetTextureFormat;
+        // WGPUTextureView m_RenderTarget = nullptr;
+        // WGPUTextureFormat m_RenderTargetTextureFormat;
+        RenderTarget m_RenderTarget = {};
         WebGPUTexture *m_DepthTexture;
         WebGPUUniformBuffer<CameraData> *m_CameraDataUniformBuffer;
         WebGPUUniformBuffer<ParticlesData> *m_ParticlesDataUniformBuffer;
@@ -140,7 +141,7 @@ namespace Figment
 
         uint32_t m_Indices[24] = { 0, 1, 2, 0, 2, 3 };
 
-        WebGPUVertexBuffer<glm::vec3> *m_QuadVertexBuffer;
-        WebGPUIndexBuffer<uint32_t> *m_QuadIndexBuffer;
+        WebGPUVertexBuffer<glm::vec3> *m_QuadVertexBuffer = nullptr;
+        WebGPUIndexBuffer<uint32_t> *m_QuadIndexBuffer = nullptr;
     };
 }
