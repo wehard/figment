@@ -27,7 +27,7 @@ namespace Figment
             uint32_t _Padding[3];
         };
 
-        ParticleRenderer(WebGPUContext &context);
+        explicit ParticleRenderer(WebGPUContext &context);
         ~ParticleRenderer();
         void CreateDefaultPipeline(WebGPUShader &shader, WGPUVertexBufferLayout &vertexBufferLayout);
         void BeginFrame(Camera &camera);
@@ -121,8 +121,6 @@ namespace Figment
         WebGPUContext &m_Context;
         WGPUDevice m_Device;
         WGPUCommandEncoder m_CommandEncoder = nullptr;
-        // WGPUTextureView m_RenderTarget = nullptr;
-        // WGPUTextureFormat m_RenderTargetTextureFormat;
         RenderTarget m_RenderTarget = {};
         WebGPUTexture *m_DepthTexture;
         WebGPUUniformBuffer<CameraData> *m_CameraDataUniformBuffer;
