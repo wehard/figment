@@ -84,7 +84,9 @@ fn simulate(@builtin(global_invocation_id) id: vec3<u32>) {
     var targetPosition = init_position(colIdx, rowIdx, data.rotation);
     targetPosition += normalize(targetPosition) * height.r * data.bumpMultiplier;
 
-    particle.color = textureSampleLevel(worldTexture, sampler1, uv, 0.0);
+    var targetColor = textureSampleLevel(worldTexture, sampler1, uv, 0.0);
+
+    particle.color = mix(particle.color, targetColor, data.deltaTime * 5.0);
     particle.position = mix(particle.position, targetPosition, data.deltaTime * 3.5);
 
     vertexBuffer[id.x] = particle;
