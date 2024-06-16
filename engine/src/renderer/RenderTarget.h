@@ -19,7 +19,7 @@ struct RenderTarget
     ColorTarget Color;
     DepthStencilTarget Depth;
 
-    WGPURenderPassColorAttachment GetColorAttachment()
+    [[nodiscard]] WGPURenderPassColorAttachment GetColorAttachment() const
     {
         WGPURenderPassColorAttachment colorAttachment = {};
         colorAttachment.depthSlice = WGPU_DEPTH_SLICE_UNDEFINED;
@@ -31,7 +31,7 @@ struct RenderTarget
         return colorAttachment;
     }
 
-    WGPURenderPassDepthStencilAttachment GetDepthStencilAttachment()
+    [[nodiscard]] WGPURenderPassDepthStencilAttachment GetDepthStencilAttachment() const
     {
         WGPURenderPassDepthStencilAttachment depthStencilAttachment = {};
         depthStencilAttachment.view = Depth.TextureView;
