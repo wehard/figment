@@ -11,8 +11,8 @@ namespace Figment
         uint32_t Width = 0;
         uint32_t Height = 0;
         WGPUTextureUsageFlags Usage = WGPUTextureUsage_CopyDst | WGPUTextureUsage_TextureBinding;
-        const std::string Label = "WebGPUTexture";
         WGPUTextureAspect Aspect = WGPUTextureAspect_All;
+        const std::string Label = "WebGPUTexture";
     };
 
     class WebGPUTexture
@@ -32,8 +32,6 @@ namespace Figment
         [[nodiscard]] uint32_t GetHeight() const { return m_Height; }
 
     public:
-        static WebGPUTexture *CreateDepthTexture(WGPUDevice device, WGPUTextureFormat depthTextureFormat,
-                uint32_t width, uint32_t height);
         static WebGPUTexture *Create(WGPUDevice device, Image &image);
 
     private:

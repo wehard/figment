@@ -18,8 +18,14 @@ namespace Figment
                 "MeshRendererCameraDataUniformBuffer",
                 sizeof(CameraData));
 
-        m_DepthTexture = WebGPUTexture::CreateDepthTexture(context.GetDevice(), WGPUTextureFormat_Depth24Plus,
-                context.GetSwapChainWidth(), context.GetSwapChainHeight());
+        m_DepthTexture = new WebGPUTexture(context.GetDevice(), WebGPUTextureDescriptor {
+                .Format = WGPUTextureFormat_Depth24Plus,
+                .Width = context.GetSwapChainWidth(),
+                .Height = context.GetSwapChainHeight(),
+                .Usage = WGPUTextureUsage_RenderAttachment,
+                .Aspect = WGPUTextureAspect_DepthOnly,
+                .Label = "MeshRendererDepthTexture"
+        });
     }
 
     void MeshRenderer::BeginFrame(Camera &camera)
@@ -187,7 +193,14 @@ namespace Figment
     void MeshRenderer::OnResize(uint32_t width, uint32_t height)
     {
         delete m_DepthTexture;
-        m_DepthTexture = WebGPUTexture::CreateDepthTexture(m_Context.GetDevice(), WGPUTextureFormat_Depth24Plus,
-                width, height);
+
+        m_DepthTexture = new WebGPUTexture(m_Context.GetDevice(), WebGPUTextureDescriptor {
+                .Format = WGPUTextureFormat_Depth24Plus,
+                .Width = width,
+                .Height = height,
+                .Usage = WGPUTextureUsage_RenderAttachment,
+                .Aspect = WGPUTextureAspect_DepthOnly,
+                .Label = "MeshRendererDepthTexture"
+        });
     }
 }

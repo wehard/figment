@@ -7,8 +7,14 @@ namespace Figment
 
     ParticleRenderer::ParticleRenderer(WebGPUContext &context) : m_Context(context), m_Device(context.GetDevice())
     {
-        m_DepthTexture = WebGPUTexture::CreateDepthTexture(context.GetDevice(), WGPUTextureFormat_Depth24Plus,
-                context.GetSwapChainWidth(), context.GetSwapChainHeight());
+        m_DepthTexture = new WebGPUTexture(context.GetDevice(), WebGPUTextureDescriptor {
+                .Format = WGPUTextureFormat_Depth24Plus,
+                .Width = context.GetSwapChainWidth(),
+                .Height = context.GetSwapChainHeight(),
+                .Usage = WGPUTextureUsage_RenderAttachment,
+                .Aspect = WGPUTextureAspect_DepthOnly,
+                .Label = "ParticleRendererDepthTexture"
+        });
 
         m_RenderTarget = {
                 .Color = {
@@ -96,8 +102,14 @@ namespace Figment
     void ParticleRenderer::OnResize(uint32_t width, uint32_t height)
     {
         delete m_DepthTexture;
-        m_DepthTexture = WebGPUTexture::CreateDepthTexture(m_Context.GetDevice(), WGPUTextureFormat_Depth24Plus,
-                width, height);
+        m_DepthTexture = new WebGPUTexture(m_Context.GetDevice(), WebGPUTextureDescriptor {
+                .Format = WGPUTextureFormat_Depth24Plus,
+                .Width = m_Context.GetSwapChainWidth(),
+                .Height = m_Context.GetSwapChainHeight(),
+                .Usage = WGPUTextureUsage_RenderAttachment,
+                .Aspect = WGPUTextureAspect_DepthOnly,
+                .Label = "ParticleRendererDepthTexture"
+        });
 
         m_RenderTarget.Depth = {
                 .TextureView = m_DepthTexture->GetTextureView(),

@@ -123,8 +123,14 @@ namespace Figment
         {
             delete m_DepthTexture;
         }
-        m_DepthTexture = WebGPUTexture::CreateDepthTexture(m_WebGPUDevice, WGPUTextureFormat_Depth24Plus,
-                m_SwapChainWidth, m_SwapChainHeight);
+        m_DepthTexture = new WebGPUTexture(m_WebGPUDevice, {
+                .Format = WGPUTextureFormat_Depth24Plus,
+                .Width = m_SwapChainWidth,
+                .Height = m_SwapChainHeight,
+                .Usage = WGPUTextureUsage_RenderAttachment,
+                .Aspect = WGPUTextureAspect_DepthOnly,
+                .Label = "DepthTexture"
+        });
         m_DefaultRenderTarget = {
                 .Color = {
                         .TextureView = wgpuSwapChainGetCurrentTextureView(m_SwapChain),
