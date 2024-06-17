@@ -5,10 +5,13 @@ namespace Figment
 {
     PixelCanvas::PixelCanvas(WebGPUContext &context, PixelCanvasDescriptor *descriptor) : m_Context(context),
             m_Width(descriptor->Width), m_Height(descriptor->Height),
-            m_Texture(context.GetDevice(), WGPUTextureFormat_RGBA8Unorm, descriptor->Width, descriptor->Height,
-                    WGPUTextureUsage_TextureBinding | WGPUTextureUsage_StorageBinding | WGPUTextureUsage_CopyDst
-                            | WGPUTextureUsage_CopySrc,
-                    "PixelCanvasTexture"),
+            m_Texture(context.GetDevice(), {
+                    .Format = WGPUTextureFormat_RGBA8Unorm,
+                    .Width = descriptor->Width,
+                    .Height = descriptor->Height,
+                    .Usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_StorageBinding
+                            | WGPUTextureUsage_CopyDst | WGPUTextureUsage_CopySrc,
+                    .Label = "PixelCanvasTexture" }),
             m_MeshRenderer(context), m_UseCompute(descriptor->useCompute)
     {
         m_Pixels = new uint32_t[descriptor->Width * descriptor->Height];
@@ -29,11 +32,13 @@ namespace Figment
 
         if (m_UseCompute)
         {
-            m_ComputeTexture = std::make_unique<WebGPUTexture>(context.GetDevice(), WGPUTextureFormat_RGBA8Unorm,
-                    descriptor->Width, descriptor->Height,
-                    WGPUTextureUsage_TextureBinding | WGPUTextureUsage_StorageBinding | WGPUTextureUsage_CopyDst
-                            | WGPUTextureUsage_CopySrc,
-                    "PixelCanvasComputeTexture");
+            m_ComputeTexture = std::make_unique<WebGPUTexture>(context.GetDevice(), WebGPUTextureDescriptor {
+                    .Format = WGPUTextureFormat_RGBA8Unorm,
+                    .Width = descriptor->Width,
+                    .Height = descriptor->Height,
+                    .Usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_StorageBinding
+                            | WGPUTextureUsage_CopyDst | WGPUTextureUsage_CopySrc,
+                    .Label = "PixelCanvasComputeTexture" });
         }
     }
 

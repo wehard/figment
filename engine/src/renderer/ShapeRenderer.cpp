@@ -14,12 +14,15 @@ namespace Figment
     ShapeRenderer::ShapeRenderer(WebGPUContext &context)
             : m_Context(context), m_RenderTarget(context.GetDefaultRenderTarget())
     {
-        m_IdTexture = new WebGPUTexture(context.GetDevice(), WGPUTextureFormat_R32Sint, context.GetSwapChainWidth(),
-                context.GetSwapChainHeight());
+        m_IdTexture = new WebGPUTexture(context.GetDevice(), {
+                .Format = WGPUTextureFormat_R32Sint,
+                .Width = context.GetSwapChainWidth(),
+                .Height = context.GetSwapChainHeight(),
+                .Usage = WGPUTextureUsage_RenderAttachment | WGPUTextureUsage_CopySrc,
+        });
 
         m_PixelBuffer = new WebGPUBuffer<int32_t>(context.GetDevice(), "PixelBuffer", 2048 * 2048 * sizeof(int32_t),
                 WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead);
-
 
         InitShaders();
 
@@ -241,7 +244,8 @@ namespace Figment
         pipeline.SetDepthStencilState(m_RenderTarget->Depth.TextureFormat, WGPUCompareFunction_Less, true);
         pipeline.SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(0),
                 m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
-        pipeline.SetBinding(m_GridUniformBuffer->GetBindGroupLayoutEntry(1), m_GridUniformBuffer->GetBindGroupEntry(1, 0));
+        pipeline.SetBinding(m_GridUniformBuffer->GetBindGroupLayoutEntry(1),
+                m_GridUniformBuffer->GetBindGroupEntry(1, 0));
         auto colorTargetStates = std::vector<WGPUColorTargetState>({
                 {
                         .format = m_Context.GetTextureFormat(),
@@ -257,7 +261,8 @@ namespace Figment
         pipeline.SetColorTargetStates(colorTargetStates);
         pipeline.Build();
 
-        WebGPUCommand::DrawIndexed(m_RenderPass, pipeline.Pipeline, pipeline.BindGroup, *mesh.IndexBuffer(), *mesh.VertexBuffer(), mesh.IndexCount());
+        WebGPUCommand::DrawIndexed(m_RenderPass, pipeline.Pipeline, pipeline.BindGroup, *mesh.IndexBuffer(),
+                *mesh.VertexBuffer(), mesh.IndexCount());
 
         RenderStats::DrawCalls++;
         RenderStats::VertexCount += mesh.VertexCount();
@@ -400,7 +405,12 @@ namespace Figment
     void ShapeRenderer::OnResize(uint32_t width, uint32_t height)
     {
         delete m_IdTexture;
-        m_IdTexture = new WebGPUTexture(m_Context.GetDevice(), WGPUTextureFormat_R32Sint, width, height);
+        m_IdTexture = new WebGPUTexture(m_Context.GetDevice(), {
+                .Format = WGPUTextureFormat_R32Sint,
+                .Width = m_Context.GetSwapChainWidth(),
+                .Height = m_Context.GetSwapChainHeight(),
+                .Usage = WGPUTextureUsage_RenderAttachment | WGPUTextureUsage_CopySrc,
+        });
     }
 
     void ShapeRenderer::BeginComputePass()
