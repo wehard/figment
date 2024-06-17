@@ -2,12 +2,6 @@
 
 namespace Figment
 {
-    WebGPUTexture::WebGPUTexture(WGPUDevice device, WGPUTextureFormat textureFormat, uint32_t width, uint32_t height)
-            : WebGPUTexture(device, textureFormat, width, height,
-            WGPUTextureUsage_RenderAttachment | WGPUTextureUsage_CopySrc, "RenderTexture")
-    {
-    }
-
     WebGPUTexture::WebGPUTexture(WGPUDevice device, const WebGPUTextureDescriptor &&descriptor) : m_Width(
             descriptor.Width),
             m_Height(descriptor.Height), m_TextureFormat(descriptor.Format), m_Device(device)
@@ -28,36 +22,6 @@ namespace Figment
         WGPUTextureViewDescriptor textureViewDesc = {};
         textureViewDesc.nextInChain = nullptr;
         textureViewDesc.label = (descriptor.Label + "View").c_str();
-        textureViewDesc.aspect = WGPUTextureAspect_All;
-        textureViewDesc.baseArrayLayer = 0;
-        textureViewDesc.arrayLayerCount = 1;
-        textureViewDesc.baseMipLevel = 0;
-        textureViewDesc.mipLevelCount = 1;
-        textureViewDesc.dimension = WGPUTextureViewDimension_2D;
-        textureViewDesc.format = textureDescriptor.format;
-        m_TextureView = wgpuTextureCreateView(m_Texture, &textureViewDesc);
-    }
-
-    WebGPUTexture::WebGPUTexture(WGPUDevice device, WGPUTextureFormat textureFormat, uint32_t width, uint32_t height,
-            WGPUTextureUsageFlags usage, const std::string &label) : m_Width(width), m_Height(height),
-            m_TextureFormat(textureFormat), m_Device(device)
-    {
-        WGPUTextureDescriptor textureDescriptor = {};
-        textureDescriptor.nextInChain = nullptr;
-        textureDescriptor.label = label.c_str();
-        textureDescriptor.dimension = WGPUTextureDimension_2D;
-        textureDescriptor.format = textureFormat;
-        textureDescriptor.usage = usage;
-        textureDescriptor.size = { m_Width, m_Height, 1 };
-        textureDescriptor.sampleCount = 1;
-        textureDescriptor.mipLevelCount = 1;
-        textureDescriptor.viewFormatCount = 0;
-        textureDescriptor.viewFormats = nullptr;
-        m_Texture = wgpuDeviceCreateTexture(device, &textureDescriptor);
-
-        WGPUTextureViewDescriptor textureViewDesc = {};
-        textureViewDesc.nextInChain = nullptr;
-        textureViewDesc.label = (label + "View").c_str();
         textureViewDesc.aspect = WGPUTextureAspect_All;
         textureViewDesc.baseArrayLayer = 0;
         textureViewDesc.arrayLayerCount = 1;

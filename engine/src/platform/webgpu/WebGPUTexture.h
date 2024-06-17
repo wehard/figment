@@ -19,9 +19,6 @@ namespace Figment
     public:
         WebGPUTexture() = default;
         WebGPUTexture(WGPUDevice device, const WebGPUTextureDescriptor &&descriptor);
-        WebGPUTexture(WGPUDevice device, WGPUTextureFormat textureFormat, uint32_t width, uint32_t height);
-        WebGPUTexture(WGPUDevice device, WGPUTextureFormat textureFormat, uint32_t width, uint32_t height,
-                WGPUTextureUsageFlags usage, const std::string &label = "WebGPUTexture");
         ~WebGPUTexture();
 
         void SetData(const void *data, uint32_t size);
@@ -37,6 +34,7 @@ namespace Figment
         static WebGPUTexture *CreateDepthTexture(WGPUDevice device, WGPUTextureFormat depthTextureFormat,
                 uint32_t width, uint32_t height);
         static WebGPUTexture *Create(WGPUDevice device, Image &image);
+
     private:
         uint32_t m_Width = 0;
         uint32_t m_Height = 0;
