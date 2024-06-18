@@ -54,6 +54,7 @@ namespace Figment
                         WGPUCullMode_None);
                 pipeline.SetDepthStencilState(m_DepthTexture->GetTextureFormat(), true, WGPUCompareFunction_Less);
                 pipeline.AddColorTarget(m_RenderTarget.Color.TextureFormat, WGPUColorWriteMask_All);
+                pipeline.SetMultisampleState(4, 0xFFFFFFFF, false);
 
                 m_Pipeline = pipeline.Get();
                 m_BindGroup = bindGroup.Get();
@@ -105,7 +106,7 @@ namespace Figment
                 { +0.5, -0.5, 0.0 },
         };
 
-        uint32_t m_Indices[24] = { 0, 1, 2, 0, 2, 3 };
+        uint32_t m_Indices[6] = { 0, 1, 2, 0, 2, 3 };
 
     private:
         WebGPUContext &m_Context;

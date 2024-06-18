@@ -5,7 +5,8 @@
 namespace Figment
 {
     RenderPipeline::RenderPipeline(WGPUDevice device, WebGPUShader &shader, BindGroup &bindGroup,
-            WGPUVertexBufferLayout vertexBufferLayout) : m_Device(device), m_Shader(shader), m_BindGroup(bindGroup)
+            WGPUVertexBufferLayout vertexBufferLayout) : RenderPipeline(device, shader, bindGroup,
+            std::vector<WGPUVertexBufferLayout> { vertexBufferLayout })
     {
         m_VertexBufferLayouts.emplace_back(vertexBufferLayout);
     }
@@ -93,6 +94,15 @@ namespace Figment
         m_DepthStencilState = depthStencilState;
     }
 
+    void RenderPipeline::SetMultisampleState(uint32_t count, uint32_t mask = ~0u, bool alphaToCoverageEnabled = false)
+    {
+        m_MultisampleState = {
+                .count = count,
+                .mask = mask,
+                .alphaToCoverageEnabled = alphaToCoverageEnabled,
+        };
+    }
+
     WGPURenderPipeline RenderPipeline::Get()
     {
         if (m_RenderPipeline != nullptr)
@@ -131,13 +141,10 @@ namespace Figment
         renderPipelineDesc.primitive = m_PrimitiveState;
         renderPipelineDesc.fragment = &fragmentState;
         renderPipelineDesc.depthStencil = &m_DepthStencilState;
-        renderPipelineDesc.multisample.count = 1;
-        renderPipelineDesc.multisample.mask = ~0u;
-        renderPipelineDesc.multisample.alphaToCoverageEnabled = false;
+        renderPipelineDesc.multisample = m_MultisampleState;
         renderPipelineDesc.layout = m_RenderPipelineLayout;
         m_RenderPipeline = wgpuDeviceCreateRenderPipeline(m_Device, &renderPipelineDesc);
 
         return m_RenderPipeline;
     }
-
 }

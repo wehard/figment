@@ -13,6 +13,7 @@ namespace Figment
                 .Height = context.GetSwapChainHeight(),
                 .Usage = WGPUTextureUsage_RenderAttachment,
                 .Aspect = WGPUTextureAspect_DepthOnly,
+                .SampleCount = 4,
                 .Label = "ParticleRendererDepthTexture"
         });
 
@@ -42,7 +43,7 @@ namespace Figment
                 .Usage = WGPUTextureUsage_RenderAttachment,
                 .Aspect = WGPUTextureAspect_All,
                 .SampleCount = 4,
-                .Label = "ParticleRendererDepthTexture"
+                .Label = "ParticleRendererMultisampleTexture"
         });
     }
 
@@ -73,7 +74,8 @@ namespace Figment
         colorAttachment.loadOp = WGPULoadOp_Clear;
         colorAttachment.storeOp = WGPUStoreOp_Store;
         colorAttachment.clearValue = { 0.0f, 0.0f, 0.0f, 0.0f };
-        colorAttachment.view = m_RenderTarget.Color.TextureView;
+        colorAttachment.view = m_MultiSampleTexture->GetTextureView();
+        colorAttachment.resolveTarget = m_RenderTarget.Color.TextureView;
 
         WGPURenderPassDepthStencilAttachment depthStencilAttachment = {};
         depthStencilAttachment.view = m_RenderTarget.Depth.TextureView;
@@ -118,6 +120,7 @@ namespace Figment
                 .Height = m_Context.GetSwapChainHeight(),
                 .Usage = WGPUTextureUsage_RenderAttachment,
                 .Aspect = WGPUTextureAspect_DepthOnly,
+                .SampleCount = 4,
                 .Label = "ParticleRendererDepthTexture"
         });
 
@@ -125,5 +128,15 @@ namespace Figment
                 .TextureView = m_DepthTexture->GetTextureView(),
                 .TextureFormat = m_DepthTexture->GetTextureFormat()
         };
+
+        m_MultiSampleTexture = std::make_unique<WebGPUTexture>(m_Context.GetDevice(), WebGPUTextureDescriptor {
+                .Format = m_Context.GetTextureFormat(),
+                .Width = m_Context.GetSwapChainWidth(),
+                .Height = m_Context.GetSwapChainHeight(),
+                .Usage = WGPUTextureUsage_RenderAttachment,
+                .Aspect = WGPUTextureAspect_All,
+                .SampleCount = 4,
+                .Label = "ParticleRendererMultisampleTexture"
+        });
     }
 }

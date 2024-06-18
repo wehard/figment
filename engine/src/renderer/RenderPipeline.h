@@ -19,6 +19,7 @@ namespace Figment
                 WGPUCompareFunction depthCompare = WGPUCompareFunction_Less);
         void SetPrimitiveState(WGPUPrimitiveTopology topology, WGPUIndexFormat stripIndexFormat,
                 WGPUFrontFace frontFace, WGPUCullMode cullMode);
+        void SetMultisampleState(uint32_t count, uint32_t mask, bool alphaToCoverageEnabled);
         WGPURenderPipeline Get();
 
     private:
@@ -32,6 +33,11 @@ namespace Figment
         std::vector<WGPUColorTargetState> m_ColorTargetStates;
         std::vector<WGPUBlendState> m_BlendStates;
         WGPUDepthStencilState m_DepthStencilState;
+        WGPUMultisampleState m_MultisampleState = {
+                .count = 1,
+                .mask = 0xFFFFFFFF,
+                .alphaToCoverageEnabled = false,
+        };
     };
 
 }
