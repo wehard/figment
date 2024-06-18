@@ -42,10 +42,10 @@ public:
     glm::vec3 Position = { 0.0f, 0.0f, 0.0f };
     glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f };
     glm::vec3 Scale = { 1.0f, 1.0f, 1.0f };
-    bool Rotate = false;
+    bool Rotate = true;
     float RotationSpeed = 10.0f;
     float BumpMultiplier = 0.06f;
-    bool Cycle = false;
+    bool Cycle = true;
     float ParticleSize = 0.002f;
 
 private:
