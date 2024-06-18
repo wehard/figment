@@ -14,26 +14,13 @@ namespace Figment
     class ParticleRenderer
     {
     public:
-        struct CameraData
-        {
-            glm::mat4 ViewMatrix;
-            glm::mat4 ProjectionMatrix;
-        };
-
-        struct ParticlesData
-        {
-            glm::mat4 ModelMatrix;
-            float ParticleSize;
-            uint32_t _Padding[3];
-        };
-
-    public:
         ParticleRenderer() = delete;
         explicit ParticleRenderer(WebGPUContext &context);
         ~ParticleRenderer();
 
         void BeginFrame(Camera &camera);
         void EndFrame();
+        void OnResize(uint32_t width, uint32_t height);
 
         template<typename T>
         void DrawQuads(WebGPUVertexBuffer<T> &particlePositions, glm::mat4 transform, float particleSize,
@@ -97,19 +84,19 @@ namespace Figment
             RenderStats::DrawCalls++;
         }
 
-        void OnResize(uint32_t width, uint32_t height);
     private:
-        WebGPUContext &m_Context;
-        WGPUDevice m_Device;
-        WGPUCommandEncoder m_CommandEncoder = nullptr;
-        RenderTarget m_RenderTarget = {};
-        WebGPUTexture *m_DepthTexture;
-        WebGPUUniformBuffer<CameraData> *m_CameraDataUniformBuffer;
-        WebGPUUniformBuffer<ParticlesData> *m_ParticlesDataUniformBuffer;
+        struct CameraData
+        {
+            glm::mat4 ViewMatrix;
+            glm::mat4 ProjectionMatrix;
+        };
 
-        WGPURenderPassEncoder m_RenderPass = nullptr;
-        WGPURenderPipeline m_Pipeline = nullptr;
-        WGPUBindGroup m_BindGroup = nullptr;
+        struct ParticlesData
+        {
+            glm::mat4 ModelMatrix;
+            float ParticleSize;
+            uint32_t _Padding[3];
+        };
 
         glm::vec3 m_Vertices[4] = {
                 { -0.5, -0.5, 0.0 },
@@ -120,9 +107,20 @@ namespace Figment
 
         uint32_t m_Indices[24] = { 0, 1, 2, 0, 2, 3 };
 
+    private:
+        WebGPUContext &m_Context;
+        WGPUDevice m_Device = nullptr;
+        WGPUCommandEncoder m_CommandEncoder = nullptr;
+        WGPURenderPassEncoder m_RenderPass = nullptr;
+        WGPURenderPipeline m_Pipeline = nullptr;
+        WGPUBindGroup m_BindGroup = nullptr;
+
+        RenderTarget m_RenderTarget = {};
+        WebGPUTexture *m_DepthTexture;
+        std::unique_ptr<WebGPUTexture> m_MultiSampleTexture;
         WebGPUVertexBuffer<glm::vec3> *m_QuadVertexBuffer = nullptr;
         WebGPUIndexBuffer<uint32_t> *m_QuadIndexBuffer = nullptr;
-
-        std::unique_ptr<WebGPUTexture> m_MultiSampleTexture;
+        WebGPUUniformBuffer<CameraData> *m_CameraDataUniformBuffer;
+        WebGPUUniformBuffer<ParticlesData> *m_ParticlesDataUniformBuffer;
     };
 }
