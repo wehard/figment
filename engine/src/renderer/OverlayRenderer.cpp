@@ -9,9 +9,11 @@ namespace Figment
     {
         m_GridShader = std::make_unique<WebGPUShader>(context.GetDevice(), "res/shaders/builtin/grid.wgsl",
                 "OverlayRendererGridShader");
-        m_CameraDataUniformBuffer = std::make_unique<WebGPUUniformBuffer<CameraData>>(context.GetDevice(), "OverlayRendererCameraData",
+        m_CameraDataUniformBuffer = std::make_unique<WebGPUUniformBuffer<CameraData>>(context.GetDevice(),
+                "OverlayRendererCameraData",
                 sizeof(CameraData));
-        m_GridDataUniformBuffer = std::make_unique<WebGPUUniformBuffer<GridData>>(context.GetDevice(), "OverlayRendererGridData",
+        m_GridDataUniformBuffer = std::make_unique<WebGPUUniformBuffer<GridData>>(context.GetDevice(),
+                "OverlayRendererGridData",
                 sizeof(GridData));
 
         m_GridBindGroup = std::make_unique<BindGroup>(m_Context.GetDevice(),
@@ -28,16 +30,36 @@ namespace Figment
                 0, 2, 1, 0, 3, 2
         });
 
-        m_GridPipeline = std::make_unique<RenderPipeline>(m_Context.GetDevice(), *m_GridShader, *m_GridBindGroup,
-                m_GridMesh->VertexBuffer()->GetVertexLayout());
-        m_GridPipeline->SetPrimitiveState(
-                WGPUPrimitiveTopology_TriangleList,
-                WGPUIndexFormat_Undefined,
-                WGPUFrontFace_CCW,
-                WGPUCullMode_None
-        );
-        m_GridPipeline->AddColorTarget(m_RenderTarget->Color.TextureFormat, WGPUColorWriteMask_All);
-        m_GridPipeline->SetDepthStencilState(m_RenderTarget->Depth.TextureFormat);
+        m_GridMesh->VertexBuffer()->SetVertexLayout({
+                {
+                        .format = WGPUVertexFormat_Float32x3,
+                        .offset = 0,
+                        .shaderLocation = 0
+                },
+                {
+                        .format = WGPUVertexFormat_Float32x2,
+                        .offset = 12,
+                        .shaderLocation = 1
+                }
+        }, sizeof(Mesh::Vertex), WGPUVertexStepMode_Vertex);
+
+        m_GridPipeline = std::make_unique<RenderPipeline>(m_Context.GetDevice(), RenderPipelineDescriptor {
+                .Shader = *m_GridShader,
+                .BindGroup = *m_GridBindGroup,
+                .VertexBufferLayouts = { m_GridMesh->VertexBuffer()->GetVertexLayout() },
+                .ColorTargetStates = {
+                        { m_RenderTarget->Color.TextureFormat, WGPUColorWriteMask_All }
+                },
+                .DepthStencilStates = {
+                        { m_RenderTarget->Depth.TextureFormat, true, WGPUCompareFunction_Less }
+                },
+                .PrimitiveState = {
+                        .topology = WGPUPrimitiveTopology_TriangleList,
+                        .stripIndexFormat = WGPUIndexFormat_Undefined,
+                        .frontFace = WGPUFrontFace_CCW,
+                        .cullMode = WGPUCullMode_None
+                }
+        });
     }
 
     void OverlayRenderer::Begin(Camera &camera)
@@ -56,23 +78,7 @@ namespace Figment
 
         m_CommandEncoder = WebGPUCommand::CreateCommandEncoder(m_Context.GetDevice(), "OverlayRendererCommandEncoder");
 
-        // WGPURenderPassColorAttachment colorAttachment = {};
-        // colorAttachment.depthSlice = WGPU_DEPTH_SLICE_UNDEFINED;
-        // colorAttachment.loadOp = WGPULoadOp_Clear;
-        // colorAttachment.storeOp = WGPUStoreOp_Store;
-        // colorAttachment.clearValue = { 0.0f, 0.0f, 0.0f, 1.0f };
-        // colorAttachment.view = m_RenderTarget->Color.TextureView;
-        //
-        // WGPURenderPassDepthStencilAttachment depthStencilAttachment = {};
-        // depthStencilAttachment.view = m_RenderTarget->Depth.TextureView;
-        // depthStencilAttachment.depthClearValue = 1.0f;
-        // depthStencilAttachment.depthLoadOp = WGPULoadOp_Clear;
-        // depthStencilAttachment.depthStoreOp = WGPUStoreOp_Store;
-        // depthStencilAttachment.depthReadOnly = false;
-        // depthStencilAttachment.stencilClearValue = 0;
-        // depthStencilAttachment.stencilLoadOp = WGPULoadOp_Undefined;
-        // depthStencilAttachment.stencilStoreOp = WGPUStoreOp_Undefined;
-        // depthStencilAttachment.stencilReadOnly = true;
+        m_RenderTarget = m_Context.GetDefaultRenderTarget();
 
         auto colorAttachment = m_RenderTarget->GetColorAttachment();
         auto depthStencilAttachment = m_RenderTarget->GetDepthStencilAttachment();
