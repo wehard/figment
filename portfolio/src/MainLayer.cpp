@@ -101,6 +101,13 @@ static void LayerDetails(Layer *layer, F drawDetails)
     drawDetails(layerType);
 }
 
+static void DrawTransform(glm::vec3 &position, glm::vec3 &rotation, glm::vec3 &scale)
+{
+    ImGui::DragFloat3("Position", &position[0], 0.1f);
+    ImGui::DragFloat3("Rotation", &rotation[0], 0.1f);
+    ImGui::DragFloat3("Scale", &scale[0], 0.1f);
+}
+
 void MainLayer::OnImGuiRender()
 {
     ImVec2 appWindowSize = ImVec2((float)App::Instance()->GetWindow()->GetWidth(),
@@ -191,9 +198,7 @@ void MainLayer::OnImGuiRender()
         LayerDetails<Galaxy>(m_SelectedLayer, [](Galaxy *galaxy)
         {
             ImGui::SliderFloat("Particle size", &galaxy->m_ParticleSize, 0.001, 0.1);
-            ImGui::DragFloat3("Position", &galaxy->m_Position[0], 0.1f);
-            ImGui::DragFloat3("Rotation", &galaxy->m_Rotation[0], 0.1f);
-            ImGui::DragFloat3("Scale", &galaxy->m_Scale[0], 0.1f);
+            DrawTransform(galaxy->m_Position, galaxy->m_Rotation, galaxy->m_Scale);
         });
 
         LayerDetails<Worlds>(m_SelectedLayer, [](Worlds *worldMap)
