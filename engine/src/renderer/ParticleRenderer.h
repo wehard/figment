@@ -47,14 +47,21 @@ namespace Figment
                 bindGroup.Bind(*m_CameraDataUniformBuffer);
                 bindGroup.Bind(*m_ParticlesDataUniformBuffer);
 
-                RenderPipeline pipeline(m_Context.GetDevice(), shader, bindGroup,
-                        { m_QuadVertexBuffer->GetVertexLayout(), particlePositions.GetVertexLayout() });
-                pipeline.SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined,
-                        WGPUFrontFace_CCW,
-                        WGPUCullMode_None);
-                pipeline.SetDepthStencilState(m_DepthTexture->GetTextureFormat(), true, WGPUCompareFunction_Less);
-                pipeline.AddColorTarget(m_RenderTarget.Color.TextureFormat, WGPUColorWriteMask_All);
-                pipeline.SetMultisampleState(4, 0xFFFFFFFF, false);
+                RenderPipeline pipeline = RenderPipeline(m_Context.GetDevice(), {
+                        .Shader = shader,
+                        .BindGroup = bindGroup,
+                        .VertexBufferLayouts = { m_QuadVertexBuffer->GetVertexLayout(),
+                                                 particlePositions.GetVertexLayout() },
+                        .ColorTargetStates = {{ m_RenderTarget.Color.TextureFormat, WGPUColorWriteMask_All }},
+                        .DepthStencilStates = {{ m_DepthTexture->GetTextureFormat(), true, WGPUCompareFunction_Less }},
+                        .PrimitiveState = {
+                                .topology = WGPUPrimitiveTopology_TriangleList,
+                                .stripIndexFormat = WGPUIndexFormat_Undefined,
+                                .frontFace = WGPUFrontFace_CCW,
+                                .cullMode = WGPUCullMode_None
+                        },
+                        .MultisampleState = { .count = 4, .mask = 0xFFFFFFFF, .alphaToCoverageEnabled = false }
+                });
 
                 m_Pipeline = pipeline.Get();
                 m_BindGroup = bindGroup.Get();
