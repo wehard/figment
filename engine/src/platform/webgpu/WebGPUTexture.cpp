@@ -13,7 +13,7 @@ namespace Figment
         textureDescriptor.format = descriptor.Format;
         textureDescriptor.usage = descriptor.Usage;
         textureDescriptor.size = { descriptor.Width, descriptor.Height, 1 };
-        textureDescriptor.sampleCount = 1;
+        textureDescriptor.sampleCount = descriptor.SampleCount;
         textureDescriptor.mipLevelCount = 1;
         textureDescriptor.viewFormatCount = 0;
         textureDescriptor.viewFormats = nullptr;

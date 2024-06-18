@@ -12,6 +12,7 @@ namespace Figment
         uint32_t Height = 0;
         WGPUTextureUsageFlags Usage = WGPUTextureUsage_CopyDst | WGPUTextureUsage_TextureBinding;
         WGPUTextureAspect Aspect = WGPUTextureAspect_All;
+        uint32_t SampleCount = 1;
         const std::string Label = "WebGPUTexture";
     };
 
