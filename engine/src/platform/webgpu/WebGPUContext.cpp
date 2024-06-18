@@ -148,6 +148,7 @@ namespace Figment
     void WebGPUContext::BeginFrame()
     {
         m_DefaultRenderTarget.Color.TextureView = wgpuSwapChainGetCurrentTextureView(m_SwapChain);
+        Clear({ 0.1f, 0.1f, 0.1f, 1.0f });
     }
 
     void WebGPUContext::EndFrame()
@@ -155,8 +156,52 @@ namespace Figment
         wgpuTextureViewRelease(m_DefaultRenderTarget.Color.TextureView);
     }
 
-    void WebGPUContext::OnResize(uint32_t width, uint32_t height)
+    void WebGPUContext::Clear(WGPUColor clearColor)
     {
+        WGPUCommandEncoderDescriptor commandEncoderDesc = {};
+        commandEncoderDesc.nextInChain = nullptr;
+        commandEncoderDesc.label = "WebGPUContext::CommandEncoder";
+        auto commandEncoder = wgpuDeviceCreateCommandEncoder(m_WebGPUDevice, &commandEncoderDesc);
 
+        WGPURenderPassColorAttachment colorAttachment = {};
+        colorAttachment.depthSlice = WGPU_DEPTH_SLICE_UNDEFINED;
+        colorAttachment.loadOp = WGPULoadOp_Clear;
+        colorAttachment.storeOp = WGPUStoreOp_Store;
+        colorAttachment.clearValue = clearColor;
+        colorAttachment.view = m_DefaultRenderTarget.Color.TextureView;
+        colorAttachment.resolveTarget = nullptr;
+
+        WGPURenderPassDepthStencilAttachment depthStencilAttachment = {};
+        depthStencilAttachment.view = m_DefaultRenderTarget.Depth.TextureView;
+        depthStencilAttachment.depthClearValue = 1.0f;
+        depthStencilAttachment.depthLoadOp = WGPULoadOp_Clear;
+        depthStencilAttachment.depthStoreOp = WGPUStoreOp_Store;
+        depthStencilAttachment.depthReadOnly = false;
+        depthStencilAttachment.stencilClearValue = 0;
+        depthStencilAttachment.stencilLoadOp = WGPULoadOp_Undefined;
+        depthStencilAttachment.stencilStoreOp = WGPUStoreOp_Undefined;
+        depthStencilAttachment.stencilReadOnly = true;
+
+        WGPURenderPassDescriptor renderPassDesc = {};
+        renderPassDesc.colorAttachmentCount = 1;
+        renderPassDesc.colorAttachments = &colorAttachment;
+        renderPassDesc.depthStencilAttachment = &depthStencilAttachment;
+
+        auto renderPass = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDesc);
+        wgpuRenderPassEncoderEnd(renderPass);
+
+        WGPUCommandBufferDescriptor commandBufferDesc = {};
+        commandBufferDesc.nextInChain = nullptr;
+        commandBufferDesc.label = "WebGPUContext::CommandBuffer";
+        auto commandBuffer = wgpuCommandEncoderFinish(commandEncoder, &commandBufferDesc);
+
+        WGPUQueue queue = wgpuDeviceGetQueue(m_WebGPUDevice);
+        wgpuQueueSubmit(queue, 1, &commandBuffer);
+
+        wgpuCommandEncoderRelease(commandEncoder);
+        wgpuCommandBufferRelease(commandBuffer);
+        wgpuRenderPassEncoderRelease(renderPass);
     }
+
+    void WebGPUContext::OnResize(uint32_t width, uint32_t height) { }
 }

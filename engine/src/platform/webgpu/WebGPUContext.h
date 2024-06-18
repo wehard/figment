@@ -24,6 +24,7 @@ namespace Figment
         void BeginFrame();
         void EndFrame();
     private:
+        void Clear(WGPUColor clearColor);
         void CreateDefaultRenderTarget();
 
         uint32_t m_SwapChainWidth;
