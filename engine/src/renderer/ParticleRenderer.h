@@ -27,27 +27,13 @@ namespace Figment
             uint32_t _Padding[3];
         };
 
+    public:
+        ParticleRenderer() = delete;
         explicit ParticleRenderer(WebGPUContext &context);
         ~ParticleRenderer();
-        void CreateDefaultPipeline(WebGPUShader &shader, WGPUVertexBufferLayout &vertexBufferLayout);
+
         void BeginFrame(Camera &camera);
         void EndFrame();
-
-        template<typename T>
-        void DrawPoints(WebGPUVertexBuffer<T> &vertexBuffer, WebGPUShader &shader)
-        {
-            if (m_Pipeline == nullptr)
-            {
-                auto layout = vertexBuffer.GetVertexLayout();
-                CreateDefaultPipeline(shader, layout);
-            }
-
-            WebGPUCommand::DrawVertices<T>(m_RenderPass, m_Pipeline, m_BindGroup,
-                    vertexBuffer, vertexBuffer.Count());
-            RenderStats::ParticleCount += vertexBuffer.Count();
-            RenderStats::VertexCount += vertexBuffer.Count();
-            RenderStats::DrawCalls++;
-        }
 
         template<typename T>
         void DrawQuads(WebGPUVertexBuffer<T> &particlePositions, glm::mat4 transform, float particleSize,
@@ -84,7 +70,6 @@ namespace Figment
 
                 m_Pipeline = pipeline.Get();
                 m_BindGroup = bindGroup.Get();
-
             }
 
             ParticlesData data = {
@@ -103,10 +88,6 @@ namespace Figment
                     particlePositions.GetSize());
             wgpuRenderPassEncoderSetPipeline(m_RenderPass, m_Pipeline);
             wgpuRenderPassEncoderSetBindGroup(m_RenderPass, 0, m_BindGroup, 0, nullptr);
-
-            // Setup blend factor
-            // WGPUColor blend_color = { 0.f, 0.f, 0.f, 0.f };
-            // wgpuRenderPassEncoderSetBlendConstant(m_RenderPass, &blend_color);
 
             wgpuRenderPassEncoderDrawIndexed(m_RenderPass, m_QuadIndexBuffer->Count(), particlePositions.Count(), 0, 0,
                     0);
@@ -141,5 +122,7 @@ namespace Figment
 
         WebGPUVertexBuffer<glm::vec3> *m_QuadVertexBuffer = nullptr;
         WebGPUIndexBuffer<uint32_t> *m_QuadIndexBuffer = nullptr;
+
+        std::unique_ptr<WebGPUTexture> m_MultiSampleTexture;
     };
 }

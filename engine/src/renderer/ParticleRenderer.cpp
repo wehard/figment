@@ -34,6 +34,16 @@ namespace Figment
         m_ParticlesDataUniformBuffer = new WebGPUUniformBuffer<ParticlesData>(m_Context.GetDevice(),
                 "ParticleRendererParticlesDataUniformBuffer",
                 sizeof(ParticlesData));
+
+        m_MultiSampleTexture = std::make_unique<WebGPUTexture>(context.GetDevice(), WebGPUTextureDescriptor {
+                .Format = context.GetTextureFormat(),
+                .Width = context.GetSwapChainWidth(),
+                .Height = context.GetSwapChainHeight(),
+                .Usage = WGPUTextureUsage_RenderAttachment,
+                .Aspect = WGPUTextureAspect_All,
+                .SampleCount = 4,
+                .Label = "ParticleRendererDepthTexture"
+        });
     }
 
     ParticleRenderer::~ParticleRenderer()
@@ -116,21 +126,4 @@ namespace Figment
                 .TextureFormat = m_DepthTexture->GetTextureFormat()
         };
     }
-
-    void ParticleRenderer::CreateDefaultPipeline(WebGPUShader &shader, WGPUVertexBufferLayout &vertexBufferLayout)
-    {
-        BindGroup bindGroup(m_Context.GetDevice(), WGPUShaderStage_Vertex | WGPUShaderStage_Fragment);
-        bindGroup.Bind(*m_CameraDataUniformBuffer);
-
-        RenderPipeline pipeline(m_Context.GetDevice(), shader, bindGroup, vertexBufferLayout);
-        pipeline.SetPrimitiveState(WGPUPrimitiveTopology_PointList, WGPUIndexFormat_Undefined,
-                WGPUFrontFace_CCW,
-                WGPUCullMode_None);
-        pipeline.SetDepthStencilState(m_DepthTexture->GetTextureFormat(), true, WGPUCompareFunction_Less);
-        pipeline.AddColorTarget(m_RenderTarget.Color.TextureFormat, WGPUColorWriteMask_All);
-
-        m_Pipeline = pipeline.Get();
-        m_BindGroup = bindGroup.Get();
-    }
-
 }
