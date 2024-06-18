@@ -4,30 +4,8 @@
 
 namespace Figment
 {
-
     ParticleRenderer::ParticleRenderer(WebGPUContext &context) : m_Context(context), m_Device(context.GetDevice())
     {
-        m_DepthTexture = new WebGPUTexture(context.GetDevice(), WebGPUTextureDescriptor {
-                .Format = WGPUTextureFormat_Depth24Plus,
-                .Width = context.GetSwapChainWidth(),
-                .Height = context.GetSwapChainHeight(),
-                .Usage = WGPUTextureUsage_RenderAttachment,
-                .Aspect = WGPUTextureAspect_DepthOnly,
-                .SampleCount = 4,
-                .Label = "ParticleRendererDepthTexture"
-        });
-
-        m_RenderTarget = {
-                .Color = {
-                        .TextureView = wgpuSwapChainGetCurrentTextureView(m_Context.GetSwapChain()),
-                        .TextureFormat = m_Context.GetTextureFormat(),
-                },
-                .Depth = {
-                        .TextureView = m_DepthTexture->GetTextureView(),
-                        .TextureFormat = m_DepthTexture->GetTextureFormat(),
-                }
-        };
-
         m_CameraDataUniformBuffer = new WebGPUUniformBuffer<CameraData>(m_Context.GetDevice(),
                 "ParticleRendererCameraDataUniformBuffer",
                 sizeof(CameraData));
@@ -35,31 +13,15 @@ namespace Figment
         m_ParticlesDataUniformBuffer = new WebGPUUniformBuffer<ParticlesData>(m_Context.GetDevice(),
                 "ParticleRendererParticlesDataUniformBuffer",
                 sizeof(ParticlesData));
-
-        m_MultiSampleTexture = std::make_unique<WebGPUTexture>(context.GetDevice(), WebGPUTextureDescriptor {
-                .Format = context.GetTextureFormat(),
-                .Width = context.GetSwapChainWidth(),
-                .Height = context.GetSwapChainHeight(),
-                .Usage = WGPUTextureUsage_RenderAttachment,
-                .Aspect = WGPUTextureAspect_All,
-                .SampleCount = 4,
-                .Label = "ParticleRendererMultisampleTexture"
-        });
     }
 
     ParticleRenderer::~ParticleRenderer()
     {
-        delete m_DepthTexture;
         delete m_CameraDataUniformBuffer;
     }
 
     void ParticleRenderer::BeginFrame(Camera &camera)
     {
-        m_RenderTarget.Color = {
-                .TextureView = wgpuSwapChainGetCurrentTextureView(m_Context.GetSwapChain()),
-                .TextureFormat = m_Context.GetTextureFormat(),
-        };
-
         m_CommandEncoder = WebGPUCommand::CreateCommandEncoder(m_Device, "ParticleRendererCommandEncoder");
 
         CameraData cameraData = {
@@ -69,24 +31,8 @@ namespace Figment
 
         m_CameraDataUniformBuffer->SetData(&cameraData, sizeof(CameraData));
 
-        WGPURenderPassColorAttachment colorAttachment = {};
-        colorAttachment.depthSlice = WGPU_DEPTH_SLICE_UNDEFINED;
-        colorAttachment.loadOp = WGPULoadOp_Clear;
-        colorAttachment.storeOp = WGPUStoreOp_Store;
-        colorAttachment.clearValue = { 0.0f, 0.0f, 0.0f, 0.0f };
-        colorAttachment.view = m_MultiSampleTexture->GetTextureView();
-        colorAttachment.resolveTarget = m_RenderTarget.Color.TextureView;
-
-        WGPURenderPassDepthStencilAttachment depthStencilAttachment = {};
-        depthStencilAttachment.view = m_RenderTarget.Depth.TextureView;
-        depthStencilAttachment.depthClearValue = 1.0f;
-        depthStencilAttachment.depthLoadOp = WGPULoadOp_Clear;
-        depthStencilAttachment.depthStoreOp = WGPUStoreOp_Store;
-        depthStencilAttachment.depthReadOnly = false;
-        depthStencilAttachment.stencilClearValue = 0;
-        depthStencilAttachment.stencilLoadOp = WGPULoadOp_Undefined;
-        depthStencilAttachment.stencilStoreOp = WGPUStoreOp_Undefined;
-        depthStencilAttachment.stencilReadOnly = true;
+        auto colorAttachment = m_Context.GetDefaultRenderTarget()->GetColorAttachment();
+        auto depthStencilAttachment = m_Context.GetDefaultRenderTarget()->GetDepthStencilAttachment();
 
         WGPURenderPassDescriptor renderPassDesc = {};
         renderPassDesc.colorAttachmentCount = 1;
@@ -113,30 +59,5 @@ namespace Figment
 
     void ParticleRenderer::OnResize(uint32_t width, uint32_t height)
     {
-        delete m_DepthTexture;
-        m_DepthTexture = new WebGPUTexture(m_Context.GetDevice(), WebGPUTextureDescriptor {
-                .Format = WGPUTextureFormat_Depth24Plus,
-                .Width = m_Context.GetSwapChainWidth(),
-                .Height = m_Context.GetSwapChainHeight(),
-                .Usage = WGPUTextureUsage_RenderAttachment,
-                .Aspect = WGPUTextureAspect_DepthOnly,
-                .SampleCount = 4,
-                .Label = "ParticleRendererDepthTexture"
-        });
-
-        m_RenderTarget.Depth = {
-                .TextureView = m_DepthTexture->GetTextureView(),
-                .TextureFormat = m_DepthTexture->GetTextureFormat()
-        };
-
-        m_MultiSampleTexture = std::make_unique<WebGPUTexture>(m_Context.GetDevice(), WebGPUTextureDescriptor {
-                .Format = m_Context.GetTextureFormat(),
-                .Width = m_Context.GetSwapChainWidth(),
-                .Height = m_Context.GetSwapChainHeight(),
-                .Usage = WGPUTextureUsage_RenderAttachment,
-                .Aspect = WGPUTextureAspect_All,
-                .SampleCount = 4,
-                .Label = "ParticleRendererMultisampleTexture"
-        });
     }
 }

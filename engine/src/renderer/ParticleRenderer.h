@@ -52,15 +52,17 @@ namespace Figment
                         .BindGroup = bindGroup,
                         .VertexBufferLayouts = { m_QuadVertexBuffer->GetVertexLayout(),
                                                  particlePositions.GetVertexLayout() },
-                        .ColorTargetStates = {{ m_RenderTarget.Color.TextureFormat, WGPUColorWriteMask_All }},
-                        .DepthStencilStates = {{ m_DepthTexture->GetTextureFormat(), true, WGPUCompareFunction_Less }},
+                        .ColorTargetStates = {
+                                { m_Context.GetDefaultRenderTarget()->Color.TextureFormat, WGPUColorWriteMask_All }},
+                        .DepthStencilStates = {{ m_Context.GetDefaultRenderTarget()->Depth.TextureFormat, true,
+                                                 WGPUCompareFunction_Less }},
                         .PrimitiveState = {
                                 .topology = WGPUPrimitiveTopology_TriangleList,
                                 .stripIndexFormat = WGPUIndexFormat_Undefined,
                                 .frontFace = WGPUFrontFace_CCW,
                                 .cullMode = WGPUCullMode_None
                         },
-                        .MultisampleState = { .count = 4, .mask = 0xFFFFFFFF, .alphaToCoverageEnabled = false }
+                        .MultisampleState = { .count = 1, .mask = 0xFFFFFFFF, .alphaToCoverageEnabled = false }
                 });
 
                 m_Pipeline = pipeline.Get();
@@ -123,9 +125,6 @@ namespace Figment
         WGPURenderPipeline m_Pipeline = nullptr;
         WGPUBindGroup m_BindGroup = nullptr;
 
-        RenderTarget m_RenderTarget = {};
-        WebGPUTexture *m_DepthTexture;
-        std::unique_ptr<WebGPUTexture> m_MultiSampleTexture;
         WebGPUVertexBuffer<glm::vec3> *m_QuadVertexBuffer = nullptr;
         WebGPUIndexBuffer<uint32_t> *m_QuadIndexBuffer = nullptr;
         WebGPUUniformBuffer<CameraData> *m_CameraDataUniformBuffer;
