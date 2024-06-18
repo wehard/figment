@@ -40,6 +40,8 @@ Worlds::Worlds(std::shared_ptr<PerspectiveCamera> camera, bool enabled) : Layer(
 
     m_SimulatePipeline = new ComputePipeline(m_Context->GetDevice(), *m_WorldData[m_CurrentWorld].ComputeBindGroup);
     m_SimulatePipeline->Build("simulate", m_ComputeShader->GetShaderModule());
+
+    m_OverlayRenderer = std::make_unique<OverlayRenderer>(*m_Context);
 }
 
 Worlds::~Worlds()
@@ -150,6 +152,10 @@ void Worlds::OnUpdate(float deltaTime)
     m_Renderer->BeginFrame(*m_Camera);
     m_Renderer->DrawQuads(*m_VertexBuffer, transform, ParticleSize, *m_ParticleShader);
     m_Renderer->EndFrame();
+
+    m_OverlayRenderer->Begin(*m_Camera);
+    m_OverlayRenderer->DrawGrid();
+    m_OverlayRenderer->End();
 }
 
 void Worlds::OnImGuiRender()

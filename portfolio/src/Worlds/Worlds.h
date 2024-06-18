@@ -3,6 +3,7 @@
 #include "Figment.h"
 #include "Galaxy.h"
 #include "ParticleRenderer.h"
+#include "OverlayRenderer.h"
 
 using namespace Figment;
 
@@ -56,6 +57,7 @@ private:
     std::shared_ptr<WebGPUContext> m_Context;
     std::shared_ptr<PerspectiveCamera> m_Camera;
     std::unique_ptr<ParticleRenderer> m_Renderer;
+    std::unique_ptr<OverlayRenderer> m_OverlayRenderer;
     std::unique_ptr<WebGPUShader> m_ComputeShader;
     std::unique_ptr<WebGPUShader> m_ParticleShader;
     std::unique_ptr<WebGPUVertexBuffer<Particle>> m_VertexBuffer;
