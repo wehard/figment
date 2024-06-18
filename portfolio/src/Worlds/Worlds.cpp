@@ -139,12 +139,12 @@ void Worlds::OnUpdate(float deltaTime)
     computePass.End();
 
     if (Rotate)
-        m_Rotation.y += RotationSpeed * deltaTime;
+        Rotation.y += RotationSpeed * deltaTime;
 
-    glm::mat4 matScale = glm::scale(glm::mat4(1.0f), m_Scale);
-    glm::mat4 matTranslate = glm::translate(glm::mat4(1.0), m_Position);
-    glm::mat4 matRotate = glm::eulerAngleXYZ(glm::radians(m_Rotation.x), glm::radians(m_Rotation.y),
-            glm::radians(m_Rotation.z));
+    glm::mat4 matScale = glm::scale(glm::mat4(1.0f), Scale);
+    glm::mat4 matTranslate = glm::translate(glm::mat4(1.0), Position);
+    glm::mat4 matRotate = glm::eulerAngleXYZ(glm::radians(Rotation.x), glm::radians(Rotation.y),
+            glm::radians(Rotation.z));
     glm::mat4 transform = matTranslate * matRotate * matScale;
 
     m_Renderer->BeginFrame(*m_Camera);

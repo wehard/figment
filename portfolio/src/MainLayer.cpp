@@ -203,20 +203,16 @@ void MainLayer::OnImGuiRender()
 
         LayerDetails<Worlds>(m_SelectedLayer, [](Worlds *worldMap)
         {
-            ImGui::Text("Particle count: %d", worldMap->GetParticleCount());
+            DrawTransform(worldMap->Position, worldMap->Rotation, worldMap->Scale);
+            ImGui::Spacing();
             ImGui::Checkbox("Cycle", &worldMap->Cycle);
             ImGui::SameLine();
             ImGui::Checkbox("Rotate", &worldMap->Rotate);
-            ImGui::SliderFloat("Rotation speed", &worldMap->RotationSpeed, -100.0, 100.0);
-            ImGui::SliderFloat("Particle size", &worldMap->ParticleSize, 0.001, 0.1);
-            ImGui::SliderFloat("Bump multiplier", &worldMap->BumpMultiplier, -1.0, 1.0);
-            auto texture = worldMap->GetTexture();
-            auto bump = worldMap->GetHeightMap();
-            auto aspect = (float)texture->GetHeight() / (float)texture->GetWidth();
-            auto bumpAspect = (float)bump->GetHeight() / (float)bump->GetWidth();
-            auto contentWidth = ImGui::GetWindowWidth();
-            ImGui::Image((ImTextureID)texture->GetTextureView(), ImVec2(contentWidth, contentWidth * aspect));
-            ImGui::Image((ImTextureID)bump->GetTextureView(), ImVec2(contentWidth, contentWidth * bumpAspect));
+            ImGui::DragFloat("Rotation speed", &worldMap->RotationSpeed, 0.01, -100.0, 100.0);
+            ImGui::DragFloat("Particle size", &worldMap->ParticleSize, 0.001, 0.001, 0.1);
+            ImGui::DragFloat("Bump multiplier", &worldMap->BumpMultiplier, 0.01, -1.0, 1.0);
+            ImGui::Spacing();
+            ImGui::Text("Particle count: %d", worldMap->GetParticleCount());
         });
 
         LayerDetails<GameOfLife>(m_SelectedLayer, [](GameOfLife *gameOfLife)

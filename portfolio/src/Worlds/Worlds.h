@@ -8,22 +8,11 @@ using namespace Figment;
 
 struct WorldData
 {
-    WebGPUTexture *ColorMap;
-    WebGPUTexture *HeightMap;
-    BindGroup *ComputeBindGroup;
+    WebGPUTexture *ColorMap = nullptr;
+    WebGPUTexture *HeightMap = nullptr;
+    BindGroup *ComputeBindGroup = nullptr;
     float RelativeSize = 1.0f;
 };
-
-// struct WorldParticle
-// {
-//     glm::vec3 Position;
-//     uint32_t _Padding[1];
-//     glm::vec4 Color;
-//     glm::vec3 Velocity;
-//     uint32_t _Padding2[1];
-//     glm::vec3 PrevPosition;
-//     uint32_t _Padding3[1];
-// };
 
 struct WorldParticlesData
 {
@@ -47,17 +36,23 @@ public:
     WebGPUTexture *GetTexture() { return m_WorldData[m_CurrentWorld].ColorMap; }
     WebGPUTexture *GetHeightMap() { return m_WorldData[m_CurrentWorld].HeightMap; }
     uint32_t GetParticleCount();
+    void ResetParticles();
+
+public:
+    glm::vec3 Position = { 0.0f, 0.0f, 0.0f };
+    glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f };
+    glm::vec3 Scale = { 1.0f, 1.0f, 1.0f };
     bool Rotate = false;
     float RotationSpeed = 10.0f;
     float BumpMultiplier = 0.06f;
     bool Cycle = false;
     float ParticleSize = 0.002f;
-    void ResetParticles();
-private:
 
+private:
     void LoadWorld(const std::string &colorMapPath, const std::string &heightMapPath, float relativeSize);
     void RecreatePipelines();
 
+private:
     std::shared_ptr<WebGPUContext> m_Context;
     std::shared_ptr<PerspectiveCamera> m_Camera;
     std::unique_ptr<ParticleRenderer> m_Renderer;
@@ -72,8 +67,4 @@ private:
     ComputePipeline *m_SimulatePipeline;
     float m_TimeSinceLastCycle = 0.0f;
     float m_CycleInterval = 3.0f;
-
-    glm::vec3 m_Position = { 0.0f, 0.0f, 0.0f };
-    glm::vec3 m_Rotation = { 0.0f, 0.0f, 0.0f };
-    glm::vec3 m_Scale = { 1.0f, 1.0f, 1.0f };
 };
