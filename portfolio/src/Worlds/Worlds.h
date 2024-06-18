@@ -47,9 +47,10 @@ public:
     WebGPUTexture *GetTexture() { return m_WorldData[m_CurrentWorld].ColorMap; }
     WebGPUTexture *GetHeightMap() { return m_WorldData[m_CurrentWorld].HeightMap; }
     uint32_t GetParticleCount();
+    bool Rotate = false;
     float RotationSpeed = 10.0f;
     float BumpMultiplier = 0.06f;
-    bool AutoCycleWorlds = true;
+    bool Cycle = false;
     float ParticleSize = 0.002f;
     void ResetParticles();
 private:

@@ -199,9 +199,11 @@ void MainLayer::OnImGuiRender()
         LayerDetails<Worlds>(m_SelectedLayer, [](Worlds *worldMap)
         {
             ImGui::Text("Particle count: %d", worldMap->GetParticleCount());
-            ImGui::SliderFloat("Particle size", &worldMap->ParticleSize, 0.001, 0.1);
-            ImGui::Checkbox("Auto cycle", &worldMap->AutoCycleWorlds);
+            ImGui::Checkbox("Cycle", &worldMap->Cycle);
+            ImGui::SameLine();
+            ImGui::Checkbox("Rotate", &worldMap->Rotate);
             ImGui::SliderFloat("Rotation speed", &worldMap->RotationSpeed, -100.0, 100.0);
+            ImGui::SliderFloat("Particle size", &worldMap->ParticleSize, 0.001, 0.1);
             ImGui::SliderFloat("Bump multiplier", &worldMap->BumpMultiplier, -1.0, 1.0);
             auto texture = worldMap->GetTexture();
             auto bump = worldMap->GetHeightMap();

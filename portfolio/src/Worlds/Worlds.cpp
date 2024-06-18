@@ -105,7 +105,7 @@ static bool intersectSphere(glm::vec3 ro, glm::vec3 rd, glm::vec3 sc, float sr, 
 void Worlds::OnUpdate(float deltaTime)
 {
     m_TimeSinceLastCycle += deltaTime;
-    if (AutoCycleWorlds && m_TimeSinceLastCycle >= m_CycleInterval)
+    if (Cycle && m_TimeSinceLastCycle >= m_CycleInterval)
     {
         m_CurrentWorld = (m_CurrentWorld + 1) % m_WorldData.size();
         m_TimeSinceLastCycle = 0.0;
@@ -138,7 +138,8 @@ void Worlds::OnUpdate(float deltaTime)
     computePass.Dispatch("simulate", m_VertexBuffer->Count() / 32);
     computePass.End();
 
-    m_Rotation.y += RotationSpeed * deltaTime;
+    if (Rotate)
+        m_Rotation.y += RotationSpeed * deltaTime;
 
     glm::mat4 matScale = glm::scale(glm::mat4(1.0f), m_Scale);
     glm::mat4 matTranslate = glm::translate(glm::mat4(1.0), m_Position);
