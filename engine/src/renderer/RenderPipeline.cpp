@@ -17,6 +17,24 @@ namespace Figment
     {
     }
 
+    RenderPipeline::RenderPipeline(WGPUDevice device, const RenderPipelineDescriptor &&descriptor) : m_Device(device),
+            m_Shader(descriptor.Shader),
+            m_BindGroup(descriptor.BindGroup), m_VertexBufferLayouts(descriptor.VertexBufferLayouts)
+    {
+        for (auto &colorTarget : descriptor.ColorTargetStates)
+        {
+            AddColorTarget(colorTarget.Format, colorTarget.WriteMask);
+        }
+        for (auto &depthStencil : descriptor.DepthStencilStates)
+        {
+            SetDepthStencilState(depthStencil.Format, depthStencil.DepthWriteEnabled, depthStencil.DepthCompare);
+        }
+        SetPrimitiveState(descriptor.PrimitiveState.topology, descriptor.PrimitiveState.stripIndexFormat,
+                descriptor.PrimitiveState.frontFace, descriptor.PrimitiveState.cullMode);
+        SetMultisampleState(descriptor.MultisampleState.count, descriptor.MultisampleState.mask,
+                descriptor.MultisampleState.alphaToCoverageEnabled);
+    }
+
     RenderPipeline::~RenderPipeline()
     {
     }

@@ -6,9 +6,43 @@
 
 namespace Figment
 {
+    struct ColorTargetState
+    {
+        WGPUTextureFormat Format;
+        WGPUColorWriteMask WriteMask;
+    };
+
+    struct DepthStencilState
+    {
+        WGPUTextureFormat Format;
+        bool DepthWriteEnabled;
+        WGPUCompareFunction DepthCompare;
+    };
+
+    struct RenderPipelineDescriptor
+    {
+        WebGPUShader &Shader;
+        BindGroup &BindGroup;
+        std::vector<WGPUVertexBufferLayout> VertexBufferLayouts = {};
+        std::vector<ColorTargetState> ColorTargetStates = {};
+        std::vector<DepthStencilState> DepthStencilStates = {};
+        WGPUPrimitiveState PrimitiveState = {
+                .topology = WGPUPrimitiveTopology_TriangleList,
+                .stripIndexFormat = WGPUIndexFormat_Undefined,
+                .frontFace = WGPUFrontFace_CCW,
+                .cullMode = WGPUCullMode_None,
+        };
+        WGPUMultisampleState MultisampleState = {
+                .count = 1,
+                .mask = 0xFFFFFFFF,
+                .alphaToCoverageEnabled = false,
+        };
+    };
+
     class RenderPipeline
     {
     public:
+        RenderPipeline(WGPUDevice device, const RenderPipelineDescriptor &&descriptor);
         RenderPipeline(WGPUDevice device, WebGPUShader &shader, BindGroup &bindGroup,
                 WGPUVertexBufferLayout vertexBufferLayout);
         RenderPipeline(WGPUDevice device, WebGPUShader &shader, BindGroup &bindGroup,
