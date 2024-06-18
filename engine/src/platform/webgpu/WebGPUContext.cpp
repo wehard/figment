@@ -148,7 +148,7 @@ namespace Figment
     void WebGPUContext::BeginFrame()
     {
         m_DefaultRenderTarget.Color.TextureView = wgpuSwapChainGetCurrentTextureView(m_SwapChain);
-        Clear({ 0.1f, 0.1f, 0.1f, 1.0f });
+        Clear({ 0.0f, 0.0f, 0.0f, 0.0f });
     }
 
     void WebGPUContext::EndFrame()
