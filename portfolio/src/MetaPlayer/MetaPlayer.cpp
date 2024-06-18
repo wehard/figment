@@ -227,6 +227,7 @@ void MetaPlayer::OnImGuiRender()
             {
                 ImGui::Text("Nodes visited: %d", m_AStarSearchResult->NumVisited);
                 ImGui::Text("Nodes evaluated: %d", m_AStarSearchResult->NumEvaluated);
+                ImGui::Text("Paths discarded: %d", m_AStarSearchResult->NumPathsDiscarded);
             }
             ImGui::EndChild();
             ImGui::EndTable();

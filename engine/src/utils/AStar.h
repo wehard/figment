@@ -25,6 +25,7 @@ namespace Figment
             std::vector<std::shared_ptr<Node>> Path;
             uint32_t NumVisited = 0;
             uint32_t NumEvaluated = 0;
+            uint32_t NumPathsDiscarded = 0;
         };
 
     public:
@@ -57,6 +58,7 @@ namespace Figment
             openSet.insert(startNode);
 
             uint32_t numEvaluated = 0;
+            uint32_t numPathsDiscarded = 0;
             while (!openSet.empty())
             {
                 auto currentNode = *openSet.begin();
@@ -72,7 +74,7 @@ namespace Figment
                         node = node->parent;
                     }
                     std::reverse(path.begin(), path.end());
-                    return SearchResult { .Path = path, .NumVisited = (uint32_t)closedSet.size(), .NumEvaluated = numEvaluated };
+                    return SearchResult { .Path = path, .NumVisited = (uint32_t)closedSet.size(), .NumEvaluated = numEvaluated, .NumPathsDiscarded = numPathsDiscarded };
                 }
 
                 auto neighbors = getNeighbors(currentNode->UserData);
@@ -99,6 +101,7 @@ namespace Figment
                         {
                             (*it)->GScore = gScore;
                             (*it)->parent = currentNode;
+                            numPathsDiscarded++;
                         }
                     }
                     else
@@ -112,7 +115,7 @@ namespace Figment
 
                 closedSet.push_back(currentNode);
             }
-            return SearchResult { .Path = {}, .NumVisited = (uint32_t)closedSet.size(), .NumEvaluated = numEvaluated };
+            return SearchResult { .Path = {}, .NumVisited = (uint32_t)closedSet.size(), .NumEvaluated = numEvaluated, .NumPathsDiscarded = numPathsDiscarded };
         }
     };
 
