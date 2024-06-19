@@ -1,6 +1,6 @@
 #include "Worlds.h"
 
-Worlds::Worlds(std::shared_ptr<PerspectiveCamera> camera, bool enabled) : Layer("Worlds", enabled), m_Camera(camera)
+Worlds::Worlds(PerspectiveCamera &camera, bool enabled) : Layer("Worlds", enabled), m_Camera(camera)
 {
     auto m_Window = Figment::App::Instance()->GetWindow();
     auto webGpuWindow = std::dynamic_pointer_cast<Figment::WebGPUWindow>(m_Window);
@@ -114,7 +114,7 @@ void Worlds::OnUpdate(float deltaTime)
         RecreatePipelines();
     }
 
-    auto mw = m_Camera->ScreenToWorldSpace(Input::GetMousePosition(),
+    auto mw = m_Camera.ScreenToWorldSpace(Input::GetMousePosition(),
             glm::vec2(m_Context->GetSwapChainWidth(), m_Context->GetSwapChainHeight()));
 
     WorldParticlesData d = {};
@@ -124,12 +124,12 @@ void Worlds::OnUpdate(float deltaTime)
     d.MouseWorldPosition = mw;
     d.RelativeSize = m_WorldData[m_CurrentWorld].RelativeSize;
 
-    auto rd = mw - m_Camera->GetPosition();
+    auto rd = mw - m_Camera.GetPosition();
     rd = glm::normalize(rd);
     float t = 0.0;
-    if (intersectSphere(m_Camera->GetPosition(), rd, glm::vec3(0, 0, 0), 1.0, &t))
+    if (intersectSphere(m_Camera.GetPosition(), rd, glm::vec3(0, 0, 0), 1.0, &t))
     {
-        auto p = m_Camera->GetPosition() + rd * t;
+        auto p = m_Camera.GetPosition() + rd * t;
         d.MouseWorldPosition = p;
     }
 
@@ -149,11 +149,11 @@ void Worlds::OnUpdate(float deltaTime)
             glm::radians(Rotation.z));
     glm::mat4 transform = matTranslate * matRotate * matScale;
 
-    m_Renderer->BeginFrame(*m_Camera);
+    m_Renderer->BeginFrame(m_Camera);
     m_Renderer->DrawQuads(*m_VertexBuffer, transform, ParticleSize, *m_ParticleShader);
     m_Renderer->EndFrame();
 
-    m_OverlayRenderer->Begin(*m_Camera);
+    m_OverlayRenderer->Begin(m_Camera);
     m_OverlayRenderer->DrawGrid();
     m_OverlayRenderer->End();
 }

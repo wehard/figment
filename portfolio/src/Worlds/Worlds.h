@@ -27,7 +27,7 @@ struct WorldParticlesData
 class Worlds : public Layer
 {
 public:
-    Worlds(std::shared_ptr<PerspectiveCamera> camera, bool enabled);
+    Worlds(PerspectiveCamera &camera, bool enabled);
     ~Worlds() override;
     void OnAttach() override;
     void OnDetach() override;
@@ -55,7 +55,7 @@ private:
 
 private:
     std::shared_ptr<WebGPUContext> m_Context;
-    std::shared_ptr<PerspectiveCamera> m_Camera;
+    PerspectiveCamera &m_Camera;
     std::unique_ptr<ParticleRenderer> m_Renderer;
     std::unique_ptr<OverlayRenderer> m_OverlayRenderer;
     std::unique_ptr<WebGPUShader> m_ComputeShader;

@@ -2,7 +2,7 @@
 #include "ComputePass.h"
 #include "Figment.h"
 
-Galaxy::Galaxy(std::shared_ptr<PerspectiveCamera> camera, bool enabled) : Layer("Galaxy", enabled),
+Galaxy::Galaxy(PerspectiveCamera &camera, bool enabled) : Layer("Galaxy", enabled),
         m_Camera(camera)
 {
     auto m_Window = Figment::App::Instance()->GetWindow();
@@ -131,7 +131,7 @@ void Galaxy::OnUpdate(float deltaTime)
             glm::radians(m_Rotation.z));
     glm::mat4 transform = matTranslate * matRotate * matScale;
 
-    m_Renderer->BeginFrame(*m_Camera);
+    m_Renderer->BeginFrame(m_Camera);
     m_Renderer->DrawQuads(*m_VertexBuffer, transform, m_ParticleSize, *m_ParticleShader);
     m_Renderer->EndFrame();
 

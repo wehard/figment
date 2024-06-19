@@ -24,7 +24,7 @@ struct ParticlesData
 class Galaxy : public Layer
 {
 public:
-    Galaxy(std::shared_ptr<PerspectiveCamera> camera, bool enabled);
+    Galaxy(PerspectiveCamera &camera, bool enabled);
     ~Galaxy() override;
     void OnAttach() override;
     void OnDetach() override;
@@ -35,7 +35,7 @@ public:
 
 private:
     std::shared_ptr<WebGPUContext> m_Context;
-    std::shared_ptr<PerspectiveCamera> m_Camera;
+    PerspectiveCamera &m_Camera;
     std::unique_ptr<ParticleRenderer> m_Renderer;
     std::unique_ptr<WebGPUShader> m_ComputeShader;
     std::unique_ptr<WebGPUShader> m_ParticleShader;
