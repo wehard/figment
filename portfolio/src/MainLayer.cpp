@@ -103,9 +103,9 @@ static void LayerDetails(Layer *layer, F drawDetails)
 
 static void DrawTransform(glm::vec3 &position, glm::vec3 &rotation, glm::vec3 &scale)
 {
-    ImGui::DragFloat3("Position", &position[0], 0.1f);
+    ImGui::DragFloat3("Position", &position[0], 0.01f);
     ImGui::DragFloat3("Rotation", &rotation[0], 0.1f);
-    ImGui::DragFloat3("Scale", &scale[0], 0.1f);
+    ImGui::DragFloat3("Scale", &scale[0], 0.01f);
 }
 
 void MainLayer::OnImGuiRender()
