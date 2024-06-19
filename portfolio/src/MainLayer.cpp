@@ -156,6 +156,13 @@ void MainLayer::OnImGuiRender()
     ImGui::Text("SKILLS");
     ImGui::Text(
             "C/C++, C#, JS/TS\nOpenGL, WebGPU, Vulkan, Unity\nGit, Linux, macOS, Windows\nWeb, React, Node.js, GraphQL, REST\nGCP, Jira, Confluence");
+    ImGui::Dummy({ 0, 10 });
+    ImGui::Separator();
+    ImGui::Dummy({ 0, 10 });
+    ImGui::TextWrapped(
+            "This site is powered by the Figment engine. Figment is an in-development, C++17, real-time 3D engine supporting WebGPU.");
+    ImGui::Spacing();
+    HyperLink("Source code on GitHub", "https://github.com/wehard/figment");
     ImGui::End();
 
     ImGui::SetNextWindowPos(ImVec2(appWindowSize.x - width - padding, padding + 20), ImGuiCond_FirstUseEver);
