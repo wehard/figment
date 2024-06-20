@@ -18,10 +18,11 @@ struct WorldData
 struct WorldParticlesData
 {
     float DeltaTime;
-    float Rotation;
     float BumpMultiplier;
     float RelativeSize;
-    glm::vec2 MouseWorldPosition;
+    float _Padding;
+    glm::vec3 MouseWorldPosition;
+    float _Padding2;
 };
 
 class Worlds : public Layer
@@ -69,4 +70,5 @@ private:
     ComputePipeline *m_SimulatePipeline;
     float m_TimeSinceLastCycle = 0.0f;
     float m_CycleInterval = 3.0f;
+    glm::vec3 m_HitPoint;
 };

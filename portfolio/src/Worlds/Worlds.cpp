@@ -85,23 +85,24 @@ void Worlds::OnDetach()
 
 }
 
-static bool intersectSphere(glm::vec3 ro, glm::vec3 rd, glm::vec3 sc, float sr, float *t)
+static bool intersectSphere(glm::vec3 rayOrigin, glm::vec3 rayDirection, glm::vec3 sphereOrigin, float sphereRadius,
+        glm::vec3 *hitPoint)
 {
-    glm::vec3 oc = ro - sc;
-    float b = glm::dot(oc, rd);
-    float c = glm::dot(oc, oc) - sr * sr;
-    float h = b * b - c;
-    if (h < 0.0)
+    glm::vec3 oc = rayOrigin - sphereOrigin;
+    float a = dot(rayDirection, rayDirection);
+    float b = 2.0f * dot(oc, rayDirection);
+    float c = dot(oc, oc) - sphereRadius * sphereRadius;
+    float discriminant = b * b - 4 * a * c;
+    if (discriminant < 0)
     {
         return false;
     }
-    h = sqrt(h);
-    *t = -b - h;
-    if (*t < 0.0)
+    else
     {
-        *t = -b + h;
+        float t = (-b - sqrt(discriminant)) / (2.0 * a);
+        *hitPoint = rayOrigin + rayDirection * t;
+        return true;
     }
-    return *t >= 0.0;
 }
 
 void Worlds::OnUpdate(float deltaTime)
@@ -114,32 +115,6 @@ void Worlds::OnUpdate(float deltaTime)
         RecreatePipelines();
     }
 
-    auto mw = m_Camera.ScreenToWorldSpace(Input::GetMousePosition(),
-            glm::vec2(m_Context->GetSwapChainWidth(), m_Context->GetSwapChainHeight()));
-
-    WorldParticlesData d = {};
-    d.DeltaTime = deltaTime;
-    d.Rotation = 0.0;
-    d.BumpMultiplier = BumpMultiplier;
-    d.MouseWorldPosition = mw;
-    d.RelativeSize = m_WorldData[m_CurrentWorld].RelativeSize;
-
-    auto rd = mw - m_Camera.GetPosition();
-    rd = glm::normalize(rd);
-    float t = 0.0;
-    if (intersectSphere(m_Camera.GetPosition(), rd, glm::vec3(0, 0, 0), 1.0, &t))
-    {
-        auto p = m_Camera.GetPosition() + rd * t;
-        d.MouseWorldPosition = p;
-    }
-
-    m_UniformBuffer->SetData(&d, sizeof(WorldParticlesData));
-
-    ComputePass computePass(m_Context->GetDevice(), m_SimulatePipeline, m_WorldData[m_CurrentWorld].ComputeBindGroup);
-    computePass.Begin();
-    computePass.Dispatch("simulate", m_VertexBuffer->Count() / 32);
-    computePass.End();
-
     if (Rotate)
         Rotation.y += RotationSpeed * deltaTime;
 
@@ -148,6 +123,34 @@ void Worlds::OnUpdate(float deltaTime)
     glm::mat4 matRotate = glm::eulerAngleXYZ(glm::radians(Rotation.x), glm::radians(Rotation.y),
             glm::radians(Rotation.z));
     glm::mat4 transform = matTranslate * matRotate * matScale;
+
+    auto invModel = glm::inverse(transform);
+
+    auto mouseWorld = m_Camera.ScreenToWorldSpace(Input::GetMousePosition(),
+            glm::vec2(m_Context->GetSwapChainWidth(), m_Context->GetSwapChainHeight()));
+
+    WorldParticlesData worldData = {};
+    worldData.DeltaTime = deltaTime;
+    worldData.BumpMultiplier = BumpMultiplier;
+    worldData.MouseWorldPosition = { 0, 0, 0 };
+    worldData.RelativeSize = m_WorldData[m_CurrentWorld].RelativeSize;
+
+    auto rayDir = glm::normalize(mouseWorld - m_Camera.GetPosition());
+
+    auto hitPoint = glm::vec3(0);
+    if (intersectSphere(m_Camera.GetPosition(), rayDir, Position,
+            m_WorldData[m_CurrentWorld].RelativeSize, &hitPoint))
+    {
+        worldData.MouseWorldPosition = glm::vec3(invModel * glm::vec4(hitPoint, 1.0));;
+    }
+    m_HitPoint = hitPoint;
+
+    m_UniformBuffer->SetData(&worldData, sizeof(WorldParticlesData));
+
+    ComputePass computePass(m_Context->GetDevice(), m_SimulatePipeline, m_WorldData[m_CurrentWorld].ComputeBindGroup);
+    computePass.Begin();
+    computePass.Dispatch("simulate", m_VertexBuffer->Count() / 32);
+    computePass.End();
 
     m_Renderer->BeginFrame(m_Camera);
     m_Renderer->DrawQuads(*m_VertexBuffer, transform, ParticleSize, *m_ParticleShader);
@@ -199,6 +202,11 @@ void Worlds::OnImGuiRender()
         m_TimeSinceLastCycle = 0.0;
         RecreatePipelines();
     }
+
+    ImGui::Begin("Info");
+    ImGui::Text("World: %d", m_CurrentWorld);
+    ImGui::Text("Hit Point: %.2f, %.2f, %.2f", m_HitPoint.x, m_HitPoint.y, m_HitPoint.z);
+    ImGui::End();
 }
 
 void Worlds::OnEvent(AppEvent event, void *eventData)
@@ -216,9 +224,8 @@ void Worlds::ResetParticles()
 {
     WorldParticlesData d = {};
     d.DeltaTime = 0.0;
-    d.Rotation = 0.0;
     d.BumpMultiplier = BumpMultiplier;
-    d.MouseWorldPosition = glm::vec2(0, 0);
+    d.MouseWorldPosition = { 0, 0, 0 };
     d.RelativeSize = m_WorldData[m_CurrentWorld].RelativeSize;
     m_UniformBuffer->SetData(&d, sizeof(WorldParticlesData));
 
