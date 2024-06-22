@@ -2,7 +2,7 @@ struct WorldParticlesData {
     deltaTime: f32,
     bumpMultiplier: f32,
     relativeSize: f32,
-    padding: f32,
+    time: f32,
     mousePos: vec3<f32>,
 };
 
@@ -82,16 +82,17 @@ fn simulate(@builtin(global_invocation_id) id: vec3<u32>) {
     let height = textureSampleLevel(bumpMap, sampler1, uv, 0.0) - 0.5;
 
     var targetPosition = init_position(colIdx, rowIdx, 0.0);
-    targetPosition += normalize(targetPosition) * height.r * data.bumpMultiplier;
-
+    var normal = normalize(targetPosition);
+    targetPosition += normal * height.r * data.bumpMultiplier;
     var targetColor = textureSampleLevel(worldTexture, sampler1, uv, 0.0);
+
+    var dist = distance(data.mousePos, particle.position);
+    if (dist < data.relativeSize * 0.75) {
+        targetPosition += normal * sin(1.0 / dist) * 0.15 * data.relativeSize;
+    }
 
     particle.color = mix(particle.color, targetColor, data.deltaTime * 5.0);
     particle.position = mix(particle.position, targetPosition, data.deltaTime * 3.5);
-    if (distance(data.mousePos, particle.position) < data.relativeSize * 0.2) {
-        particle.color = vec4<f32>(1.0, 0.0, 0.0, 1.0);
-    }
-
 
     vertexBuffer[id.x] = particle;
 }
