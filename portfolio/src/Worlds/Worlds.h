@@ -20,7 +20,7 @@ struct WorldParticlesData
     float DeltaTime;
     float BumpMultiplier;
     float RelativeSize;
-    float _Padding;
+    float Time;
     glm::vec3 MouseWorldPosition;
     float _Padding2;
 };

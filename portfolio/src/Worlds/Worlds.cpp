@@ -134,6 +134,7 @@ void Worlds::OnUpdate(float deltaTime)
     worldData.BumpMultiplier = BumpMultiplier;
     worldData.MouseWorldPosition = { 0, 0, 0 };
     worldData.RelativeSize = m_WorldData[m_CurrentWorld].RelativeSize;
+    worldData.Time = (float)glfwGetTime();
 
     auto rayDir = glm::normalize(mouseWorld - m_Camera.GetPosition());
 
