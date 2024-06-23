@@ -87,8 +87,10 @@ fn simulate(@builtin(global_invocation_id) id: vec3<u32>) {
     var targetColor = textureSampleLevel(worldTexture, sampler1, uv, 0.0);
 
     var dist = distance(data.mousePos, particle.position);
-    if (dist < data.relativeSize * 0.75) {
-        targetPosition += normal * sin(1.0 / dist) * 0.15 * data.relativeSize;
+    var threshold = data.relativeSize;
+    if (dist < threshold && dist > 0.0 ) {
+        var attenuation = (1.0 - dist / threshold) * 0.08;
+        targetPosition += normal * sin((1.0 / dist) + data.time * 7.0) * attenuation;
     }
 
     particle.color = mix(particle.color, targetColor, data.deltaTime * 5.0);

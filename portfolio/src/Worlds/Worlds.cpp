@@ -132,7 +132,7 @@ void Worlds::OnUpdate(float deltaTime)
     WorldParticlesData worldData = {};
     worldData.DeltaTime = deltaTime;
     worldData.BumpMultiplier = BumpMultiplier;
-    worldData.MouseWorldPosition = { 0, 0, 0 };
+    worldData.MouseWorldPosition = glm::vec3(std::numeric_limits<float>::max());
     worldData.RelativeSize = m_WorldData[m_CurrentWorld].RelativeSize;
     worldData.Time = (float)glfwGetTime();
 
