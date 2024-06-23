@@ -203,11 +203,6 @@ void Worlds::OnImGuiRender()
         m_TimeSinceLastCycle = 0.0;
         RecreatePipelines();
     }
-
-    ImGui::Begin("Info");
-    ImGui::Text("World: %d", m_CurrentWorld);
-    ImGui::Text("Hit Point: %.2f, %.2f, %.2f", m_HitPoint.x, m_HitPoint.y, m_HitPoint.z);
-    ImGui::End();
 }
 
 void Worlds::OnEvent(AppEvent event, void *eventData)
