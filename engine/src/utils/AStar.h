@@ -11,10 +11,10 @@ namespace Figment
         struct Node
         {
             NodeUserData UserData;
-            int GScore = 0; // Steps taken to reach this node
-            int HScore = 0; // Estimated steps to reach end node
+            float GScore = 0; // Steps taken to reach this node
+            float HScore = 0; // Estimated steps to reach end node
             std::shared_ptr<Node> parent = nullptr;
-            [[nodiscard]] uint32_t FScore() const
+            [[nodiscard]] float FScore() const
             {
                 return GScore + HScore;
             };
@@ -33,8 +33,8 @@ namespace Figment
         ~AStar() = default;
 
         SearchResult Search(const NodeUserData &start, const NodeUserData &end,
-                const std::function<int(const NodeUserData &,
-                        const NodeUserData &)> &calculateHScore,
+                const std::function<float(const NodeUserData &, const NodeUserData &)> &calculateHScore,
+                const std::function<float(const NodeUserData &, const NodeUserData &)> &edgeCost,
                 const std::function<std::vector<NodeUserData>(const NodeUserData &)> &getNeighbors,
                 const std::function<bool(const NodeUserData &a, const NodeUserData &b)> &equals)
         {
@@ -80,7 +80,8 @@ namespace Figment
                 auto neighbors = getNeighbors(currentNode->UserData);
                 for (const auto &neighbor : neighbors)
                 {
-                    auto gScore = currentNode->GScore + 1; // TODO: Add function to calculate cost
+                    auto gScore = currentNode->GScore
+                            + edgeCost(currentNode->UserData, neighbor);
                     auto hScore = calculateHScore(neighbor, end);
                     auto neighborNode = std::make_shared<Node>(Node {
                             .UserData = neighbor,
