@@ -242,45 +242,6 @@ namespace Figment
         m_RendererData.CircleVertexCount += 6;
     }
 
-    void ShapeRenderer::Submit(Mesh &mesh, glm::mat4 transform, WebGPUShader &shader)
-    {
-        GridData gridData = {
-                .ModelMatrix = transform,
-                .InverseViewMatrix = glm::inverse(m_CameraData.ViewMatrix),
-                .InverseProjectionMatrix = glm::inverse(m_CameraData.ProjectionMatrix),
-        };
-        m_GridUniformBuffer->SetData(&gridData, sizeof(gridData));
-
-        WebGPURenderPipeline pipeline(m_Context.GetDevice(), shader, mesh.VertexBuffer()->GetVertexLayout());
-        pipeline.SetPrimitiveState(WGPUPrimitiveTopology_TriangleList, WGPUIndexFormat_Undefined, WGPUFrontFace_CCW,
-                WGPUCullMode_None);
-        pipeline.SetDepthStencilState(m_RenderTarget->Depth.TextureFormat, WGPUCompareFunction_Less, true);
-        pipeline.SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(0),
-                m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
-        pipeline.SetBinding(m_GridUniformBuffer->GetBindGroupLayoutEntry(1),
-                m_GridUniformBuffer->GetBindGroupEntry(1, 0));
-        auto colorTargetStates = std::vector<WGPUColorTargetState>({
-                {
-                        .format = m_Context.GetTextureFormat(),
-                        .blend = nullptr,
-                        .writeMask = WGPUColorWriteMask_All
-                },
-                {
-                        .format = m_IdTexture->GetTextureFormat(),
-                        .blend = nullptr,
-                        .writeMask = WGPUColorWriteMask_All
-                }
-        });
-        pipeline.SetColorTargetStates(colorTargetStates);
-        pipeline.Build();
-
-        WebGPUCommand::DrawIndexed(m_RenderPass, pipeline.Pipeline, pipeline.BindGroup, *mesh.IndexBuffer(),
-                *mesh.VertexBuffer(), mesh.IndexCount());
-
-        RenderStats::DrawCalls++;
-        RenderStats::VertexCount += mesh.VertexCount();
-    }
-
     void ShapeRenderer::ReadPixel(int x, int y, const std::function<void(int32_t)> &callback)
     {
         m_PixelBuffer->Unmap();
