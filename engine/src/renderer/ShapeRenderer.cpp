@@ -266,25 +266,6 @@ namespace Figment
         RenderStats::VertexCount += mesh.VertexCount();
     }
 
-    static std::vector<uint32_t> GenerateIndices(int width, int height)
-    {
-        auto indices = std::vector<uint32_t>();
-        for (int y = 0; y < (height - 1); y++)
-        {
-            for (int x = 0; x < (width - 1); x++)
-            {
-                int vertexIndex = x + y * width;
-                indices.push_back(vertexIndex);
-                indices.push_back(vertexIndex + 1);
-                indices.push_back(vertexIndex + width);
-                indices.push_back(vertexIndex + 1);
-                indices.push_back(vertexIndex + width + 1);
-                indices.push_back(vertexIndex + width);
-            }
-        }
-        return indices;
-    }
-
     void ShapeRenderer::SubmitQuad(glm::vec3 position, glm::vec4 color, int32_t id)
     {
         SubmitQuad(position, glm::vec3(1.0f), color, id);

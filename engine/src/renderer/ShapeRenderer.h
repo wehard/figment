@@ -106,18 +106,9 @@ namespace Figment
                 { -0.5, +0.5, 0.0 }
         };
 
-        static constexpr glm::vec3 m_FigmentQuadVertices[] = {
-                { -0.5, -0.5, 0.0 },
-                { -0.5, +0.5, 0.0 },
-                { +0.5, +0.5, 0.0 },
-                { +0.5, -0.5, 0.0 },
-        };
-
         WebGPUContext &m_Context;
         WGPUCommandEncoder m_CommandEncoder = {};
-        WGPUCommandEncoder m_ComputeCommandEncoder = {};
         WGPURenderPassEncoder m_RenderPass = {};
-        WGPUComputePassEncoder m_ComputePass = {};
         WebGPUTexture *m_IdTexture;
         WebGPUVertexBuffer<CircleVertex> *m_CircleVertexBuffer;
         WebGPUVertexBuffer<QuadVertex> *m_QuadVertexBuffer;
