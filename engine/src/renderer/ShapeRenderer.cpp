@@ -122,7 +122,7 @@ namespace Figment
                 "Quad");
     }
 
-    WGPURenderPassEncoder ShapeRenderer::Begin(Figment::Camera &camera)
+    void ShapeRenderer::Begin(Figment::Camera &camera)
     {
         m_CameraData = {
                 .ViewMatrix = camera.GetViewMatrix(),
@@ -169,8 +169,6 @@ namespace Figment
         m_RenderPass = wgpuCommandEncoderBeginRenderPass(m_CommandEncoder, &renderPassDesc);
 
         m_RendererData.Reset();
-
-        return m_RenderPass;
     }
 
     void ShapeRenderer::End()

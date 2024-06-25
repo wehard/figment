@@ -84,7 +84,7 @@ namespace Figment
         explicit ShapeRenderer(WebGPUContext &context);
         ~ShapeRenderer();
         void InitShaders();
-        WGPURenderPassEncoder Begin(Camera &camera);
+        void Begin(Camera &camera);
         void End();
         void SubmitQuad(glm::vec3 position, glm::vec4 color, int32_t id);
         void SubmitQuad(glm::vec3 position, glm::vec3 scale, glm::vec4 color, int32_t id);
