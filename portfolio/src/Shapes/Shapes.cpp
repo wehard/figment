@@ -4,6 +4,13 @@ Shapes::Shapes(WebGPUContext &context, PerspectiveCamera &camera) : Layer("Shape
         m_Camera(camera),
         m_ShapeRenderer(context)
 {
+    for (int y = 0; y < 10; y++)
+    {
+        for (int x = 0; x < 10; x++)
+        {
+            m_Points.emplace_back(x, y, 0);
+        }
+    }
 }
 
 void Shapes::OnAttach()
@@ -18,9 +25,13 @@ void Shapes::OnDetach()
 
 void Shapes::OnUpdate(float deltaTime)
 {
+    static glm::vec3 offset = { -4.5f, -4.5f, 0.0f };
     m_ShapeRenderer.Begin(m_Camera);
-    m_ShapeRenderer.SubmitQuad({ -1.0f, 0.0f, 0.0f }, { 0.8f, 0.2f, 0.3f, 1.0f }, -1);
-    m_ShapeRenderer.SubmitCircle({ 1.0f, 0.0f, 0.0f }, { 0.8f, 0.2f, 0.3f, 1.0f }, 1.0, -1);
+    for (auto &point : m_Points)
+    {
+        m_ShapeRenderer.SubmitCircle(point + offset, { 0.8f, 0.2f, 0.3f, 1.0f }, 1.0, -1);
+        m_ShapeRenderer.SubmitLine(point + offset, { 4.5f, 4.5f, 0.0f }, { 0.2f, 0.3f, 0.8f, 1.0f }, -1);
+    }
     m_ShapeRenderer.End();
 }
 

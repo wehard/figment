@@ -18,4 +18,6 @@ private:
     ShapeRenderer m_ShapeRenderer;
     WebGPUContext &m_Context;
     PerspectiveCamera &m_Camera;
+
+    std::vector<glm::vec3> m_Points;
 };

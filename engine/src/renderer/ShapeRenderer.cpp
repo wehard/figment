@@ -65,6 +65,10 @@ namespace Figment
         m_QuadVertexBuffer = new WebGPUVertexBuffer<QuadVertex>(m_Context.GetDevice(), "QuadVertexBuffer",
                 MaxQuadVertexCount * sizeof(QuadVertex));
         m_QuadVertexBuffer->SetVertexLayout(vertexAttributes, sizeof(QuadVertex), WGPUVertexStepMode_Vertex);
+        m_LineVertexBuffer = new WebGPUVertexBuffer<LineVertex>(m_Context.GetDevice(), "LineVertexBuffer",
+                MaxLineVertexCount * sizeof(LineVertex));
+        m_LineVertexBuffer->SetVertexLayout(vertexAttributes, sizeof(LineVertex), WGPUVertexStepMode_Vertex);
+
         m_CameraDataUniformBuffer = new WebGPUUniformBuffer<CameraData>(m_Context.GetDevice(),
                 "CameraDataUniformBuffer",
                 sizeof(CameraData));
@@ -91,6 +95,16 @@ namespace Figment
         m_CirclePipeline->SetColorTargetStates(colorTargetStates);
         m_CirclePipeline->Build();
 
+        m_LinePipeline = new WebGPURenderPipeline(m_Context.GetDevice(), *m_LineShader,
+                m_LineVertexBuffer->GetVertexLayout());
+        m_LinePipeline->SetPrimitiveState(WGPUPrimitiveTopology_LineList, WGPUIndexFormat_Undefined, WGPUFrontFace_CCW,
+                WGPUCullMode_None);
+        m_LinePipeline->SetDepthStencilState(m_RenderTarget->Depth.TextureFormat, WGPUCompareFunction_Less, true);
+        m_LinePipeline->SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(0),
+                m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
+        m_LinePipeline->SetColorTargetStates(colorTargetStates);
+        m_LinePipeline->Build();
+
         m_GridUniformBuffer = new WebGPUUniformBuffer<GridData>(m_Context.GetDevice(), "GridUniformBuffer",
                 sizeof(GridData));
     }
@@ -115,6 +129,7 @@ namespace Figment
                 "Circle");
         m_QuadShader = new WebGPUShader(m_Context.GetDevice(), "res/shaders/builtin/quad.wgsl",
                 "Quad");
+        m_LineShader = new WebGPUShader(m_Context.GetDevice(), "res/shaders/builtin/line.wgsl", "Line");
     }
 
     void ShapeRenderer::Begin(Figment::Camera &camera)
@@ -144,6 +159,7 @@ namespace Figment
     {
         DrawCircles();
         DrawQuads();
+        DrawLines();
 
         wgpuRenderPassEncoderEnd(m_RenderPass);
 
@@ -196,6 +212,23 @@ namespace Figment
         RenderStats::DrawCalls++;
     }
 
+    void ShapeRenderer::DrawLines()
+    {
+        if (m_RendererData.LineVertexCount == 0)
+            return;
+
+        m_LineVertexBuffer->SetData(m_RendererData.LineVertices.data(),
+                m_RendererData.LineVertexCount * sizeof(LineVertex));
+
+        wgpuRenderPassEncoderSetPipeline(m_RenderPass, m_LinePipeline->Pipeline);
+        wgpuRenderPassEncoderSetVertexBuffer(m_RenderPass, 0, m_LineVertexBuffer->GetBuffer(), 0,
+                m_RendererData.LineVertexCount * sizeof(LineVertex));
+        wgpuRenderPassEncoderSetBindGroup(m_RenderPass, 0, m_LinePipeline->BindGroup, 0, nullptr);
+        wgpuRenderPassEncoderDraw(m_RenderPass, m_RendererData.LineVertexCount, 1, 0, 0);
+
+        RenderStats::DrawCalls++;
+    }
+
     void ShapeRenderer::SubmitQuad(glm::vec3 position, glm::vec4 color, int32_t id)
     {
         SubmitQuad(position, glm::vec3(1.0f), color, id);
@@ -240,6 +273,27 @@ namespace Figment
         }
 
         m_RendererData.CircleVertexCount += 6;
+    }
+
+    void ShapeRenderer::SubmitLine(glm::vec3 start, glm::vec3 end, glm::vec4 color, int32_t id)
+    {
+        if (m_RendererData.LineVertexCount >= MaxLineVertexCount)
+            return;
+
+        m_RendererData.LineVertices[m_RendererData.LineVertexCount] = {
+                .WorldPosition = start,
+                .LocalPosition = start,
+                .Color = color,
+                .Id = id
+        };
+        m_RendererData.LineVertices[m_RendererData.LineVertexCount + 1] = {
+                .WorldPosition = end,
+                .LocalPosition = end,
+                .Color = color,
+                .Id = id
+        };
+
+        m_RendererData.LineVertexCount += 2;
     }
 
     void ShapeRenderer::ReadPixel(int x, int y, const std::function<void(int32_t)> &callback)
