@@ -78,29 +78,6 @@ namespace Figment
 
     void Scene::OnUpdate(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportSize)
     {
-        m_Renderer->BeginComputePass();
-        auto figments = m_Registry.view<FigmentComponent>();
-        for (auto handle : figments)
-        {
-            Entity entity = { handle, this };
-            if (entity.HasComponent<FigmentComponent>())
-            {
-                auto &&figment = entity.GetComponent<FigmentComponent>();
-                FigmentComponent::FigmentData data = {
-                        .Time = App::Instance()->GetTimeSinceStart(),
-                        .Id = (int32_t)entity.GetHandle(),
-                        .Model = entity.GetComponent<TransformComponent>().GetTransform(),
-                };
-                figment.UniformBuffer->SetData(&data, figment.UniformBuffer->GetSize());
-
-                if (!figment.Initialized)
-                    continue;
-
-                m_Renderer->Compute(figment);
-            }
-        }
-        m_Renderer->EndComputePass();
-
         m_Renderer->Begin(*m_ActiveCameraController->GetCamera()); // TODO: Make static
         m_ActiveCameraController->Update(deltaTime);
 
@@ -143,15 +120,6 @@ namespace Figment
                 m_Renderer->SubmitQuad(transform.Position, transform.Scale, color, (int)entity.GetHandle());
             }
         }
-
-        auto view = m_Registry.view<FigmentComponent>();
-        for (auto &handle : view)
-        {
-            Entity entity = { handle, this };
-            auto &figment = entity.GetComponent<FigmentComponent>();
-            m_Renderer->DrawFigment(figment, (int32_t)entity.GetHandle());
-        }
-
         m_Renderer->End();
     }
 

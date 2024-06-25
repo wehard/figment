@@ -86,46 +86,11 @@ namespace Figment
         void InitShaders();
         WGPURenderPassEncoder Begin(Camera &camera);
         void End();
-        void BeginComputePass();
-        void EndComputePass();
-        void Compute(FigmentComponent &figment);
         void SubmitQuad(glm::vec3 position, glm::vec4 color, int32_t id);
         void SubmitQuad(glm::vec3 position, glm::vec3 scale, glm::vec4 color, int32_t id);
         void SubmitCircle(glm::vec3 position, glm::vec4 color, float radius, int32_t id);
         void SubmitCircle(glm::vec3 position, glm::vec3 scale, glm::vec4 color, int32_t id);
         void Submit(Mesh &mesh, glm::mat4 transform, WebGPUShader &shader);
-        void DrawFigment(FigmentComponent &figment, int32_t id);
-        template<typename T>
-        void DrawPoints(WebGPUVertexBuffer<T> &vertexBuffer, uint32_t vertexCount, WebGPUShader &shader)
-        {
-            auto pipeline = new WebGPURenderPipeline(m_Context.GetDevice(), shader, vertexBuffer.GetVertexLayout());
-            pipeline->SetPrimitiveState(WGPUPrimitiveTopology_PointList, WGPUIndexFormat_Undefined,
-                    WGPUFrontFace_CCW,
-                    WGPUCullMode_None);
-            pipeline->SetDepthStencilState(m_RenderTarget->Depth.TextureFormat, WGPUCompareFunction_Less, true);
-            pipeline->SetBinding(m_CameraDataUniformBuffer->GetBindGroupLayoutEntry(0),
-                    m_CameraDataUniformBuffer->GetBindGroupEntry(0, 0));
-            auto colorTargetStates = std::vector<WGPUColorTargetState>({
-                    {
-                            .format = m_Context.GetTextureFormat(),
-                            .blend = nullptr,
-                            .writeMask = WGPUColorWriteMask_All
-                    },
-                    {
-                            .format = m_IdTexture->GetTextureFormat(),
-                            .blend = nullptr,
-                            .writeMask = WGPUColorWriteMask_All
-                    }
-            });
-            pipeline->SetColorTargetStates(colorTargetStates);
-            pipeline->Build();
-
-            WebGPUCommand::DrawVertices<T>(m_RenderPass, pipeline->Pipeline, pipeline->BindGroup,
-                    vertexBuffer, vertexCount);
-
-            delete pipeline;
-        }
-
         void ReadPixel(int x, int y, const std::function<void(int32_t)> &callback);
         void OnResize(uint32_t width, uint32_t height);
     private:
