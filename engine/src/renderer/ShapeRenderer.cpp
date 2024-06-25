@@ -56,11 +56,6 @@ namespace Figment
                         .format = m_RenderTarget->Color.TextureFormat,
                         .blend = nullptr,
                         .writeMask = WGPUColorWriteMask_All
-                },
-                {
-                        .format = m_IdTexture->GetTextureFormat(),
-                        .blend = nullptr,
-                        .writeMask = WGPUColorWriteMask_All
                 }
         });
 
@@ -131,41 +126,15 @@ namespace Figment
 
         m_CameraDataUniformBuffer->SetData(&m_CameraData, sizeof(m_CameraData));
 
-        auto device = m_Context.GetDevice();
-
-        m_CommandEncoder = WebGPUCommand::CreateCommandEncoder(device, "RenderCommandEncoder");
-
-        WGPURenderPassColorAttachment colorAttachments[2] = {};
-
-        colorAttachments[0].depthSlice = WGPU_DEPTH_SLICE_UNDEFINED;
-        colorAttachments[0].loadOp = WGPULoadOp_Clear;
-        colorAttachments[0].storeOp = WGPUStoreOp_Store;
-        colorAttachments[0].clearValue = { 0.0f, 0.0f, 0.0f, 1.0f };
-        colorAttachments[0].view = wgpuSwapChainGetCurrentTextureView(m_Context.GetSwapChain());
-
-        colorAttachments[1].depthSlice = WGPU_DEPTH_SLICE_UNDEFINED;
-        colorAttachments[1].loadOp = WGPULoadOp_Clear;
-        colorAttachments[1].storeOp = WGPUStoreOp_Store;
-        colorAttachments[1].clearValue = { -1.0, -1.0, -1.0, -1.0 };
-        colorAttachments[1].view = m_IdTexture->GetTextureView();
-        colorAttachments[1].resolveTarget = nullptr;
-
-        WGPURenderPassDepthStencilAttachment depthStencilAttachment = {};
-        depthStencilAttachment.view = m_RenderTarget->Depth.TextureView;
-        depthStencilAttachment.depthClearValue = 1.0f;
-        depthStencilAttachment.depthLoadOp = WGPULoadOp_Clear;
-        depthStencilAttachment.depthStoreOp = WGPUStoreOp_Store;
-        depthStencilAttachment.depthReadOnly = false;
-        depthStencilAttachment.stencilClearValue = 0;
-        depthStencilAttachment.stencilLoadOp = WGPULoadOp_Undefined;
-        depthStencilAttachment.stencilStoreOp = WGPUStoreOp_Undefined;
-        depthStencilAttachment.stencilReadOnly = true;
+        auto colorAttachment = m_RenderTarget->GetColorAttachment();
+        auto depthStencilAttachment = m_RenderTarget->GetDepthStencilAttachment();
 
         WGPURenderPassDescriptor renderPassDesc = {};
-        renderPassDesc.colorAttachmentCount = 2;
-        renderPassDesc.colorAttachments = colorAttachments;
+        renderPassDesc.colorAttachmentCount = 1;
+        renderPassDesc.colorAttachments = &colorAttachment;
         renderPassDesc.depthStencilAttachment = &depthStencilAttachment;
 
+        m_CommandEncoder = WebGPUCommand::CreateCommandEncoder(m_Context.GetDevice(), "RenderCommandEncoder");
         m_RenderPass = wgpuCommandEncoderBeginRenderPass(m_CommandEncoder, &renderPassDesc);
 
         m_RendererData.Reset();
@@ -329,8 +298,8 @@ namespace Figment
         delete m_IdTexture;
         m_IdTexture = new WebGPUTexture(m_Context.GetDevice(), {
                 .Format = WGPUTextureFormat_R32Sint,
-                .Width = m_Context.GetSwapChainWidth(),
-                .Height = m_Context.GetSwapChainHeight(),
+                .Width = width,
+                .Height = height,
                 .Usage = WGPUTextureUsage_RenderAttachment | WGPUTextureUsage_CopySrc,
         });
     }
