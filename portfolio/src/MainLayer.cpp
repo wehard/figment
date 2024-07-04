@@ -70,7 +70,7 @@ void MainLayer::OnUpdate(float deltaTime)
         m_BlinkTimer = 0.0f;
     }
 
-    m_CameraController->Update(deltaTime);
+    // m_CameraController->Update(deltaTime);
 }
 
 static void HyperLink(const char *label, const char *url)
