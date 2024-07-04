@@ -28,6 +28,16 @@ void GameOfLife::OnDetach()
 
 }
 
+void GameOfLife::OnEnable()
+{
+    m_Camera.SetPosition(glm::vec3(0.0, 0.0, 2.0));
+}
+
+void GameOfLife::OnDisable()
+{
+
+}
+
 static uint32_t GetLiveNeighbours(uint32_t *canvas, int w, int h, int cx, int cy, uint32_t liveColor,
         uint32_t deadColor)
 {

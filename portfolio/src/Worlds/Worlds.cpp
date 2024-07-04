@@ -85,6 +85,16 @@ void Worlds::OnDetach()
 
 }
 
+void Worlds::OnEnable()
+{
+    m_Camera.SetPosition(glm::vec3(0.0, 0.0, 2.0));
+}
+
+void Worlds::OnDisable()
+{
+
+}
+
 static bool intersectSphere(glm::vec3 rayOrigin, glm::vec3 rayDirection, glm::vec3 sphereOrigin, float sphereRadius,
         glm::vec3 *hitPoint)
 {

@@ -108,6 +108,16 @@ void Galaxy::OnDetach()
 
 }
 
+void Galaxy::OnEnable()
+{
+    m_Camera.SetPosition(glm::vec3(0.0, 0.0, 2.0));
+}
+
+void Galaxy::OnDisable()
+{
+
+}
+
 void Galaxy::OnUpdate(float deltaTime)
 {
     ParticlesData d = {};

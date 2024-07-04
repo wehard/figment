@@ -32,8 +32,8 @@ public:
     ~Worlds() override;
     void OnAttach() override;
     void OnDetach() override;
-    void OnEnable() override { };
-    void OnDisable() override { };
+    void OnEnable() override;
+    void OnDisable() override;
     void OnUpdate(float deltaTime) override;
     void OnImGuiRender() override;
     void OnEvent(AppEvent event, void *eventData) override;
