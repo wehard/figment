@@ -22,11 +22,14 @@ Shapes::Shapes(WebGPUContext &context) : Layer("Shapes", true), m_Context(contex
                     Point {
                             .Position = { (float)x + rx * scale, (float)y + ry * scale, 0 },
                             .Color = { 0.8f, 0.2f, 0.3f, 1.0f },
-                            .Disabled = Random::Float() < 0.2
+                            .Disabled = false
 
                     };
         }
     }
+
+    m_Points[0].Color = { 0.8, 0.5, 0.2, 1 };
+    m_Points[99].Color = { 0.2, 0.6, 0.8, 1 };
 
     for (int y = 0; y < height; y++)
     {
@@ -70,6 +73,13 @@ void Shapes::OnDisable()
 
 void Shapes::OnUpdate(float deltaTime)
 {
+    m_TimeSinceLastRun += deltaTime;
+    if (RunningAStar && m_TimeSinceLastRun >= m_RunAStarInterval)
+    {
+        RunAStar();
+        m_TimeSinceLastRun = 0.0f;
+    }
+
     static glm::vec3 offset = { -4.5f, -4.5f, 0.0f };
     m_ShapeRenderer.Begin(m_Camera);
     for (auto &point : m_Points)
@@ -86,7 +96,7 @@ void Shapes::OnUpdate(float deltaTime)
         for (size_t i = 0; i < m_AStarResult->Path.size() - 1; i++)
         {
             m_ShapeRenderer.SubmitLine(m_AStarResult->Path[i]->UserData.Position,
-                    m_AStarResult->Path[i + 1]->UserData.Position, { 0, 1, 0, 1 }, -1);
+                    m_AStarResult->Path[i + 1]->UserData.Position, { 1, 1, 1, 1 }, -1);
         }
     }
     m_ShapeRenderer.End();
@@ -94,51 +104,48 @@ void Shapes::OnUpdate(float deltaTime)
 
 void Shapes::OnImGuiRender()
 {
-    ImGui::Begin("AStar");
-    if (ImGui::Button("Run"))
-    {
-        m_AStarResult.reset();
-        AStar<Point> aStar;
-        auto start = m_Points[0];
-        Point end;
-        while (true)
-        {
-            end = m_Points[Random::Int(0, m_Points.size() - 1)];
-            if (!end.Disabled)
-            {
-                break;
-            }
-        }
-        auto result = aStar.Search(start, end,
-                [](const Point &a, const Point &b) -> float
-                {
-                    return glm::length(b.Position - a.Position);
-                },
-                [](const Point &a, const Point &b) -> float
-                {
-                    return glm::length(b.Position - a.Position);
-                },
-                [](const Point &point) -> std::vector<Point>
-                {
-                    std::vector<Point> neighbors;
-                    for (auto &neighbor : point.Neighbors)
-                    {
-                        if (!neighbor->Disabled)
-                            neighbors.push_back(*neighbor);
-                    }
-                    return neighbors;
-                },
-                [](const Point &a, const Point &b) -> bool
-                {
-                    return glm::all(glm::equal(a.Position, b.Position));
-                }
-        );
-        m_AStarResult = std::make_unique<AStar<Point>::SearchResult>(result);
-    }
-    ImGui::End();
 }
 
 void Shapes::OnEvent(AppEvent event, void *eventData)
 {
 
+}
+
+void Shapes::RunAStar()
+{
+    m_AStarResult.reset();
+    AStar<Point> aStar;
+    auto start = m_Points[0];
+    auto end = m_Points[99];
+
+    for (int i = 1; i < 99; i++)
+    {
+        m_Points[i].Disabled = Random::Float() < 0.2;
+    }
+
+    auto result = aStar.Search(start, end,
+            [](const Point &a, const Point &b) -> float
+            {
+                return glm::length(b.Position - a.Position);
+            },
+            [](const Point &a, const Point &b) -> float
+            {
+                return glm::length(b.Position - a.Position);
+            },
+            [](const Point &point) -> std::vector<Point>
+            {
+                std::vector<Point> neighbors;
+                for (auto &neighbor : point.Neighbors)
+                {
+                    if (!neighbor->Disabled)
+                        neighbors.push_back(*neighbor);
+                }
+                return neighbors;
+            },
+            [](const Point &a, const Point &b) -> bool
+            {
+                return glm::all(glm::equal(a.Position, b.Position));
+            }
+    );
+    m_AStarResult = std::make_unique<AStar<Point>::SearchResult>(result);
 }

@@ -255,6 +255,15 @@ void MainLayer::OnImGuiRender()
             HyperLink("A* implementation on GitHub",
                     "https://github.com/wehard/figment/blob/main/engine/src/utils/AStar.h");
         });
+
+        LayerDetails<Shapes>(m_SelectedLayer, [](Shapes *shapes)
+        {
+            ImGui::Checkbox("Auto A*", &shapes->RunningAStar);
+            if (!shapes->RunningAStar && ImGui::Button("Run A*"))
+            {
+                shapes->RunAStar();
+            }
+        });
     }
     ImGui::End();
     DrawDebugPanel(*m_Camera, true);

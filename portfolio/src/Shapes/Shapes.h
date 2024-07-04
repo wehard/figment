@@ -8,6 +8,8 @@ using namespace Figment;
 class Shapes : public Layer
 {
 public:
+    bool RunningAStar = true;
+public:
     Shapes(WebGPUContext &context);
     ~Shapes() override = default;
     void OnAttach() override;
@@ -17,6 +19,8 @@ public:
     void OnUpdate(float deltaTime) override;
     void OnImGuiRender() override;
     void OnEvent(AppEvent event, void *eventData) override;
+
+    void RunAStar();
 private:
     struct Point
     {
@@ -25,6 +29,9 @@ private:
         std::vector<Point *> Neighbors;
         bool Disabled = false;
     };
+
+    float m_RunAStarInterval = 1.5f;
+    float m_TimeSinceLastRun = 0.0f;
 
     ShapeRenderer m_ShapeRenderer;
     WebGPUContext &m_Context;
