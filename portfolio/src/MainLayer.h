@@ -10,6 +10,8 @@ public:
     MainLayer(const char *initialLayerName);
     void OnAttach() override;
     void OnDetach() override;
+    void OnEnable() override { };
+    void OnDisable() override { };
     void OnUpdate(float deltaTime) override;
     void OnImGuiRender() override;
     void OnEvent(Figment::AppEvent event, void *eventData) override;
