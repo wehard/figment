@@ -83,24 +83,7 @@ static void Error(WGPUErrorType type, char const *message, void *userdata)
 
 void Galaxy::OnAttach()
 {
-    // wgpuDevicePushErrorScope(m_Context->GetDevice(), WGPUErrorFilter_Internal);
-    // wgpuDevicePushErrorScope(m_Context->GetDevice(), WGPUErrorFilter_Validation);
-    // wgpuDevicePushErrorScope(m_Context->GetDevice(), WGPUErrorFilter_OutOfMemory);
 
-    FIG_LOG_INFO("Particles layer attached");
-
-    // ParticlesData d = {};
-    // d.DeltaTime = 0.0;
-    // d.Seed = glm::vec2(1234, 5432);
-    // d.Time = App::Instance()->GetTimeSinceStart();
-    // m_UniformBuffer->SetData(&d, sizeof(ParticlesData));
-    //
-    // ComputePass computePass(m_Context->GetDevice(), m_InitPipeline, m_ComputeBindGroup);
-    // computePass.Begin();
-    // computePass.Dispatch("init", m_VertexBuffer->Count());
-    // computePass.End();
-
-    // wgpuDevicePopErrorScope(m_Context->GetDevice(), &Error, nullptr);
 }
 
 void Galaxy::OnDetach()
