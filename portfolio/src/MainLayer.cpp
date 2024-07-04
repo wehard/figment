@@ -25,7 +25,7 @@ MainLayer::MainLayer(const char *initialLayerName) : Layer("Main")
     m_Layers.push_back(new GameOfLife(*webGpuWindow->GetContext<WebGPUContext>(), *m_Camera));
     m_Layers.push_back(new MetaPlayer(false));
     // m_Layers.push_back(new Asteroids(*m_Camera, false));
-    m_Layers.push_back(new Shapes(*webGpuWindow->GetContext<WebGPUContext>(), *m_Camera));
+    m_Layers.push_back(new Shapes(*webGpuWindow->GetContext<WebGPUContext>()));
     // m_Layers.push_back(new Cube(m_Camera, true));
 
     for (auto layer : m_Layers)

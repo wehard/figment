@@ -7,7 +7,7 @@ using namespace Figment;
 class Shapes : public Layer
 {
 public:
-    Shapes(WebGPUContext &context, PerspectiveCamera &camera);
+    Shapes(WebGPUContext &context);
     ~Shapes() override = default;
     void OnAttach() override;
     void OnDetach() override;
@@ -19,7 +19,7 @@ public:
 private:
     ShapeRenderer m_ShapeRenderer;
     WebGPUContext &m_Context;
-    PerspectiveCamera &m_Camera;
+    OrthographicCamera m_Camera;
 
     std::vector<glm::vec3> m_Points;
 };

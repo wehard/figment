@@ -1,9 +1,10 @@
 #include "Shapes.h"
 
-Shapes::Shapes(WebGPUContext &context, PerspectiveCamera &camera) : Layer("Shapes", true), m_Context(context),
-        m_Camera(camera),
+Shapes::Shapes(WebGPUContext &context) : Layer("Shapes", true), m_Context(context),
         m_ShapeRenderer(context)
 {
+    m_Camera = OrthographicCamera((float)context.GetSwapChainWidth(), (float)context.GetSwapChainHeight());
+    m_Camera.Zoom(50.0f, { context.GetSwapChainWidth() / 2, context.GetSwapChainHeight() / 2 });
     for (int y = 0; y < 10; y++)
     {
         for (int x = 0; x < 10; x++)
@@ -25,7 +26,7 @@ void Shapes::OnDetach()
 
 void Shapes::OnEnable()
 {
-    m_Camera.SetPosition(glm::vec3(0.0, 0.0, 20.0));
+    // m_Camera.SetPosition(glm::vec3(0.0, 0.0, 20.0));
 }
 
 void Shapes::OnDisable()
@@ -39,7 +40,7 @@ void Shapes::OnUpdate(float deltaTime)
     m_ShapeRenderer.Begin(m_Camera);
     for (auto &point : m_Points)
     {
-        m_ShapeRenderer.SubmitCircle(point + offset, { 0.8f, 0.2f, 0.3f, 1.0f }, 1.0, -1);
+        m_ShapeRenderer.SubmitCircle(point + offset, { 0.8f, 0.2f, 0.3f, 1.0f }, 0.5, -1);
     }
     m_ShapeRenderer.End();
 }
