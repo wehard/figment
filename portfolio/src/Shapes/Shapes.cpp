@@ -30,7 +30,6 @@ void Shapes::OnUpdate(float deltaTime)
     for (auto &point : m_Points)
     {
         m_ShapeRenderer.SubmitCircle(point + offset, { 0.8f, 0.2f, 0.3f, 1.0f }, 1.0, -1);
-        m_ShapeRenderer.SubmitLine(point + offset, { 4.5f, 4.5f, 0.0f }, { 0.2f, 0.3f, 0.8f, 1.0f }, -1);
     }
     m_ShapeRenderer.End();
 }
