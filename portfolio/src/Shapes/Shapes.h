@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Figment.h"
+#include "AStar.h"
 
 using namespace Figment;
 
@@ -21,12 +22,7 @@ private:
     {
         glm::vec3 Position;
         glm::vec4 Color;
-    };
-
-    struct Edge
-    {
-        Point P1;
-        Point P2;
+        std::vector<Point *> Neighbors;
     };
 
     ShapeRenderer m_ShapeRenderer;
@@ -34,5 +30,5 @@ private:
     OrthographicCamera m_Camera;
 
     std::vector<Point> m_Points;
-    std::vector<Edge> m_Edges;
+    std::unique_ptr<AStar<Point>::SearchResult> m_AStarResult = nullptr;
 };
