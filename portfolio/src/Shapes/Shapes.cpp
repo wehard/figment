@@ -21,7 +21,9 @@ Shapes::Shapes(WebGPUContext &context) : Layer("Shapes", true), m_Context(contex
             m_Points[x + y * width] =
                     Point {
                             .Position = { (float)x + rx * scale, (float)y + ry * scale, 0 },
-                            .Color = { 0.8f, 0.2f, 0.3f, 1.0f }
+                            .Color = { 0.8f, 0.2f, 0.3f, 1.0f },
+                            .Disabled = Random::Float() < 0.2
+
                     };
         }
     }
@@ -72,13 +74,14 @@ void Shapes::OnUpdate(float deltaTime)
     m_ShapeRenderer.Begin(m_Camera);
     for (auto &point : m_Points)
     {
-        m_ShapeRenderer.SubmitCircle(point.Position, point.Color, 0.5, -1);
+        auto color = point.Disabled ? glm::vec4(0.2f, 0.2f, 0.2f, 1.0f) : point.Color;
+        m_ShapeRenderer.SubmitCircle(point.Position, color, 0.5, -1);
         for (auto &neighbor : point.Neighbors)
         {
             // m_ShapeRenderer.SubmitLine(point.Position, neighbor->Position, { 1, 1, 1, 1 }, -1);
         }
     }
-    if (m_AStarResult)
+    if (m_AStarResult && m_AStarResult->Path.size() > 1)
     {
         for (size_t i = 0; i < m_AStarResult->Path.size() - 1; i++)
         {
@@ -97,7 +100,15 @@ void Shapes::OnImGuiRender()
         m_AStarResult.reset();
         AStar<Point> aStar;
         auto start = m_Points[0];
-        auto end = m_Points[Random::Int(1, 99)];
+        Point end;
+        while (true)
+        {
+            end = m_Points[Random::Int(0, m_Points.size() - 1)];
+            if (!end.Disabled)
+            {
+                break;
+            }
+        }
         auto result = aStar.Search(start, end,
                 [](const Point &a, const Point &b) -> float
                 {
@@ -112,7 +123,8 @@ void Shapes::OnImGuiRender()
                     std::vector<Point> neighbors;
                     for (auto &neighbor : point.Neighbors)
                     {
-                        neighbors.push_back(*neighbor);
+                        if (!neighbor->Disabled)
+                            neighbors.push_back(*neighbor);
                     }
                     return neighbors;
                 },

@@ -23,6 +23,7 @@ private:
         glm::vec3 Position;
         glm::vec4 Color;
         std::vector<Point *> Neighbors;
+        bool Disabled = false;
     };
 
     ShapeRenderer m_ShapeRenderer;
