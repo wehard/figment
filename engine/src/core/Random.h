@@ -25,6 +25,11 @@ namespace Figment
             return min + Float() * (max - min);
         }
 
+        static int Int(int min, int max)
+        {
+            return min + s_UniformDist(s_Engine) % (max - min);
+        }
+
         static glm::vec4 Color()
         {
             return { Float(0.0, 1.0), Float(0.0, 1.0), Float(0.0, 1.0), 1.0f };
