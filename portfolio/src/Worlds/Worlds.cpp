@@ -87,7 +87,8 @@ void Worlds::OnDetach()
 
 void Worlds::OnEnable()
 {
-    m_Camera.SetPosition(glm::vec3(0.0, 0.0, 2.0));
+    m_Camera.SetPosition(glm::vec3(2.0, 1.0, 2.0));
+    m_Camera.LookAt(glm::vec3(0.0, 0.0, 0.0));
 }
 
 void Worlds::OnDisable()
