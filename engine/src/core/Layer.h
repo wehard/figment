@@ -22,6 +22,8 @@ namespace Figment
         virtual ~Layer() = default;
         virtual void OnAttach() = 0;
         virtual void OnDetach() = 0;
+        virtual void OnEnable() = 0;
+        virtual void OnDisable() = 0;
         virtual void OnUpdate(float deltaTime) = 0;
         virtual void OnImGuiRender() = 0;
         virtual void OnEvent(AppEvent event, void *eventData) = 0;
