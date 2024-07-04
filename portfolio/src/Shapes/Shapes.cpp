@@ -5,10 +5,10 @@ Shapes::Shapes(WebGPUContext &context) : Layer("Shapes", true), m_Context(contex
         m_ShapeRenderer(context)
 {
     m_Camera = OrthographicCamera((float)context.GetSwapChainWidth(), (float)context.GetSwapChainHeight());
-    m_Camera.Zoom(50.0f, { context.GetSwapChainWidth() / 2, context.GetSwapChainHeight() / 2 });
-    m_Camera.SetPosition({ 4.5, 4.5, 0 });
+    m_Camera.Zoom(60.0f, { context.GetSwapChainWidth() / 2, context.GetSwapChainHeight() / 2 });
+    m_Camera.SetPosition({ 9.5, 4.5, 0 });
 
-    const int width = 10;
+    const int width = 20;
     const int height = 10;
     m_Points.resize(width * height);
     for (int y = 0; y < height; y++)
@@ -29,23 +29,23 @@ Shapes::Shapes(WebGPUContext &context) : Layer("Shapes", true), m_Context(contex
     }
 
     m_Points[0].Color = { 0.8, 0.5, 0.2, 1 };
-    m_Points[99].Color = { 0.2, 0.6, 0.8, 1 };
+    m_Points[m_Points.size() - 1].Color = { 0.2, 0.6, 0.8, 1 };
 
     for (int y = 0; y < height; y++)
     {
         for (int x = 0; x < width; x++)
         {
-            if (x < 9)
+            if (x < width - 1)
             {
-                m_Points[x + y * 10].Neighbors.push_back(&m_Points[x + 1 + y * 10]);
+                m_Points[x + y * width].Neighbors.push_back(&m_Points[x + 1 + y * width]);
             }
-            if (y < 9)
+            if (y < height - 1)
             {
-                m_Points[x + y * 10].Neighbors.push_back(&m_Points[x + (y + 1) * 10]);
+                m_Points[x + y * width].Neighbors.push_back(&m_Points[x + (y + 1) * width]);
             }
-            if (x < 9 && y < 9)
+            if (x < width - 1 && y < height - 1)
             {
-                m_Points[x + y * 10].Neighbors.push_back(&m_Points[x + 1 + (y + 1) * 10]);
+                m_Points[x + y * width].Neighbors.push_back(&m_Points[x + 1 + (y + 1) * width]);
             }
         }
     }
@@ -86,10 +86,6 @@ void Shapes::OnUpdate(float deltaTime)
     {
         auto color = point.Disabled ? glm::vec4(0.2f, 0.2f, 0.2f, 1.0f) : point.Color;
         m_ShapeRenderer.SubmitCircle(point.Position, color, 0.5, -1);
-        for (auto &neighbor : point.Neighbors)
-        {
-            // m_ShapeRenderer.SubmitLine(point.Position, neighbor->Position, { 1, 1, 1, 1 }, -1);
-        }
     }
     if (m_AStarResult && m_AStarResult->Path.size() > 1)
     {
@@ -116,9 +112,9 @@ void Shapes::RunAStar()
     m_AStarResult.reset();
     AStar<Point> aStar;
     auto start = m_Points[0];
-    auto end = m_Points[99];
+    auto end = m_Points[m_Points.size() - 1];
 
-    for (int i = 1; i < 99; i++)
+    for (int i = 1; i < m_Points.size() - 1; i++)
     {
         m_Points[i].Disabled = Random::Float() < 0.2;
     }
