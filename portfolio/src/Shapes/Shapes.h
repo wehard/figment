@@ -9,7 +9,7 @@ using namespace Figment;
 class Shapes : public Layer
 {
 public:
-    bool RunningAStar = false;
+    bool RunningAStar = true;
 public:
     explicit Shapes(WebGPUContext &context);
     ~Shapes() override = default;
