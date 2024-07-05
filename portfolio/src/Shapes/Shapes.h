@@ -2,15 +2,16 @@
 
 #include "Figment.h"
 #include "AStar.h"
+#include "Graph.h"
 
 using namespace Figment;
 
 class Shapes : public Layer
 {
 public:
-    bool RunningAStar = true;
+    bool RunningAStar = false;
 public:
-    Shapes(WebGPUContext &context);
+    explicit Shapes(WebGPUContext &context);
     ~Shapes() override = default;
     void OnAttach() override;
     void OnDetach() override;
@@ -21,6 +22,8 @@ public:
     void OnEvent(AppEvent event, void *eventData) override;
 
     void RunAStar();
+private:
+    void CreateGraph(int width, int height);
 private:
     struct Point
     {
@@ -37,6 +40,7 @@ private:
     WebGPUContext &m_Context;
     OrthographicCamera m_Camera;
 
-    std::vector<Point> m_Points;
     std::unique_ptr<AStar<Point>::SearchResult> m_AStarResult = nullptr;
+
+    Graph<Point> m_Graph;
 };

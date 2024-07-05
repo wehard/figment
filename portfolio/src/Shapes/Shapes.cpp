@@ -1,5 +1,4 @@
 #include "Shapes.h"
-#include "AStar.h"
 
 Shapes::Shapes(WebGPUContext &context) : Layer("Shapes", true), m_Context(context),
         m_ShapeRenderer(context)
@@ -10,43 +9,35 @@ Shapes::Shapes(WebGPUContext &context) : Layer("Shapes", true), m_Context(contex
 
     const int width = 20;
     const int height = 10;
-    m_Points.resize(width * height);
+    CreateGraph(width, height);
+
+    m_Graph.GetNodes()[0].Color = { 0.8, 0.5, 0.2, 1 };
+    m_Graph.GetNodes()[m_Graph.GetNodes().size() - 1].Color = { 0.2, 0.6, 0.8, 1 };
+}
+
+void Shapes::CreateGraph(int width, int height)
+{
     for (int y = 0; y < height; y++)
     {
         for (int x = 0; x < width; x++)
         {
-            float rx = Random::Float();
-            float ry = Random::Float();
-            float scale = 0.0;
-            m_Points[x + y * width] =
-                    Point {
-                            .Position = { (float)x + rx * scale, (float)y + ry * scale, 0 },
-                            .Color = { 0.8f, 0.2f, 0.3f, 1.0f },
-                            .Disabled = false
+            m_Graph.AddNode(Point {
+                    .Position = { (float)x, (float)y, 0 },
+                    .Color = { 0.8f, 0.2f, 0.3f, 1.0f },
+                    .Disabled = false
 
-                    };
+            });
         }
     }
 
-    m_Points[0].Color = { 0.8, 0.5, 0.2, 1 };
-    m_Points[m_Points.size() - 1].Color = { 0.2, 0.6, 0.8, 1 };
-
-    for (int y = 0; y < height; y++)
+    for (auto &node : m_Graph.GetNodes())
     {
-        for (int x = 0; x < width; x++)
+        for (auto &neighbor : m_Graph.GetNodes())
         {
-            if (x < width - 1)
-            {
-                m_Points[x + y * width].Neighbors.push_back(&m_Points[x + 1 + y * width]);
-            }
-            if (y < height - 1)
-            {
-                m_Points[x + y * width].Neighbors.push_back(&m_Points[x + (y + 1) * width]);
-            }
-            if (x < width - 1 && y < height - 1)
-            {
-                m_Points[x + y * width].Neighbors.push_back(&m_Points[x + 1 + (y + 1) * width]);
-            }
+            if (glm::all(glm::equal(node.Position, neighbor.Position))
+                    || glm::length(neighbor.Position - node.Position) > 1.5f)
+                continue;
+            m_Graph.AddEdge(&node, &neighbor);
         }
     }
 }
@@ -82,7 +73,7 @@ void Shapes::OnUpdate(float deltaTime)
 
     static glm::vec3 offset = { -4.5f, -4.5f, 0.0f };
     m_ShapeRenderer.Begin(m_Camera);
-    for (auto &point : m_Points)
+    for (auto &point : m_Graph.GetNodes())
     {
         auto color = point.Disabled ? glm::vec4(0.2f, 0.2f, 0.2f, 1.0f) : point.Color;
         m_ShapeRenderer.SubmitCircle(point.Position, color, 0.5, -1);
@@ -93,6 +84,15 @@ void Shapes::OnUpdate(float deltaTime)
         {
             m_ShapeRenderer.SubmitLine(m_AStarResult->Path[i]->UserData.Position,
                     m_AStarResult->Path[i + 1]->UserData.Position, { 1, 1, 1, 1 }, -1);
+        }
+    }
+    for (auto &node : m_Graph.GetNodes())
+    {
+        for (auto &neighbor : node.Neighbors)
+        {
+            auto end = glm::normalize(neighbor->Position - node.Position);
+            end = node.Position + end * glm::length(neighbor->Position - node.Position) * 0.48f;
+            m_ShapeRenderer.SubmitLine(node.Position, end, { 0.2, 0.2, 0.2, 1 }, -1);
         }
     }
     m_ShapeRenderer.End();
@@ -111,12 +111,12 @@ void Shapes::RunAStar()
 {
     m_AStarResult.reset();
     AStar<Point> aStar;
-    auto start = m_Points[0];
-    auto end = m_Points[m_Points.size() - 1];
+    auto start = m_Graph.GetNodes()[0];
+    auto end = m_Graph.GetNodes()[m_Graph.GetNodes().size() - 1];
 
-    for (int i = 1; i < m_Points.size() - 1; i++)
+    for (int i = 1; i < m_Graph.GetNodes().size() - 1; i++)
     {
-        m_Points[i].Disabled = Random::Float() < 0.2;
+        m_Graph.GetNodes()[i].Disabled = Random::Float() < 0.2;
     }
 
     auto result = aStar.Search(start, end,
