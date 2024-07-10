@@ -1,6 +1,7 @@
 #include "Window.h"
 #include "VulkanContext.h"
 #include "VulkanRenderPass.h"
+#include "VulkanTexture.h"
 #include "PerspectiveCamera.h"
 #include "Log.h"
 #include "imgui.h"
@@ -12,6 +13,7 @@
 #include "glm/ext/matrix_clip_space.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/euler_angles.hpp"
+#include "Image.h"
 
 using namespace Figment;
 
@@ -119,6 +121,16 @@ int main()
     ImGui_ImplVulkan_CreateFontsTexture();
     vkContext->EndSingleTimeCommands(cb);
 
+    Figment::Image image = Figment::Image::Load("res/texture.png");
+
+    auto texture = new VulkanTexture(*vkContext, {
+            .Width = static_cast<int>(image.GetWidth()),
+            .Height = static_cast<int>(image.GetHeight()),
+            .Channels = 4,
+            .Data = image.GetData(),
+            .Format = VK_FORMAT_R8G8B8A8_SRGB
+    });
+
     std::vector<VulkanContext::Vertex> vertices = {
             {{ -0.5, -0.5, 0.0 }, { 1.0, 0.0, 0.0 }},
             {{ -0.5, 0.5, 0.0 }, { 0.0, 1.0, 0.0 }},
@@ -140,6 +152,9 @@ int main()
     auto zRotation = 0.0f;
     auto xPosition = 0.0f;
 
+    auto id = ImGui_ImplVulkan_AddTexture(texture->GetSampler(), texture->GetImageView(),
+            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
     while (!window->ShouldClose() && glfwGetKey((GLFWwindow *)window->GetNative(), GLFW_KEY_ESCAPE) != GLFW_PRESS)
     {
         glfwPollEvents();
@@ -160,7 +175,9 @@ int main()
         ImGui_ImplGlfw_NewFrame();
         ImGui_ImplVulkan_NewFrame();
         ImGui::NewFrame();
-        ImGui::ShowDemoWindow();
+        ImGui::Begin("Hello, world!");
+        ImGui::Image((ImTextureID)id, ImVec2(image.GetWidth(), image.GetHeight()));
+        ImGui::End();
         ImGui::Render();
         ImGui::EndFrame();
 
