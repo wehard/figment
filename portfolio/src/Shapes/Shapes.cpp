@@ -116,7 +116,7 @@ void Shapes::RunAStar()
 
     for (auto &i : m_Graph.GetNodes())
     {
-        i.Disabled = Random::Float() < 0.7f;
+        i.Disabled = Random::Float() < 0.2f;
     }
 
     start.Disabled = false;
