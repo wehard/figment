@@ -5,14 +5,14 @@ Shapes::Shapes(WebGPUContext &context) : Layer("Shapes", true), m_Context(contex
 {
     m_Camera = OrthographicCamera((float)context.GetSwapChainWidth(), (float)context.GetSwapChainHeight());
     m_Camera.Zoom(60.0f, { context.GetSwapChainWidth() / 2, context.GetSwapChainHeight() / 2 });
-    m_Camera.SetPosition({ 9.5, 4.5, 0 });
+    m_Camera.SetPosition({ 4.5, 4.5, 0 });
 
-    const int width = 20;
+    const int width = 10;
     const int height = 10;
     CreateGraph(width, height);
 
     m_Graph.GetNodes()[0].Color = { 0.8, 0.5, 0.2, 1 };
-    m_Graph.GetNodes()[m_Graph.GetNodes().size() - 1].Color = { 0.2, 0.6, 0.8, 1 };
+    m_Graph.GetNodes()[99].Color = { 0.2, 0.6, 0.8, 1 };
 }
 
 void Shapes::CreateGraph(int width, int height)
@@ -22,10 +22,10 @@ void Shapes::CreateGraph(int width, int height)
         for (int x = 0; x < width; x++)
         {
             m_Graph.AddNode(Point {
+                    .Id = (uint32_t)(y * width + x),
                     .Position = { (float)x, (float)y, 0 },
                     .Color = { 0.8f, 0.2f, 0.3f, 1.0f },
                     .Disabled = false
-
             });
         }
     }
@@ -111,13 +111,16 @@ void Shapes::RunAStar()
 {
     m_AStarResult.reset();
     AStar<Point> aStar;
-    auto start = m_Graph.GetNodes()[0];
-    auto end = m_Graph.GetNodes()[m_Graph.GetNodes().size() - 1];
+    auto &start = m_Graph.GetNodes()[0];
+    auto &end = m_Graph.GetNodes()[99];
 
-    for (int i = 1; i < m_Graph.GetNodes().size() - 1; i++)
+    for (auto &i : m_Graph.GetNodes())
     {
-        m_Graph.GetNodes()[i].Disabled = Random::Float() < 0.2;
+        i.Disabled = Random::Float() < 0.7f;
     }
+
+    start.Disabled = false;
+    end.Disabled = false;
 
     auto result = aStar.Search(start, end,
             [](const Point &a, const Point &b) -> float
@@ -140,7 +143,7 @@ void Shapes::RunAStar()
             },
             [](const Point &a, const Point &b) -> bool
             {
-                return glm::all(glm::equal(a.Position, b.Position));
+                return a.Id == b.Id;
             }
     );
     m_AStarResult = std::make_unique<AStar<Point>::SearchResult>(result);

@@ -27,6 +27,7 @@ private:
 private:
     struct Point
     {
+        uint32_t Id;
         glm::vec3 Position;
         glm::vec4 Color;
         std::vector<Point *> Neighbors;
