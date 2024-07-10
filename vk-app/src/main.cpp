@@ -126,7 +126,7 @@ int main()
             {{ -0.5, -0.5, 0.0 }, { 0.0, 0.0, 1.0 }},
             {{ 0.5, 0.5, 0.0 }, { 1.0, 0.0, 0.0 }},
             {{ 0.5, -0.5, 0.0 }, { 0.0, 1.0, 0.0 }}};
-    auto buffer = new VulkanBuffer(vkContext.get(), {
+    auto buffer = new VulkanBuffer(*vkContext, {
             .Data = vertices.data(),
             .ByteSize = vertices.size() * sizeof(VulkanContext::Vertex),
             .Usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT

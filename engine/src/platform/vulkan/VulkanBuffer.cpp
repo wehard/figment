@@ -22,9 +22,9 @@ namespace Figment
         return (-1);
     }
 
-    VulkanBuffer::VulkanBuffer(VulkanContext *context, const VulkanBufferDescriptor &&descriptor) : m_Context(context),
-            m_ByteSize(
-                    descriptor.ByteSize)
+    VulkanBuffer::VulkanBuffer(const VulkanContext &context, const VulkanBufferDescriptor &&descriptor) :
+            m_Context(context),
+            m_ByteSize(descriptor.ByteSize)
     {
         VkBufferCreateInfo bufferInfo = {};
         bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -32,35 +32,35 @@ namespace Figment
         bufferInfo.usage = descriptor.Usage;
         bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-        VkResult result = vkCreateBuffer(context->GetDevice(), &bufferInfo, nullptr, &m_Buffer);
+        VkResult result = vkCreateBuffer(context.GetDevice(), &bufferInfo, nullptr, &m_Buffer);
         if (result != VK_SUCCESS)
             throw std::runtime_error("Failed to create vertex buffer!");
 
         // buffer memory requirements
         VkMemoryRequirements memoryRequirements = {};
-        vkGetBufferMemoryRequirements(context->GetDevice(), m_Buffer, &memoryRequirements);
+        vkGetBufferMemoryRequirements(context.GetDevice(), m_Buffer, &memoryRequirements);
 
         // allocate memory to buffer
         VkMemoryAllocateInfo memoryAllocateInfo = {};
         memoryAllocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         memoryAllocateInfo.allocationSize = memoryRequirements.size;
-        memoryAllocateInfo.memoryTypeIndex = FindMemoryTypeIndex(context->GetPhysicalDevice(),
+        memoryAllocateInfo.memoryTypeIndex = FindMemoryTypeIndex(context.GetPhysicalDevice(),
                 memoryRequirements.memoryTypeBits,
                 descriptor.MemoryProperties);
 
         // allocate memory to device memory
-        result = vkAllocateMemory(context->GetDevice(), &memoryAllocateInfo, nullptr, &m_BufferMemory);
+        result = vkAllocateMemory(context.GetDevice(), &memoryAllocateInfo, nullptr, &m_BufferMemory);
         if (result != VK_SUCCESS)
             std::runtime_error("Failed to allocate vertex buffer memory!");
 
         // allocate meory to given vertex buffer
-        vkBindBufferMemory(context->GetDevice(), m_Buffer, m_BufferMemory, 0);
+        vkBindBufferMemory(context.GetDevice(), m_Buffer, m_BufferMemory, 0);
 
         // map memory to vertex vuffer
         void *data;
-        vkMapMemory(context->GetDevice(), m_BufferMemory, 0, bufferInfo.size, 0, &data);
+        vkMapMemory(context.GetDevice(), m_BufferMemory, 0, bufferInfo.size, 0, &data);
         memcpy(data, descriptor.Data, (size_t)bufferInfo.size);
-        vkUnmapMemory(context->GetDevice(), m_BufferMemory);
+        vkUnmapMemory(context.GetDevice(), m_BufferMemory);
 
         FIG_LOG_INFO("%s created: size = %d", descriptor.Name, descriptor.ByteSize);
     }
@@ -70,17 +70,17 @@ namespace Figment
         if (byteSize > m_ByteSize)
             throw std::runtime_error("Data size exceeds buffer size!");
         void *dst;
-        auto result = vkMapMemory(m_Context->GetDevice(), m_BufferMemory, 0, m_ByteSize, 0, &dst);
+        auto result = vkMapMemory(m_Context.GetDevice(), m_BufferMemory, 0, m_ByteSize, 0, &dst);
         if (result != VK_SUCCESS)
             throw std::runtime_error("Failed to map buffer memory!");
         memcpy(dst, data, byteSize);
-        vkUnmapMemory(m_Context->GetDevice(), m_BufferMemory);
+        vkUnmapMemory(m_Context.GetDevice(), m_BufferMemory);
         // FIG_LOG_INFO("VulkanBuffer data updated: size = %d", byteSize);
     }
 
     VulkanBuffer::~VulkanBuffer()
     {
-        vkDestroyBuffer(m_Context->GetDevice(), m_Buffer, nullptr);
-        vkFreeMemory(m_Context->GetDevice(), m_BufferMemory, nullptr);
+        vkDestroyBuffer(m_Context.GetDevice(), m_Buffer, nullptr);
+        vkFreeMemory(m_Context.GetDevice(), m_BufferMemory, nullptr);
     }
 }

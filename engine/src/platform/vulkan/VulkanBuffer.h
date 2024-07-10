@@ -18,13 +18,13 @@ namespace Figment
     class VulkanBuffer
     {
     public:
-        VulkanBuffer(VulkanContext *context, const VulkanBufferDescriptor &&descriptor);
+        VulkanBuffer(const VulkanContext &context, const VulkanBufferDescriptor &&descriptor);
         ~VulkanBuffer();
         void SetData(void *data, size_t byteSize);
         VkBuffer Get() { return m_Buffer; }
         [[nodiscard]] uint32_t ByteSize() const { return m_ByteSize; }
     private:
-        VulkanContext *m_Context;
+        const VulkanContext &m_Context;
         VkBuffer m_Buffer = VK_NULL_HANDLE;
         VkDeviceMemory m_BufferMemory = VK_NULL_HANDLE;
         uint32_t m_ByteSize = 0;

@@ -32,7 +32,7 @@ namespace Figment
                 {{ 0.0, -0.5, 0.0 }, { 1.0, 0.0, 0.0 }},
                 {{ 0.5, 0.5, 0.0 }, { 0.0, 1.0, 0.0 }},
                 {{ -0.5, 0.5, 0.0 }, { 0.0, 0.0, 1.0 }}};
-        m_Buffer = new VulkanBuffer(this, {
+        m_Buffer = new VulkanBuffer(*this, {
                 .Data = vertices.data(),
                 .ByteSize = static_cast<uint32_t>(vertices.size() * sizeof(Vertex)),
                 .Usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
@@ -48,7 +48,7 @@ namespace Figment
 
         for (int i = 0; i < MAX_FRAME_DRAWS; i++)
         {
-            m_UniformBuffers.push_back(new VulkanBuffer(this, {
+            m_UniformBuffers.push_back(new VulkanBuffer(*this, {
                     .Name = "UniformBuffer",
                     .Data = &ubo,
                     .ByteSize = sizeof(UniformBufferObject),
