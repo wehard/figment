@@ -338,7 +338,8 @@ namespace Figment
                     VK_IMAGE_ASPECT_COLOR_BIT);
         }
 
-        m_DeletionQueue.Push([this]() {
+        m_DeletionQueue.Push([this]()
+        {
             // for (int i = 0; i < m_FrameData.ImageViews.size(); ++i)
             // {
             //     vkDestroyImageView(m_Device, m_FrameData.ImageViews[i], nullptr);
@@ -362,7 +363,8 @@ namespace Figment
                 }
         });
 
-        m_DeletionQueue.Push([this]() {
+        m_DeletionQueue.Push([this]()
+        {
             vkDestroyRenderPass(m_Device, m_RenderPass->Get(), nullptr);
             delete m_RenderPass;
         });
@@ -425,10 +427,6 @@ namespace Figment
                                 .pImmutableSamplers = nullptr
                         }
                 }
-        });
-
-        m_DeletionQueue.Push([this]() {
-            delete m_Pipeline;
         });
     }
 
@@ -496,7 +494,8 @@ namespace Figment
         if (result != VK_SUCCESS)
             throw std::runtime_error("Failed to create command pool!");
 
-        m_DeletionQueue.Push([this]() {
+        m_DeletionQueue.Push([this]()
+        {
             vkDestroyCommandPool(m_Device, m_CommandPool, nullptr);
         });
     }
@@ -534,11 +533,6 @@ namespace Figment
                     &m_FrameData.Framebuffers[i]);
             if (result != VK_SUCCESS)
                 throw std::runtime_error("Failed to create framebuffer!");
-
-            m_DeletionQueue.Push([this, i]() {
-                vkDestroyFramebuffer(m_Device, m_FrameData.Framebuffers[i], nullptr);
-                vkDestroyImageView(m_Device, m_FrameData.ImageViews[i], nullptr);
-            });
         }
     }
 
@@ -624,7 +618,8 @@ namespace Figment
                 throw std::runtime_error("Failed to create semaphore or fence!");
         }
 
-        m_DeletionQueue.Push([this]() {
+        m_DeletionQueue.Push([this]()
+        {
             for (auto &m_SynchronizationObject : m_SynchronizationObjects)
             {
                 vkDestroyFence(m_Device, m_SynchronizationObject.FenceDraw, nullptr);
@@ -760,8 +755,6 @@ namespace Figment
         m_FrameData.ImageViews.clear();
 
         vkDestroySwapchainKHR(m_Device, m_Swapchain, nullptr);
-
-        delete m_Pipeline;
     }
 
     void VulkanContext::RecreateSwapchain()
@@ -772,6 +765,7 @@ namespace Figment
         CreateSwapchain();
         CreateFramebuffers();
         CreateImGuiFramebuffers();
+        delete m_Pipeline;
         CreatePipeline(m_Shader->GetVertexModule(), m_Shader->GetFragmentModule());
 
         vkResetCommandPool(m_Device, m_CommandPool, 0);
@@ -815,11 +809,24 @@ namespace Figment
     void VulkanContext::Cleanup()
     {
         std::vector<VkFence> fences;
-        for (auto &sync : m_SynchronizationObjects)
+        fences.reserve(m_SynchronizationObjects.size());
+        for (auto &synchronizationObject : m_SynchronizationObjects)
         {
-            fences.push_back(sync.FenceDraw);
+            fences.push_back(synchronizationObject.FenceDraw);
         }
         vkWaitForFences(m_Device, fences.size(), fences.data(), VK_TRUE, std::numeric_limits<uint64_t>::max());
         m_DeletionQueue.Flush();
+
+        for (auto &framebuffer : m_FrameData.Framebuffers)
+        {
+            vkDestroyFramebuffer(m_Device, framebuffer, nullptr);
+        }
+
+        for (auto &framebuffer : m_FrameData.ImGuiFramebuffers)
+        {
+            vkDestroyFramebuffer(m_Device, framebuffer, nullptr);
+        }
+
+        delete m_Pipeline;
     }
 }
