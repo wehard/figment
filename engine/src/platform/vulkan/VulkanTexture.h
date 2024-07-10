@@ -19,6 +19,8 @@ namespace Figment
         explicit VulkanTexture(const VulkanContext &context, const VulkanTextureDescriptor &&descriptor);
         ~VulkanTexture() = default;
 
+        glm::vec4 GetPixel(int x, int y) const;
+
         [[nodiscard]] VkImageView GetImageView() const { return m_ImageView; }
         [[nodiscard]] VkSampler GetSampler() const { return m_Sampler; }
     private:

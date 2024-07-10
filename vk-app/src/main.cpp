@@ -14,6 +14,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/euler_angles.hpp"
 #include "Image.h"
+#include "Input.h"
 
 using namespace Figment;
 
@@ -75,6 +76,7 @@ int main()
 {
     Log::Init();
     auto window = Figment::Window::Create("Figment", 1280, 720);
+    Figment::Input::Initialize((GLFWwindow *)window->GetNative());
     auto vkContext = window->GetContext<VulkanContext>();
 
     PerspectiveCamera camera(1280.0 / 720.0);
@@ -158,6 +160,7 @@ int main()
     while (!window->ShouldClose() && glfwGetKey((GLFWwindow *)window->GetNative(), GLFW_KEY_ESCAPE) != GLFW_PRESS)
     {
         glfwPollEvents();
+        Input::Update();
         camera.Update();
 
         zRotation += 1.0f;
@@ -175,8 +178,35 @@ int main()
         ImGui_ImplGlfw_NewFrame();
         ImGui_ImplVulkan_NewFrame();
         ImGui::NewFrame();
+        auto pos = Input::GetMousePosition();
+
+        static glm::vec4 color = { 0.0f, 0.0f, 0.0f, 1.0f };
         ImGui::Begin("Hello, world!");
+
+        ImVec2 vMin = ImGui::GetWindowContentRegionMin();
+        ImVec2 vMax = ImGui::GetWindowContentRegionMax();
+
+        vMin.x += ImGui::GetWindowPos().x;
+        vMin.y += ImGui::GetWindowPos().y;
+        vMax.x += ImGui::GetWindowPos().x;
+        vMax.y += ImGui::GetWindowPos().y;
+
+        auto imagePos = glm::vec2(pos.x - vMin.x, pos.y - vMin.y);
+
+        bool isHovered =
+                imagePos.x >= 0 && imagePos.y >= 0 && imagePos.x < image.GetWidth() && imagePos.y < image.GetHeight();
+
+        if (isHovered && Input::GetButtonDown(GLFW_MOUSE_BUTTON_LEFT))
+        {
+            color = texture->GetPixel(imagePos.x, imagePos.y);
+        }
         ImGui::Image((ImTextureID)id, ImVec2(image.GetWidth(), image.GetHeight()));
+
+        ImGui::ColorEdit4("Color", &color.r);
+        ImGui::Text("Screen position: (%.1f, %.1f)", pos.x, pos.y);
+        if (isHovered)
+            ImGui::Text("Image position: (%.1f, %.1f)", imagePos.x, imagePos.y);
+
         ImGui::End();
         ImGui::Render();
         ImGui::EndFrame();

@@ -23,6 +23,7 @@ namespace Figment
         void SetData(void *data, size_t byteSize);
         VkBuffer Get() { return m_Buffer; }
         [[nodiscard]] uint32_t ByteSize() const { return m_ByteSize; }
+        [[nodiscard]] void *Map() const;
     private:
         const VulkanContext &m_Context;
         VkBuffer m_Buffer = VK_NULL_HANDLE;

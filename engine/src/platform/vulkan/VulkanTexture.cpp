@@ -17,7 +17,8 @@ namespace Figment
         imageCreateInfo.format = descriptor.Format; // TODO: Check if format is supported
         imageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
         imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        imageCreateInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+        imageCreateInfo.usage =
+                VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
         imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
         imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
         imageCreateInfo.flags = 0;
@@ -127,6 +128,24 @@ namespace Figment
             sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
             destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
         }
+        else if (oldLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+                && newLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
+        {
+            barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+            barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+
+            sourceStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+            destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+        }
+        else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL
+                && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+        {
+            barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+            barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+            sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+            destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+        }
         else
         {
             throw std::invalid_argument("unsupported layout transition!");
@@ -157,5 +176,44 @@ namespace Figment
         vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
         m_Context.EndSingleTimeCommands(commandBuffer);
+    }
+
+    glm::vec4 VulkanTexture::GetPixel(int x, int y) const
+    {
+        TransitionImageLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+        auto commandBuffer = m_Context.BeginSingleTimeCommands();
+
+        auto dstBuffer = VulkanBuffer(m_Context, VulkanBufferDescriptor {
+                .Name = "VulkanTextureDstBuffer",
+                .Data = nullptr,
+                .ByteSize = 4 * sizeof(float),
+                .Usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+                .MemoryProperties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        });
+
+        VkBufferImageCopy copyImageToBufferInfo = {};
+        copyImageToBufferInfo.bufferOffset = 0;
+        copyImageToBufferInfo.bufferRowLength = 0;
+        copyImageToBufferInfo.bufferImageHeight = 0;
+        copyImageToBufferInfo.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        copyImageToBufferInfo.imageSubresource.mipLevel = 0;
+        copyImageToBufferInfo.imageSubresource.baseArrayLayer = 0;
+        copyImageToBufferInfo.imageSubresource.layerCount = 1;
+        copyImageToBufferInfo.imageOffset = { x, y, 0 };
+        copyImageToBufferInfo.imageExtent = { 1, 1, 1 };
+
+        vkCmdCopyImageToBuffer(commandBuffer, m_Image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                dstBuffer.Get(), 1, &copyImageToBufferInfo);
+
+        m_Context.EndSingleTimeCommands(commandBuffer);
+        TransitionImageLayout(VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+        auto data = dstBuffer.Map();
+        auto r = ((uint8_t *)data)[0] / 255.0f;
+        auto g = ((uint8_t *)data)[1] / 255.0f;
+        auto b = ((uint8_t *)data)[2] / 255.0f;
+        auto a = ((uint8_t *)data)[3] / 255.0f;
+
+        return { r, g, b, a };
     }
 }

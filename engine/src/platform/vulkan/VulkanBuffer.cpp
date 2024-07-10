@@ -58,9 +58,12 @@ namespace Figment
 
         // map memory to vertex vuffer
         void *data;
-        vkMapMemory(context.GetDevice(), m_BufferMemory, 0, bufferInfo.size, 0, &data);
-        memcpy(data, descriptor.Data, (size_t)bufferInfo.size);
-        vkUnmapMemory(context.GetDevice(), m_BufferMemory);
+        if (descriptor.Data != nullptr)
+        {
+            vkMapMemory(context.GetDevice(), m_BufferMemory, 0, bufferInfo.size, 0, &data);
+            memcpy(data, descriptor.Data, (size_t)bufferInfo.size);
+            vkUnmapMemory(context.GetDevice(), m_BufferMemory);
+        }
 
         FIG_LOG_INFO("%s created: size = %d", descriptor.Name, descriptor.ByteSize);
     }
@@ -82,5 +85,14 @@ namespace Figment
     {
         vkDestroyBuffer(m_Context.GetDevice(), m_Buffer, nullptr);
         vkFreeMemory(m_Context.GetDevice(), m_BufferMemory, nullptr);
+    }
+
+    void *VulkanBuffer::Map() const
+    {
+        void *data;
+        auto result = vkMapMemory(m_Context.GetDevice(), m_BufferMemory, 0, m_ByteSize, 0, &data);
+        if (result != VK_SUCCESS)
+            throw std::runtime_error("Failed to map buffer memory!");
+        return data;
     }
 }
