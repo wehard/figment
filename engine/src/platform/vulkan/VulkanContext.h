@@ -69,7 +69,8 @@ namespace Figment
         // [[nodiscard]] VkPipeline GetPipeline() const { return m_Pipeline; }
         [[nodiscard]] VkFramebuffer GetImGuiFramebuffer() const { return m_FrameData.ImGuiFramebuffers[m_ImageIndex]; }
         [[nodiscard]] VkImageView GetCurrentImageView() const { return m_FrameData.ImageViews[m_ImageIndex]; }
-        [[nodiscard]]VkDescriptorPool CreateDescriptorPool(std::vector<VkDescriptorPoolSize> poolSizes, uint32_t maxSets);
+        [[nodiscard]]VkDescriptorPool CreateDescriptorPool(std::vector<VkDescriptorPoolSize> poolSizes,
+                uint32_t maxSets);
 
         VulkanRenderPass *GetImGuiRenderPass() { return m_ImGuiRenderPass; }
 
@@ -79,9 +80,11 @@ namespace Figment
         void BeginMainPass();
         void EndMainPass();
         void DebugDraw(VulkanBuffer &buffer, glm::mat4 transform, Camera &camera);
-        VkCommandBuffer BeginSingleTimeCommands();
-        void EndSingleTimeCommands(VkCommandBuffer commandBuffer);
+        [[nodiscard]] VkCommandBuffer BeginSingleTimeCommands() const;
+        void EndSingleTimeCommands(VkCommandBuffer commandBuffer) const;
         void Cleanup();
+
+        [[nodiscard]] uint32_t FindMemoryTypeIndex(uint32_t allowedTypes, VkMemoryPropertyFlags properties) const;
 
         struct Vertex
         {
@@ -152,7 +155,6 @@ namespace Figment
         std::vector<SynchronizationObjects> m_SynchronizationObjects;
         std::vector<VulkanBindGroup *> m_BindGroups;
         std::vector<VulkanBuffer *> m_UniformBuffers;
-
 
         VulkanRenderPass *m_ImGuiRenderPass = nullptr;
         std::vector<VkCommandBuffer> m_ImGuiCommandBuffers;

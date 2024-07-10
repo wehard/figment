@@ -771,7 +771,7 @@ namespace Figment
         vkResetCommandPool(m_Device, m_CommandPool, 0);
     }
 
-    VkCommandBuffer VulkanContext::BeginSingleTimeCommands()
+    VkCommandBuffer VulkanContext::BeginSingleTimeCommands() const
     {
         VkCommandBufferAllocateInfo allocInfo = {};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -791,7 +791,7 @@ namespace Figment
         return commandBuffer;
     }
 
-    void VulkanContext::EndSingleTimeCommands(VkCommandBuffer commandBuffer)
+    void VulkanContext::EndSingleTimeCommands(VkCommandBuffer commandBuffer) const
     {
         vkEndCommandBuffer(commandBuffer);
 
@@ -828,5 +828,21 @@ namespace Figment
         }
 
         delete m_Pipeline;
+    }
+
+    uint32_t VulkanContext::FindMemoryTypeIndex(uint32_t allowedTypes, VkMemoryPropertyFlags properties) const
+    {
+        VkPhysicalDeviceMemoryProperties memoryProperties;
+        vkGetPhysicalDeviceMemoryProperties(m_PhysicalDevice, &memoryProperties);
+
+        for (auto i = 0; i < memoryProperties.memoryTypeCount; i++)
+        {
+            if ((allowedTypes & (1 << i)) && (memoryProperties.memoryTypes[i].propertyFlags & properties) == properties)
+            {
+                return i;
+            }
+        }
+        FIG_LOG_ERROR("Failed to find required memory type!");
+        return (-1);
     }
 }
