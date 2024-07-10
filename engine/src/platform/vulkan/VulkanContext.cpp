@@ -747,6 +747,12 @@ namespace Figment
         }
         m_FrameData.Framebuffers.clear();
 
+        for (auto framebuffer : m_FrameData.ImGuiFramebuffers)
+        {
+            vkDestroyFramebuffer(m_Device, framebuffer, nullptr);
+        }
+        m_FrameData.Framebuffers.clear();
+
         for (auto imageView : m_FrameData.ImageViews)
         {
             vkDestroyImageView(m_Device, imageView, nullptr);
@@ -765,6 +771,7 @@ namespace Figment
         CleanupSwapchain();
         CreateSwapchain();
         CreateFramebuffers();
+        CreateImGuiFramebuffers();
         CreatePipeline(m_Shader->GetVertexModule(), m_Shader->GetFragmentModule());
 
         vkResetCommandPool(m_Device, m_CommandPool, 0);
