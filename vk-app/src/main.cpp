@@ -171,7 +171,7 @@ int main()
     auto id = ImGui_ImplVulkan_AddTexture(texture.GetSampler(), texture.GetImageView(),
             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-    while (!window->ShouldClose() && glfwGetKey((GLFWwindow *)window->GetNative(), GLFW_KEY_ESCAPE) != GLFW_PRESS)
+    while (!window->ShouldClose() && !Input::GetKeyDown(GLFW_KEY_ESCAPE))
     {
         glfwPollEvents();
         Input::Update();
@@ -186,7 +186,6 @@ int main()
                         { 0.0f, 0.0f, zRotation },
                         { 1.0f, 1.0f, 1.0f }),
                 camera);
-        // vkContext->DebugDraw(*buffer2);
         vulkanContext->EndMainPass();
 
         ImGui_ImplGlfw_NewFrame();
