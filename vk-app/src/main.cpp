@@ -72,32 +72,19 @@ static VkRenderPass CreateImGuiRenderPass(VulkanContext *vkContext)
     return renderPass;
 }
 
-int main()
+static ImGuiContext *ImGuiInit(VulkanContext *vulkanContext, GLFWwindow *window)
 {
-    Log::Init();
-    auto window = Figment::Window::Create("Figment", 1280, 720);
-    Figment::Input::Initialize((GLFWwindow *)window->GetNative());
-    auto vkContext = window->GetContext<VulkanContext>();
-
-    PerspectiveCamera camera(1280.0 / 720.0);
-    camera.SetPosition({ 0.0f, 0.0f, 2.0f });
-
-    window->SetResizeEventCallback([&camera](WindowResizeEventData eventData)
-    {
-        camera.Resize((float)eventData.Width, (float)eventData.Height);
-    });
-
     auto context = ImGui::CreateContext();
-    ImGui_ImplGlfw_InitForVulkan((GLFWwindow *)window->GetNative(), true);
+    ImGui_ImplGlfw_InitForVulkan(window, true);
     ImGui_ImplVulkan_InitInfo initInfo = {};
     initInfo.UseDynamicRendering = false;
-    initInfo.Device = vkContext->GetDevice();
-    initInfo.Instance = vkContext->GetInstance();
-    initInfo.PhysicalDevice = vkContext->GetPhysicalDevice();
-    initInfo.Queue = vkContext->GetGraphicsQueue();
+    initInfo.Device = vulkanContext->GetDevice();
+    initInfo.Instance = vulkanContext->GetInstance();
+    initInfo.PhysicalDevice = vulkanContext->GetPhysicalDevice();
+    initInfo.Queue = vulkanContext->GetGraphicsQueue();
     initInfo.QueueFamily = 0;
     initInfo.PipelineCache = VK_NULL_HANDLE;
-    initInfo.DescriptorPool = vkContext->CreateDescriptorPool({
+    initInfo.DescriptorPool = vulkanContext->CreateDescriptorPool({
             { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
             { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
             { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
@@ -110,22 +97,49 @@ int main()
             { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
             { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
     }, 1000);
-    initInfo.RenderPass = vkContext->GetImGuiRenderPass()->Get();
+    initInfo.RenderPass = vulkanContext->GetImGuiRenderPass()->Get();
     initInfo.Subpass = 0;
-    initInfo.MinImageCount = vkContext->SurfaceDetails().surfaceCapabilities.minImageCount;
-    initInfo.ImageCount = vkContext->SurfaceDetails().surfaceCapabilities.minImageCount + 1;
+    initInfo.MinImageCount = vulkanContext->SurfaceDetails().surfaceCapabilities.minImageCount;
+    initInfo.ImageCount = vulkanContext->SurfaceDetails().surfaceCapabilities.minImageCount + 1;
     initInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
     initInfo.Allocator = nullptr;
     initInfo.CheckVkResultFn = CheckVkResult;
     ImGui_ImplVulkan_Init(&initInfo);
 
-    auto cb = vkContext->BeginSingleTimeCommands();
+    auto cb = vulkanContext->BeginSingleTimeCommands();
     ImGui_ImplVulkan_CreateFontsTexture();
-    vkContext->EndSingleTimeCommands(cb);
+    vulkanContext->EndSingleTimeCommands(cb);
 
-    Figment::Image image = Figment::Image::Load("res/texture.png");
+    return context;
+}
 
-    auto texture = new VulkanTexture(*vkContext, {
+static void ImGuiShutdown(ImGuiContext *context)
+{
+    ImGui_ImplVulkan_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext(context);
+}
+
+int main()
+{
+    Log::Init();
+    auto window = Window::Create("Figment", 1280, 720);
+    Input::Initialize((GLFWwindow *)window->GetNative());
+    auto vulkanContext = window->GetContext<VulkanContext>();
+
+    PerspectiveCamera camera(1280.0 / 720.0);
+    camera.SetPosition({ 0.0f, 0.0f, 2.0f });
+
+    window->SetResizeEventCallback([&camera](WindowResizeEventData eventData)
+    {
+        camera.Resize((float)eventData.Width, (float)eventData.Height);
+    });
+
+    auto imGuiContext = ImGuiInit(vulkanContext.get(), (GLFWwindow *)window->GetNative());
+
+    Image image = Image::Load("res/texture.png");
+
+    auto texture = new VulkanTexture(*vulkanContext, {
             .Width = static_cast<int>(image.GetWidth()),
             .Height = static_cast<int>(image.GetHeight()),
             .Channels = 4,
@@ -140,7 +154,7 @@ int main()
             {{ -0.5, -0.5, 0.0 }, { 0.0, 0.0, 1.0 }},
             {{ 0.5, 0.5, 0.0 }, { 1.0, 0.0, 0.0 }},
             {{ 0.5, -0.5, 0.0 }, { 0.0, 1.0, 0.0 }}};
-    auto buffer = new VulkanBuffer(*vkContext, {
+    auto buffer = new VulkanBuffer(*vulkanContext, {
             .Data = vertices.data(),
             .ByteSize = vertices.size() * sizeof(VulkanContext::Vertex),
             .Usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
@@ -165,15 +179,15 @@ int main()
 
         zRotation += 1.0f;
         xPosition = sinf((float)glfwGetTime() * 2.0f); // * 0.5f;
-        vkContext->BeginFrame();
-        vkContext->BeginMainPass();
-        vkContext->DebugDraw(*buffer, Transform(
+        vulkanContext->BeginFrame();
+        vulkanContext->BeginMainPass();
+        vulkanContext->DebugDraw(*buffer, Transform(
                         { xPosition, 0.0f, 0.0f },
                         { 0.0f, 0.0f, zRotation },
                         { 1.0f, 1.0f, 1.0f }),
                 camera);
         // vkContext->DebugDraw(*buffer2);
-        vkContext->EndMainPass();
+        vulkanContext->EndMainPass();
 
         ImGui_ImplGlfw_NewFrame();
         ImGui_ImplVulkan_NewFrame();
@@ -215,37 +229,36 @@ int main()
             VkCommandBufferBeginInfo info = {};
             info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
             info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-            CheckVkResult((vkBeginCommandBuffer(vkContext->GetImGuiCommandBuffer(), &info)));
+            CheckVkResult((vkBeginCommandBuffer(vulkanContext->GetImGuiCommandBuffer(), &info)));
         }
 
         {
             VkRenderPassBeginInfo renderPassBeginInfo = {};
             renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-            renderPassBeginInfo.renderPass = vkContext->GetImGuiRenderPass()->Get();
-            renderPassBeginInfo.framebuffer = vkContext->GetImGuiFramebuffer();
-            renderPassBeginInfo.renderArea.extent.width = vkContext->SurfaceDetails().surfaceCapabilities.currentExtent.width;
-            renderPassBeginInfo.renderArea.extent.height = vkContext->SurfaceDetails().surfaceCapabilities.currentExtent.height;
+            renderPassBeginInfo.renderPass = vulkanContext->GetImGuiRenderPass()->Get();
+            renderPassBeginInfo.framebuffer = vulkanContext->GetImGuiFramebuffer();
+            renderPassBeginInfo.renderArea.extent.width = vulkanContext->SurfaceDetails().surfaceCapabilities.currentExtent.width;
+            renderPassBeginInfo.renderArea.extent.height = vulkanContext->SurfaceDetails().surfaceCapabilities.currentExtent.height;
             VkClearValue clearValues[] = {
                     { 0.1f, 0.1f, 0.1f, 1.0f }};
             renderPassBeginInfo.pClearValues = clearValues;
             renderPassBeginInfo.clearValueCount = 1;
-            vkCmdBeginRenderPass(vkContext->GetImGuiCommandBuffer(), &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+            vkCmdBeginRenderPass(vulkanContext->GetImGuiCommandBuffer(), &renderPassBeginInfo,
+                    VK_SUBPASS_CONTENTS_INLINE);
         }
 
-        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), vkContext->GetImGuiCommandBuffer());
+        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), vulkanContext->GetImGuiCommandBuffer());
 
         {
-            vkCmdEndRenderPass(vkContext->GetImGuiCommandBuffer());
-            CheckVkResult(vkEndCommandBuffer(vkContext->GetImGuiCommandBuffer()));
+            vkCmdEndRenderPass(vulkanContext->GetImGuiCommandBuffer());
+            CheckVkResult(vkEndCommandBuffer(vulkanContext->GetImGuiCommandBuffer()));
         }
 
-        vkContext->EndFrame();
+        vulkanContext->EndFrame();
     }
 
-    vkContext->Cleanup();
+    vulkanContext->Cleanup();
 
-    ImGui_ImplVulkan_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext(context);
+    ImGuiShutdown(imGuiContext);
     return 0;
 }
