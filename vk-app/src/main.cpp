@@ -139,12 +139,12 @@ int main()
 
     Image image = Image::Load("res/texture.png");
 
-    auto texture = new VulkanTexture(*vulkanContext, {
+    auto texture = VulkanTexture(*vulkanContext, {
             .Width = static_cast<int>(image.GetWidth()),
             .Height = static_cast<int>(image.GetHeight()),
             .Channels = 4,
             .Data = image.GetData(),
-            .Format = VK_FORMAT_R8G8B8A8_SRGB
+            .Format = VK_FORMAT_R8G8B8A8_UNORM
     });
 
     std::vector<VulkanContext::Vertex> vertices = {
@@ -168,7 +168,7 @@ int main()
     auto zRotation = 0.0f;
     auto xPosition = 0.0f;
 
-    auto id = ImGui_ImplVulkan_AddTexture(texture->GetSampler(), texture->GetImageView(),
+    auto id = ImGui_ImplVulkan_AddTexture(texture.GetSampler(), texture.GetImageView(),
             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
     while (!window->ShouldClose() && glfwGetKey((GLFWwindow *)window->GetNative(), GLFW_KEY_ESCAPE) != GLFW_PRESS)
@@ -212,7 +212,7 @@ int main()
 
         if (isHovered && Input::GetButtonDown(GLFW_MOUSE_BUTTON_LEFT))
         {
-            color = texture->GetPixel(imagePos.x, imagePos.y);
+            color = texture.GetPixel(imagePos.x, imagePos.y);
         }
         ImGui::Image((ImTextureID)id, ImVec2(image.GetWidth(), image.GetHeight()));
 
