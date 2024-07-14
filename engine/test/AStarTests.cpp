@@ -2,6 +2,7 @@
 #include "AStar.h"
 #include "Graph.h"
 #include "../lib/glm/glm/glm.hpp"
+#include "Random.h"
 
 using namespace Figment;
 
@@ -168,7 +169,7 @@ static Graph<Point> CreateGraph(int width, int height)
         for (auto &neighbor : graph.GetNodes())
         {
             if (glm::all(glm::equal(node.Position, neighbor.Position))
-                    || glm::length(neighbor.Position - node.Position) > 1.5f)
+                    || glm::length(neighbor.Position - node.Position) > 1.2f)
                 continue;
             graph.AddEdge(&node, &neighbor);
         }
@@ -183,6 +184,14 @@ TEST(AStar, SearchReturnsOptimalPathComplex)
 
     auto &start = graph.GetNodes()[0];
     auto &end = graph.GetNodes()[99];
+
+    for (auto &i : graph.GetNodes())
+    {
+        i.Disabled = Random::Float() < 0.5f;
+    }
+
+    start.Disabled = false;
+    end.Disabled = false;
 
     auto result = aStar.Search(start, end,
             [](const Point &a, const Point &b) -> float
