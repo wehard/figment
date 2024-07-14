@@ -207,13 +207,14 @@ int main()
         auto imagePos = glm::vec2(pos.x - vMin.x, pos.y - vMin.y);
 
         bool isHovered =
-                imagePos.x >= 0 && imagePos.y >= 0 && imagePos.x < image.GetWidth() && imagePos.y < image.GetHeight();
+                imagePos.x >= 0 && imagePos.y >= 0 && imagePos.x < (float)image.GetWidth()
+                        && imagePos.y < (float)image.GetHeight();
 
         if (isHovered && Input::GetButtonDown(GLFW_MOUSE_BUTTON_LEFT))
         {
-            color = texture.GetPixel(imagePos.x, imagePos.y);
+            color = texture.GetPixel((int)imagePos.x, (int)imagePos.y);
         }
-        ImGui::Image((ImTextureID)id, ImVec2(image.GetWidth(), image.GetHeight()));
+        ImGui::Image((ImTextureID)id, ImVec2((float)image.GetWidth(), (float)image.GetHeight()));
 
         ImGui::ColorEdit4("Color", &color.r);
         ImGui::Text("Screen position: (%.1f, %.1f)", pos.x, pos.y);
