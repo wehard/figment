@@ -117,6 +117,7 @@ if (NOT EMSCRIPTEN)
             ../engine/src/core
             ../engine/src/renderer
             ../engine/src/utils
+            ../engine/lib/glm
     )
     target_link_libraries(
             figment_tests
