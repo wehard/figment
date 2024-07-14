@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 #include "AStar.h"
+#include "Graph.h"
+#include "../lib/glm/glm/glm.hpp"
 
 using namespace Figment;
 
@@ -134,4 +136,79 @@ TEST(AStar, SearchReturnsOptimalPath)
     ASSERT_EQ(result.Path.size(), 2);
     ASSERT_EQ(result.Path.front()->UserData, positions.front());
     ASSERT_EQ(result.Path.back()->UserData, positions.back());
+}
+
+struct Point
+{
+    uint32_t Id;
+    glm::vec3 Position;
+    glm::vec4 Color;
+    std::vector<Point *> Neighbors;
+    bool Disabled = false;
+};
+
+static Graph<Point> CreateGraph(int width, int height)
+{
+    Graph<Point> graph;
+    for (int y = 0; y < height; y++)
+    {
+        for (int x = 0; x < width; x++)
+        {
+            graph.AddNode(Point {
+                    .Id = (uint32_t)(y * width + x),
+                    .Position = { (float)x, (float)y, 0 },
+                    .Color = { 0.8f, 0.2f, 0.3f, 1.0f },
+                    .Disabled = false
+            });
+        }
+    }
+
+    for (auto &node : graph.GetNodes())
+    {
+        for (auto &neighbor : graph.GetNodes())
+        {
+            if (glm::all(glm::equal(node.Position, neighbor.Position))
+                    || glm::length(neighbor.Position - node.Position) > 1.5f)
+                continue;
+            graph.AddEdge(&node, &neighbor);
+        }
+    }
+    return graph;
+}
+
+TEST(AStar, SearchReturnsOptimalPathComplex)
+{
+    AStar<Point> aStar;
+    Graph<Point> graph = CreateGraph(10, 10);
+
+    auto &start = graph.GetNodes()[0];
+    auto &end = graph.GetNodes()[99];
+
+    auto result = aStar.Search(start, end,
+            [](const Point &a, const Point &b) -> float
+            {
+                return glm::length(b.Position - a.Position);
+            },
+            [](const Point &a, const Point &b) -> float
+            {
+                return glm::length(b.Position - a.Position);
+            },
+            [](const Point &point) -> std::vector<Point>
+            {
+                std::vector<Point> neighbors;
+                for (auto &neighbor : point.Neighbors)
+                {
+                    if (!neighbor->Disabled)
+                        neighbors.push_back(*neighbor);
+                }
+                return neighbors;
+            },
+            [](const Point &a, const Point &b) -> bool
+            {
+                return a.Id == b.Id;
+            }
+    );
+    printf("NumVisited: %d\n", result.NumVisited);
+    printf("NumEvaluated: %d\n", result.NumEvaluated);
+    printf("Path size: %d\n", result.Path.size());
 }
