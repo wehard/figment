@@ -181,19 +181,32 @@ static Graph<Point> CreateGraph(int width, int height)
 
 TEST(AStar, SearchReturnsOptimalPathComplex)
 {
+    const uint32_t size = 4;
     AStar<Point> aStar;
-    Graph<Point> graph = CreateGraph(10, 10);
+    Graph<Point> graph = CreateGraph(size, size);
 
     auto &start = graph.GetNodes()[0];
-    auto &end = graph.GetNodes()[99];
+    auto &end = graph.GetNodes()[size * size - 1];
 
     for (auto &i : graph.GetNodes())
     {
         i.Disabled = Random::Float() < 0.5f;
     }
 
-    start.Disabled = false;
-    end.Disabled = false;
+    graph.GetNodes()[0].Disabled = false;
+    graph.GetNodes()[size * size - 1].Disabled = false;
+
+    // Print graph
+    for (int y = size - 1; y >= 0; y--)
+    {
+        for (int x = 0; x < size; x++)
+        {
+            auto &node = graph.GetNodes()[y * size + x];
+            // printf("%c", node.Disabled ? 178 : 176);
+            printf("%s", node.Disabled ? "\u2591\u2591" : "\u2588\u2588");
+        }
+        printf("\n");
+    }
 
     auto result = aStar.Search(start, end,
             [](const Point &a, const Point &b) -> float
@@ -219,7 +232,16 @@ TEST(AStar, SearchReturnsOptimalPathComplex)
                 return a.Id == b.Id;
             }
     );
-    printf("NumVisited: %d\n", result.NumVisited);
-    printf("NumEvaluated: %d\n", result.NumEvaluated);
-    printf("Path size: %d\n", result.Path.size());
+    // printf("NumVisited: %d\n", result.NumVisited);
+    // printf("NumEvaluated: %d\n", result.NumEvaluated);
+    // printf("Path size: %d\n", result.Path.size());
+
+    printf("Path: ");
+    for (auto &node : result.Path)
+    {
+        printf("(%f, %f)", node->UserData.Position.x, node->UserData.Position.y);
+        if (node != result.Path.back())
+            printf(" -> ");
+    }
+    printf("\n");
 }
