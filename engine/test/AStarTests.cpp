@@ -168,8 +168,10 @@ static Graph<Point> CreateGraph(int width, int height)
     {
         for (auto &neighbor : graph.GetNodes())
         {
+            if (node.Id == neighbor.Id)
+                continue;
             if (glm::all(glm::equal(node.Position, neighbor.Position))
-                    || glm::length(neighbor.Position - node.Position) > 1.2f)
+                    || glm::length(neighbor.Position - node.Position) > 1.5f)
                 continue;
             graph.AddEdge(&node, &neighbor);
         }
