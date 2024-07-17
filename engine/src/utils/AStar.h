@@ -89,6 +89,16 @@ namespace Figment
                             .HScore = hScore
                     });
 
+                    auto closed = std::find_if(closedSet.begin(), closedSet.end(),
+                            [&equals, &neighborNode](const std::shared_ptr<Node> &node)
+                            {
+                                return equals(node->UserData, neighborNode->UserData);
+                            });
+                    if (closed != closedSet.end())
+                    {
+                        continue;
+                    }
+
                     auto it = std::find_if(openSet.begin(), openSet.end(),
                             [&equals, &neighborNode](const std::shared_ptr<Node> &node)
                             {
