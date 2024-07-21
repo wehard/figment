@@ -6,9 +6,12 @@ MetaPlayer::MetaPlayer(bool enabled) : Layer("MetaPlayer", enabled)
     InitializeActions();
 }
 
-static uint32_t CashIncrease(uint32_t weaponLevel, uint32_t vehicleLevel)
+static constexpr uint32_t CashIncreasePerWeaponLevel = 5;
+static constexpr uint32_t CashIncreasePerVehicleLevel = 5;
+
+static uint32_t GetPlayGameCashAmount(uint32_t weaponLevel, uint32_t vehicleLevel)
 {
-    return weaponLevel * 5 + vehicleLevel * 10;
+    return weaponLevel * CashIncreasePerWeaponLevel + vehicleLevel * CashIncreasePerVehicleLevel;
 }
 
 void MetaPlayer::InitializeActions()
@@ -17,12 +20,8 @@ void MetaPlayer::InitializeActions()
             Action { .Name = Play, .Description = "Get Cash", .Function = [](const GameState &state) -> GameState
             {
                 auto newState = GameState(state);
-                newState.Variables[Cash].Value += CashIncrease(newState.Variables[WeaponLevel].Value,
+                newState.Variables[Cash].Value += GetPlayGameCashAmount(newState.Variables[WeaponLevel].Value,
                         newState.Variables[VehicleLevel].Value);
-                newState.Variables[Parts].Value +=
-                        Random::Float() > 0.95 / newState.Variables[VehicleLevel].Value
-                        ? newState.Variables[WeaponLevel].Value : 0;
-
                 return newState;
             }});
 
@@ -31,38 +30,34 @@ void MetaPlayer::InitializeActions()
                     const GameState &state) -> GameState
             {
                 auto newState = GameState(state);
-                if (newState.Variables[Cash].Value
-                        < CashIncrease(newState.Variables[WeaponLevel].Value, newState.Variables[VehicleLevel].Value))
-                    return newState;
-                newState.Variables[Cash].Value -= CashIncrease(newState.Variables[WeaponLevel].Value,
-                        newState.Variables[VehicleLevel].Value);
-                newState.Variables[Parts].Value += 1;
+                newState.Variables[Parts].Value += state.GetValue(Cash) / PartsCost;
+                newState.Variables[Cash].Value = state.GetValue(Cash) % PartsCost;
 
                 return newState;
             }});
-
-    m_Actions.emplace_back(Action { .Name = UpgradeVehicle, .Description = "Upgrade Vehicle for Parts", .Function = [](
-            const GameState &state) -> GameState
-    {
-        auto newState = GameState(state);
-        auto cost = 60 * newState.Variables[VehicleLevel].Value;
-        if (newState.Variables[Parts].Value < cost)
-            return newState;
-        newState.Variables[Parts].Value -= cost;
-        newState.Variables[VehicleLevel].Value += 1;
-
-        return newState;
-    }});
 
     m_Actions.emplace_back(Action { .Name = UpgradeWeapon, .Description = "Upgrade Weapon for Parts", .Function = [](
             const GameState &state) -> GameState
     {
         auto newState = GameState(state);
-        auto cost = 10 * newState.Variables[WeaponLevel].Value;
-        if (newState.Variables[Parts].Value < cost)
-            return newState;
-        newState.Variables[Parts].Value -= cost;
+        auto partsCost = PartsBaseCostToIncrementWeaponLevel * newState.Variables[WeaponLevel].Value;
+        if (newState.Variables[Parts].Value < partsCost)
+            return state;
+        newState.Variables[Parts].Value -= partsCost;
         newState.Variables[WeaponLevel].Value += 1;
+
+        return newState;
+    }});
+
+    m_Actions.emplace_back(Action { .Name = UpgradeVehicle, .Description = "Upgrade Vehicle for Parts", .Function = [](
+            const GameState &state) -> GameState
+    {
+        auto newState = GameState(state);
+        auto partsCost = PartsBaseCostToIncrementVehicleLevel * newState.Variables[VehicleLevel].Value;
+        if (newState.Variables[Parts].Value < partsCost)
+            return newState;
+        newState.Variables[Parts].Value -= partsCost;
+        newState.Variables[VehicleLevel].Value += 1;
 
         return newState;
     }});
@@ -73,14 +68,11 @@ bool MetaPlayer::IsActionAvailable(const GameState &state, const std::string &ac
     if (actionName == Play)
         return true;
     if (actionName == BuyParts)
-        return state.Variables.at(Cash).Value
-                >= CashIncrease(state.Variables.at(WeaponLevel).Value, state.Variables.at(VehicleLevel).Value);
-    if (actionName == UpgradeVehicle)
-        return state.Variables.at(Parts).Value
-                >= 60 * state.Variables.at(VehicleLevel).Value;
+        return state.GetValue(Cash) >= GetPlayGameCashAmount(state.GetValue(WeaponLevel), state.GetValue(VehicleLevel));
     if (actionName == UpgradeWeapon)
-        return state.Variables.at(Parts).Value
-                >= 10 * state.Variables.at(WeaponLevel).Value;
+        return state.GetValue(Parts) >= PartsBaseCostToIncrementWeaponLevel * state.GetValue(WeaponLevel);
+    if (actionName == UpgradeVehicle)
+        return state.GetValue(Parts) >= PartsBaseCostToIncrementVehicleLevel * state.GetValue(VehicleLevel);
     return false;
 }
 
@@ -90,17 +82,17 @@ void MetaPlayer::StartSearch()
 
     Figment::AStar<GameState> aStar;
     GameState start = GameState(m_GameState);
-    start.ActionName = "Start";
+    start.ProducedByAction = "Start";
     GameState end = GameState(m_GameState);
     end.Variables[m_SimulationMaximiseGameVariable].Value = m_SimulationMaximiseGameVariableValue;
-    end.ActionName = "End";
+    end.ProducedByAction = "End";
     auto result = aStar.Search(start, end,
             [this](const GameState &start, const GameState &end) -> float
             {
                 return (float)end.Variables.at(m_SimulationMaximiseGameVariable).Value
                         - (float)start.Variables.at(m_SimulationMaximiseGameVariable).Value;
             },
-            [this](const GameState &start, const GameState &end) -> float
+            [](const GameState &start, const GameState &end) -> float
             {
                 return 1.0f;
             },
@@ -112,20 +104,24 @@ void MetaPlayer::StartSearch()
                     if (!IsActionAvailable(state, action.Name))
                         continue;
                     auto newGameState = action.Function(state);
-                    newGameState.ActionName = action.Name;
+                    newGameState.ProducedByAction = action.Name;
                     states.push_back(newGameState);
                 }
                 return states;
-            }, [this](const GameState &a, const GameState &b) -> bool
+            }, [](const GameState &a, const GameState &b) -> bool
             {
-                // Economy as modelled can overshoot the target
-                return a.Variables.at(m_SimulationMaximiseGameVariable).Value
-                        >= b.Variables.at(m_SimulationMaximiseGameVariable).Value;
+                // Check if the game state is the same.
+                for (auto &variable : a.Variables)
+                {
+                    if (variable.second.Value != b.Variables.at(variable.first).Value)
+                        return false;
+                }
+                return a.ProducedByAction == b.ProducedByAction;
             });
     for (auto &node : result.Path)
     {
         m_GameState = node->UserData;
-        PushHistory(m_GameState, m_GameState.ActionName);
+        PushHistory(m_GameState, m_GameState.ProducedByAction);
     }
     m_AStarSearchResult = std::make_unique<AStar<GameState>::SearchResult>(result);
 }

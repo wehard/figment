@@ -18,8 +18,21 @@ public:
 
     struct GameState
     {
-        std::string ActionName;
+        std::string ProducedByAction;
         std::map<std::string, GameVariable> Variables;
+
+        /// Returns the value of the variable with the given name.
+        /// @param name The name of the variable.
+        /// @return The value of the variable.
+        [[nodiscard]] uint32_t GetValue(const std::string &name) const
+        {
+            return Variables.at(name).Value;
+        }
+
+        void SetValue(const std::string &name, uint32_t value)
+        {
+            Variables[name].Value = value;
+        }
     };
 
     struct GameHistory
@@ -68,6 +81,10 @@ private:
     static constexpr uint32_t DefaultPartsMaximizeValue = 100;
     static constexpr uint32_t DefaultWeaponLevelMaximizeValue = 5;
     static constexpr uint32_t DefaultVehicleLevelMaximizeValue = 5;
+
+    static constexpr uint32_t PartsCost = 10;
+    static constexpr uint32_t PartsBaseCostToIncrementWeaponLevel = 10;
+    static constexpr uint32_t PartsBaseCostToIncrementVehicleLevel = 100;
 
     GameState m_GameState;
     GameHistory m_GameHistory;
