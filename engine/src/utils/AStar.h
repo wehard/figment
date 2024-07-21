@@ -64,7 +64,7 @@ namespace Figment
                 auto currentNode = *openSet.begin();
                 openSet.erase(openSet.begin());
 
-                if (equals(currentNode->UserData, endNode->UserData))
+                if (currentNode->HScore <= endNode->HScore)
                 {
                     std::vector<std::shared_ptr<Node>> path;
                     auto node = currentNode;
