@@ -79,8 +79,8 @@ private:
 
     static constexpr uint32_t DefaultCashMaximizeValue = 1000;
     static constexpr uint32_t DefaultPartsMaximizeValue = 100;
-    static constexpr uint32_t DefaultWeaponLevelMaximizeValue = 5;
-    static constexpr uint32_t DefaultVehicleLevelMaximizeValue = 5;
+    static constexpr uint32_t DefaultWeaponLevelMaximizeValue = 4;
+    static constexpr uint32_t DefaultVehicleLevelMaximizeValue = 2;
 
     static constexpr uint32_t PartsCost = 10;
     static constexpr uint32_t PartsBaseCostToIncrementWeaponLevel = 10;
