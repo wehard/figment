@@ -30,8 +30,9 @@ private:
 
     WebGPUContext &m_Context;
     PerspectiveCamera &m_Camera;
+    MeshRenderer m_MeshRenderer;
     PixelCanvas *m_PixelCanvas;
-    WebGPUUniformBuffer<TextureData> *m_UniformBuffer;
+    // WebGPUUniformBuffer<TextureData> *m_UniformBuffer;
     uint32_t *m_PrevPixelData;
 
     glm::vec3 m_Position = glm::vec3(0.0);

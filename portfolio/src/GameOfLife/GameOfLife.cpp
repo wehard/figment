@@ -2,20 +2,14 @@
 #include "ComputePass.h"
 
 GameOfLife::GameOfLife(Figment::WebGPUContext &context, PerspectiveCamera &camera) : Layer("GameOfLife"),
-        m_Context(context), m_Camera(camera)
+        m_Context(context), m_MeshRenderer(context), m_Camera(camera)
 {
-    PixelCanvasDescriptor descriptor = { s_Width, s_Height, false };
-    m_PixelCanvas = new PixelCanvas(context, &descriptor);
-
-    Randomize();
-
-    m_UniformBuffer = new WebGPUUniformBuffer<TextureData>(context.GetDevice(), "TextureDataUniformBuffer",
-            sizeof(TextureData));
-    TextureData data = { s_Width, s_Height };
-    m_UniformBuffer->SetData(&data, sizeof(TextureData));
+    m_PixelCanvas = new PixelCanvas(context, { s_Width, s_Height });
 
     m_PrevPixelData = new uint32_t[s_Width * s_Height];
     memcpy(m_PrevPixelData, m_PixelCanvas->GetPixelData(), s_Width * s_Height * sizeof(uint32_t));
+
+    Randomize();
 }
 
 void GameOfLife::OnAttach()
@@ -111,7 +105,10 @@ void GameOfLife::OnUpdate(float deltaTime)
     m_Rotation.y = cos(time * 0.25f) * 15.0f;
     m_Rotation.z = sin(time * 0.25f) * 15.0f;
 
-    m_PixelCanvas->OnUpdate(m_Camera, Transform(m_Position, m_Rotation, m_Scale));
+    m_MeshRenderer.BeginFrame(m_Camera);
+    m_MeshRenderer.DrawTextured(m_PixelCanvas->GetMesh(), Transform(m_Position, m_Rotation, m_Scale),
+            m_PixelCanvas->GetTexture());
+    m_MeshRenderer.EndFrame();
 }
 
 void GameOfLife::OnImGuiRender()
@@ -121,8 +118,11 @@ void GameOfLife::OnImGuiRender()
 
 void GameOfLife::OnEvent(Figment::AppEvent event, void *eventData)
 {
-    auto ev = (Figment::WindowResizeEventData *)eventData;
-    m_PixelCanvas->OnResize(ev->Width, ev->Height);
+    if (event == Figment::AppEvent::WindowResize)
+    {
+        auto ev = (Figment::WindowResizeEventData *)eventData;
+        m_MeshRenderer.OnResize(ev->Width, ev->Height);
+    }
 }
 
 void GameOfLife::Randomize()
