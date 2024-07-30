@@ -845,4 +845,22 @@ namespace Figment
         FIG_LOG_ERROR("Failed to find required memory type!");
         return (-1);
     }
+
+    VkFramebuffer VulkanContext::GetCurrentFramebuffer() const
+    {
+        return m_FrameData.Framebuffers[m_ImageIndex];
+    }
+
+    VkCommandBuffer VulkanContext::GetCurrentCommandBuffer() const
+    {
+        return m_CommandBuffers[m_FrameIndex];
+    }
+    VulkanBuffer *VulkanContext::GetCurrentUniformBuffer() const
+    {
+        return m_UniformBuffers[m_FrameIndex];
+    }
+    VulkanBindGroup *VulkanContext::GetCurrentBindGroup() const
+    {
+        return m_BindGroups[m_FrameIndex];
+    }
 }

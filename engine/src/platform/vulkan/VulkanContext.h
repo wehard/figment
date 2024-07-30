@@ -49,6 +49,10 @@ namespace Figment
             glm::mat4 Projection;
         };
 
+        VkFramebuffer GetCurrentFramebuffer() const;
+        VkCommandBuffer GetCurrentCommandBuffer() const;
+        VulkanBuffer *GetCurrentUniformBuffer() const;
+        VulkanBindGroup *GetCurrentBindGroup() const;
     public:
         explicit VulkanContext(GLFWwindow *window) : m_Window(window) { }
         ~VulkanContext() override;

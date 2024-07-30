@@ -15,6 +15,7 @@
 #include "glm/gtx/euler_angles.hpp"
 #include "Image.h"
 #include "Input.h"
+#include "Renderer.h"
 
 using namespace Figment;
 
@@ -171,6 +172,7 @@ int main()
     auto id = ImGui_ImplVulkan_AddTexture(texture.GetSampler(), texture.GetImageView(),
             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
+    auto renderer = Vulkan::Renderer(*vulkanContext);
     while (!window->ShouldClose() && !Input::GetKeyDown(GLFW_KEY_ESCAPE))
     {
         glfwPollEvents();
@@ -180,13 +182,13 @@ int main()
         zRotation += 1.0f;
         xPosition = sinf((float)glfwGetTime() * 2.0f); // * 0.5f;
         vulkanContext->BeginFrame();
-        vulkanContext->BeginMainPass();
-        vulkanContext->DebugDraw(*buffer, Transform(
+        renderer.Begin(camera);
+        renderer.Draw(*buffer, Transform(
                         { xPosition, 0.0f, 0.0f },
                         { 0.0f, 0.0f, zRotation },
                         { 1.0f, 1.0f, 1.0f }),
                 camera);
-        vulkanContext->EndMainPass();
+        renderer.End();
 
         ImGui_ImplGlfw_NewFrame();
         ImGui_ImplVulkan_NewFrame();
