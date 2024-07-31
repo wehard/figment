@@ -28,7 +28,8 @@ namespace Figment
         return imageView;
     }
 
-    VulkanSwapchain::VulkanSwapchain(VkDevice device, const VulkanSwapchainDescriptor &&descriptor)
+    VulkanSwapchain::VulkanSwapchain(VkDevice device, const VulkanSwapchainDescriptor &&descriptor) : m_Device(device),
+            m_Format(descriptor.SurfaceFormat), m_Extent(descriptor.Extent)
     {
         VkSwapchainCreateInfoKHR swapchainCreateInfo = {};
         swapchainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -50,6 +51,7 @@ namespace Figment
         m_Images.resize(m_ImageCount);
         CheckVkResult(vkGetSwapchainImagesKHR(device, m_Swapchain, &m_ImageCount, m_Images.data()));
 
+        m_ImageViews.resize(m_ImageCount);
         for (size_t i = 0; i < m_ImageCount; i++)
         {
             m_ImageViews[i] = CreateVkImageView(device, m_Images[i], descriptor.SurfaceFormat,
@@ -60,5 +62,12 @@ namespace Figment
     VulkanSwapchain::~VulkanSwapchain()
     {
 
+    }
+    uint32_t VulkanSwapchain::GetNextImageIndex(VkSemaphore presentSemaphore)
+    {
+        uint32_t imageIndex = 0;
+        CheckVkResult(vkAcquireNextImageKHR(m_Device, m_Swapchain, std::numeric_limits<uint64_t>::max(),
+                presentSemaphore, VK_NULL_HANDLE, &imageIndex));
+        return imageIndex;
     }
 }

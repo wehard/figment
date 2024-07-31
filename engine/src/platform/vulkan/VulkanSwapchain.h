@@ -22,12 +22,15 @@ namespace Figment
         explicit VulkanSwapchain(VkDevice device, const VulkanSwapchainDescriptor &&descriptor);
         ~VulkanSwapchain();
 
-        [[nodiscard]] VkSwapchainKHR GetSwapchain() const { return m_Swapchain; }
+        uint32_t GetNextImageIndex(VkSemaphore presentSemaphore);
+
+        [[nodiscard]] VkSwapchainKHR Get() const { return m_Swapchain; }
         [[nodiscard]] VkExtent2D GetExtent() const { return m_Extent; }
         [[nodiscard]] VkFormat GetFormat() const { return m_Format; }
         [[nodiscard]] std::vector<VkImage> GetImages() const { return m_Images; }
         [[nodiscard]] std::vector<VkImageView> GetImageViews() const { return m_ImageViews; }
     private:
+        VkDevice m_Device;
         VkSwapchainKHR m_Swapchain = VK_NULL_HANDLE;
         VkExtent2D m_Extent = { 0, 0 };
         VkFormat m_Format = VK_FORMAT_UNDEFINED;

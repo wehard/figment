@@ -22,6 +22,7 @@ namespace Figment
     class VulkanPipeline;
     class VulkanRenderPass;
     class VulkanBindGroup;
+    class VulkanSwapchain;
 
     inline void CheckVkResult(VkResult result)
     {
@@ -64,7 +65,6 @@ namespace Figment
         [[nodiscard]] VkQueue GetGraphicsQueue() const { return m_GraphicsQueue; }
         [[nodiscard]] VkQueue GetPresentQueue() const { return m_GraphicsQueue; }
         [[nodiscard]] VkSurfaceKHR GetSurface() const { return m_Surface; }
-        [[nodiscard]] VkSwapchainKHR GetSwapchain() const { return m_Swapchain; }
         [[nodiscard]] VkCommandPool GetImGuiCommandPool() const { return m_CommandPool; }
         [[nodiscard]] VkDescriptorPool GetDescriptorPool() const { return m_DescriptorPool; }
         [[nodiscard]] VulkanSurfaceDetails SurfaceDetails() const { return m_SurfaceDetails; }
@@ -99,9 +99,10 @@ namespace Figment
         VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;
         VkDevice m_Device = VK_NULL_HANDLE;
         VkSurfaceKHR m_Surface = VK_NULL_HANDLE;
-        VkSwapchainKHR m_Swapchain = VK_NULL_HANDLE;
+        // VkSwapchainKHR m_Swapchain = VK_NULL_HANDLE;
         VkCommandPool m_CommandPool = VK_NULL_HANDLE;
         VulkanRenderPass *m_RenderPass = nullptr;
+        VulkanSwapchain *m_Swapchain = nullptr;
 
         DeletionQueue m_DeletionQueue;
 
@@ -110,9 +111,6 @@ namespace Figment
 
         uint32_t m_GraphicsQueueIndex = UINT32_MAX;
         VkQueue m_GraphicsQueue = VK_NULL_HANDLE;
-
-        VkFormat m_SwapchainImageFormat = VK_FORMAT_UNDEFINED;
-        VkExtent2D m_SwapchainExtent = { 0, 0 };
 
         uint32_t m_FrameIndex = 0;
         uint32_t m_ImageIndex = 0;
