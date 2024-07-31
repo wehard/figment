@@ -6,76 +6,9 @@ namespace Figment::Vulkan
     {
         m_Shader = std::make_unique<VulkanShader>(context, "res/shader.vert.spv", "res/shader.frag.spv");
 
-        m_OpaquePass = std::make_unique<VulkanRenderPass>(context, VulkanRenderPass::RenderPassDescriptor {
-                .ColorAttachment = {
-                        .Format = m_Context.SurfaceDetails().formats[0].format,
-                        .Samples = VK_SAMPLE_COUNT_1_BIT,
-                        .LoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
-                        .StoreOp = VK_ATTACHMENT_STORE_OP_STORE,
-                        .StencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-                        .StencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-                        .InitialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-                        .FinalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-                }
-        });
-
-        VkExtent2D swapchainExtent = m_Context.SurfaceDetails().surfaceCapabilities.currentExtent;
-
-        m_OpaquePipeline = std::make_unique<VulkanPipeline>(context, VulkanPipeline::PipelineDescriptor {
-                .ViewportWidth = swapchainExtent.width,
-                .ViewportHeight = swapchainExtent.height,
-                .VertexInput = {
-                        .Binding = 0,
-                        .Stride = sizeof(Vertex),
-                        .InputRate = VK_VERTEX_INPUT_RATE_VERTEX,
-                        .Attributes = {
-                                {
-                                        .location = 0,
-                                        .binding = 0,
-                                        .format = VK_FORMAT_R32G32B32_SFLOAT,
-                                        .offset = offsetof(Vertex, Position)
-                                },
-                                {
-                                        .location = 1,
-                                        .binding = 0,
-                                        .format = VK_FORMAT_R32G32B32_SFLOAT,
-                                        .offset = offsetof(Vertex, Color)
-                                }
-                        }
-                },
-                .RenderPass = m_OpaquePass->Get(),
-                .VertexModule = m_Shader->GetVertexModule(),
-                .FragmentModule = m_Shader->GetFragmentModule(),
-                .DescriptorSetLayoutBindings = {
-                        {
-                                .binding = 0,
-                                .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                                .descriptorCount = 1,
-                                .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
-                                .pImmutableSamplers = nullptr
-                        }
-                }
-        });
-
-        m_Framebuffers.resize(context.GetSwapchainImageCount());
-        for (size_t i = 0; i < m_Framebuffers.size(); i++)
-        {
-            std::array<VkImageView, 1> attachments = { context.GetSwapchainImageViews()[i] };
-
-            VkFramebufferCreateInfo framebufferCreateInfo = {};
-            framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-            framebufferCreateInfo.renderPass = m_OpaquePass->Get();
-            framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-            framebufferCreateInfo.pAttachments = attachments.data();
-            framebufferCreateInfo.width = swapchainExtent.width;
-            framebufferCreateInfo.height = swapchainExtent.height;
-            framebufferCreateInfo.layers = 1;
-
-            VkResult result = vkCreateFramebuffer(context.GetDevice(), &framebufferCreateInfo, nullptr,
-                    &m_Framebuffers[i]);
-            if (result != VK_SUCCESS)
-                throw std::runtime_error("Failed to create framebuffer!");
-        }
+        CreateRenderPass();
+        CreatePipeline();
+        CreateFramebuffers();
     }
 
     Renderer::~Renderer()
@@ -136,5 +69,93 @@ namespace Figment::Vulkan
         vkCmdEndRenderPass(commandBuffer);
 
         CheckVkResult(vkEndCommandBuffer(commandBuffer));
+    }
+
+    void Renderer::OnResize(uint32_t width, uint32_t height)
+    {
+        CreateFramebuffers();
+        CreatePipeline();
+    }
+
+    void Renderer::CreateFramebuffers()
+    {
+        VkExtent2D swapchainExtent = m_Context.SurfaceDetails().surfaceCapabilities.currentExtent;
+
+        m_Framebuffers.resize(m_Context.GetSwapchainImageCount());
+        for (size_t i = 0; i < m_Framebuffers.size(); i++)
+        {
+            std::array<VkImageView, 1> attachments = { m_Context.GetSwapchainImageViews()[i] };
+
+            VkFramebufferCreateInfo framebufferCreateInfo = {};
+            framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+            framebufferCreateInfo.renderPass = m_OpaquePass->Get();
+            framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+            framebufferCreateInfo.pAttachments = attachments.data();
+            framebufferCreateInfo.width = swapchainExtent.width;
+            framebufferCreateInfo.height = swapchainExtent.height;
+            framebufferCreateInfo.layers = 1;
+
+            VkResult result = vkCreateFramebuffer(m_Context.GetDevice(), &framebufferCreateInfo, nullptr,
+                    &m_Framebuffers[i]);
+            if (result != VK_SUCCESS)
+                throw std::runtime_error("Failed to create framebuffer!");
+        }
+    }
+
+    void Renderer::CreateRenderPass()
+    {
+        m_OpaquePass = std::make_unique<VulkanRenderPass>(m_Context, VulkanRenderPass::RenderPassDescriptor {
+                .ColorAttachment = {
+                        .Format = m_Context.SurfaceDetails().formats[0].format,
+                        .Samples = VK_SAMPLE_COUNT_1_BIT,
+                        .LoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+                        .StoreOp = VK_ATTACHMENT_STORE_OP_STORE,
+                        .StencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+                        .StencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+                        .InitialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+                        .FinalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+                }
+        });
+    }
+
+    void Renderer::CreatePipeline()
+    {
+        auto swapchainExtent = m_Context.SurfaceDetails().surfaceCapabilities.currentExtent;
+
+        m_OpaquePipeline = std::make_unique<VulkanPipeline>(m_Context, VulkanPipeline::PipelineDescriptor {
+                .ViewportWidth = swapchainExtent.width,
+                .ViewportHeight = swapchainExtent.height,
+                .VertexInput = {
+                        .Binding = 0,
+                        .Stride = sizeof(Vertex),
+                        .InputRate = VK_VERTEX_INPUT_RATE_VERTEX,
+                        .Attributes = {
+                                {
+                                        .location = 0,
+                                        .binding = 0,
+                                        .format = VK_FORMAT_R32G32B32_SFLOAT,
+                                        .offset = offsetof(Vertex, Position)
+                                },
+                                {
+                                        .location = 1,
+                                        .binding = 0,
+                                        .format = VK_FORMAT_R32G32B32_SFLOAT,
+                                        .offset = offsetof(Vertex, Color)
+                                }
+                        }
+                },
+                .RenderPass = m_OpaquePass->Get(),
+                .VertexModule = m_Shader->GetVertexModule(),
+                .FragmentModule = m_Shader->GetFragmentModule(),
+                .DescriptorSetLayoutBindings = {
+                        {
+                                .binding = 0,
+                                .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                                .descriptorCount = 1,
+                                .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
+                                .pImmutableSamplers = nullptr
+                        }
+                }
+        });
     }
 }

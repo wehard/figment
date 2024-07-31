@@ -127,13 +127,15 @@ int main()
     auto window = Window::Create("Figment", 1280, 720);
     Input::Initialize((GLFWwindow *)window->GetNative());
     auto vulkanContext = window->GetContext<VulkanContext>();
+    auto renderer = Vulkan::Renderer(*vulkanContext);
 
     PerspectiveCamera camera(1280.0 / 720.0);
     camera.SetPosition({ 0.0f, 0.0f, 2.0f });
 
-    window->SetResizeEventCallback([&camera](WindowResizeEventData eventData)
+    window->SetResizeEventCallback([&camera, &renderer](WindowResizeEventData eventData)
     {
         camera.Resize((float)eventData.Width, (float)eventData.Height);
+        renderer.OnResize(eventData.Width, eventData.Height);
     });
 
     auto imGuiContext = ImGuiInit(vulkanContext.get(), (GLFWwindow *)window->GetNative());
@@ -172,7 +174,6 @@ int main()
     auto id = ImGui_ImplVulkan_AddTexture(texture.GetSampler(), texture.GetImageView(),
             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-    auto renderer = Vulkan::Renderer(*vulkanContext);
     while (!window->ShouldClose() && !Input::GetKeyDown(GLFW_KEY_ESCAPE))
     {
         glfwPollEvents();

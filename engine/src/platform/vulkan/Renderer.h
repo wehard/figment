@@ -20,6 +20,8 @@ namespace Figment::Vulkan
         void End();
 
         void Draw(VulkanBuffer &buffer, glm::mat4 transform, Camera &camera);
+
+        void OnResize(uint32_t width, uint32_t height);
     private:
         struct Vertex
         {
@@ -32,5 +34,9 @@ namespace Figment::Vulkan
         std::unique_ptr<VulkanPipeline> m_OpaquePipeline = nullptr;
         std::unique_ptr<VulkanShader> m_Shader = nullptr;
         std::vector<VkFramebuffer> m_Framebuffers;
+    private:
+        void CreateRenderPass();
+        void CreatePipeline();
+        void CreateFramebuffers();
     };
 }
