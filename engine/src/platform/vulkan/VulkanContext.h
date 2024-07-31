@@ -50,7 +50,6 @@ namespace Figment
             glm::mat4 Projection;
         };
 
-        VkFramebuffer GetCurrentFramebuffer() const;
         VkCommandBuffer GetCurrentCommandBuffer() const;
         VulkanBuffer *GetCurrentUniformBuffer() const;
         VulkanBindGroup *GetCurrentBindGroup() const;
@@ -103,7 +102,6 @@ namespace Figment
         VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;
         VkDevice m_Device = VK_NULL_HANDLE;
         VkSurfaceKHR m_Surface = VK_NULL_HANDLE;
-        // VkSwapchainKHR m_Swapchain = VK_NULL_HANDLE;
         VkCommandPool m_CommandPool = VK_NULL_HANDLE;
         VulkanRenderPass *m_RenderPass = nullptr;
         VulkanSwapchain *m_Swapchain = nullptr;
@@ -139,14 +137,14 @@ namespace Figment
 
         struct FrameData
         {
-            std::vector<VkFramebuffer> Framebuffers;
+            // std::vector<VkFramebuffer> Framebuffers;
             std::vector<VkFramebuffer> ImGuiFramebuffers;
             std::vector<VkImage> Images;
             std::vector<VkImageView> ImageViews;
 
             void Init(uint32_t size)
             {
-                Framebuffers.resize(size);
+                // Framebuffers.resize(size);
                 ImGuiFramebuffers.resize(size);
                 Images.resize(size);
                 ImageViews.resize(size);
@@ -176,7 +174,6 @@ namespace Figment
         void CreateImGuiCommandPool();
         void CreateCommandBuffers();
         void CreateImGuiCommandBuffers();
-        void CreateFramebuffers();
         void CreateImGuiFramebuffers();
         void CreateSynchronization();
 

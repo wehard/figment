@@ -59,7 +59,6 @@ namespace Figment
         }
 
         CreatePipeline(m_Shader->GetVertexModule(), m_Shader->GetFragmentModule());
-        CreateFramebuffers();
         CreateImGuiFramebuffers();
         CreateCommandPool();
         CreateImGuiCommandPool();
@@ -497,30 +496,6 @@ namespace Figment
             throw std::runtime_error("Failed to create ImGui command pool!");
     }
 
-    void Figment::VulkanContext::CreateFramebuffers()
-    {
-        m_FrameData.Framebuffers.resize(m_FrameData.ImageViews.size());
-        for (size_t i = 0; i < m_FrameData.Framebuffers.size(); i++)
-        {
-            std::array<VkImageView, 1> attachments = {
-                    m_FrameData.ImageViews[i] };
-
-            VkFramebufferCreateInfo framebufferCreateInfo = {};
-            framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-            framebufferCreateInfo.renderPass = m_RenderPass->Get();
-            framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-            framebufferCreateInfo.pAttachments = attachments.data();
-            framebufferCreateInfo.width = m_Swapchain->GetExtent().width;
-            framebufferCreateInfo.height = m_Swapchain->GetExtent().height;
-            framebufferCreateInfo.layers = 1;
-
-            VkResult result = vkCreateFramebuffer(m_Device, &framebufferCreateInfo, nullptr,
-                    &m_FrameData.Framebuffers[i]);
-            if (result != VK_SUCCESS)
-                throw std::runtime_error("Failed to create framebuffer!");
-        }
-    }
-
     void Figment::VulkanContext::CreateImGuiFramebuffers()
     {
         m_FrameData.ImGuiFramebuffers.resize(m_FrameData.ImageViews.size());
@@ -670,17 +645,11 @@ namespace Figment
 
     void VulkanContext::CleanupSwapchain()
     {
-        for (auto framebuffer : m_FrameData.Framebuffers)
-        {
-            vkDestroyFramebuffer(m_Device, framebuffer, nullptr);
-        }
-        m_FrameData.Framebuffers.clear();
-
         for (auto framebuffer : m_FrameData.ImGuiFramebuffers)
         {
             vkDestroyFramebuffer(m_Device, framebuffer, nullptr);
         }
-        m_FrameData.Framebuffers.clear();
+        m_FrameData.ImGuiFramebuffers.clear();
 
         for (auto imageView : m_FrameData.ImageViews)
         {
@@ -698,7 +667,6 @@ namespace Figment
 
         CleanupSwapchain();
         CreateSwapchain();
-        CreateFramebuffers();
         CreateImGuiFramebuffers();
         delete m_Pipeline;
         CreatePipeline(m_Shader->GetVertexModule(), m_Shader->GetFragmentModule());
@@ -752,11 +720,6 @@ namespace Figment
         vkWaitForFences(m_Device, fences.size(), fences.data(), VK_TRUE, std::numeric_limits<uint64_t>::max());
         m_DeletionQueue.Flush();
 
-        for (auto &framebuffer : m_FrameData.Framebuffers)
-        {
-            vkDestroyFramebuffer(m_Device, framebuffer, nullptr);
-        }
-
         for (auto &framebuffer : m_FrameData.ImGuiFramebuffers)
         {
             vkDestroyFramebuffer(m_Device, framebuffer, nullptr);
@@ -779,11 +742,6 @@ namespace Figment
         }
         FIG_LOG_ERROR("Failed to find required memory type!");
         return (-1);
-    }
-
-    VkFramebuffer VulkanContext::GetCurrentFramebuffer() const
-    {
-        return m_FrameData.Framebuffers[m_ImageIndex];
     }
 
     VkCommandBuffer VulkanContext::GetCurrentCommandBuffer() const
