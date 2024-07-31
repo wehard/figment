@@ -798,4 +798,20 @@ namespace Figment
     {
         return m_BindGroups[m_FrameIndex];
     }
+    uint32_t VulkanContext::GetSwapchainImageCount() const
+    {
+        return m_Swapchain->GetImageCount();
+    }
+    std::vector<VkImage> VulkanContext::GetSwapchainImages() const
+    {
+        return m_Swapchain->GetImages();
+    }
+    std::vector<VkImageView> VulkanContext::GetSwapchainImageViews() const
+    {
+        return m_Swapchain->GetImageViews();
+    }
+    uint32_t VulkanContext::GetSwapchainImageIndex() const
+    {
+        return m_ImageIndex;
+    }
 }

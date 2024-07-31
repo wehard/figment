@@ -31,5 +31,6 @@ namespace Figment::Vulkan
         std::unique_ptr<VulkanRenderPass> m_OpaquePass = nullptr;
         std::unique_ptr<VulkanPipeline> m_OpaquePipeline = nullptr;
         std::unique_ptr<VulkanShader> m_Shader = nullptr;
+        std::vector<VkFramebuffer> m_Framebuffers;
     };
 }

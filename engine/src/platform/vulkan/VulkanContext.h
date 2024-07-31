@@ -54,6 +54,7 @@ namespace Figment
         VkCommandBuffer GetCurrentCommandBuffer() const;
         VulkanBuffer *GetCurrentUniformBuffer() const;
         VulkanBindGroup *GetCurrentBindGroup() const;
+        uint32_t GetSwapchainImageIndex() const;
     public:
         explicit VulkanContext(GLFWwindow *window) : m_Window(window) { }
         ~VulkanContext() override;
@@ -73,10 +74,13 @@ namespace Figment
         // [[nodiscard]] VkPipeline GetPipeline() const { return m_Pipeline; }
         [[nodiscard]] VkFramebuffer GetImGuiFramebuffer() const { return m_FrameData.ImGuiFramebuffers[m_ImageIndex]; }
         [[nodiscard]] VkImageView GetCurrentImageView() const { return m_FrameData.ImageViews[m_ImageIndex]; }
-        [[nodiscard]]VkDescriptorPool CreateDescriptorPool(std::vector<VkDescriptorPoolSize> poolSizes,
+        [[nodiscard]] VkDescriptorPool CreateDescriptorPool(std::vector<VkDescriptorPoolSize> poolSizes,
                 uint32_t maxSets);
 
         VulkanRenderPass *GetImGuiRenderPass() { return m_ImGuiRenderPass; }
+        [[nodiscard]] uint32_t GetSwapchainImageCount() const;
+        [[nodiscard]] std::vector<VkImage> GetSwapchainImages() const;
+        [[nodiscard]] std::vector<VkImageView> GetSwapchainImageViews() const;
 
         void OnResize(uint32_t width, uint32_t height) override;
         void BeginFrame();

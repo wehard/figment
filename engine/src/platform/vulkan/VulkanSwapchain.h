@@ -28,6 +28,7 @@ namespace Figment
         [[nodiscard]] VkExtent2D GetExtent() const { return m_Extent; }
         [[nodiscard]] VkFormat GetFormat() const { return m_Format; }
         [[nodiscard]] std::vector<VkImage> GetImages() const { return m_Images; }
+        [[nodiscard]] uint32_t GetImageCount() const { return m_ImageCount; }
         [[nodiscard]] std::vector<VkImageView> GetImageViews() const { return m_ImageViews; }
     private:
         VkDevice m_Device;

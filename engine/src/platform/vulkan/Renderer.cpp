@@ -19,11 +19,11 @@ namespace Figment::Vulkan
                 }
         });
 
-        VkExtent2D m_SwapchainExtent = m_Context.SurfaceDetails().surfaceCapabilities.currentExtent;
+        VkExtent2D swapchainExtent = m_Context.SurfaceDetails().surfaceCapabilities.currentExtent;
 
         m_OpaquePipeline = std::make_unique<VulkanPipeline>(context, VulkanPipeline::PipelineDescriptor {
-                .ViewportWidth = m_SwapchainExtent.width,
-                .ViewportHeight = m_SwapchainExtent.height,
+                .ViewportWidth = swapchainExtent.width,
+                .ViewportHeight = swapchainExtent.height,
                 .VertexInput = {
                         .Binding = 0,
                         .Stride = sizeof(Vertex),
@@ -56,6 +56,26 @@ namespace Figment::Vulkan
                         }
                 }
         });
+
+        m_Framebuffers.resize(context.GetSwapchainImageCount());
+        for (size_t i = 0; i < m_Framebuffers.size(); i++)
+        {
+            std::array<VkImageView, 1> attachments = { context.GetSwapchainImageViews()[i] };
+
+            VkFramebufferCreateInfo framebufferCreateInfo = {};
+            framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+            framebufferCreateInfo.renderPass = m_OpaquePass->Get();
+            framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+            framebufferCreateInfo.pAttachments = attachments.data();
+            framebufferCreateInfo.width = swapchainExtent.width;
+            framebufferCreateInfo.height = swapchainExtent.height;
+            framebufferCreateInfo.layers = 1;
+
+            VkResult result = vkCreateFramebuffer(context.GetDevice(), &framebufferCreateInfo, nullptr,
+                    &m_Framebuffers[i]);
+            if (result != VK_SUCCESS)
+                throw std::runtime_error("Failed to create framebuffer!");
+        }
     }
 
     Renderer::~Renderer()
@@ -78,7 +98,7 @@ namespace Figment::Vulkan
         renderPassBeginInfo.pClearValues = clearValues;
         renderPassBeginInfo.clearValueCount = 1;
 
-        renderPassBeginInfo.framebuffer = m_Context.GetCurrentFramebuffer();
+        renderPassBeginInfo.framebuffer = m_Framebuffers[m_Context.GetSwapchainImageIndex()];
 
         VkCommandBuffer commandBuffer = m_Context.GetCurrentCommandBuffer();
         CheckVkResult(vkBeginCommandBuffer(commandBuffer, &bufferBeginInfo));
