@@ -641,37 +641,6 @@ namespace Figment
                 m_SynchronizationObjects[m_FrameIndex].SemaphoreImageAvailable, VK_NULL_HANDLE, &m_ImageIndex));
     }
 
-    void VulkanContext::BeginMainPass()
-    {
-        VkCommandBufferBeginInfo bufferBeginInfo = {};
-        bufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
-        VkRenderPassBeginInfo renderPassBeginInfo = {};
-        renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassBeginInfo.renderPass = m_RenderPass->Get();
-        renderPassBeginInfo.renderArea.offset = { 0, 0 };
-        renderPassBeginInfo.renderArea.extent = m_SwapchainExtent;
-        VkClearValue clearValues[] = {
-                { 0.1f, 0.1f, 0.1f, 1.0f }};
-        renderPassBeginInfo.pClearValues = clearValues;
-        renderPassBeginInfo.clearValueCount = 1;
-
-        renderPassBeginInfo.framebuffer = m_FrameData.Framebuffers[m_ImageIndex];
-
-        CheckVkResult(vkBeginCommandBuffer(m_CommandBuffers[m_FrameIndex], &bufferBeginInfo));
-
-        // begin render pass
-        vkCmdBeginRenderPass(m_CommandBuffers[m_FrameIndex], &renderPassBeginInfo,
-                VK_SUBPASS_CONTENTS_INLINE);
-    }
-
-    void VulkanContext::EndMainPass()
-    {
-        vkCmdEndRenderPass(m_CommandBuffers[m_FrameIndex]);
-
-        CheckVkResult(vkEndCommandBuffer(m_CommandBuffers[m_FrameIndex]));
-    }
-
     void VulkanContext::EndFrame()
     {
         std::array<VkCommandBuffer, 2> submitCommandBuffers =
@@ -705,28 +674,6 @@ namespace Figment
         CheckVkResult(vkQueuePresentKHR(m_GraphicsQueue, &presentInfo));
 
         m_FrameIndex = (m_FrameIndex + 1) % MAX_FRAME_DRAWS;
-    }
-
-    void VulkanContext::DebugDraw(VulkanBuffer &buffer, glm::mat4 transform, Camera &camera)
-    {
-        vkCmdBindPipeline(m_CommandBuffers[m_FrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline->Get());
-
-        UniformBufferObject ubo = {
-                .Model = transform,
-                .View = camera.GetViewMatrix(),
-                .Projection = camera.GetProjectionMatrix(),
-        };
-        // m_UBO.Projection[1][1] *= -1;
-        m_UniformBuffers[m_FrameIndex]->SetData(&ubo, sizeof(UniformBufferObject));
-
-        VkBuffer buffers[] = { buffer.Get() };
-        VkDeviceSize offsets[] = { 0 };
-        vkCmdBindVertexBuffers(m_CommandBuffers[m_FrameIndex], 0, 1, buffers, offsets);
-
-        vkCmdBindDescriptorSets(m_CommandBuffers[m_FrameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
-                m_Pipeline->GetLayout(),
-                0, 1, m_BindGroups[m_FrameIndex]->Get(), 0, nullptr);
-        vkCmdDraw(m_CommandBuffers[m_FrameIndex], 6, 1, 0, 0);
     }
 
     void VulkanContext::OnResize(uint32_t width, uint32_t height)

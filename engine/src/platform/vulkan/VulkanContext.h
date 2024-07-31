@@ -81,9 +81,6 @@ namespace Figment
         void OnResize(uint32_t width, uint32_t height) override;
         void BeginFrame();
         void EndFrame();
-        void BeginMainPass();
-        void EndMainPass();
-        void DebugDraw(VulkanBuffer &buffer, glm::mat4 transform, Camera &camera);
         [[nodiscard]] VkCommandBuffer BeginSingleTimeCommands() const;
         void EndSingleTimeCommands(VkCommandBuffer commandBuffer) const;
         void Cleanup();
