@@ -19,7 +19,6 @@ namespace Figment
 {
     class VulkanBuffer;
     class VulkanShader;
-    class VulkanPipeline;
     class VulkanRenderPass;
     class VulkanBindGroup;
     class VulkanSwapchain;
@@ -68,11 +67,8 @@ namespace Figment
         [[nodiscard]] VkCommandPool GetImGuiCommandPool() const { return m_CommandPool; }
         [[nodiscard]] VkDescriptorPool GetDescriptorPool() const { return m_DescriptorPool; }
         [[nodiscard]] VulkanSurfaceDetails SurfaceDetails() const { return m_SurfaceDetails; }
-        // [[nodiscard]] VkRenderPass GetRenderPass() const { return m_RenderPass; }
         [[nodiscard]] VkCommandBuffer GetImGuiCommandBuffer() const { return m_ImGuiCommandBuffers[m_FrameIndex]; }
-        // [[nodiscard]] VkPipeline GetPipeline() const { return m_Pipeline; }
-        [[nodiscard]] VkFramebuffer GetImGuiFramebuffer() const { return m_FrameData.ImGuiFramebuffers[m_ImageIndex]; }
-        [[nodiscard]] VkImageView GetCurrentImageView() const { return m_FrameData.ImageViews[m_ImageIndex]; }
+        [[nodiscard]] VkFramebuffer GetImGuiFramebuffer() const { return m_ImGuiFramebuffers[m_ImageIndex]; }
         [[nodiscard]] VkDescriptorPool CreateDescriptorPool(std::vector<VkDescriptorPoolSize> poolSizes,
                 uint32_t maxSets);
 
@@ -103,7 +99,6 @@ namespace Figment
         VkDevice m_Device = VK_NULL_HANDLE;
         VkSurfaceKHR m_Surface = VK_NULL_HANDLE;
         VkCommandPool m_CommandPool = VK_NULL_HANDLE;
-        VulkanRenderPass *m_RenderPass = nullptr;
         VulkanSwapchain *m_Swapchain = nullptr;
 
         DeletionQueue m_DeletionQueue;
@@ -116,10 +111,6 @@ namespace Figment
 
         uint32_t m_FrameIndex = 0;
         uint32_t m_ImageIndex = 0;
-
-        VulkanPipeline *m_Pipeline = nullptr;
-        VulkanShader *m_Shader = nullptr;
-        VulkanBuffer *m_Buffer = nullptr;
 
         VulkanSurfaceDetails m_SurfaceDetails = {};
 
@@ -135,23 +126,7 @@ namespace Figment
             VkFence FenceDraw;
         };
 
-        struct FrameData
-        {
-            // std::vector<VkFramebuffer> Framebuffers;
-            std::vector<VkFramebuffer> ImGuiFramebuffers;
-            std::vector<VkImage> Images;
-            std::vector<VkImageView> ImageViews;
-
-            void Init(uint32_t size)
-            {
-                // Framebuffers.resize(size);
-                ImGuiFramebuffers.resize(size);
-                Images.resize(size);
-                ImageViews.resize(size);
-            }
-        };
-
-        FrameData m_FrameData;
+        std::vector<VkFramebuffer> m_ImGuiFramebuffers;
         std::vector<VkCommandBuffer> m_CommandBuffers;
         std::vector<SynchronizationObjects> m_SynchronizationObjects;
         std::vector<VulkanBindGroup *> m_BindGroups;
@@ -165,9 +140,7 @@ namespace Figment
         void CreateSurface();
         void CreateDevice();
         void CreateSwapchain();
-        void CreateRenderPass();
         void CreateImGuiRenderPass();
-        void CreatePipeline(VkShaderModule vertexModule, VkShaderModule fragmentModule);
         void CreatePipelineCache();
         void CreateDescriptorSets();
         void CreateCommandPool();

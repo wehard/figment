@@ -2,7 +2,6 @@
 #include "VulkanSwapchain.h"
 #include "VulkanShader.h"
 #include "VulkanBuffer.h"
-#include "VulkanPipeline.h"
 
 #include "glm/glm.hpp"
 #include "VulkanRenderPass.h"
@@ -26,20 +25,7 @@ namespace Figment
         CreateSurface();
         CreateDevice();
         CreateSwapchain();
-        CreateRenderPass();
         CreateImGuiRenderPass();
-
-        std::vector<Vertex> vertices = {
-                {{ 0.0, -0.5, 0.0 }, { 1.0, 0.0, 0.0 }},
-                {{ 0.5, 0.5, 0.0 }, { 0.0, 1.0, 0.0 }},
-                {{ -0.5, 0.5, 0.0 }, { 0.0, 0.0, 1.0 }}};
-        m_Buffer = new VulkanBuffer(*this, {
-                .Data = vertices.data(),
-                .ByteSize = static_cast<uint32_t>(vertices.size() * sizeof(Vertex)),
-                .Usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
-        });
-
-        m_Shader = new VulkanShader(*this, "res/shader.vert.spv", "res/shader.frag.spv");
 
         UniformBufferObject ubo = {
                 .Model = glm::mat4(1.0f),
@@ -58,7 +44,6 @@ namespace Figment
             }));
         }
 
-        CreatePipeline(m_Shader->GetVertexModule(), m_Shader->GetFragmentModule());
         CreateImGuiFramebuffers();
         CreateCommandPool();
         CreateImGuiCommandPool();
@@ -272,32 +257,6 @@ namespace Figment
         return surfaceDetails;
     }
 
-    static VkImageView CreateVkImageView(VkDevice device, VkImage image, VkFormat format,
-            VkImageAspectFlags aspectFlags)
-    {
-        VkImageViewCreateInfo viewCreateInfo = {};
-        viewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        viewCreateInfo.image = image;
-        viewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        viewCreateInfo.format = format;
-        viewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-        viewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-        viewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-        viewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-
-        viewCreateInfo.subresourceRange.aspectMask = aspectFlags;
-        viewCreateInfo.subresourceRange.baseMipLevel = 0;
-        viewCreateInfo.subresourceRange.levelCount = 1;
-        viewCreateInfo.subresourceRange.baseArrayLayer = 0;
-        viewCreateInfo.subresourceRange.layerCount = 1;
-
-        VkImageView imageView;
-        VkResult result = vkCreateImageView(device, &viewCreateInfo, nullptr, &imageView);
-        if (result != VK_SUCCESS)
-            throw std::runtime_error("Failed to create an Image View!");
-        return imageView;
-    }
-
     void Figment::VulkanContext::CreateSwapchain()
     {
         m_SurfaceDetails = GetSurfaceDetails(m_PhysicalDevice, m_Surface);
@@ -311,16 +270,7 @@ namespace Figment
                 .Transform = m_SurfaceDetails.surfaceCapabilities.currentTransform,
         });
 
-        auto swapChainImageCount = m_Swapchain->GetImages().size();
-        auto images = m_Swapchain->GetImages();
-
-        m_FrameData.Init(swapChainImageCount);
-        for (size_t i = 0; i < swapChainImageCount; i++)
-        {
-            m_FrameData.Images[i] = images[i];
-            m_FrameData.ImageViews[i] = CreateVkImageView(m_Device, images[i], m_Swapchain->GetFormat(),
-                    VK_IMAGE_ASPECT_COLOR_BIT);
-        }
+        m_ImGuiFramebuffers.resize(m_Swapchain->GetImageCount());
 
         m_DeletionQueue.Push([this]()
         {
@@ -329,28 +279,6 @@ namespace Figment
             //     vkDestroyImageView(m_Device, m_FrameData.ImageViews[i], nullptr);
             // }
             // vkDestroySwapchainKHR(m_Device, m_Swapchain, nullptr);
-        });
-    }
-
-    void Figment::VulkanContext::CreateRenderPass()
-    {
-        m_RenderPass = new VulkanRenderPass(*this, {
-                .ColorAttachment = {
-                        .Format = m_Swapchain->GetFormat(),
-                        .Samples = VK_SAMPLE_COUNT_1_BIT,
-                        .LoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
-                        .StoreOp = VK_ATTACHMENT_STORE_OP_STORE,
-                        .StencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-                        .StencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-                        .InitialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-                        .FinalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-                }
-        });
-
-        m_DeletionQueue.Push([this]()
-        {
-            vkDestroyRenderPass(m_Device, m_RenderPass->Get(), nullptr);
-            delete m_RenderPass;
         });
     }
 
@@ -373,45 +301,6 @@ namespace Figment
         //     vkDestroyRenderPass(m_Device, m_ImGuiRenderPass->Get(), nullptr);
         //     delete m_ImGuiRenderPass;
         // });
-    }
-
-    void Figment::VulkanContext::CreatePipeline(VkShaderModule vertexModule, VkShaderModule fragmentModule)
-    {
-        m_Pipeline = new VulkanPipeline(*this, {
-                .ViewportWidth = m_Swapchain->GetExtent().width,
-                .ViewportHeight = m_Swapchain->GetExtent().height,
-                .VertexInput = {
-                        .Binding = 0,
-                        .Stride = sizeof(Vertex),
-                        .InputRate = VK_VERTEX_INPUT_RATE_VERTEX,
-                        .Attributes = {
-                                {
-                                        .location = 0,
-                                        .binding = 0,
-                                        .format = VK_FORMAT_R32G32B32_SFLOAT,
-                                        .offset = offsetof(Vertex, Position)
-                                },
-                                {
-                                        .location = 1,
-                                        .binding = 0,
-                                        .format = VK_FORMAT_R32G32B32_SFLOAT,
-                                        .offset = offsetof(Vertex, Color)
-                                }
-                        }
-                },
-                .RenderPass = m_RenderPass->Get(),
-                .VertexModule = vertexModule,
-                .FragmentModule = fragmentModule,
-                .DescriptorSetLayoutBindings = {
-                        {
-                                .binding = 0,
-                                .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                                .descriptorCount = 1,
-                                .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
-                                .pImmutableSamplers = nullptr
-                        }
-                }
-        });
     }
 
     void Figment::VulkanContext::CreatePipelineCache()
@@ -464,7 +353,6 @@ namespace Figment
                     }
             });
         }
-
     }
 
     void Figment::VulkanContext::CreateCommandPool()
@@ -498,11 +386,11 @@ namespace Figment
 
     void Figment::VulkanContext::CreateImGuiFramebuffers()
     {
-        m_FrameData.ImGuiFramebuffers.resize(m_FrameData.ImageViews.size());
-        for (size_t i = 0; i < m_FrameData.ImGuiFramebuffers.size(); i++)
+        m_ImGuiFramebuffers.resize(m_Swapchain->GetImageCount());
+        for (size_t i = 0; i < m_ImGuiFramebuffers.size(); i++)
         {
             std::array<VkImageView, 1> attachments = {
-                    m_FrameData.ImageViews[i] };
+                    m_Swapchain->GetImageViews()[i] };
 
             VkFramebufferCreateInfo framebufferCreateInfo = {};
             framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -514,7 +402,7 @@ namespace Figment
             framebufferCreateInfo.layers = 1;
 
             VkResult result = vkCreateFramebuffer(m_Device, &framebufferCreateInfo, nullptr,
-                    &m_FrameData.ImGuiFramebuffers[i]);
+                    &m_ImGuiFramebuffers[i]);
             if (result != VK_SUCCESS)
                 throw std::runtime_error("Failed to create ImGui framebuffer!");
 
@@ -645,17 +533,11 @@ namespace Figment
 
     void VulkanContext::CleanupSwapchain()
     {
-        for (auto framebuffer : m_FrameData.ImGuiFramebuffers)
+        for (auto framebuffer : m_ImGuiFramebuffers)
         {
             vkDestroyFramebuffer(m_Device, framebuffer, nullptr);
         }
-        m_FrameData.ImGuiFramebuffers.clear();
-
-        for (auto imageView : m_FrameData.ImageViews)
-        {
-            vkDestroyImageView(m_Device, imageView, nullptr);
-        }
-        m_FrameData.ImageViews.clear();
+        m_ImGuiFramebuffers.clear();
 
         vkDestroySwapchainKHR(m_Device, m_Swapchain->Get(), nullptr);
         delete m_Swapchain;
@@ -668,8 +550,6 @@ namespace Figment
         CleanupSwapchain();
         CreateSwapchain();
         CreateImGuiFramebuffers();
-        delete m_Pipeline;
-        CreatePipeline(m_Shader->GetVertexModule(), m_Shader->GetFragmentModule());
 
         vkResetCommandPool(m_Device, m_CommandPool, 0);
     }
@@ -720,12 +600,10 @@ namespace Figment
         vkWaitForFences(m_Device, fences.size(), fences.data(), VK_TRUE, std::numeric_limits<uint64_t>::max());
         m_DeletionQueue.Flush();
 
-        for (auto &framebuffer : m_FrameData.ImGuiFramebuffers)
+        for (auto &framebuffer : m_ImGuiFramebuffers)
         {
             vkDestroyFramebuffer(m_Device, framebuffer, nullptr);
         }
-
-        delete m_Pipeline;
     }
 
     uint32_t VulkanContext::FindMemoryTypeIndex(uint32_t allowedTypes, VkMemoryPropertyFlags properties) const
