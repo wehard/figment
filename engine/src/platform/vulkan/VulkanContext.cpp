@@ -21,11 +21,7 @@ namespace Figment
         CreateDevice();
         CreateSwapchain();
 
-        m_CommandPool = CreateCommandPool();
-        m_ImGuiCommandPool = CreateCommandPool();
-        CreateCommandBuffers();
-        CreateImGuiCommandBuffers();
-        CreateSynchronization();
+        m_SingleTimeCommandPool = CreateCommandPool();
 
         if (glfwGetPhysicalDevicePresentationSupport(m_Instance, m_PhysicalDevice, 0))
         {
@@ -285,117 +281,6 @@ namespace Figment
         return commandPool;
     }
 
-    void Figment::VulkanContext::CreateCommandBuffers()
-    {
-        m_CommandBuffers.resize(MAX_FRAME_DRAWS);
-        VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
-        commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        commandBufferAllocateInfo.commandPool = m_CommandPool;
-        commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY; // can only be executed by queue, not like secondary that can be executed by primary command buffers
-        commandBufferAllocateInfo.commandBufferCount = static_cast<uint32_t>(m_CommandBuffers.size());
-
-        VkResult result = vkAllocateCommandBuffers(m_Device, &commandBufferAllocateInfo,
-                &m_CommandBuffers[0]);
-        if (result != VK_SUCCESS)
-            throw std::runtime_error("Failed to allocate command buffers!");
-    }
-
-    void Figment::VulkanContext::CreateImGuiCommandBuffers()
-    {
-        m_ImGuiCommandBuffers.resize(MAX_FRAME_DRAWS);
-        VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
-        commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        commandBufferAllocateInfo.commandPool = m_ImGuiCommandPool;
-        commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY; // can only be executed by queue, not like secondary that can be executed by primary command buffers
-        commandBufferAllocateInfo.commandBufferCount = static_cast<uint32_t>(m_ImGuiCommandBuffers.size());
-
-        VkResult result = vkAllocateCommandBuffers(m_Device, &commandBufferAllocateInfo,
-                &m_ImGuiCommandBuffers[0]);
-        if (result != VK_SUCCESS)
-            throw std::runtime_error("Failed to allocate command buffers!");
-    }
-
-    void Figment::VulkanContext::CreateSynchronization()
-    {
-        VkSemaphoreCreateInfo semaphoreCreateInfo = {};
-        semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-        VkFenceCreateInfo fenceCreateInfo = {};
-        fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-        fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
-        m_SynchronizationObjects.resize(MAX_FRAME_DRAWS);
-
-        for (auto &m_SynchronizationObject : m_SynchronizationObjects)
-        {
-            if (vkCreateSemaphore(m_Device, &semaphoreCreateInfo, nullptr,
-                    &m_SynchronizationObject.SemaphoreImageAvailable) != VK_SUCCESS
-                    ||
-                            vkCreateSemaphore(m_Device, &semaphoreCreateInfo, nullptr,
-                                    &m_SynchronizationObject.SemaphoreRenderFinished)
-                                    != VK_SUCCESS ||
-                    vkCreateFence(m_Device, &fenceCreateInfo, nullptr, &m_SynchronizationObject.FenceDraw)
-                            != VK_SUCCESS)
-                throw std::runtime_error("Failed to create semaphore or fence!");
-        }
-
-        m_DeletionQueue.Push([this]()
-        {
-            for (auto &m_SynchronizationObject : m_SynchronizationObjects)
-            {
-                vkDestroyFence(m_Device, m_SynchronizationObject.FenceDraw, nullptr);
-                vkDestroySemaphore(m_Device, m_SynchronizationObject.SemaphoreImageAvailable, nullptr);
-                vkDestroySemaphore(m_Device, m_SynchronizationObject.SemaphoreRenderFinished, nullptr);
-            }
-        });
-    }
-
-    void VulkanContext::BeginFrame()
-    {
-        CheckVkResult(vkWaitForFences(m_Device, 1, &m_SynchronizationObjects[m_FrameIndex].FenceDraw, VK_TRUE,
-                std::numeric_limits<uint64_t>::max()));
-
-        CheckVkResult(vkResetFences(m_Device, 1, &m_SynchronizationObjects[m_FrameIndex].FenceDraw));
-
-        m_ImageIndex = m_Swapchain->GetNextImageIndex(m_SynchronizationObjects[m_FrameIndex].SemaphoreImageAvailable);
-    }
-
-    void VulkanContext::EndFrame()
-    {
-        std::array<VkCommandBuffer, 2> submitCommandBuffers =
-                { m_CommandBuffers[m_FrameIndex], m_ImGuiCommandBuffers[m_FrameIndex] };
-
-        // submit command buffer to queue for execution
-        VkSubmitInfo submitInfo = {};
-        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        submitInfo.waitSemaphoreCount = 1;
-        submitInfo.pWaitSemaphores = &m_SynchronizationObjects[m_FrameIndex].SemaphoreImageAvailable;
-        VkPipelineStageFlags waitStages[] = {
-                VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-        submitInfo.pWaitDstStageMask = waitStages;
-        submitInfo.commandBufferCount = 2;
-        submitInfo.pCommandBuffers = submitCommandBuffers.data();
-        submitInfo.signalSemaphoreCount = 1;
-        submitInfo.pSignalSemaphores = &m_SynchronizationObjects[m_FrameIndex].SemaphoreRenderFinished;
-
-        CheckVkResult(
-                vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_SynchronizationObjects[m_FrameIndex].FenceDraw));
-
-        // present image to screen when finished rendering
-        VkPresentInfoKHR presentInfo = {};
-        presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-        presentInfo.waitSemaphoreCount = 1;
-        presentInfo.pWaitSemaphores = &m_SynchronizationObjects[m_FrameIndex].SemaphoreRenderFinished;
-        presentInfo.swapchainCount = 1;
-        auto swapChain = m_Swapchain->Get();
-        presentInfo.pSwapchains = &swapChain;
-        presentInfo.pImageIndices = &m_ImageIndex;
-
-        CheckVkResult(vkQueuePresentKHR(m_GraphicsQueue, &presentInfo));
-
-        m_FrameIndex = (m_FrameIndex + 1) % MAX_FRAME_DRAWS;
-    }
-
     void VulkanContext::OnResize(uint32_t width, uint32_t height)
     {
         RecreateSwapchain();
@@ -414,7 +299,7 @@ namespace Figment
         CleanupSwapchain();
         CreateSwapchain();
 
-        vkResetCommandPool(m_Device, m_CommandPool, 0);
+        // vkResetCommandPool(m_Device, m_CommandPool, 0);
     }
 
     VkCommandBuffer VulkanContext::BeginSingleTimeCommands() const
@@ -422,7 +307,7 @@ namespace Figment
         VkCommandBufferAllocateInfo allocInfo = {};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocInfo.commandPool = m_CommandPool;
+        allocInfo.commandPool = m_SingleTimeCommandPool;
         allocInfo.commandBufferCount = 1;
 
         VkCommandBuffer commandBuffer;
@@ -449,18 +334,18 @@ namespace Figment
         CheckVkResult(vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, VK_NULL_HANDLE));
         vkQueueWaitIdle(m_GraphicsQueue);
 
-        vkFreeCommandBuffers(m_Device, m_CommandPool, 1, &commandBuffer);
+        vkFreeCommandBuffers(m_Device, m_SingleTimeCommandPool, 1, &commandBuffer);
     }
 
     void VulkanContext::Cleanup()
     {
-        std::vector<VkFence> fences;
-        fences.reserve(m_SynchronizationObjects.size());
-        for (auto &synchronizationObject : m_SynchronizationObjects)
-        {
-            fences.push_back(synchronizationObject.FenceDraw);
-        }
-        vkWaitForFences(m_Device, fences.size(), fences.data(), VK_TRUE, std::numeric_limits<uint64_t>::max());
+        // std::vector<VkFence> fences;
+        // fences.reserve(m_SynchronizationObjects.size());
+        // for (auto &synchronizationObject : m_SynchronizationObjects)
+        // {
+        //     fences.push_back(synchronizationObject.FenceDraw);
+        // }
+        // vkWaitForFences(m_Device, fences.size(), fences.data(), VK_TRUE, std::numeric_limits<uint64_t>::max());
         m_DeletionQueue.Flush();
     }
 
@@ -480,32 +365,23 @@ namespace Figment
         return (-1);
     }
 
-    VkCommandBuffer VulkanContext::GetCurrentCommandBuffer() const
-    {
-        return m_CommandBuffers[m_FrameIndex];
-    }
     uint32_t VulkanContext::GetSwapchainImageCount() const
     {
         return m_Swapchain->GetImageCount();
     }
-    std::vector<VkImage> VulkanContext::GetSwapchainImages() const
-    {
-        return m_Swapchain->GetImages();
-    }
+
     std::vector<VkImageView> VulkanContext::GetSwapchainImageViews() const
     {
         return m_Swapchain->GetImageViews();
     }
-    uint32_t VulkanContext::GetSwapchainImageIndex() const
-    {
-        return m_ImageIndex;
-    }
+
     VkExtent2D VulkanContext::GetSwapchainExtent() const
     {
         return m_Swapchain->GetExtent();
     }
-    uint32_t VulkanContext::GetFrameIndex() const
+
+    VulkanSwapchain *VulkanContext::GetSwapchain() const
     {
-        return m_FrameIndex;
+        return m_Swapchain;
     }
 }

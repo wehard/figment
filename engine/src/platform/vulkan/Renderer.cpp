@@ -1,4 +1,5 @@
 #include "Renderer.h"
+#include "VulkanSwapchain.h"
 
 namespace Figment::Vulkan
 {
@@ -45,9 +46,9 @@ namespace Figment::Vulkan
         renderPassBeginInfo.pClearValues = clearValues;
         renderPassBeginInfo.clearValueCount = 1;
 
-        renderPassBeginInfo.framebuffer = m_Framebuffers[m_Context.GetSwapchainImageIndex()];
+        renderPassBeginInfo.framebuffer = m_Framebuffers[m_ImageIndex];
 
-        VkCommandBuffer commandBuffer = m_Context.GetCurrentCommandBuffer();
+        VkCommandBuffer commandBuffer = m_CommandBuffers[m_FrameIndex];
         CheckVkResult(vkBeginCommandBuffer(commandBuffer, &bufferBeginInfo));
 
         vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo,
@@ -56,7 +57,7 @@ namespace Figment::Vulkan
 
     void Renderer::Draw(VulkanBuffer &buffer, glm::mat4 transform, Camera &camera)
     {
-        VkCommandBuffer commandBuffer = m_Context.GetCurrentCommandBuffer();
+        VkCommandBuffer commandBuffer = m_CommandBuffers[m_FrameIndex];
         vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_OpaquePipeline->Get());
 
         GlobalUniformData ubo = {
@@ -65,7 +66,7 @@ namespace Figment::Vulkan
                 .Projection = camera.GetProjectionMatrix(),
         };
         // m_UBO.Projection[1][1] *= -1;
-        m_GlobalUniformBuffers[m_Context.GetFrameIndex()]->SetData(&ubo, sizeof(GlobalUniformData));
+        m_GlobalUniformBuffers[m_FrameIndex]->SetData(&ubo, sizeof(GlobalUniformData));
 
         VkBuffer buffers[] = { buffer.Get() };
         VkDeviceSize offsets[] = { 0 };
@@ -73,13 +74,13 @@ namespace Figment::Vulkan
 
         vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                 m_OpaquePipeline->GetLayout(),
-                0, 1, m_BindGroups[m_Context.GetFrameIndex()]->Get(), 0, nullptr);
+                0, 1, m_BindGroups[m_FrameIndex]->Get(), 0, nullptr);
         vkCmdDraw(commandBuffer, 6, 1, 0, 0);
     }
 
     void Renderer::End()
     {
-        VkCommandBuffer commandBuffer = m_Context.GetCurrentCommandBuffer();
+        VkCommandBuffer commandBuffer = m_CommandBuffers[m_FrameIndex];
         vkCmdEndRenderPass(commandBuffer);
 
         CheckVkResult(vkEndCommandBuffer(commandBuffer));
@@ -274,50 +275,51 @@ namespace Figment::Vulkan
     }
     void Renderer::BeginFrame()
     {
-        // CheckVkResult(
-        //         vkWaitForFences(m_Context.GetDevice(), 1, &m_SynchronizationObjects[m_FrameIndex].FenceDraw, VK_TRUE,
-        //                 std::numeric_limits<uint64_t>::max()));
-        //
-        // CheckVkResult(vkResetFences(m_Context.GetDevice(), 1, &m_SynchronizationObjects[m_FrameIndex].FenceDraw));
-        //
-        // m_ImageIndex = m_Swapchain->GetNextImageIndex(m_SynchronizationObjects[m_FrameIndex].SemaphoreImageAvailable);
+        CheckVkResult(
+                vkWaitForFences(m_Context.GetDevice(), 1, &m_SynchronizationObjects[m_FrameIndex].FenceDraw, VK_TRUE,
+                        std::numeric_limits<uint64_t>::max()));
+
+        CheckVkResult(vkResetFences(m_Context.GetDevice(), 1, &m_SynchronizationObjects[m_FrameIndex].FenceDraw));
+
+        m_ImageIndex = m_Context.GetSwapchain()->GetNextImageIndex(
+                m_SynchronizationObjects[m_FrameIndex].SemaphoreImageAvailable);
     }
 
     void Renderer::EndFrame()
     {
-        // std::array<VkCommandBuffer, 2> submitCommandBuffers =
-        //         { m_CommandBuffers[m_FrameIndex], m_ImGuiCommandBuffers[m_FrameIndex] };
-        //
-        // // submit command buffer to queue for execution
-        // VkSubmitInfo submitInfo = {};
-        // submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        // submitInfo.waitSemaphoreCount = 1;
-        // submitInfo.pWaitSemaphores = &m_SynchronizationObjects[m_FrameIndex].SemaphoreImageAvailable;
-        // VkPipelineStageFlags waitStages[] = {
-        //         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-        // submitInfo.pWaitDstStageMask = waitStages;
-        // submitInfo.commandBufferCount = 2;
-        // submitInfo.pCommandBuffers = submitCommandBuffers.data();
-        // submitInfo.signalSemaphoreCount = 1;
-        // submitInfo.pSignalSemaphores = &m_SynchronizationObjects[m_FrameIndex].SemaphoreRenderFinished;
-        //
-        // CheckVkResult(
-        //         vkQueueSubmit(m_Context.GetGraphicsQueue(), 1, &submitInfo,
-        //                 m_SynchronizationObjects[m_FrameIndex].FenceDraw));
-        //
-        // // present image to screen when finished rendering
-        // VkPresentInfoKHR presentInfo = {};
-        // presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-        // presentInfo.waitSemaphoreCount = 1;
-        // presentInfo.pWaitSemaphores = &m_SynchronizationObjects[m_FrameIndex].SemaphoreRenderFinished;
-        // presentInfo.swapchainCount = 1;
-        // auto swapChain = m_Swapchain->Get();
-        // presentInfo.pSwapchains = &swapChain;
-        // presentInfo.pImageIndices = &m_ImageIndex;
-        //
-        // CheckVkResult(vkQueuePresentKHR(m_Context.GetGraphicsQueue(), &presentInfo));
-        //
-        // m_FrameIndex = (m_FrameIndex + 1) % MAX_FRAME_DRAWS;
+        std::array<VkCommandBuffer, 2> submitCommandBuffers =
+                { m_CommandBuffers[m_FrameIndex], m_GuiCommandBuffers[m_FrameIndex] };
+
+        // submit command buffer to queue for execution
+        VkSubmitInfo submitInfo = {};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.waitSemaphoreCount = 1;
+        submitInfo.pWaitSemaphores = &m_SynchronizationObjects[m_FrameIndex].SemaphoreImageAvailable;
+        VkPipelineStageFlags waitStages[] = {
+                VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+        submitInfo.pWaitDstStageMask = waitStages;
+        submitInfo.commandBufferCount = 2;
+        submitInfo.pCommandBuffers = submitCommandBuffers.data();
+        submitInfo.signalSemaphoreCount = 1;
+        submitInfo.pSignalSemaphores = &m_SynchronizationObjects[m_FrameIndex].SemaphoreRenderFinished;
+
+        CheckVkResult(
+                vkQueueSubmit(m_Context.GetGraphicsQueue(), 1, &submitInfo,
+                        m_SynchronizationObjects[m_FrameIndex].FenceDraw));
+
+        // present image to screen when finished rendering
+        VkPresentInfoKHR presentInfo = {};
+        presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+        presentInfo.waitSemaphoreCount = 1;
+        presentInfo.pWaitSemaphores = &m_SynchronizationObjects[m_FrameIndex].SemaphoreRenderFinished;
+        presentInfo.swapchainCount = 1;
+        auto swapChain = m_Context.GetSwapchain()->Get();
+        presentInfo.pSwapchains = &swapChain;
+        presentInfo.pImageIndices = &m_ImageIndex;
+
+        CheckVkResult(vkQueuePresentKHR(m_Context.GetGraphicsQueue(), &presentInfo));
+
+        m_FrameIndex = (m_FrameIndex + 1) % MAX_FRAME_DRAWS;
     }
 
     void Renderer::CreateSynchronizationObjects()
@@ -384,5 +386,9 @@ namespace Figment::Vulkan
 
         CheckVkResult(vkAllocateCommandBuffers(m_Context.GetDevice(), &commandBufferAllocateInfo,
                 &m_GuiCommandBuffers[0]));
+    }
+    VkCommandBuffer Renderer::GetGuiCommandBuffer() const
+    {
+        return m_GuiCommandBuffers[m_FrameIndex];
     }
 }

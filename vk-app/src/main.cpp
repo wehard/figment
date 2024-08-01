@@ -182,7 +182,7 @@ int main()
 
         zRotation += 1.0f;
         xPosition = sinf((float)glfwGetTime() * 2.0f); // * 0.5f;
-        vulkanContext->BeginFrame();
+        renderer.BeginFrame();
         renderer.Begin(camera);
         renderer.Draw(*buffer, Transform(
                         { xPosition, 0.0f, 0.0f },
@@ -232,7 +232,7 @@ int main()
             VkCommandBufferBeginInfo info = {};
             info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
             info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-            CheckVkResult((vkBeginCommandBuffer(vulkanContext->GetImGuiCommandBuffer(), &info)));
+            CheckVkResult((vkBeginCommandBuffer(renderer.GetGuiCommandBuffer(), &info)));
         }
 
         {
@@ -240,24 +240,24 @@ int main()
             renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
             renderPassBeginInfo.renderPass = renderer.GetGuiRenderPass();
             renderPassBeginInfo.framebuffer = renderer.GetCurrentGuiFramebuffer();
-            renderPassBeginInfo.renderArea.extent.width = vulkanContext->SurfaceDetails().surfaceCapabilities.currentExtent.width;
-            renderPassBeginInfo.renderArea.extent.height = vulkanContext->SurfaceDetails().surfaceCapabilities.currentExtent.height;
+            renderPassBeginInfo.renderArea.extent.width = vulkanContext->GetSwapchainExtent().width;
+            renderPassBeginInfo.renderArea.extent.height = vulkanContext->GetSwapchainExtent().height;
             VkClearValue clearValues[] = {
                     { 0.1f, 0.1f, 0.1f, 1.0f }};
             renderPassBeginInfo.pClearValues = clearValues;
             renderPassBeginInfo.clearValueCount = 1;
-            vkCmdBeginRenderPass(vulkanContext->GetImGuiCommandBuffer(), &renderPassBeginInfo,
+            vkCmdBeginRenderPass(renderer.GetGuiCommandBuffer(), &renderPassBeginInfo,
                     VK_SUBPASS_CONTENTS_INLINE);
         }
 
-        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), vulkanContext->GetImGuiCommandBuffer());
+        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), renderer.GetGuiCommandBuffer());
 
         {
-            vkCmdEndRenderPass(vulkanContext->GetImGuiCommandBuffer());
-            CheckVkResult(vkEndCommandBuffer(vulkanContext->GetImGuiCommandBuffer()));
+            vkCmdEndRenderPass(renderer.GetGuiCommandBuffer());
+            CheckVkResult(vkEndCommandBuffer(renderer.GetGuiCommandBuffer()));
         }
 
-        vulkanContext->EndFrame();
+        renderer.EndFrame();
     }
 
     vulkanContext->Cleanup();

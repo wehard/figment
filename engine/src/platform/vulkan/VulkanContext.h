@@ -42,10 +42,8 @@ namespace Figment
             std::vector<VkPresentModeKHR> presentationModes;
         };
 
-        [[nodiscard]] VkCommandBuffer GetCurrentCommandBuffer() const;
-        [[nodiscard]] uint32_t GetSwapchainImageIndex() const;
         [[nodiscard]] VkExtent2D GetSwapchainExtent() const;
-        [[nodiscard]] uint32_t GetFrameIndex() const;
+        [[nodiscard]] VulkanSwapchain *GetSwapchain() const;
     public:
         explicit VulkanContext(GLFWwindow *window) : m_Window(window) { }
         ~VulkanContext() override;
@@ -57,20 +55,14 @@ namespace Figment
         [[nodiscard]] VkQueue GetGraphicsQueue() const { return m_GraphicsQueue; }
         [[nodiscard]] VkQueue GetPresentQueue() const { return m_GraphicsQueue; }
         [[nodiscard]] VkSurfaceKHR GetSurface() const { return m_Surface; }
-        [[nodiscard]] VkCommandPool GetImGuiCommandPool() const { return m_CommandPool; }
         [[nodiscard]] VulkanSurfaceDetails SurfaceDetails() const { return m_SurfaceDetails; }
-        [[nodiscard]] VkCommandBuffer GetImGuiCommandBuffer() const { return m_ImGuiCommandBuffers[m_FrameIndex]; }
         [[nodiscard]] VkDescriptorPool CreateDescriptorPool(std::vector<VkDescriptorPoolSize> poolSizes,
                 uint32_t maxSets) const;
         [[nodiscard]] VkCommandPool CreateCommandPool() const;
-
         [[nodiscard]] uint32_t GetSwapchainImageCount() const;
-        [[nodiscard]] std::vector<VkImage> GetSwapchainImages() const;
         [[nodiscard]] std::vector<VkImageView> GetSwapchainImageViews() const;
 
         void OnResize(uint32_t width, uint32_t height) override;
-        void BeginFrame();
-        void EndFrame();
         [[nodiscard]] VkCommandBuffer BeginSingleTimeCommands() const;
         void EndSingleTimeCommands(VkCommandBuffer commandBuffer) const;
         void Cleanup();
@@ -98,9 +90,6 @@ namespace Figment
         uint32_t m_GraphicsQueueIndex = UINT32_MAX;
         VkQueue m_GraphicsQueue = VK_NULL_HANDLE;
 
-        uint32_t m_FrameIndex = 0;
-        uint32_t m_ImageIndex = 0;
-
         VulkanSurfaceDetails m_SurfaceDetails = {};
 
         const std::vector<const char *> m_RequiredDeviceExtensions = {
@@ -108,29 +97,13 @@ namespace Figment
                 "VK_KHR_portability_subset"
         };
 
-        struct SynchronizationObjects
-        {
-            VkSemaphore SemaphoreImageAvailable;
-            VkSemaphore SemaphoreRenderFinished;
-            VkFence FenceDraw;
-        };
-
-        std::vector<SynchronizationObjects> m_SynchronizationObjects;
-
-        VkCommandPool m_CommandPool = VK_NULL_HANDLE;
-        std::vector<VkCommandBuffer> m_CommandBuffers;
-
-        VkCommandPool m_ImGuiCommandPool = VK_NULL_HANDLE;
-        std::vector<VkCommandBuffer> m_ImGuiCommandBuffers;
+        VkCommandPool m_SingleTimeCommandPool = VK_NULL_HANDLE;
 
         void CreateInstance();
         void CreateSurface();
         void CreateDevice();
         void CreateSwapchain();
         void CreatePipelineCache();
-        void CreateCommandBuffers();
-        void CreateImGuiCommandBuffers();
-        void CreateSynchronization();
 
         void CleanupSwapchain();
         void RecreateSwapchain();
