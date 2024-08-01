@@ -26,7 +26,7 @@ namespace Figment::Vulkan
         void OnResize(uint32_t width, uint32_t height);
         [[nodiscard]] VkRenderPass GetGuiRenderPass() const { return m_GuiPass->Get(); }
         [[nodiscard]] VkFramebuffer GetCurrentGuiFramebuffer() const { return m_GuiFramebuffers[m_ImageIndex]; }
-        VkCommandBuffer GetGuiCommandBuffer() const;
+        [[nodiscard]] VkCommandBuffer GetGuiCommandBuffer() const;
     private:
         struct Vertex
         {
