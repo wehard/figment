@@ -115,7 +115,6 @@ namespace Figment
             VkFence FenceDraw;
         };
 
-        std::vector<VkFramebuffer> m_ImGuiFramebuffers;
         std::vector<VkCommandBuffer> m_CommandBuffers;
         std::vector<SynchronizationObjects> m_SynchronizationObjects;
 

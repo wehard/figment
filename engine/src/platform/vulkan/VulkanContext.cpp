@@ -235,8 +235,6 @@ namespace Figment
                 .Transform = m_SurfaceDetails.surfaceCapabilities.currentTransform,
         });
 
-        m_ImGuiFramebuffers.resize(m_Swapchain->GetImageCount());
-
         m_DeletionQueue.Push([this]()
         {
             // for (int i = 0; i < m_FrameData.ImageViews.size(); ++i)
@@ -422,12 +420,6 @@ namespace Figment
 
     void VulkanContext::CleanupSwapchain()
     {
-        for (auto framebuffer : m_ImGuiFramebuffers)
-        {
-            vkDestroyFramebuffer(m_Device, framebuffer, nullptr);
-        }
-        m_ImGuiFramebuffers.clear();
-
         vkDestroySwapchainKHR(m_Device, m_Swapchain->Get(), nullptr);
         delete m_Swapchain;
     }
@@ -487,11 +479,6 @@ namespace Figment
         }
         vkWaitForFences(m_Device, fences.size(), fences.data(), VK_TRUE, std::numeric_limits<uint64_t>::max());
         m_DeletionQueue.Flush();
-
-        for (auto &framebuffer : m_ImGuiFramebuffers)
-        {
-            vkDestroyFramebuffer(m_Device, framebuffer, nullptr);
-        }
     }
 
     uint32_t VulkanContext::FindMemoryTypeIndex(uint32_t allowedTypes, VkMemoryPropertyFlags properties) const
