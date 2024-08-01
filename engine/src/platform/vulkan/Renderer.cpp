@@ -83,6 +83,9 @@ namespace Figment::Vulkan
     {
         CreateFramebuffers();
         CreatePipeline();
+
+        CreateGuiFramebuffers();
+        CreateGuiPipeline();
     }
 
     void Renderer::CreateRenderPass()
