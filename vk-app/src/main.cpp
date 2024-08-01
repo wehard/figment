@@ -28,51 +28,6 @@ static glm::mat4 Transform(glm::vec3 position, glm::vec3 rotation, glm::vec3 sca
     return matTranslate * matRotate * matScale;
 }
 
-static VkRenderPass CreateImGuiRenderPass(VulkanContext *vkContext)
-{
-    VkAttachmentDescription attachmentDescription = {};
-    attachmentDescription.format = vkContext->SurfaceDetails().formats[0].format;
-    attachmentDescription.samples = VK_SAMPLE_COUNT_1_BIT;
-    attachmentDescription.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-    attachmentDescription.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-    attachmentDescription.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    attachmentDescription.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    attachmentDescription.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-    attachmentDescription.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-    VkAttachmentReference colorAttachment = {};
-    colorAttachment.attachment = 0;
-    colorAttachment.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-    VkSubpassDescription subpass = {};
-    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-    subpass.colorAttachmentCount = 1;
-    subpass.pColorAttachments = &colorAttachment;
-
-    VkSubpassDependency subpassDependency = {};
-    subpassDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-    subpassDependency.dstSubpass = 0;
-    subpassDependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    subpassDependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    subpassDependency.srcAccessMask = 0;  // or VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-    subpassDependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-
-    VkRenderPassCreateInfo info = {};
-    info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-    info.attachmentCount = 1;
-    info.pAttachments = &attachmentDescription;
-    info.subpassCount = 1;
-    info.pSubpasses = &subpass;
-    info.dependencyCount = 1;
-    info.pDependencies = &subpassDependency;
-    VkRenderPass renderPass;
-    if (vkCreateRenderPass(vkContext->GetDevice(), &info, nullptr, &renderPass) != VK_SUCCESS)
-    {
-        throw std::runtime_error("Could not create Dear ImGui's render pass");
-    }
-    return renderPass;
-}
-
 static ImGuiContext *ImGuiInit(VulkanContext *vulkanContext, Vulkan::Renderer *renderer, GLFWwindow *window)
 {
     auto context = ImGui::CreateContext();
