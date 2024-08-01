@@ -9,8 +9,6 @@
 
 namespace Figment
 {
-#define VK_CHECK_RESULT(f, s, e) { VkResult res = (f); if (res != VK_SUCCESS) { FIG_LOG_ERROR("Vulkan error: %s", e); } else { FIG_LOG_INFO("Vulkan: %s", s); } }
-
     Figment::VulkanContext::~VulkanContext()
     {
     }
@@ -102,14 +100,12 @@ namespace Figment
         instanceCreateInfo.ppEnabledLayerNames = validationLayers;
         instanceCreateInfo.flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
 
-        VK_CHECK_RESULT(vkCreateInstance(&instanceCreateInfo, nullptr, &m_Instance), "Instance created",
-                "Failed to create instance");
+        CheckVkResult(vkCreateInstance(&instanceCreateInfo, nullptr, &m_Instance));
     }
 
     void Figment::VulkanContext::CreateSurface()
     {
-        VK_CHECK_RESULT(glfwCreateWindowSurface(m_Instance, m_Window, nullptr, &m_Surface), "Vulkan surface created",
-                "Failed to create Vulkan surface");
+        CheckVkResult(glfwCreateWindowSurface(m_Instance, m_Window, nullptr, &m_Surface));
     }
 
     static bool CheckDeviceExtensionSupport(VkPhysicalDevice device,
@@ -196,9 +192,7 @@ namespace Figment
         VkPhysicalDeviceFeatures deviceFeatures = {}; // empty for now
         deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
 
-        VK_CHECK_RESULT(vkCreateDevice(m_PhysicalDevice, &deviceCreateInfo, nullptr, &m_Device),
-                "Logical device created",
-                "Failed to create logical device")
+        CheckVkResult(vkCreateDevice(m_PhysicalDevice, &deviceCreateInfo, nullptr, &m_Device));
 
         vkGetDeviceQueue(m_Device, m_GraphicsQueueIndex, 0, &m_GraphicsQueue);
     }
@@ -262,8 +256,7 @@ namespace Figment
         pipelineCacheCreateInfo.initialDataSize = 0;
         pipelineCacheCreateInfo.pInitialData = nullptr;
 
-        VK_CHECK_RESULT(vkCreatePipelineCache(m_Device, &pipelineCacheCreateInfo, nullptr, &m_PipelineCache),
-                "PipelineCache created", "Failed to create PipelineCache!")
+        CheckVkResult(vkCreatePipelineCache(m_Device, &pipelineCacheCreateInfo, nullptr, &m_PipelineCache));
     }
 
     VkDescriptorPool VulkanContext::CreateDescriptorPool(std::vector<VkDescriptorPoolSize> poolSizes,
