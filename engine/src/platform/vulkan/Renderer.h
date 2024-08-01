@@ -21,6 +21,9 @@ namespace Figment::Vulkan
         void Begin(const Camera &camera);
         void End();
 
+        void BeginGuiPass();
+        void EndGuiPass();
+
         void Draw(VulkanBuffer &buffer, glm::mat4 transform, Camera &camera);
 
         void OnResize(uint32_t width, uint32_t height);
@@ -46,6 +49,15 @@ namespace Figment::Vulkan
             VkSemaphore SemaphoreImageAvailable;
             VkSemaphore SemaphoreRenderFinished;
             VkFence FenceDraw;
+        };
+
+        struct FrameResource
+        {
+            VulkanBindGroup *BindGroup = nullptr;
+            GlobalUniformData GlobalUniformData = {};
+            VkCommandBuffer CommandBuffer = VK_NULL_HANDLE;
+            VkCommandBuffer GuiCommandBuffer = VK_NULL_HANDLE;
+            SynchronizationObjects SynchronizationObjects = {};
         };
     private:
         constexpr static uint32_t MAX_FRAMES_IN_FLIGHT = 2;
@@ -74,6 +86,7 @@ namespace Figment::Vulkan
         std::vector<VkCommandBuffer> m_GuiCommandBuffers;
 
         DeletionQueue m_DeletionQueue;
+        FrameResource m_FrameResources[MAX_FRAMES_IN_FLIGHT];
     private:
         void CreateSynchronizationObjects();
 

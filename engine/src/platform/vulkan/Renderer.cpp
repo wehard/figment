@@ -1,5 +1,7 @@
 #include "Renderer.h"
 #include "VulkanSwapchain.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_vulkan.h"
 
 namespace Figment::Vulkan
 {
@@ -409,6 +411,46 @@ namespace Figment::Vulkan
         for (auto &framebuffer : m_GuiFramebuffers)
         {
             vkDestroyFramebuffer(m_Context.GetDevice(), framebuffer, nullptr);
+        }
+    }
+    void Renderer::BeginGuiPass()
+    {
+        ImGui_ImplGlfw_NewFrame();
+        ImGui_ImplVulkan_NewFrame();
+        ImGui::NewFrame();
+
+        {
+            VkCommandBufferBeginInfo info = {};
+            info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+            CheckVkResult((vkBeginCommandBuffer(GetGuiCommandBuffer(), &info)));
+        }
+
+        {
+            VkRenderPassBeginInfo renderPassBeginInfo = {};
+            renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+            renderPassBeginInfo.renderPass = GetGuiRenderPass();
+            renderPassBeginInfo.framebuffer = GetCurrentGuiFramebuffer();
+            renderPassBeginInfo.renderArea.extent.width = m_Context.GetSwapchainExtent().width;
+            renderPassBeginInfo.renderArea.extent.height = m_Context.GetSwapchainExtent().height;
+            VkClearValue clearValues[] = {
+                    { 0.1f, 0.1f, 0.1f, 1.0f }};
+            renderPassBeginInfo.pClearValues = clearValues;
+            renderPassBeginInfo.clearValueCount = 1;
+            vkCmdBeginRenderPass(GetGuiCommandBuffer(), &renderPassBeginInfo,
+                    VK_SUBPASS_CONTENTS_INLINE);
+        }
+    }
+    void Renderer::EndGuiPass()
+    {
+        ImGui::Render();
+        ImGui::EndFrame();
+
+        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), GetGuiCommandBuffer());
+
+        {
+            vkCmdEndRenderPass(GetGuiCommandBuffer());
+            CheckVkResult(vkEndCommandBuffer(GetGuiCommandBuffer()));
         }
     }
 }

@@ -76,7 +76,7 @@ static void ImGuiShutdown(ImGuiContext *context)
     ImGui::DestroyContext(context);
 }
 
-static void RenderTestWindow(VulkanTexture &texture, ImTextureID id, float imageWidth, float imageHeight)
+static void DrawTestWindow(VulkanTexture &texture, ImTextureID id, float imageWidth, float imageHeight)
 {
     auto pos = Input::GetMousePosition();
 
@@ -161,7 +161,7 @@ int main()
     auto zRotation = 0.0f;
     auto xPosition = 0.0f;
 
-    auto id = (ImTextureID)ImGui_ImplVulkan_AddTexture(texture.GetSampler(), texture.GetImageView(),
+    ImTextureID textureId = ImGui_ImplVulkan_AddTexture(texture.GetSampler(), texture.GetImageView(),
             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
     while (!window->ShouldClose() && !Input::GetKeyDown(GLFW_KEY_ESCAPE))
@@ -181,43 +181,13 @@ int main()
                 camera);
         renderer.End();
 
-        ImGui_ImplGlfw_NewFrame();
-        ImGui_ImplVulkan_NewFrame();
-        ImGui::NewFrame();
-
-        RenderTestWindow(texture, id, image.GetWidth(), image.GetHeight());
-
-        ImGui::Render();
-        ImGui::EndFrame();
-
-        {
-            VkCommandBufferBeginInfo info = {};
-            info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-            info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-            CheckVkResult((vkBeginCommandBuffer(renderer.GetGuiCommandBuffer(), &info)));
-        }
-
-        {
-            VkRenderPassBeginInfo renderPassBeginInfo = {};
-            renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-            renderPassBeginInfo.renderPass = renderer.GetGuiRenderPass();
-            renderPassBeginInfo.framebuffer = renderer.GetCurrentGuiFramebuffer();
-            renderPassBeginInfo.renderArea.extent.width = vulkanContext->GetSwapchainExtent().width;
-            renderPassBeginInfo.renderArea.extent.height = vulkanContext->GetSwapchainExtent().height;
-            VkClearValue clearValues[] = {
-                    { 0.1f, 0.1f, 0.1f, 1.0f }};
-            renderPassBeginInfo.pClearValues = clearValues;
-            renderPassBeginInfo.clearValueCount = 1;
-            vkCmdBeginRenderPass(renderer.GetGuiCommandBuffer(), &renderPassBeginInfo,
-                    VK_SUBPASS_CONTENTS_INLINE);
-        }
-
-        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), renderer.GetGuiCommandBuffer());
-
-        {
-            vkCmdEndRenderPass(renderer.GetGuiCommandBuffer());
-            CheckVkResult(vkEndCommandBuffer(renderer.GetGuiCommandBuffer()));
-        }
+        renderer.BeginGuiPass();
+        DrawTestWindow(texture, textureId, image.GetWidth(), image.GetHeight());
+        ImGui::Begin("Camera");
+        ImGui::Text("Position: (%.2f, %.2f, %.2f)", camera.GetPosition().x, camera.GetPosition().y,
+                camera.GetPosition().z);
+        ImGui::End();
+        renderer.EndGuiPass();
 
         renderer.EndFrame();
     }
