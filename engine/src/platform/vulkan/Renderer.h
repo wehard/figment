@@ -16,6 +16,8 @@ namespace Figment::Vulkan
         explicit Renderer(const VulkanContext &context);
         ~Renderer();
 
+        void BeginFrame();
+        void EndFrame();
         void Begin(const Camera &camera);
         void End();
 
@@ -37,8 +39,16 @@ namespace Figment::Vulkan
             glm::mat4 View;
             glm::mat4 Projection;
         };
+
+        struct SynchronizationObjects
+        {
+            VkSemaphore SemaphoreImageAvailable;
+            VkSemaphore SemaphoreRenderFinished;
+            VkFence FenceDraw;
+        };
     private:
         const VulkanContext &m_Context;
+        std::vector<SynchronizationObjects> m_SynchronizationObjects;
         std::unique_ptr<VulkanRenderPass> m_OpaquePass = nullptr;
         std::unique_ptr<VulkanPipeline> m_OpaquePipeline = nullptr;
         std::unique_ptr<VulkanShader> m_Shader = nullptr;
@@ -51,7 +61,12 @@ namespace Figment::Vulkan
         std::vector<VulkanBuffer *> m_GlobalUniformBuffers;
         std::vector<VulkanBindGroup *> m_BindGroups;
         VkDescriptorPool m_DescriptorPool = VK_NULL_HANDLE;
+
+        uint32_t m_ImageIndex = 0;
+        uint32_t m_FrameIndex = 0;
     private:
+        void CreateSynchronizationObjects();
+
         void CreateRenderPass();
         void CreatePipeline();
         void CreateFramebuffers();
