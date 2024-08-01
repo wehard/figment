@@ -227,9 +227,9 @@ namespace Figment::Vulkan
                 .Projection = glm::mat4(1.0f)
         };
 
-        m_GlobalUniformBuffers.resize(MAX_FRAME_DRAWS);
+        m_GlobalUniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
 
-        for (int i = 0; i < MAX_FRAME_DRAWS; i++)
+        for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
         {
             m_GlobalUniformBuffers[i] = new VulkanBuffer(m_Context, {
                     .Name = "UniformBuffer",
@@ -243,9 +243,9 @@ namespace Figment::Vulkan
 
     void Renderer::CreateDescriptorSets()
     {
-        m_BindGroups.resize(MAX_FRAME_DRAWS);
+        m_BindGroups.resize(MAX_FRAMES_IN_FLIGHT);
 
-        for (int i = 0; i < MAX_FRAME_DRAWS; i++)
+        for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
         {
             m_BindGroups[i] = new VulkanBindGroup(m_Context, VulkanBindGroup::BindGroupDescriptor {
                     .DescriptorPool = m_DescriptorPool,
@@ -269,9 +269,9 @@ namespace Figment::Vulkan
         m_DescriptorPool = m_Context.CreateDescriptorPool({
                 {
                         .type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                        .descriptorCount = static_cast<uint32_t>(MAX_FRAME_DRAWS)
+                        .descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT)
                 }
-        }, MAX_FRAME_DRAWS);
+        }, MAX_FRAMES_IN_FLIGHT);
     }
     void Renderer::BeginFrame()
     {
@@ -319,7 +319,7 @@ namespace Figment::Vulkan
 
         CheckVkResult(vkQueuePresentKHR(m_Context.GetGraphicsQueue(), &presentInfo));
 
-        m_FrameIndex = (m_FrameIndex + 1) % MAX_FRAME_DRAWS;
+        m_FrameIndex = (m_FrameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
     }
 
     void Renderer::CreateSynchronizationObjects()
@@ -331,7 +331,7 @@ namespace Figment::Vulkan
         fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
         fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-        m_SynchronizationObjects.resize(MAX_FRAME_DRAWS);
+        m_SynchronizationObjects.resize(MAX_FRAMES_IN_FLIGHT);
 
         for (auto &m_SynchronizationObject : m_SynchronizationObjects)
         {
@@ -360,7 +360,7 @@ namespace Figment::Vulkan
 
     void Renderer::CreateCommandBuffers()
     {
-        m_CommandBuffers.resize(MAX_FRAME_DRAWS);
+        m_CommandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
         VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
         commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         commandBufferAllocateInfo.commandPool = m_CommandPool;
@@ -377,7 +377,7 @@ namespace Figment::Vulkan
     }
     void Renderer::CreateGuiCommandBuffers()
     {
-        m_GuiCommandBuffers.resize(MAX_FRAME_DRAWS);
+        m_GuiCommandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
         VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
         commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         commandBufferAllocateInfo.commandPool = m_GuiCommandPool;

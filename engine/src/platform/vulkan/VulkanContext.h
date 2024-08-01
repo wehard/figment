@@ -13,8 +13,6 @@
 
 #include <vector>
 
-#define MAX_FRAME_DRAWS 2
-
 namespace Figment
 {
     class VulkanBuffer;

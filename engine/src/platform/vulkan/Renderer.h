@@ -48,6 +48,7 @@ namespace Figment::Vulkan
             VkFence FenceDraw;
         };
     private:
+        constexpr static uint32_t MAX_FRAMES_IN_FLIGHT = 2;
         const VulkanContext &m_Context;
         std::vector<SynchronizationObjects> m_SynchronizationObjects;
         std::unique_ptr<VulkanRenderPass> m_OpaquePass = nullptr;
