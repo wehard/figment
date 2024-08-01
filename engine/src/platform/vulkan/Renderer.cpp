@@ -166,10 +166,8 @@ namespace Figment::Vulkan
             framebufferCreateInfo.height = m_Context.GetSwapchainExtent().height;
             framebufferCreateInfo.layers = 1;
 
-            VkResult result = vkCreateFramebuffer(m_Context.GetDevice(), &framebufferCreateInfo, nullptr,
-                    &m_Framebuffers[i]);
-            if (result != VK_SUCCESS)
-                throw std::runtime_error("Failed to create framebuffer!");
+            CheckVkResult(vkCreateFramebuffer(m_Context.GetDevice(), &framebufferCreateInfo, nullptr,
+                    &m_Framebuffers[i]));
         }
     }
 
@@ -212,10 +210,6 @@ namespace Figment::Vulkan
 
             CheckVkResult(vkCreateFramebuffer(m_Context.GetDevice(), &framebufferCreateInfo, nullptr,
                     &m_GuiFramebuffers[i]));
-
-            // m_DeletionQueue.Push([this, i]() {
-            //     vkDestroyFramebuffer(m_Device, m_FrameData.ImGuiFramebuffers[i], nullptr);
-            // });
         }
     }
 
@@ -343,16 +337,17 @@ namespace Figment::Vulkan
                     &m_SynchronizationObject.FenceDraw));
         }
 
-        // m_DeletionQueue.Push([this]()
-        // {
-        //     for (auto &m_SynchronizationObject : m_SynchronizationObjects)
-        //     {
-        //         vkDestroyFence(m_Device, m_SynchronizationObject.FenceDraw, nullptr);
-        //         vkDestroySemaphore(m_Device, m_SynchronizationObject.SemaphoreImageAvailable, nullptr);
-        //         vkDestroySemaphore(m_Device, m_SynchronizationObject.SemaphoreRenderFinished, nullptr);
-        //     }
-        // });
+        m_DeletionQueue.Push([this]()
+        {
+            for (auto &m_SynchronizationObject : m_SynchronizationObjects)
+            {
+                vkDestroyFence(m_Context.GetDevice(), m_SynchronizationObject.FenceDraw, nullptr);
+                vkDestroySemaphore(m_Context.GetDevice(), m_SynchronizationObject.SemaphoreImageAvailable, nullptr);
+                vkDestroySemaphore(m_Context.GetDevice(), m_SynchronizationObject.SemaphoreRenderFinished, nullptr);
+            }
+        });
     }
+
     void Renderer::CreateCommandPool()
     {
         m_CommandPool = m_Context.CreateCommandPool();
@@ -375,6 +370,7 @@ namespace Figment::Vulkan
     {
         m_GuiCommandPool = m_Context.CreateCommandPool();
     }
+
     void Renderer::CreateGuiCommandBuffers()
     {
         m_GuiCommandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
@@ -387,8 +383,32 @@ namespace Figment::Vulkan
         CheckVkResult(vkAllocateCommandBuffers(m_Context.GetDevice(), &commandBufferAllocateInfo,
                 &m_GuiCommandBuffers[0]));
     }
+
     VkCommandBuffer Renderer::GetGuiCommandBuffer() const
     {
         return m_GuiCommandBuffers[m_FrameIndex];
+    }
+
+    void Renderer::Shutdown()
+    {
+        std::vector<VkFence> fences;
+        fences.reserve(m_SynchronizationObjects.size());
+        for (auto &synchronizationObject : m_SynchronizationObjects)
+        {
+            fences.push_back(synchronizationObject.FenceDraw);
+        }
+        vkWaitForFences(m_Context.GetDevice(), fences.size(), fences.data(), VK_TRUE,
+                std::numeric_limits<uint64_t>::max());
+        m_DeletionQueue.Flush();
+
+        for (auto &framebuffer : m_Framebuffers)
+        {
+            vkDestroyFramebuffer(m_Context.GetDevice(), framebuffer, nullptr);
+        }
+
+        for (auto &framebuffer : m_GuiFramebuffers)
+        {
+            vkDestroyFramebuffer(m_Context.GetDevice(), framebuffer, nullptr);
+        }
     }
 }

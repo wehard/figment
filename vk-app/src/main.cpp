@@ -214,6 +214,7 @@ int main()
 
         renderer.EndFrame();
     }
+    renderer.Shutdown();
 
     vulkanContext->Cleanup();
 

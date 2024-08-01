@@ -15,7 +15,7 @@ namespace Figment::Vulkan
         Renderer() = delete;
         explicit Renderer(const VulkanContext &context);
         ~Renderer();
-
+        void Shutdown();
         void BeginFrame();
         void EndFrame();
         void Begin(const Camera &camera);
@@ -72,6 +72,8 @@ namespace Figment::Vulkan
 
         VkCommandPool m_GuiCommandPool = VK_NULL_HANDLE;
         std::vector<VkCommandBuffer> m_GuiCommandBuffers;
+
+        DeletionQueue m_DeletionQueue;
     private:
         void CreateSynchronizationObjects();
 
