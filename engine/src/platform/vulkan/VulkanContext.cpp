@@ -4,7 +4,6 @@
 #include "VulkanBuffer.h"
 
 #include "glm/glm.hpp"
-#include "VulkanRenderPass.h"
 #include "VulkanBindGroup.h"
 
 #include <vector>
@@ -25,7 +24,6 @@ namespace Figment
         CreateSurface();
         CreateDevice();
         CreateSwapchain();
-        CreateImGuiRenderPass();
 
         UniformBufferObject ubo = {
                 .Model = glm::mat4(1.0f),
@@ -44,7 +42,6 @@ namespace Figment
             }));
         }
 
-        CreateImGuiFramebuffers();
         CreateCommandPool();
         CreateImGuiCommandPool();
         CreateCommandBuffers();
@@ -282,27 +279,6 @@ namespace Figment
         });
     }
 
-    void Figment::VulkanContext::CreateImGuiRenderPass()
-    {
-        m_ImGuiRenderPass = new VulkanRenderPass(*this, {
-                .ColorAttachment = {
-                        .Format= VK_FORMAT_B8G8R8A8_UNORM,
-                        .Samples = VK_SAMPLE_COUNT_1_BIT,
-                        .LoadOp = VK_ATTACHMENT_LOAD_OP_LOAD,
-                        .StoreOp = VK_ATTACHMENT_STORE_OP_STORE,
-                        .StencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-                        .StencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-                        .InitialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-                        .FinalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
-                }
-        });
-
-        // m_DeletionQueue.Push([this]() {
-        //     vkDestroyRenderPass(m_Device, m_ImGuiRenderPass->Get(), nullptr);
-        //     delete m_ImGuiRenderPass;
-        // });
-    }
-
     void Figment::VulkanContext::CreatePipelineCache()
     {
         VkPipelineCacheCreateInfo pipelineCacheCreateInfo = {};
@@ -382,34 +358,6 @@ namespace Figment
         VkResult result = vkCreateCommandPool(m_Device, &poolInfo, nullptr, &m_ImGuiCommandPool);
         if (result != VK_SUCCESS)
             throw std::runtime_error("Failed to create ImGui command pool!");
-    }
-
-    void Figment::VulkanContext::CreateImGuiFramebuffers()
-    {
-        m_ImGuiFramebuffers.resize(m_Swapchain->GetImageCount());
-        for (size_t i = 0; i < m_ImGuiFramebuffers.size(); i++)
-        {
-            std::array<VkImageView, 1> attachments = {
-                    m_Swapchain->GetImageViews()[i] };
-
-            VkFramebufferCreateInfo framebufferCreateInfo = {};
-            framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-            framebufferCreateInfo.renderPass = m_ImGuiRenderPass->Get();
-            framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-            framebufferCreateInfo.pAttachments = attachments.data();
-            framebufferCreateInfo.width = m_Swapchain->GetExtent().width;
-            framebufferCreateInfo.height = m_Swapchain->GetExtent().height;
-            framebufferCreateInfo.layers = 1;
-
-            VkResult result = vkCreateFramebuffer(m_Device, &framebufferCreateInfo, nullptr,
-                    &m_ImGuiFramebuffers[i]);
-            if (result != VK_SUCCESS)
-                throw std::runtime_error("Failed to create ImGui framebuffer!");
-
-            // m_DeletionQueue.Push([this, i]() {
-            //     vkDestroyFramebuffer(m_Device, m_FrameData.ImGuiFramebuffers[i], nullptr);
-            // });
-        }
     }
 
     void Figment::VulkanContext::CreateCommandBuffers()
@@ -549,7 +497,6 @@ namespace Figment
 
         CleanupSwapchain();
         CreateSwapchain();
-        CreateImGuiFramebuffers();
 
         vkResetCommandPool(m_Device, m_CommandPool, 0);
     }
@@ -649,5 +596,9 @@ namespace Figment
     uint32_t VulkanContext::GetSwapchainImageIndex() const
     {
         return m_ImageIndex;
+    }
+    VkExtent2D VulkanContext::GetSwapchainExtent() const
+    {
+        return m_Swapchain->GetExtent();
     }
 }

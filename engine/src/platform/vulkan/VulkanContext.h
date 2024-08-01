@@ -49,10 +49,11 @@ namespace Figment
             glm::mat4 Projection;
         };
 
-        VkCommandBuffer GetCurrentCommandBuffer() const;
-        VulkanBuffer *GetCurrentUniformBuffer() const;
-        VulkanBindGroup *GetCurrentBindGroup() const;
-        uint32_t GetSwapchainImageIndex() const;
+        [[nodiscard]] VkCommandBuffer GetCurrentCommandBuffer() const;
+        [[nodiscard]] VulkanBuffer *GetCurrentUniformBuffer() const;
+        [[nodiscard]] VulkanBindGroup *GetCurrentBindGroup() const;
+        [[nodiscard]] uint32_t GetSwapchainImageIndex() const;
+        [[nodiscard]] VkExtent2D GetSwapchainExtent() const;
     public:
         explicit VulkanContext(GLFWwindow *window) : m_Window(window) { }
         ~VulkanContext() override;
@@ -68,11 +69,9 @@ namespace Figment
         [[nodiscard]] VkDescriptorPool GetDescriptorPool() const { return m_DescriptorPool; }
         [[nodiscard]] VulkanSurfaceDetails SurfaceDetails() const { return m_SurfaceDetails; }
         [[nodiscard]] VkCommandBuffer GetImGuiCommandBuffer() const { return m_ImGuiCommandBuffers[m_FrameIndex]; }
-        [[nodiscard]] VkFramebuffer GetImGuiFramebuffer() const { return m_ImGuiFramebuffers[m_ImageIndex]; }
         [[nodiscard]] VkDescriptorPool CreateDescriptorPool(std::vector<VkDescriptorPoolSize> poolSizes,
                 uint32_t maxSets);
 
-        VulkanRenderPass *GetImGuiRenderPass() { return m_ImGuiRenderPass; }
         [[nodiscard]] uint32_t GetSwapchainImageCount() const;
         [[nodiscard]] std::vector<VkImage> GetSwapchainImages() const;
         [[nodiscard]] std::vector<VkImageView> GetSwapchainImageViews() const;
@@ -132,7 +131,6 @@ namespace Figment
         std::vector<VulkanBindGroup *> m_BindGroups;
         std::vector<VulkanBuffer *> m_UniformBuffers;
 
-        VulkanRenderPass *m_ImGuiRenderPass = nullptr;
         std::vector<VkCommandBuffer> m_ImGuiCommandBuffers;
         VkCommandPool m_ImGuiCommandPool = VK_NULL_HANDLE;
 
@@ -140,14 +138,12 @@ namespace Figment
         void CreateSurface();
         void CreateDevice();
         void CreateSwapchain();
-        void CreateImGuiRenderPass();
         void CreatePipelineCache();
         void CreateDescriptorSets();
         void CreateCommandPool();
         void CreateImGuiCommandPool();
         void CreateCommandBuffers();
         void CreateImGuiCommandBuffers();
-        void CreateImGuiFramebuffers();
         void CreateSynchronization();
 
         void CleanupSwapchain();

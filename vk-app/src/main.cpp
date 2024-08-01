@@ -73,7 +73,7 @@ static VkRenderPass CreateImGuiRenderPass(VulkanContext *vkContext)
     return renderPass;
 }
 
-static ImGuiContext *ImGuiInit(VulkanContext *vulkanContext, GLFWwindow *window)
+static ImGuiContext *ImGuiInit(VulkanContext *vulkanContext, Vulkan::Renderer *renderer, GLFWwindow *window)
 {
     auto context = ImGui::CreateContext();
     ImGui_ImplGlfw_InitForVulkan(window, true);
@@ -98,7 +98,7 @@ static ImGuiContext *ImGuiInit(VulkanContext *vulkanContext, GLFWwindow *window)
             { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
             { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
     }, 1000);
-    initInfo.RenderPass = vulkanContext->GetImGuiRenderPass()->Get();
+    initInfo.RenderPass = renderer->GetGuiRenderPass();
     initInfo.Subpass = 0;
     initInfo.MinImageCount = vulkanContext->SurfaceDetails().surfaceCapabilities.minImageCount;
     initInfo.ImageCount = vulkanContext->SurfaceDetails().surfaceCapabilities.minImageCount + 1;
@@ -138,7 +138,7 @@ int main()
         renderer.OnResize(eventData.Width, eventData.Height);
     });
 
-    auto imGuiContext = ImGuiInit(vulkanContext.get(), (GLFWwindow *)window->GetNative());
+    auto imGuiContext = ImGuiInit(vulkanContext.get(), &renderer, (GLFWwindow *)window->GetNative());
 
     Image image = Image::Load("res/texture.png");
 
@@ -238,8 +238,8 @@ int main()
         {
             VkRenderPassBeginInfo renderPassBeginInfo = {};
             renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-            renderPassBeginInfo.renderPass = vulkanContext->GetImGuiRenderPass()->Get();
-            renderPassBeginInfo.framebuffer = vulkanContext->GetImGuiFramebuffer();
+            renderPassBeginInfo.renderPass = renderer.GetGuiRenderPass();
+            renderPassBeginInfo.framebuffer = renderer.GetCurrentGuiFramebuffer();
             renderPassBeginInfo.renderArea.extent.width = vulkanContext->SurfaceDetails().surfaceCapabilities.currentExtent.width;
             renderPassBeginInfo.renderArea.extent.height = vulkanContext->SurfaceDetails().surfaceCapabilities.currentExtent.height;
             VkClearValue clearValues[] = {

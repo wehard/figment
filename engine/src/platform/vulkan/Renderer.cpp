@@ -9,6 +9,10 @@ namespace Figment::Vulkan
         CreateRenderPass();
         CreatePipeline();
         CreateFramebuffers();
+
+        CreateGuiRenderPass();
+        CreateGuiPipeline();
+        CreateGuiFramebuffers();
     }
 
     Renderer::~Renderer()
@@ -77,31 +81,6 @@ namespace Figment::Vulkan
         CreatePipeline();
     }
 
-    void Renderer::CreateFramebuffers()
-    {
-        VkExtent2D swapchainExtent = m_Context.SurfaceDetails().surfaceCapabilities.currentExtent;
-
-        m_Framebuffers.resize(m_Context.GetSwapchainImageCount());
-        for (size_t i = 0; i < m_Framebuffers.size(); i++)
-        {
-            std::array<VkImageView, 1> attachments = { m_Context.GetSwapchainImageViews()[i] };
-
-            VkFramebufferCreateInfo framebufferCreateInfo = {};
-            framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-            framebufferCreateInfo.renderPass = m_OpaquePass->Get();
-            framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-            framebufferCreateInfo.pAttachments = attachments.data();
-            framebufferCreateInfo.width = swapchainExtent.width;
-            framebufferCreateInfo.height = swapchainExtent.height;
-            framebufferCreateInfo.layers = 1;
-
-            VkResult result = vkCreateFramebuffer(m_Context.GetDevice(), &framebufferCreateInfo, nullptr,
-                    &m_Framebuffers[i]);
-            if (result != VK_SUCCESS)
-                throw std::runtime_error("Failed to create framebuffer!");
-        }
-    }
-
     void Renderer::CreateRenderPass()
     {
         m_OpaquePass = std::make_unique<VulkanRenderPass>(m_Context, VulkanRenderPass::RenderPassDescriptor {
@@ -157,5 +136,74 @@ namespace Figment::Vulkan
                         }
                 }
         });
+    }
+
+    void Renderer::CreateFramebuffers()
+    {
+        m_Framebuffers.resize(m_Context.GetSwapchainImageCount());
+        for (size_t i = 0; i < m_Framebuffers.size(); i++)
+        {
+            std::array<VkImageView, 1> attachments = { m_Context.GetSwapchainImageViews()[i] };
+
+            VkFramebufferCreateInfo framebufferCreateInfo = {};
+            framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+            framebufferCreateInfo.renderPass = m_OpaquePass->Get();
+            framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+            framebufferCreateInfo.pAttachments = attachments.data();
+            framebufferCreateInfo.width = m_Context.GetSwapchainExtent().width;
+            framebufferCreateInfo.height = m_Context.GetSwapchainExtent().height;
+            framebufferCreateInfo.layers = 1;
+
+            VkResult result = vkCreateFramebuffer(m_Context.GetDevice(), &framebufferCreateInfo, nullptr,
+                    &m_Framebuffers[i]);
+            if (result != VK_SUCCESS)
+                throw std::runtime_error("Failed to create framebuffer!");
+        }
+    }
+
+    void Renderer::CreateGuiRenderPass()
+    {
+        m_GuiPass = std::make_unique<VulkanRenderPass>(m_Context, VulkanRenderPass::RenderPassDescriptor {
+                .ColorAttachment = {
+                        .Format= VK_FORMAT_B8G8R8A8_UNORM,
+                        .Samples = VK_SAMPLE_COUNT_1_BIT,
+                        .LoadOp = VK_ATTACHMENT_LOAD_OP_LOAD,
+                        .StoreOp = VK_ATTACHMENT_STORE_OP_STORE,
+                        .StencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+                        .StencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+                        .InitialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                        .FinalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+                }
+        });
+    }
+
+    void Renderer::CreateGuiPipeline()
+    {
+
+    }
+
+    void Renderer::CreateGuiFramebuffers()
+    {
+        m_GuiFramebuffers.resize(m_Context.GetSwapchainImageCount());
+        for (size_t i = 0; i < m_GuiFramebuffers.size(); i++)
+        {
+            std::array<VkImageView, 1> attachments = { m_Context.GetSwapchainImageViews()[i] };
+
+            VkFramebufferCreateInfo framebufferCreateInfo = {};
+            framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+            framebufferCreateInfo.renderPass = m_GuiPass->Get();
+            framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+            framebufferCreateInfo.pAttachments = attachments.data();
+            framebufferCreateInfo.width = m_Context.GetSwapchainExtent().width;
+            framebufferCreateInfo.height = m_Context.GetSwapchainExtent().height;
+            framebufferCreateInfo.layers = 1;
+
+            CheckVkResult(vkCreateFramebuffer(m_Context.GetDevice(), &framebufferCreateInfo, nullptr,
+                    &m_GuiFramebuffers[i]));
+
+            // m_DeletionQueue.Push([this, i]() {
+            //     vkDestroyFramebuffer(m_Device, m_FrameData.ImGuiFramebuffers[i], nullptr);
+            // });
+        }
     }
 }
