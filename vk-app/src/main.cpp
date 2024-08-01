@@ -76,6 +76,41 @@ static void ImGuiShutdown(ImGuiContext *context)
     ImGui::DestroyContext(context);
 }
 
+static void RenderTestWindow(VulkanTexture &texture, ImTextureID id, float imageWidth, float imageHeight)
+{
+    auto pos = Input::GetMousePosition();
+
+    static glm::vec4 color = { 0.0f, 0.0f, 0.0f, 1.0f };
+    ImGui::Begin("Hello, world!");
+
+    ImVec2 vMin = ImGui::GetWindowContentRegionMin();
+    ImVec2 vMax = ImGui::GetWindowContentRegionMax();
+
+    vMin.x += ImGui::GetWindowPos().x;
+    vMin.y += ImGui::GetWindowPos().y;
+    vMax.x += ImGui::GetWindowPos().x;
+    vMax.y += ImGui::GetWindowPos().y;
+
+    auto imagePos = glm::vec2(pos.x - vMin.x, pos.y - vMin.y);
+
+    bool isHovered =
+            imagePos.x >= 0 && imagePos.y >= 0 && imagePos.x < imageWidth
+                    && imagePos.y < imageHeight;
+
+    if (isHovered && Input::GetButtonDown(GLFW_MOUSE_BUTTON_LEFT))
+    {
+        color = texture.GetPixel((int)imagePos.x, (int)imagePos.y);
+    }
+    ImGui::Image((ImTextureID)id, ImVec2(imageWidth, imageHeight));
+
+    ImGui::ColorEdit4("Color", &color.r);
+    ImGui::Text("Screen position: (%.1f, %.1f)", pos.x, pos.y);
+    if (isHovered)
+        ImGui::Text("Image position: (%.1f, %.1f)", imagePos.x, imagePos.y);
+
+    ImGui::End();
+}
+
 int main()
 {
     Log::Init();
@@ -126,7 +161,7 @@ int main()
     auto zRotation = 0.0f;
     auto xPosition = 0.0f;
 
-    auto id = ImGui_ImplVulkan_AddTexture(texture.GetSampler(), texture.GetImageView(),
+    auto id = (ImTextureID)ImGui_ImplVulkan_AddTexture(texture.GetSampler(), texture.GetImageView(),
             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
     while (!window->ShouldClose() && !Input::GetKeyDown(GLFW_KEY_ESCAPE))
@@ -149,37 +184,9 @@ int main()
         ImGui_ImplGlfw_NewFrame();
         ImGui_ImplVulkan_NewFrame();
         ImGui::NewFrame();
-        auto pos = Input::GetMousePosition();
 
-        static glm::vec4 color = { 0.0f, 0.0f, 0.0f, 1.0f };
-        ImGui::Begin("Hello, world!");
+        RenderTestWindow(texture, id, image.GetWidth(), image.GetHeight());
 
-        ImVec2 vMin = ImGui::GetWindowContentRegionMin();
-        ImVec2 vMax = ImGui::GetWindowContentRegionMax();
-
-        vMin.x += ImGui::GetWindowPos().x;
-        vMin.y += ImGui::GetWindowPos().y;
-        vMax.x += ImGui::GetWindowPos().x;
-        vMax.y += ImGui::GetWindowPos().y;
-
-        auto imagePos = glm::vec2(pos.x - vMin.x, pos.y - vMin.y);
-
-        bool isHovered =
-                imagePos.x >= 0 && imagePos.y >= 0 && imagePos.x < (float)image.GetWidth()
-                        && imagePos.y < (float)image.GetHeight();
-
-        if (isHovered && Input::GetButtonDown(GLFW_MOUSE_BUTTON_LEFT))
-        {
-            color = texture.GetPixel((int)imagePos.x, (int)imagePos.y);
-        }
-        ImGui::Image((ImTextureID)id, ImVec2((float)image.GetWidth(), (float)image.GetHeight()));
-
-        ImGui::ColorEdit4("Color", &color.r);
-        ImGui::Text("Screen position: (%.1f, %.1f)", pos.x, pos.y);
-        if (isHovered)
-            ImGui::Text("Image position: (%.1f, %.1f)", imagePos.x, imagePos.y);
-
-        ImGui::End();
         ImGui::Render();
         ImGui::EndFrame();
 
