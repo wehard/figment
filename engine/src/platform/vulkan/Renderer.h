@@ -50,6 +50,7 @@ namespace Figment::Vulkan
 
         std::vector<VulkanBuffer *> m_GlobalUniformBuffers;
         std::vector<VulkanBindGroup *> m_BindGroups;
+        VkDescriptorPool m_DescriptorPool = VK_NULL_HANDLE;
     private:
         void CreateRenderPass();
         void CreatePipeline();
@@ -61,5 +62,6 @@ namespace Figment::Vulkan
 
         void CreateGlobalUniformBuffers();
         void CreateDescriptorSets();
+        void CreateDescriptorPool();
     };
 }

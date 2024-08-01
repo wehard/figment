@@ -14,6 +14,7 @@ namespace Figment::Vulkan
         CreateGuiPipeline();
         CreateGuiFramebuffers();
 
+        CreateDescriptorPool();
         CreateGlobalUniformBuffers();
         CreateDescriptorSets();
     }
@@ -237,7 +238,7 @@ namespace Figment::Vulkan
         for (int i = 0; i < MAX_FRAME_DRAWS; i++)
         {
             m_BindGroups[i] = new VulkanBindGroup(m_Context, VulkanBindGroup::BindGroupDescriptor {
-                    .DescriptorPool = m_Context.GetDescriptorPool(),
+                    .DescriptorPool = m_DescriptorPool,
                     .Bindings = {
                             VulkanBindGroup::BindingDescriptor {
                                     .DescriptorSetLayoutBinding = {
@@ -252,5 +253,14 @@ namespace Figment::Vulkan
                     }
             });
         }
+    }
+    void Renderer::CreateDescriptorPool()
+    {
+        m_DescriptorPool = m_Context.CreateDescriptorPool({
+                {
+                        .type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                        .descriptorCount = static_cast<uint32_t>(MAX_FRAME_DRAWS)
+                }
+        }, MAX_FRAME_DRAWS);
     }
 }

@@ -58,11 +58,10 @@ namespace Figment
         [[nodiscard]] VkQueue GetPresentQueue() const { return m_GraphicsQueue; }
         [[nodiscard]] VkSurfaceKHR GetSurface() const { return m_Surface; }
         [[nodiscard]] VkCommandPool GetImGuiCommandPool() const { return m_CommandPool; }
-        [[nodiscard]] VkDescriptorPool GetDescriptorPool() const { return m_DescriptorPool; }
         [[nodiscard]] VulkanSurfaceDetails SurfaceDetails() const { return m_SurfaceDetails; }
         [[nodiscard]] VkCommandBuffer GetImGuiCommandBuffer() const { return m_ImGuiCommandBuffers[m_FrameIndex]; }
         [[nodiscard]] VkDescriptorPool CreateDescriptorPool(std::vector<VkDescriptorPoolSize> poolSizes,
-                uint32_t maxSets);
+                uint32_t maxSets) const;
 
         [[nodiscard]] uint32_t GetSwapchainImageCount() const;
         [[nodiscard]] std::vector<VkImage> GetSwapchainImages() const;
@@ -95,7 +94,6 @@ namespace Figment
         DeletionQueue m_DeletionQueue;
 
         VkPipelineCache m_PipelineCache = VK_NULL_HANDLE;
-        VkDescriptorPool m_DescriptorPool = VK_NULL_HANDLE;
 
         uint32_t m_GraphicsQueueIndex = UINT32_MAX;
         VkQueue m_GraphicsQueue = VK_NULL_HANDLE;

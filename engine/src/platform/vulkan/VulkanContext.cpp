@@ -1,10 +1,8 @@
 #include "VulkanContext.h"
 #include "VulkanSwapchain.h"
 #include "VulkanShader.h"
-#include "VulkanBuffer.h"
 
 #include "glm/glm.hpp"
-#include "VulkanBindGroup.h"
 
 #include <vector>
 #include <set>
@@ -29,12 +27,6 @@ namespace Figment
         CreateImGuiCommandPool();
         CreateCommandBuffers();
         CreateImGuiCommandBuffers();
-        m_DescriptorPool = CreateDescriptorPool({
-                {
-                        .type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                        .descriptorCount = static_cast<uint32_t>(MAX_FRAME_DRAWS)
-                }
-        }, MAX_FRAME_DRAWS);
         CreateSynchronization();
 
         if (glfwGetPhysicalDevicePresentationSupport(m_Instance, m_PhysicalDevice, 0))
@@ -274,7 +266,8 @@ namespace Figment
                 "PipelineCache created", "Failed to create PipelineCache!")
     }
 
-    VkDescriptorPool VulkanContext::CreateDescriptorPool(std::vector<VkDescriptorPoolSize> poolSizes, uint32_t maxSets)
+    VkDescriptorPool VulkanContext::CreateDescriptorPool(std::vector<VkDescriptorPoolSize> poolSizes,
+            uint32_t maxSets) const
     {
         VkDescriptorPoolCreateInfo descriptorPoolCreateInfo = {};
         descriptorPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
