@@ -9,10 +9,14 @@ namespace Figment::Vulkan
         CreateRenderPass();
         CreatePipeline();
         CreateFramebuffers();
+        CreateCommandPool();
+        CreateCommandBuffers();
 
         CreateGuiRenderPass();
         CreateGuiPipeline();
         CreateGuiFramebuffers();
+        CreateGuiCommandPool();
+        CreateGuiCommandBuffers();
 
         CreateDescriptorPool();
         CreateGlobalUniformBuffers();
@@ -346,5 +350,39 @@ namespace Figment::Vulkan
         //         vkDestroySemaphore(m_Device, m_SynchronizationObject.SemaphoreRenderFinished, nullptr);
         //     }
         // });
+    }
+    void Renderer::CreateCommandPool()
+    {
+        m_CommandPool = m_Context.CreateCommandPool();
+    }
+
+    void Renderer::CreateCommandBuffers()
+    {
+        m_CommandBuffers.resize(MAX_FRAME_DRAWS);
+        VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
+        commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        commandBufferAllocateInfo.commandPool = m_CommandPool;
+        commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY; // can only be executed by queue, not like secondary that can be executed by primary command buffers
+        commandBufferAllocateInfo.commandBufferCount = static_cast<uint32_t>(m_CommandBuffers.size());
+
+        CheckVkResult(vkAllocateCommandBuffers(m_Context.GetDevice(), &commandBufferAllocateInfo,
+                &m_CommandBuffers[0]));
+    }
+
+    void Renderer::CreateGuiCommandPool()
+    {
+        m_GuiCommandPool = m_Context.CreateCommandPool();
+    }
+    void Renderer::CreateGuiCommandBuffers()
+    {
+        m_GuiCommandBuffers.resize(MAX_FRAME_DRAWS);
+        VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
+        commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        commandBufferAllocateInfo.commandPool = m_GuiCommandPool;
+        commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY; // can only be executed by queue, not like secondary that can be executed by primary command buffers
+        commandBufferAllocateInfo.commandBufferCount = static_cast<uint32_t>(m_GuiCommandBuffers.size());
+
+        CheckVkResult(vkAllocateCommandBuffers(m_Context.GetDevice(), &commandBufferAllocateInfo,
+                &m_GuiCommandBuffers[0]));
     }
 }

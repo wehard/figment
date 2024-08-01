@@ -64,16 +64,26 @@ namespace Figment::Vulkan
 
         uint32_t m_ImageIndex = 0;
         uint32_t m_FrameIndex = 0;
+
+        VkCommandPool m_CommandPool = VK_NULL_HANDLE;
+        std::vector<VkCommandBuffer> m_CommandBuffers;
+
+        VkCommandPool m_GuiCommandPool = VK_NULL_HANDLE;
+        std::vector<VkCommandBuffer> m_GuiCommandBuffers;
     private:
         void CreateSynchronizationObjects();
 
         void CreateRenderPass();
         void CreatePipeline();
         void CreateFramebuffers();
+        void CreateCommandPool();
+        void CreateCommandBuffers();
 
         void CreateGuiRenderPass();
         void CreateGuiPipeline();
         void CreateGuiFramebuffers();
+        void CreateGuiCommandPool();
+        void CreateGuiCommandBuffers();
 
         void CreateGlobalUniformBuffers();
         void CreateDescriptorSets();

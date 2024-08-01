@@ -62,6 +62,7 @@ namespace Figment
         [[nodiscard]] VkCommandBuffer GetImGuiCommandBuffer() const { return m_ImGuiCommandBuffers[m_FrameIndex]; }
         [[nodiscard]] VkDescriptorPool CreateDescriptorPool(std::vector<VkDescriptorPoolSize> poolSizes,
                 uint32_t maxSets) const;
+        [[nodiscard]] VkCommandPool CreateCommandPool() const;
 
         [[nodiscard]] uint32_t GetSwapchainImageCount() const;
         [[nodiscard]] std::vector<VkImage> GetSwapchainImages() const;
@@ -88,7 +89,6 @@ namespace Figment
         VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;
         VkDevice m_Device = VK_NULL_HANDLE;
         VkSurfaceKHR m_Surface = VK_NULL_HANDLE;
-        VkCommandPool m_CommandPool = VK_NULL_HANDLE;
         VulkanSwapchain *m_Swapchain = nullptr;
 
         DeletionQueue m_DeletionQueue;
@@ -115,19 +115,19 @@ namespace Figment
             VkFence FenceDraw;
         };
 
-        std::vector<VkCommandBuffer> m_CommandBuffers;
         std::vector<SynchronizationObjects> m_SynchronizationObjects;
 
-        std::vector<VkCommandBuffer> m_ImGuiCommandBuffers;
+        VkCommandPool m_CommandPool = VK_NULL_HANDLE;
+        std::vector<VkCommandBuffer> m_CommandBuffers;
+
         VkCommandPool m_ImGuiCommandPool = VK_NULL_HANDLE;
+        std::vector<VkCommandBuffer> m_ImGuiCommandBuffers;
 
         void CreateInstance();
         void CreateSurface();
         void CreateDevice();
         void CreateSwapchain();
         void CreatePipelineCache();
-        void CreateCommandPool();
-        void CreateImGuiCommandPool();
         void CreateCommandBuffers();
         void CreateImGuiCommandBuffers();
         void CreateSynchronization();

@@ -21,8 +21,8 @@ namespace Figment
         CreateDevice();
         CreateSwapchain();
 
-        CreateCommandPool();
-        CreateImGuiCommandPool();
+        m_CommandPool = CreateCommandPool();
+        m_ImGuiCommandPool = CreateCommandPool();
         CreateCommandBuffers();
         CreateImGuiCommandBuffers();
         CreateSynchronization();
@@ -273,33 +273,16 @@ namespace Figment
         return descriptorPool;
     }
 
-    void Figment::VulkanContext::CreateCommandPool()
+    VkCommandPool Figment::VulkanContext::CreateCommandPool() const
     {
+        VkCommandPool commandPool;
         VkCommandPoolCreateInfo poolInfo = {};
         poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         poolInfo.queueFamilyIndex = m_GraphicsQueueIndex;
         poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
-        VkResult result = vkCreateCommandPool(m_Device, &poolInfo, nullptr, &m_CommandPool);
-        if (result != VK_SUCCESS)
-            throw std::runtime_error("Failed to create command pool!");
-
-        m_DeletionQueue.Push([this]()
-        {
-            vkDestroyCommandPool(m_Device, m_CommandPool, nullptr);
-        });
-    }
-
-    void Figment::VulkanContext::CreateImGuiCommandPool()
-    {
-        VkCommandPoolCreateInfo poolInfo = {};
-        poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-        poolInfo.queueFamilyIndex = m_GraphicsQueueIndex;
-        poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-
-        VkResult result = vkCreateCommandPool(m_Device, &poolInfo, nullptr, &m_ImGuiCommandPool);
-        if (result != VK_SUCCESS)
-            throw std::runtime_error("Failed to create ImGui command pool!");
+        CheckVkResult(vkCreateCommandPool(m_Device, &poolInfo, nullptr, &commandPool));
+        return commandPool;
     }
 
     void Figment::VulkanContext::CreateCommandBuffers()
