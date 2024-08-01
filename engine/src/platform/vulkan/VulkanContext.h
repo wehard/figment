@@ -42,18 +42,10 @@ namespace Figment
             std::vector<VkPresentModeKHR> presentationModes;
         };
 
-        struct UniformBufferObject
-        {
-            glm::mat4 Model;
-            glm::mat4 View;
-            glm::mat4 Projection;
-        };
-
         [[nodiscard]] VkCommandBuffer GetCurrentCommandBuffer() const;
-        [[nodiscard]] VulkanBuffer *GetCurrentUniformBuffer() const;
-        [[nodiscard]] VulkanBindGroup *GetCurrentBindGroup() const;
         [[nodiscard]] uint32_t GetSwapchainImageIndex() const;
         [[nodiscard]] VkExtent2D GetSwapchainExtent() const;
+        [[nodiscard]] uint32_t GetFrameIndex() const;
     public:
         explicit VulkanContext(GLFWwindow *window) : m_Window(window) { }
         ~VulkanContext() override;
@@ -128,8 +120,6 @@ namespace Figment
         std::vector<VkFramebuffer> m_ImGuiFramebuffers;
         std::vector<VkCommandBuffer> m_CommandBuffers;
         std::vector<SynchronizationObjects> m_SynchronizationObjects;
-        std::vector<VulkanBindGroup *> m_BindGroups;
-        std::vector<VulkanBuffer *> m_UniformBuffers;
 
         std::vector<VkCommandBuffer> m_ImGuiCommandBuffers;
         VkCommandPool m_ImGuiCommandPool = VK_NULL_HANDLE;
@@ -139,7 +129,6 @@ namespace Figment
         void CreateDevice();
         void CreateSwapchain();
         void CreatePipelineCache();
-        void CreateDescriptorSets();
         void CreateCommandPool();
         void CreateImGuiCommandPool();
         void CreateCommandBuffers();

@@ -13,6 +13,9 @@ namespace Figment::Vulkan
         CreateGuiRenderPass();
         CreateGuiPipeline();
         CreateGuiFramebuffers();
+
+        CreateGlobalUniformBuffers();
+        CreateDescriptorSets();
     }
 
     Renderer::~Renderer()
@@ -49,13 +52,13 @@ namespace Figment::Vulkan
         VkCommandBuffer commandBuffer = m_Context.GetCurrentCommandBuffer();
         vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_OpaquePipeline->Get());
 
-        VulkanContext::UniformBufferObject ubo = {
+        GlobalUniformData ubo = {
                 .Model = transform,
                 .View = camera.GetViewMatrix(),
                 .Projection = camera.GetProjectionMatrix(),
         };
         // m_UBO.Projection[1][1] *= -1;
-        m_Context.GetCurrentUniformBuffer()->SetData(&ubo, sizeof(VulkanContext::UniformBufferObject));
+        m_GlobalUniformBuffers[m_Context.GetFrameIndex()]->SetData(&ubo, sizeof(GlobalUniformData));
 
         VkBuffer buffers[] = { buffer.Get() };
         VkDeviceSize offsets[] = { 0 };
@@ -63,7 +66,7 @@ namespace Figment::Vulkan
 
         vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                 m_OpaquePipeline->GetLayout(),
-                0, 1, m_Context.GetCurrentBindGroup()->Get(), 0, nullptr);
+                0, 1, m_BindGroups[m_Context.GetFrameIndex()]->Get(), 0, nullptr);
         vkCmdDraw(commandBuffer, 6, 1, 0, 0);
     }
 
@@ -99,11 +102,9 @@ namespace Figment::Vulkan
 
     void Renderer::CreatePipeline()
     {
-        auto swapchainExtent = m_Context.SurfaceDetails().surfaceCapabilities.currentExtent;
-
         m_OpaquePipeline = std::make_unique<VulkanPipeline>(m_Context, VulkanPipeline::PipelineDescriptor {
-                .ViewportWidth = swapchainExtent.width,
-                .ViewportHeight = swapchainExtent.height,
+                .ViewportWidth = m_Context.GetSwapchainExtent().width,
+                .ViewportHeight = m_Context.GetSwapchainExtent().height,
                 .VertexInput = {
                         .Binding = 0,
                         .Stride = sizeof(Vertex),
@@ -204,6 +205,52 @@ namespace Figment::Vulkan
             // m_DeletionQueue.Push([this, i]() {
             //     vkDestroyFramebuffer(m_Device, m_FrameData.ImGuiFramebuffers[i], nullptr);
             // });
+        }
+    }
+
+    void Renderer::CreateGlobalUniformBuffers()
+    {
+        GlobalUniformData uniformData = {
+                .Model = glm::mat4(1.0f),
+                .View = glm::mat4(1.0f),
+                .Projection = glm::mat4(1.0f)
+        };
+
+        m_GlobalUniformBuffers.resize(MAX_FRAME_DRAWS);
+
+        for (int i = 0; i < MAX_FRAME_DRAWS; i++)
+        {
+            m_GlobalUniformBuffers[i] = new VulkanBuffer(m_Context, {
+                    .Name = "UniformBuffer",
+                    .Data = &uniformData,
+                    .ByteSize = sizeof(GlobalUniformData),
+                    .Usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                    .MemoryProperties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+            });
+        }
+    }
+
+    void Renderer::CreateDescriptorSets()
+    {
+        m_BindGroups.resize(MAX_FRAME_DRAWS);
+
+        for (int i = 0; i < MAX_FRAME_DRAWS; i++)
+        {
+            m_BindGroups[i] = new VulkanBindGroup(m_Context, VulkanBindGroup::BindGroupDescriptor {
+                    .DescriptorPool = m_Context.GetDescriptorPool(),
+                    .Bindings = {
+                            VulkanBindGroup::BindingDescriptor {
+                                    .DescriptorSetLayoutBinding = {
+                                            .binding = 0,
+                                            .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                                            .descriptorCount = 1,
+                                            .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
+                                            .pImmutableSamplers = nullptr
+                                    },
+                                    .Buffer = m_GlobalUniformBuffers[i],
+                            }
+                    }
+            });
         }
     }
 }

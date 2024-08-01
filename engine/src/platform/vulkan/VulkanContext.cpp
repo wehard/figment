@@ -25,23 +25,6 @@ namespace Figment
         CreateDevice();
         CreateSwapchain();
 
-        UniformBufferObject ubo = {
-                .Model = glm::mat4(1.0f),
-                .View = glm::mat4(1.0f),
-                .Projection = glm::mat4(1.0f)
-        };
-
-        for (int i = 0; i < MAX_FRAME_DRAWS; i++)
-        {
-            m_UniformBuffers.push_back(new VulkanBuffer(*this, {
-                    .Name = "UniformBuffer",
-                    .Data = &ubo,
-                    .ByteSize = sizeof(UniformBufferObject),
-                    .Usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                    .MemoryProperties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
-            }));
-        }
-
         CreateCommandPool();
         CreateImGuiCommandPool();
         CreateCommandBuffers();
@@ -52,7 +35,6 @@ namespace Figment
                         .descriptorCount = static_cast<uint32_t>(MAX_FRAME_DRAWS)
                 }
         }, MAX_FRAME_DRAWS);
-        CreateDescriptorSets();
         CreateSynchronization();
 
         if (glfwGetPhysicalDevicePresentationSupport(m_Instance, m_PhysicalDevice, 0))
@@ -302,33 +284,9 @@ namespace Figment
         descriptorPoolCreateInfo.maxSets = maxSets;
 
         VkDescriptorPool descriptorPool;
-        vkCreateDescriptorPool(m_Device, &descriptorPoolCreateInfo, nullptr, &descriptorPool);
+        CheckVkResult(vkCreateDescriptorPool(m_Device, &descriptorPoolCreateInfo, nullptr, &descriptorPool));
 
         return descriptorPool;
-    }
-
-    void Figment::VulkanContext::CreateDescriptorSets()
-    {
-        m_BindGroups.resize(MAX_FRAME_DRAWS);
-
-        for (int i = 0; i < MAX_FRAME_DRAWS; i++)
-        {
-            m_BindGroups[i] = new VulkanBindGroup(*this, {
-                    .DescriptorPool = m_DescriptorPool,
-                    .Bindings = {
-                            {
-                                    .DescriptorSetLayoutBinding = {
-                                            .binding = 0,
-                                            .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                                            .descriptorCount = 1,
-                                            .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
-                                            .pImmutableSamplers = nullptr
-                                    },
-                                    .Buffer = m_UniformBuffers[i],
-                            }
-                    }
-            });
-        }
     }
 
     void Figment::VulkanContext::CreateCommandPool()
@@ -432,9 +390,6 @@ namespace Figment
 
         CheckVkResult(vkResetFences(m_Device, 1, &m_SynchronizationObjects[m_FrameIndex].FenceDraw));
 
-        // get next available image to draw to and set semaphore to signal when it's ready to be drawn to
-        // CheckVkResult(vkAcquireNextImageKHR(m_Device, m_Swapchain, std::numeric_limits<uint64_t>::max(),
-        //         m_SynchronizationObjects[m_FrameIndex].SemaphoreImageAvailable, VK_NULL_HANDLE, &m_ImageIndex));
         m_ImageIndex = m_Swapchain->GetNextImageIndex(m_SynchronizationObjects[m_FrameIndex].SemaphoreImageAvailable);
     }
 
@@ -573,14 +528,6 @@ namespace Figment
     {
         return m_CommandBuffers[m_FrameIndex];
     }
-    VulkanBuffer *VulkanContext::GetCurrentUniformBuffer() const
-    {
-        return m_UniformBuffers[m_FrameIndex];
-    }
-    VulkanBindGroup *VulkanContext::GetCurrentBindGroup() const
-    {
-        return m_BindGroups[m_FrameIndex];
-    }
     uint32_t VulkanContext::GetSwapchainImageCount() const
     {
         return m_Swapchain->GetImageCount();
@@ -600,5 +547,9 @@ namespace Figment
     VkExtent2D VulkanContext::GetSwapchainExtent() const
     {
         return m_Swapchain->GetExtent();
+    }
+    uint32_t VulkanContext::GetFrameIndex() const
+    {
+        return m_FrameIndex;
     }
 }

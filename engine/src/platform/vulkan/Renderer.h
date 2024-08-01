@@ -30,6 +30,13 @@ namespace Figment::Vulkan
             glm::vec3 Position;
             glm::vec3 Color;
         };
+
+        struct GlobalUniformData
+        {
+            glm::mat4 Model;
+            glm::mat4 View;
+            glm::mat4 Projection;
+        };
     private:
         const VulkanContext &m_Context;
         std::unique_ptr<VulkanRenderPass> m_OpaquePass = nullptr;
@@ -40,6 +47,9 @@ namespace Figment::Vulkan
         std::unique_ptr<VulkanRenderPass> m_GuiPass = nullptr;
         std::unique_ptr<VulkanPipeline> m_GuiPipeline = nullptr;
         std::vector<VkFramebuffer> m_GuiFramebuffers;
+
+        std::vector<VulkanBuffer *> m_GlobalUniformBuffers;
+        std::vector<VulkanBindGroup *> m_BindGroups;
     private:
         void CreateRenderPass();
         void CreatePipeline();
@@ -48,5 +58,8 @@ namespace Figment::Vulkan
         void CreateGuiRenderPass();
         void CreateGuiPipeline();
         void CreateGuiFramebuffers();
+
+        void CreateGlobalUniformBuffers();
+        void CreateDescriptorSets();
     };
 }
