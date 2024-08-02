@@ -7,6 +7,8 @@
 #include "VulkanBuffer.h"
 #include "VulkanBindGroup.h"
 
+#include "imgui.h"
+
 namespace Figment::Vulkan
 {
     class Renderer
@@ -14,7 +16,9 @@ namespace Figment::Vulkan
     public:
         Renderer() = delete;
         explicit Renderer(const VulkanContext &context);
-        ~Renderer();
+        ~Renderer() = default;
+        void Init();
+        void InitGui(GLFWwindow *window);
         void Shutdown();
         void BeginFrame();
         void EndFrame();
@@ -87,6 +91,8 @@ namespace Figment::Vulkan
 
         DeletionQueue m_DeletionQueue;
         FrameResource m_FrameResources[MAX_FRAMES_IN_FLIGHT];
+
+        ImGuiContext *m_GuiContext = nullptr;
     private:
         void CreateSynchronizationObjects();
 

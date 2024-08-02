@@ -28,9 +28,74 @@ namespace Figment::Vulkan
         CreateSynchronizationObjects();
     }
 
-    Renderer::~Renderer()
+    void Renderer::Init()
     {
+    }
 
+    void Renderer::InitGui(GLFWwindow *window)
+    {
+        m_GuiContext = ImGui::CreateContext();
+        ImGui_ImplGlfw_InitForVulkan(window, true);
+        ImGui_ImplVulkan_InitInfo initInfo = {};
+        initInfo.UseDynamicRendering = false;
+        initInfo.Device = m_Context.GetDevice();
+        initInfo.Instance = m_Context.GetInstance();
+        initInfo.PhysicalDevice = m_Context.GetPhysicalDevice();
+        initInfo.Queue = m_Context.GetGraphicsQueue();
+        initInfo.QueueFamily = 0;
+        initInfo.PipelineCache = VK_NULL_HANDLE;
+        initInfo.DescriptorPool = m_Context.CreateDescriptorPool({
+                { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
+                { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
+                { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
+                { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
+                { VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
+                { VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
+                { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
+                { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
+                { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
+                { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
+                { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
+        }, 1000);
+        initInfo.RenderPass = GetGuiRenderPass();
+        initInfo.Subpass = 0;
+        initInfo.MinImageCount = m_Context.SurfaceDetails().surfaceCapabilities.minImageCount;
+        initInfo.ImageCount = m_Context.SurfaceDetails().surfaceCapabilities.minImageCount + 1;
+        initInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+        initInfo.Allocator = nullptr;
+        initInfo.CheckVkResultFn = CheckVkResult;
+        ImGui_ImplVulkan_Init(&initInfo);
+
+        auto commandBuffer = m_Context.BeginSingleTimeCommands();
+        ImGui_ImplVulkan_CreateFontsTexture();
+        m_Context.EndSingleTimeCommands(commandBuffer);
+    }
+
+    void Renderer::Shutdown()
+    {
+        std::vector<VkFence> fences;
+        fences.reserve(m_SynchronizationObjects.size());
+        for (auto &synchronizationObject : m_SynchronizationObjects)
+        {
+            fences.push_back(synchronizationObject.FenceDraw);
+        }
+        vkWaitForFences(m_Context.GetDevice(), fences.size(), fences.data(), VK_TRUE,
+                std::numeric_limits<uint64_t>::max());
+        m_DeletionQueue.Flush();
+
+        for (auto &framebuffer : m_Framebuffers)
+        {
+            vkDestroyFramebuffer(m_Context.GetDevice(), framebuffer, nullptr);
+        }
+
+        for (auto &framebuffer : m_GuiFramebuffers)
+        {
+            vkDestroyFramebuffer(m_Context.GetDevice(), framebuffer, nullptr);
+        }
+
+        ImGui_ImplVulkan_Shutdown();
+        ImGui_ImplGlfw_Shutdown();
+        ImGui::DestroyContext(m_GuiContext);
     }
 
     void Renderer::Begin(const Camera &camera)
@@ -42,7 +107,7 @@ namespace Figment::Vulkan
         renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
         renderPassBeginInfo.renderPass = m_OpaquePass->Get();
         renderPassBeginInfo.renderArea.offset = { 0, 0 };
-        renderPassBeginInfo.renderArea.extent = m_Context.SurfaceDetails().surfaceCapabilities.currentExtent;
+        renderPassBeginInfo.renderArea.extent = m_Context.GetSwapchainExtent();
         VkClearValue clearValues[] = {
                 { 0.1f, 0.1f, 0.1f, 1.0f }};
         renderPassBeginInfo.pClearValues = clearValues;
@@ -101,7 +166,7 @@ namespace Figment::Vulkan
     {
         m_OpaquePass = std::make_unique<VulkanRenderPass>(m_Context, VulkanRenderPass::RenderPassDescriptor {
                 .ColorAttachment = {
-                        .Format = m_Context.SurfaceDetails().formats[0].format,
+                        .Format = m_Context.GetSwapchain()->GetFormat(),
                         .Samples = VK_SAMPLE_COUNT_1_BIT,
                         .LoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
                         .StoreOp = VK_ATTACHMENT_STORE_OP_STORE,
@@ -391,28 +456,6 @@ namespace Figment::Vulkan
         return m_GuiCommandBuffers[m_FrameIndex];
     }
 
-    void Renderer::Shutdown()
-    {
-        std::vector<VkFence> fences;
-        fences.reserve(m_SynchronizationObjects.size());
-        for (auto &synchronizationObject : m_SynchronizationObjects)
-        {
-            fences.push_back(synchronizationObject.FenceDraw);
-        }
-        vkWaitForFences(m_Context.GetDevice(), fences.size(), fences.data(), VK_TRUE,
-                std::numeric_limits<uint64_t>::max());
-        m_DeletionQueue.Flush();
-
-        for (auto &framebuffer : m_Framebuffers)
-        {
-            vkDestroyFramebuffer(m_Context.GetDevice(), framebuffer, nullptr);
-        }
-
-        for (auto &framebuffer : m_GuiFramebuffers)
-        {
-            vkDestroyFramebuffer(m_Context.GetDevice(), framebuffer, nullptr);
-        }
-    }
     void Renderer::BeginGuiPass()
     {
         ImGui_ImplGlfw_NewFrame();

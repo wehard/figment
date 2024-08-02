@@ -28,54 +28,6 @@ static glm::mat4 Transform(glm::vec3 position, glm::vec3 rotation, glm::vec3 sca
     return matTranslate * matRotate * matScale;
 }
 
-static ImGuiContext *ImGuiInit(VulkanContext *vulkanContext, Vulkan::Renderer *renderer, GLFWwindow *window)
-{
-    auto context = ImGui::CreateContext();
-    ImGui_ImplGlfw_InitForVulkan(window, true);
-    ImGui_ImplVulkan_InitInfo initInfo = {};
-    initInfo.UseDynamicRendering = false;
-    initInfo.Device = vulkanContext->GetDevice();
-    initInfo.Instance = vulkanContext->GetInstance();
-    initInfo.PhysicalDevice = vulkanContext->GetPhysicalDevice();
-    initInfo.Queue = vulkanContext->GetGraphicsQueue();
-    initInfo.QueueFamily = 0;
-    initInfo.PipelineCache = VK_NULL_HANDLE;
-    initInfo.DescriptorPool = vulkanContext->CreateDescriptorPool({
-            { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
-            { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
-            { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
-            { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
-            { VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
-            { VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
-            { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
-            { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
-            { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
-            { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
-            { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
-    }, 1000);
-    initInfo.RenderPass = renderer->GetGuiRenderPass();
-    initInfo.Subpass = 0;
-    initInfo.MinImageCount = vulkanContext->SurfaceDetails().surfaceCapabilities.minImageCount;
-    initInfo.ImageCount = vulkanContext->SurfaceDetails().surfaceCapabilities.minImageCount + 1;
-    initInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-    initInfo.Allocator = nullptr;
-    initInfo.CheckVkResultFn = CheckVkResult;
-    ImGui_ImplVulkan_Init(&initInfo);
-
-    auto cb = vulkanContext->BeginSingleTimeCommands();
-    ImGui_ImplVulkan_CreateFontsTexture();
-    vulkanContext->EndSingleTimeCommands(cb);
-
-    return context;
-}
-
-static void ImGuiShutdown(ImGuiContext *context)
-{
-    ImGui_ImplVulkan_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext(context);
-}
-
 static void DrawTestWindow(VulkanTexture &texture, ImTextureID id, float imageWidth, float imageHeight)
 {
     auto pos = Input::GetMousePosition();
@@ -118,6 +70,7 @@ int main()
     Input::Initialize((GLFWwindow *)window->GetNative());
     auto vulkanContext = window->GetContext<VulkanContext>();
     auto renderer = Vulkan::Renderer(*vulkanContext);
+    renderer.InitGui((GLFWwindow *)window->GetNative());
 
     PerspectiveCamera camera(1280.0 / 720.0);
     camera.SetPosition({ 0.0f, 0.0f, 2.0f });
@@ -127,8 +80,6 @@ int main()
         camera.Resize((float)eventData.Width, (float)eventData.Height);
         renderer.OnResize(eventData.Width, eventData.Height);
     });
-
-    auto imGuiContext = ImGuiInit(vulkanContext.get(), &renderer, (GLFWwindow *)window->GetNative());
 
     Image image = Image::Load("res/texture.png");
 
@@ -182,7 +133,7 @@ int main()
         renderer.End();
 
         renderer.BeginGuiPass();
-        DrawTestWindow(texture, textureId, image.GetWidth(), image.GetHeight());
+        DrawTestWindow(texture, textureId, (float)image.GetWidth(), (float)image.GetHeight());
         ImGui::Begin("Camera");
         ImGui::Text("Position: (%.2f, %.2f, %.2f)", camera.GetPosition().x, camera.GetPosition().y,
                 camera.GetPosition().z);
@@ -194,7 +145,5 @@ int main()
     renderer.Shutdown();
 
     vulkanContext->Cleanup();
-
-    ImGuiShutdown(imGuiContext);
     return 0;
 }
