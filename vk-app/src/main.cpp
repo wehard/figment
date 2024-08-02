@@ -1,21 +1,19 @@
 #include "Window.h"
+#include "Input.h"
+#include "PerspectiveCamera.h"
+#include "Image.h"
+
 #include "VulkanContext.h"
 #include "VulkanRenderPass.h"
 #include "VulkanTexture.h"
-#include "PerspectiveCamera.h"
-#include "Log.h"
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_vulkan.h"
 #include "VulkanBuffer.h"
+#include "Renderer.h"
+
+#include "imgui_impl_vulkan.h"
+
 #include "glm/glm.hpp"
-#include "glm/ext/matrix_transform.hpp"
-#include "glm/ext/matrix_clip_space.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/euler_angles.hpp"
-#include "Image.h"
-#include "Input.h"
-#include "Renderer.h"
 
 using namespace Figment;
 

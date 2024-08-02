@@ -51,8 +51,6 @@ namespace Figment
         [[nodiscard]] VkDevice GetDevice() const { return m_Device; };
         [[nodiscard]] VkPhysicalDevice GetPhysicalDevice() const { return m_PhysicalDevice; }
         [[nodiscard]] VkQueue GetGraphicsQueue() const { return m_GraphicsQueue; }
-        [[nodiscard]] VkQueue GetPresentQueue() const { return m_GraphicsQueue; }
-        [[nodiscard]] VkSurfaceKHR GetSurface() const { return m_Surface; }
         [[nodiscard]] VulkanSurfaceDetails SurfaceDetails() const { return m_SurfaceDetails; }
         [[nodiscard]] VkDescriptorPool CreateDescriptorPool(std::vector<VkDescriptorPoolSize> poolSizes,
                 uint32_t maxSets) const;
