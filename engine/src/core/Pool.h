@@ -2,11 +2,11 @@
 
 #include <cstdint>
 #include <stack>
+#include <cstring>
 #include "Handle.h"
 
 namespace Figment
 {
-
     template<typename T>
     class Pool
     {
@@ -14,87 +14,54 @@ namespace Figment
         explicit Pool() : Pool(DefaultCapacity) { };
         explicit Pool(uint32_t capacity) : m_Capacity(capacity)
         {
-            m_Data = new Slot[capacity];
-            for (uint32_t i = 0; i < capacity; i++)
-            {
-                m_Data[i] = Slot { .generation = 0, .data = T() };
-            }
+            m_Data = (T *)malloc(sizeof(T) * capacity);
+            m_Generations = new uint32_t[capacity];
         }
 
-        ~Pool()
-        {
-            delete[] m_Data;
-        }
+        ~Pool() { delete[] m_Data; }
 
-        [[nodiscard]] uint32_t Capacity() const
-        {
-            return m_Capacity;
-        }
+        [[nodiscard]] uint32_t Capacity() const { return m_Capacity; }
 
-        [[nodiscard]] uint32_t Count() const
-        {
-            return m_Count;
-        }
+        [[nodiscard]] uint32_t Count() const { return m_Count; }
 
         T *Get(Handle<T> handle)
         {
-            auto match = m_Data[handle.index];
-            if (match.generation != handle.generation)
+            auto currentGeneration = m_Generations[handle.index];
+            if (currentGeneration != handle.generation)
             {
                 return nullptr;
             }
-            return &m_Data[handle.index].data;
+            return &m_Data[handle.index];
         }
 
-        Handle<T> Create(const T data)
+        template<typename... Args>
+        Handle<T> Create(Args &&... args)
         {
-            if (!m_FreeList.empty() && m_Count < m_Capacity)
-            {
-                auto index = m_FreeList.top();
-                m_FreeList.pop();
-                m_Data[index] = Slot { .generation = m_Data[index].generation + 1, .data = data };
-                return Handle<T>(index, m_Data[index].generation);
-            }
-            if (m_Count >= m_Capacity)
-            {
-                Resize(m_Capacity * 2);
-            }
-            auto count = m_Count;
-            m_Data[count] = Slot { .generation = m_Data[count].generation, .data = data };
+            auto data = T(std::forward<Args>(args)...);
+
+            memcpy(&m_Data[m_Count], &data, sizeof(T));
+            auto handle = Handle<T>(m_Count, m_Generations[m_Count]);
             m_Count++;
-            return Handle<T>(count, m_Data[count].generation);
+            return handle;
         }
 
         void Delete(Handle<T> handle)
         {
             m_Data[handle.index].generation++;
             m_Count--;
-            // m_FreeList.push(handle.index);
+            m_FreeList.push(handle.index);
         }
 
         constexpr static uint32_t DefaultCapacity = 10;
     private:
-        struct Slot
-        {
-            uint32_t generation;
-            T data;
-        };
-
         uint32_t m_Capacity = DefaultCapacity;
         uint32_t m_Count = 0;
-        Slot *m_Data = nullptr;
+        T *m_Data = nullptr;
+        uint32_t *m_Generations;
         std::stack<uint32_t> m_FreeList;
 
         void Resize(uint32_t capacity)
         {
-            m_Capacity = capacity;
-            auto newData = new Slot[capacity];
-            for (uint32_t i = 0; i < m_Count; i++)
-            {
-                newData[i] = m_Data[i];
-            }
-            delete[] m_Data;
-            m_Data = newData;
         }
     };
 }
