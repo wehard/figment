@@ -47,6 +47,7 @@ file(GLOB_RECURSE SRC_FILES
         "../engine/src/renderer/PerspectiveCamera.cpp"
         "../engine/src/core/Image.cpp"
         "../engine/src/core/Input.cpp"
+        "../engine/src/core/ResourceManager.cpp"
 )
 
 target_sources(vk-app PRIVATE ${SRC_FILES})
