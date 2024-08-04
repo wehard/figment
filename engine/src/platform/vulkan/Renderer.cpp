@@ -5,7 +5,8 @@
 
 namespace Figment::Vulkan
 {
-    Renderer::Renderer(const VulkanContext &context) : m_Context(context)
+    Renderer::Renderer(const VulkanContext &context) : m_Context(context),
+            m_ResourceManager(context, { .Buffers = 128 })
     {
         m_Shader = std::make_unique<VulkanShader>(context, "res/shader.vert.spv", "res/shader.frag.spv");
 

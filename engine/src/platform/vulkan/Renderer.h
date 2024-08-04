@@ -6,6 +6,7 @@
 #include "VulkanPipeline.h"
 #include "VulkanBuffer.h"
 #include "VulkanBindGroup.h"
+#include "ResourceManager.h"
 
 #include "imgui.h"
 
@@ -93,6 +94,8 @@ namespace Figment::Vulkan
         FrameResource m_FrameResources[MAX_FRAMES_IN_FLIGHT];
 
         ImGuiContext *m_GuiContext = nullptr;
+
+        ResourceManager m_ResourceManager;
     private:
         void CreateSynchronizationObjects();
 
