@@ -12,13 +12,25 @@ namespace Figment
     {
     public:
         Pool() = delete;
-        explicit Pool(uint32_t capacity) : m_Capacity(capacity)
+        explicit Pool(uint32_t capacity, std::function<void(T *item)> &&onDispose = nullptr) : m_Capacity(
+                capacity),
+                m_OnDispose(onDispose)
         {
             m_Data = (T *)malloc(sizeof(T) * capacity);
             m_Generations = new uint32_t[capacity];
         }
 
-        ~Pool() { free(m_Data); }
+        ~Pool()
+        {
+            if (m_OnDispose)
+            {
+                for (uint32_t i = 0; i < m_Count; i++)
+                {
+                    m_OnDispose(&m_Data[i]);
+                }
+            }
+            free(m_Data);
+        }
 
         [[nodiscard]] uint32_t Capacity() const { return m_Capacity; }
 
@@ -59,6 +71,8 @@ namespace Figment
         T *m_Data = nullptr;
         uint32_t *m_Generations;
         std::stack<uint32_t> m_FreeList;
+
+        const std::function<void(T *item)> &m_OnDispose = nullptr;
 
         void Resize(uint32_t capacity)
         {
