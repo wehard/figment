@@ -11,7 +11,7 @@ namespace Figment
     class Pool
     {
     public:
-        explicit Pool() : Pool(DefaultCapacity) { };
+        Pool() = delete;
         explicit Pool(uint32_t capacity) : m_Capacity(capacity)
         {
             m_Data = (T *)malloc(sizeof(T) * capacity);
