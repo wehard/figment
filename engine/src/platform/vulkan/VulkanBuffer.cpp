@@ -24,6 +24,7 @@ namespace Figment
 
     VulkanBuffer::VulkanBuffer(const VulkanContext &context, const VulkanBufferDescriptor &&descriptor) :
             m_Context(context),
+            m_Name(descriptor.Name),
             m_ByteSize(descriptor.ByteSize)
     {
         VkBufferCreateInfo bufferInfo = {};
@@ -65,7 +66,7 @@ namespace Figment
             vkUnmapMemory(context.GetDevice(), m_BufferMemory);
         }
 
-        FIG_LOG_INFO("%s created: size = %d", descriptor.Name, descriptor.ByteSize);
+        FIG_LOG_INFO("%s created: size = %d", descriptor.Name.c_str(), descriptor.ByteSize);
     }
 
     void VulkanBuffer::SetData(void *data, size_t byteSize)

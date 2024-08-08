@@ -7,7 +7,7 @@ namespace Figment
 {
     struct VulkanBufferDescriptor
     {
-        const char *Name = "VulkanBuffer";
+        const std::string &Name = "VulkanBuffer";
         void *Data = nullptr;
         size_t ByteSize = 0;
         VkBufferUsageFlags Usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
@@ -26,6 +26,7 @@ namespace Figment
         [[nodiscard]] void *Map() const;
     private:
         const VulkanContext &m_Context;
+        std::string m_Name;
         VkBuffer m_Buffer = VK_NULL_HANDLE;
         VkDeviceMemory m_BufferMemory = VK_NULL_HANDLE;
         uint32_t m_ByteSize = 0;
