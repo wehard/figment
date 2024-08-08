@@ -18,7 +18,7 @@ namespace Figment
             m_Generations = new uint32_t[capacity];
         }
 
-        ~Pool() { delete[] m_Data; }
+        ~Pool() { free(m_Data); }
 
         [[nodiscard]] uint32_t Capacity() const { return m_Capacity; }
 
