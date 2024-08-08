@@ -3,6 +3,8 @@
 #include "VulkanContext.h"
 #include "vulkan/vulkan.h"
 
+#include <string>
+
 namespace Figment
 {
     struct VulkanBufferDescriptor
