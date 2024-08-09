@@ -100,12 +100,13 @@ if (NOT EMSCRIPTEN)
 
     add_executable(
             figment_tests
-            src/core/ResourceManager.cpp
     )
 
     file(GLOB_RECURSE TEST_SRC_FILES
             "test/*.cpp"
     )
+
+    list(REMOVE_ITEM TEST_SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/test/ResourceManagerTests.cpp)
 
     target_sources(figment_tests PRIVATE
             ${TEST_SRC_FILES}

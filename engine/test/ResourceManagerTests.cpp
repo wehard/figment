@@ -1,19 +1,20 @@
 #include <gtest/gtest.h>
 
 #include "ResourceManager.h"
+#include "VulkanContext.h"
 
 using namespace Figment;
 
-struct MockRenderContext : public RenderContext
+struct MockRenderContext : public VulkanContext
 {
-    MockRenderContext() : RenderContext() { }
+    MockRenderContext() : VulkanContext() { }
     void Init(uint32_t width, uint32_t height) override { }
     void OnResize(uint32_t width, uint32_t height) override { }
 };
 
 TEST(ResourceManager, TestResourceManagerInitialization)
 {
-    auto renderContext = MockRenderContext();
+    auto renderContext = VulkanContext();
     auto resourceManager = ResourceManager(renderContext);
 
     ASSERT_EQ(resourceManager.ResourceCount(), 0);
