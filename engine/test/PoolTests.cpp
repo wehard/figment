@@ -7,11 +7,12 @@ struct TestStruct
 {
     int x;
     int y;
+    uint32_t generation;
 };
 
 TEST(Pool, TestPoolInitializationWithDefaultCapacity)
 {
-    auto pool = Pool<TestStruct>();
+    auto pool = Pool<TestStruct>(Pool<TestStruct>::DefaultCapacity);
     ASSERT_EQ(pool.Capacity(), Pool<TestStruct>::DefaultCapacity);
 }
 
@@ -26,8 +27,8 @@ TEST(Pool, TestPoolCapacityExpansionAfterCreation)
 {
     constexpr int capacity = 1;
     auto pool = Pool<TestStruct>(capacity);
-    pool.Create({});
-    pool.Create({});
+    pool.Create();
+    pool.Create();
     ASSERT_EQ(pool.Capacity(), capacity * 2);
 }
 
@@ -38,7 +39,7 @@ TEST(Pool, TestPoolCapacityExpansionAfterMultipleCreations)
 
     for (int i = 0; i < capacity * 2; i++)
     {
-        pool.Create({});
+        pool.Create();
     }
     ASSERT_EQ(pool.Capacity(), capacity * 2);
 }
@@ -47,7 +48,7 @@ TEST(Pool, TestHandleCreationAndRetrieval)
 {
     constexpr int capacity = 1;
     auto pool = Pool<TestStruct>(capacity);
-    auto handle = pool.Create({});
+    auto handle = pool.Create();
 
     auto data = pool.Get(handle);
     ASSERT_NE(data, nullptr);
@@ -62,7 +63,7 @@ TEST(Pool, TestMultipleHandleCreationAndRetrieval)
 
     for (int i = 0; i < capacity; i++)
     {
-        auto handle = pool.Create({});
+        auto handle = pool.Create();
         auto data = pool.Get(handle);
         ASSERT_NE(data, nullptr);
         ASSERT_EQ(handle.Index(), i);
@@ -73,9 +74,9 @@ TEST(Pool, TestMultipleHandleCreationAndRetrieval)
 TEST(Pool, TestHandleGenerationAfterDeletionAndCreation)
 {
     auto pool = Pool<TestStruct>(1);
-    auto h1 = pool.Create({});
+    auto h1 = pool.Create();
     pool.Delete(h1);
-    auto h2 = pool.Create({});
+    auto h2 = pool.Create();
 
     ASSERT_NE(h1.Generation(), h2.Generation());
     ASSERT_EQ(h1.Index(), h2.Index());
@@ -85,7 +86,7 @@ TEST(Pool, TestHandleGenerationAfterDeletionAndCreation)
 TEST(Pool, TestHandleGetDataStaleHandle)
 {
     auto pool = Pool<TestStruct>(1);
-    auto h1 = pool.Create({});
+    auto h1 = pool.Create();
     pool.Delete(h1);
     auto data = pool.Get(h1);
 
