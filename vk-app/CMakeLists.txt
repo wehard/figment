@@ -43,10 +43,14 @@ target_link_libraries(vk-app "/opt/homebrew/Cellar/glfw/3.4/lib/libglfw.dylib")
 
 file(GLOB_RECURSE SRC_FILES
         "src/*.cpp"
+        "../engine/src/Application.cpp"
+        "../engine/src/core/FPSCounter.cpp"
+        "../engine/src/renderer/RenderStats.cpp"
         "../engine/src/platform/vulkan/*.cpp"
         "../engine/src/renderer/PerspectiveCamera.cpp"
         "../engine/src/core/Image.cpp"
         "../engine/src/core/Input.cpp"
+        "../engine/src/core/LayerStack.cpp"
         "../engine/src/core/ResourceManager.cpp"
 )
 

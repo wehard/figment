@@ -65,6 +65,7 @@ file(GLOB_RECURSE SRC_FILES
         "src/scene/*.cpp"
         "src/utils/*.cpp"
         "src/App.cpp"
+        "src/Application.cpp"
         "PixelCanvas.cpp"
         "lib/imgui/imgui.cpp"
         "lib/imgui/imgui_draw.cpp"

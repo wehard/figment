@@ -1,3 +1,4 @@
+#include "Application.h"
 #include "Window.h"
 #include "Input.h"
 #include "PerspectiveCamera.h"
@@ -63,6 +64,7 @@ static void DrawTestWindow(VulkanTexture &texture, ImTextureID id, float imageWi
 
 int main()
 {
+    Application app({ .Name = "Figment", .Width = 1280, .Height = 720 });
     Log::Init();
     auto window = Window::Create("Figment", 1280, 720);
     Input::Initialize((GLFWwindow *)window->GetNative());
@@ -112,7 +114,7 @@ int main()
 
     ImTextureID textureId = ImGui_ImplVulkan_AddTexture(texture.GetSampler(), texture.GetImageView(),
             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
+    
     while (!window->ShouldClose() && !Input::GetKeyDown(GLFW_KEY_ESCAPE))
     {
         glfwPollEvents();

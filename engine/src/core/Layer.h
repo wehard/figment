@@ -17,7 +17,6 @@ namespace Figment
     class Layer
     {
     public:
-        friend class App;
         explicit Layer(const std::string &name = "Layer", bool enabled = true) : m_Name(name), m_Enabled(enabled) { };
         virtual ~Layer() = default;
         virtual void OnAttach() = 0;
@@ -40,5 +39,8 @@ namespace Figment
     protected:
         std::string m_Name;
         bool m_Enabled = true;
+    private:
+        friend class App;
+        friend class Application;
     };
 }
