@@ -1,10 +1,13 @@
 #include "MainLayer.h"
-#include "VulkanContext.h"
-#include "VulkanTexture.h"
 #include "imgui_impl_vulkan.h"
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/gtx/euler_angles.hpp"
+#include "Input.h"
+#include "Window.h"
+
 MainLayer::MainLayer(const VulkanContext &context, GLFWwindow *window)
-        : m_Context(context),
+        : Layer("MainLayer"), m_Context(context),
         m_Renderer(context),
         m_Camera(1280.0 / 720.0)
 {
@@ -35,21 +38,23 @@ MainLayer::MainLayer(const VulkanContext &context, GLFWwindow *window)
 
     m_TextureId = ImGui_ImplVulkan_AddTexture(m_Texture->GetSampler(), m_Texture->GetImageView(),
             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+    m_Camera.SetPosition({ 0.0f, 0.0f, 2.0f });
 }
 
 void MainLayer::OnAttach()
 {
-
+    Log::Info("Attaching MainLayer");
 }
 
 void MainLayer::OnDetach()
 {
-
+    Log::Info("Detaching MainLayer");
+    m_Renderer.Shutdown();
 }
 
 void MainLayer::OnEnable()
 {
-    m_Camera.SetPosition({ 0.0f, 0.0f, 2.0f });
 }
 
 void MainLayer::OnDisable()

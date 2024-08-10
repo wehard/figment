@@ -1,9 +1,11 @@
 #pragma once
 
-#include "Figment.h"
 #include "VulkanContext.h"
 #include "Renderer.h"
 #include "VulkanTexture.h"
+#include "Layer.h"
+#include "PerspectiveCamera.h"
+#include "Image.h"
 
 using namespace Figment;
 
