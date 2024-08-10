@@ -1,9 +1,10 @@
 #pragma once
 
-#include <cstdint>
 #include "Window.h"
 #include "LayerStack.h"
 #include "FPSCounter.h"
+
+#include <cstdint>
 
 namespace Figment
 {
@@ -20,8 +21,10 @@ namespace Figment
         void Update();
         void AddLayer(Layer *layer);
         void AddOverlay(Layer *overlay);
+
+        [[nodiscard]] const Window &GetWindow() const { return *m_Window; }
     private:
-        Window m_Window;
+        std::shared_ptr<Window> m_Window;
         LayerStack m_LayerStack;
         bool m_InputEnabled = true;
         FPSCounter m_FPSCounter;

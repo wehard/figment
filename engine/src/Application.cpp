@@ -1,18 +1,17 @@
 #include "Application.h"
 #include "Log.h"
 #include "Input.h"
-#include "imgui.h"
 #include "RenderStats.h"
 
 namespace Figment
 {
-    Application::Application(const Application::Descriptor &&descriptor) : m_Window(descriptor.Name, descriptor.Width,
-            descriptor.Height)
+    Application::Application(const Application::Descriptor &&descriptor)
     {
         Log::Init();
-        Input::Initialize((GLFWwindow *)m_Window.GetNative());
+        m_Window = Window::Create(descriptor.Name, descriptor.Width, descriptor.Height);
+        Input::Initialize((GLFWwindow *)m_Window->GetNative());
 
-        m_Window.SetResizeEventCallback([this](WindowResizeEventData eventData)
+        m_Window->SetResizeEventCallback([this](WindowResizeEventData eventData)
         {
             for (auto layer : m_LayerStack)
             {
@@ -27,6 +26,8 @@ namespace Figment
 
     void Application::Update()
     {
+        glfwPollEvents();
+        Input::Update();
         RenderStats::Reset();
 
         m_CurrentTime = (float)glfwGetTime();
@@ -36,20 +37,12 @@ namespace Figment
 
         m_FPSCounter.Update(deltaTime);
 
-        ImGuiIO &io = ImGui::GetIO();
-        if (m_InputEnabled && (!io.WantCaptureKeyboard || !io.WantCaptureMouse))
-        {
-            Input::Update();
-        }
-
         for (auto layer : m_LayerStack)
         {
             if (!layer->m_Enabled)
                 continue;
             layer->OnUpdate(deltaTime);
         }
-
-        glfwPollEvents();
     }
 
     void Application::AddLayer(Layer *layer)
