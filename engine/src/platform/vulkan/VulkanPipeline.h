@@ -23,6 +23,9 @@ namespace Figment
             VkShaderModule VertexModule = VK_NULL_HANDLE;
             VkShaderModule FragmentModule = VK_NULL_HANDLE;
             std::vector<VkDescriptorSetLayoutBinding> DescriptorSetLayoutBindings;
+            VkShaderStageFlags PushConstantStageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+            uint32_t PushConstantOffset = 0;
+            uint32_t PushConstantSize = 0;
         };
 
         explicit VulkanPipeline(const VulkanContext &context, const PipelineDescriptor &&descriptor);

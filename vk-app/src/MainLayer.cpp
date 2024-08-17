@@ -113,12 +113,17 @@ void MainLayer::OnUpdate(float deltaTime)
     m_Camera.Update();
 
     m_Rotation.z += 1.0f;
-    m_Position.x = sinf((float)glfwGetTime() * 2.0f); // * 0.5f;
+    m_Position.x = sinf((float)glfwGetTime() * 2.0f);
     m_Renderer.BeginFrame();
     m_Renderer.Begin(m_Camera);
     m_Renderer.Draw(*m_Buffer, Transform(
                     m_Position,
                     m_Rotation,
+                    { 1.0f, 1.0f, 1.0f }),
+            m_Camera);
+    m_Renderer.Draw(*m_Buffer, Transform(
+                    { 0.0f, 0.0f, 0.0f },
+                    { 0.0f, 0.0f, (float)glfwGetTime() * 20.0f },
                     { 1.0f, 1.0f, 1.0f }),
             m_Camera);
     m_Renderer.End();

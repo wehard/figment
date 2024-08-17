@@ -49,6 +49,11 @@ namespace Figment::Vulkan
             glm::mat4 Projection;
         };
 
+        struct PushConstantData
+        {
+            glm::mat4 Model;
+        };
+
         struct SynchronizationObjects
         {
             VkSemaphore SemaphoreImageAvailable;

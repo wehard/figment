@@ -131,14 +131,19 @@ namespace Figment
         if (res != VK_SUCCESS)
             throw std::runtime_error("Failed to create descriptor set layout!");
 
+        VkPushConstantRange pushConstantRange = {};
+        pushConstantRange.stageFlags = descriptor.PushConstantStageFlags;
+        pushConstantRange.offset = descriptor.PushConstantOffset;
+        pushConstantRange.size = descriptor.PushConstantSize;
+
         VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo = {};
         pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         pipelineLayoutCreateInfo.setLayoutCount = 1;
         pipelineLayoutCreateInfo.pSetLayouts = &m_DescriptorSetLayout;
         // pipelineLayoutCreateInfo.setLayoutCount = 0;
         // pipelineLayoutCreateInfo.pSetLayouts = nullptr;
-        pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
-        pipelineLayoutCreateInfo.pPushConstantRanges = nullptr;
+        pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
+        pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstantRange;
 
         // create pipeline layout
         VkResult result = vkCreatePipelineLayout(m_Context.GetDevice(), &pipelineLayoutCreateInfo, nullptr,

@@ -145,6 +145,14 @@ namespace Figment::Vulkan
         vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                 m_OpaquePipeline->GetLayout(),
                 0, 1, m_BindGroups[m_FrameIndex]->Get(), 0, nullptr);
+
+        PushConstantData pushConstantData = {
+                .Model = transform
+        };
+
+        vkCmdPushConstants(commandBuffer, m_OpaquePipeline->GetLayout(),
+                VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(PushConstantData), &pushConstantData);
+
         vkCmdDraw(commandBuffer, 6, 1, 0, 0);
     }
 
@@ -216,7 +224,10 @@ namespace Figment::Vulkan
                                 .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
                                 .pImmutableSamplers = nullptr
                         }
-                }
+                },
+                .PushConstantStageFlags = VK_SHADER_STAGE_VERTEX_BIT,
+                .PushConstantOffset = 0,
+                .PushConstantSize = sizeof(PushConstantData),
         });
     }
 
