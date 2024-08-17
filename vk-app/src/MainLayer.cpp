@@ -44,22 +44,23 @@ MainLayer::MainLayer(const VulkanContext &context, GLFWwindow *window)
 
 void MainLayer::OnAttach()
 {
-    Log::Info("Attaching MainLayer");
+    Log::Info("Attached MainLayer");
 }
 
 void MainLayer::OnDetach()
 {
-    Log::Info("Detaching MainLayer");
     m_Renderer.Shutdown();
+    Log::Info("Detached MainLayer");
 }
 
 void MainLayer::OnEnable()
 {
+    Log::Info("Enabled MainLayer");
 }
 
 void MainLayer::OnDisable()
 {
-
+    Log::Info("Disabled MainLayer");
 }
 
 static glm::mat4 Transform(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)
@@ -140,9 +141,16 @@ void MainLayer::OnImGuiRender()
 
 void MainLayer::OnEvent(AppEvent event, void *eventData)
 {
-    if (event != AppEvent::WindowResize)
-        return;
-    auto resizeEvent = (Figment::WindowResizeEventData *)eventData;
-    m_Camera.Resize((float)resizeEvent->Width, (float)resizeEvent->Height);
-    m_Renderer.OnResize(resizeEvent->Width, resizeEvent->Height);
+    switch (event)
+    {
+    case AppEvent::WindowResize:
+    {
+        auto resizeEventData = (Window::ResizeEventData *)eventData;
+        m_Camera.Resize((float)resizeEventData->Width, (float)resizeEventData->Height);
+        m_Renderer.OnResize(resizeEventData->Width, resizeEventData->Height);
+    }
+        break;
+    default:
+        break;
+    }
 }
