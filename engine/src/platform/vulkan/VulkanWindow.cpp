@@ -41,7 +41,7 @@ namespace Figment
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
-        m_Window = glfwCreateWindow((int)width, (int)height, "Figment (Vulkan)", nullptr, nullptr);
+        m_Window = glfwCreateWindow((int)width, (int)height, title.c_str(), nullptr, nullptr);
 
         if (!m_Window)
         {
