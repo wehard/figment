@@ -11,7 +11,7 @@ namespace Figment
         m_Window = Window::Create(descriptor.Name, descriptor.Width, descriptor.Height);
         Input::Initialize((GLFWwindow *)m_Window->GetNative());
 
-        m_Window->SetResizeEventCallback([this](WindowResizeEventData eventData)
+        m_Window->SetResizeEventCallback([this](Window::ResizeEventData eventData)
         {
             for (auto layer : m_LayerStack)
             {
@@ -57,5 +57,27 @@ namespace Figment
         Log::Info("Adding overlay: %s", overlay->GetName().c_str());
         m_LayerStack.AddOverlay(overlay);
         overlay->OnAttach();
+    }
+
+    void Application::Start()
+    {
+        for (auto layer : m_LayerStack)
+        {
+            if (!layer->m_Enabled)
+                continue;
+            layer->OnEnable();
+        }
+
+        while (!m_Window->ShouldClose() && !Input::GetKey(GLFW_KEY_ESCAPE))
+        {
+            Update();
+        }
+
+        for (auto layer : m_LayerStack)
+        {
+            if (!layer->m_Enabled)
+                continue;
+            layer->OnDisable();
+        }
     }
 }

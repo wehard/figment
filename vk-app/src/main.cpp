@@ -16,15 +16,10 @@ using namespace Figment;
 
 int main()
 {
-    Application app({ .Name = "Figment", .Width = 1280, .Height = 720 });
+    Application app({ .Name = "Figment (vk-app)", .Width = 1280, .Height = 720 });
     auto window = app.GetWindow();
-    auto nativeWindow = (GLFWwindow *)window.GetNative();
     auto context = window.GetContext<VulkanContext>();
     app.AddLayer(new MainLayer(*context, (GLFWwindow *)window.GetNative()));
-
-    while (!window.ShouldClose() && glfwGetKey(nativeWindow, GLFW_KEY_ESCAPE) != GLFW_PRESS)
-    {
-        app.Update();
-    }
+    app.Start();
     return 0;
 }

@@ -18,6 +18,7 @@ namespace Figment
             uint32_t Height;
         };
         explicit Application(const Descriptor &&descriptor);
+        void Start();
         void Update();
         void AddLayer(Layer *layer);
         void AddOverlay(Layer *overlay);
