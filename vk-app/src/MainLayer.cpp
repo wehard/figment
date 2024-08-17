@@ -109,7 +109,6 @@ static void DrawTestWindow(VulkanTexture &texture, ImTextureID id, float imageWi
 
 void MainLayer::OnUpdate(float deltaTime)
 {
-    Input::Update();
     m_Camera.Update();
 
     m_Rotation.z += 1.0f;
