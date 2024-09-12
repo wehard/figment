@@ -19,7 +19,7 @@ namespace Figment
         s_Instance = this;
         Log::Init();
         m_Window = Window::Create("Figment C++", width, height);
-        m_Window->SetResizeEventCallback([this](WindowResizeEventData eventData)
+        m_Window->SetResizeEventCallback([this](Window::ResizeEventData eventData)
         {
             for (auto layer : m_LayerStack)
             {

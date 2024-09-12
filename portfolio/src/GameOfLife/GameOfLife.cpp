@@ -120,7 +120,7 @@ void GameOfLife::OnEvent(Figment::AppEvent event, void *eventData)
 {
     if (event == Figment::AppEvent::WindowResize)
     {
-        auto ev = (Figment::WindowResizeEventData *)eventData;
+        auto ev = (Figment::Window::ResizeEventData *)eventData;
         m_MeshRenderer.OnResize(ev->Width, ev->Height);
     }
 }

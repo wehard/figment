@@ -184,7 +184,7 @@ void MainLayer::OnImGuiRender()
                 other->SetEnabled(false);
             }
 
-            Figment::WindowResizeEventData ev = { (int)appWindowSize.x, (int)appWindowSize.y };
+            Figment::Window::ResizeEventData ev = { (int)appWindowSize.x, (int)appWindowSize.y };
             layer->OnEvent(Figment::AppEvent::WindowResize, &ev);
         }
         ImGui::SameLine();
@@ -272,6 +272,6 @@ void MainLayer::OnImGuiRender()
 
 void MainLayer::OnEvent(Figment::AppEvent event, void *eventData)
 {
-    auto ev = (Figment::WindowResizeEventData *)eventData;
+    auto ev = (Figment::Window::ResizeEventData *)eventData;
     m_Camera->Resize((float)ev->Width, (float)ev->Height);
 }

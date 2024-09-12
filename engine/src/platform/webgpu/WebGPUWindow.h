@@ -14,7 +14,7 @@ namespace Figment
     public:
         WebGPUWindow(const std::string &title, uint32_t width, uint32_t height);
         ~WebGPUWindow() override;
-        void Resize(WindowResizeEventData resizeData);
+        void Resize(Window::ResizeEventData resizeData);
 
     private:
         std::string m_Title;

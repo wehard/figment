@@ -90,7 +90,7 @@ namespace Figment
         glfwDestroyWindow(m_Window);
     }
 
-    void WebGPUWindow::Resize(WindowResizeEventData resizeData)
+    void WebGPUWindow::Resize(Window::ResizeEventData resizeData)
     {
         m_Width = resizeData.Width;
         m_Height = resizeData.Height;

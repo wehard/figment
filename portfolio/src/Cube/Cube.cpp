@@ -64,6 +64,6 @@ void Cube::OnImGuiRender()
 
 void Cube::OnEvent(Figment::AppEvent event, void *eventData)
 {
-    auto ev = (Figment::WindowResizeEventData *)eventData;
+    auto ev = (Figment::Window::ResizeEventData *)eventData;
     m_Renderer->OnResize(ev->Width, ev->Height);
 }
