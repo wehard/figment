@@ -137,7 +137,8 @@ void MainLayer::OnImGuiRender()
     HyperLink("https://www.linkedin.com/in/willehard", "https://www.linkedin.com/in/willehard");
     ImGui::Spacing();
     ImGui::Text("EXPERIENCE");
-    ImGui::Text("[OCT 23 - PRESENT]: Senior Software Engineer, Unity Technologies, Helsinki");
+    ImGui::Text("[AUG 24 - PRESENT]: Senior Software Developer, Supponor | TGI Sport, Espoo");
+    ImGui::Text("[OCT 23 - APR 24]:  Senior Software Engineer, Unity Technologies, Helsinki");
     ImGui::Text("[APR 21 - OCT 23]:  Software Engineer, Unity Technologies, Helsinki");
     ImGui::Text("[AUG 20 - APR 21]:  Software Developer Intern, Unity Technologies, Helsinki");
     ImGui::Spacing();
