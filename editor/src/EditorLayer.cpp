@@ -56,6 +56,14 @@ namespace Figment
     {
     }
 
+    void EditorLayer::OnEnable()
+    {
+    }
+
+    void EditorLayer::OnDisable()
+    {
+    }
+
     void EditorLayer::OnUpdate(float deltaTime)
     {
         auto m_Window = App::Instance()->GetWindow();
@@ -474,7 +482,7 @@ namespace Figment
             break;
         case AppEvent::WindowResize:
         {
-            auto ev = (WindowResizeEventData *)eventData;
+            auto ev = (Window::ResizeEventData *)eventData;
             m_Scene->OnResize(ev->Width, ev->Height);
             break;
         }
@@ -486,6 +494,4 @@ namespace Figment
             break;
         }
     }
-
-
 }

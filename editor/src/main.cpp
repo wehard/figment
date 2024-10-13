@@ -146,7 +146,7 @@ int main(int argc, char **argv)
     editorLayer = new EditorLayer();
     app->AddLayer(editorLayer);
 
-    UserWasmModuleFoo();
+    // UserWasmModuleFoo();
 
     free((void *)0);
 
