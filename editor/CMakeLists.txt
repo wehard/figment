@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 project(editor)
 
-add_subdirectory(../engine engine)
-
 add_executable(editor)
 
 set_property(TARGET editor PROPERTY CXX_STANDARD 20)
@@ -81,8 +79,8 @@ add_dependencies(editor cleanup)
 add_custom_command(
         TARGET editor
         PRE_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/res ${CMAKE_BINARY_DIR}/res
-        COMMENT "Copied resources to ${CMAKE_BINARY_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/res ${CMAKE_CURRENT_BINARY_DIR}/res
+        COMMENT "Copied resources to ${CMAKE_CURRENT_BINARY_DIR}"
 )
 
 add_custom_command(TARGET editor POST_BUILD

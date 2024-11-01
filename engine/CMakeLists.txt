@@ -12,7 +12,7 @@ if (EMSCRIPTEN)
     target_compile_definitions(engine PRIVATE WEBGPU_BACKEND)
     set(EMSCRIPTEN_PATH "~/dev/emsdk")
     add_custom_target(setup_emscripten
-            COMMAND source ${EMSCRIPTEN_PATH}/emsdk_env.sh
+#            COMMAND source ${EMSCRIPTEN_PATH}/emsdk_env.sh
     )
     add_dependencies(engine setup_emscripten)
     target_include_directories(engine PRIVATE src/platform/webgpu)
@@ -24,12 +24,14 @@ if (EMSCRIPTEN)
 
     target_compile_definitions(engine PRIVATE GL_SILENCE_DEPRECATION)
     target_compile_options(engine PRIVATE -Wno-deprecated-literal-operator)
+
+    message(STATUS "Configuring engine for Emscripten")
 else ()
-    set(VULKAN_SDK "~/dev/vulkansdk/1.3.283.0/macOS")
     target_compile_definitions(engine PRIVATE VULKAN_BACKEND)
-    #    find_package(Vulkan REQUIRED)
+    set(VULKAN_SDK "usr/lib/x86_64-linux-gnu/")
     target_include_directories(engine PRIVATE ${VULKAN_SDK}/include)
-    #    target_link_libraries(engine PRIVATE ${Vulkan_LIBRARIES})
+    target_link_libraries(engine "/usr/lib/x86_64-linux-gnu/libvulkan.so")
+
     target_include_directories(engine PRIVATE "/opt/homebrew/Cellar/glfw/3.3.8/include")
     target_include_directories(engine PRIVATE src/platform/vulkan)
 
@@ -58,19 +60,23 @@ target_include_directories(engine
 )
 
 file(GLOB_RECURSE SRC_FILES
-        "src/core/*.cpp"
-        "src/debug/*.cpp"
-        "src/physics/*.cpp"
-        "src/renderer/*.cpp"
-        "src/scene/*.cpp"
-        "src/utils/*.cpp"
-        "src/App.cpp"
         "src/Application.cpp"
-        "PixelCanvas.cpp"
+        "src/core/FPSCounter.cpp"
+        "src/renderer/RenderStats.cpp"
+        "src/renderer/PerspectiveCamera.cpp"
+
+        "src/core/Window.cpp"
+        "src/core/Log.cpp"
+        "src/core/Image.cpp"
+        "src/core/Input.cpp"
+        "src/core/LayerStack.cpp"
+        "src/core/ResourceManager.cpp"
+
         "lib/imgui/imgui.cpp"
         "lib/imgui/imgui_draw.cpp"
         "lib/imgui/imgui_widgets.cpp"
         "lib/imgui/imgui_tables.cpp"
+        "lib/imgui/imgui_demo.cpp"
 )
 
 if (EMSCRIPTEN)
