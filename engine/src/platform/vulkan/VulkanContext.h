@@ -90,7 +90,7 @@ namespace Figment
 
         const std::vector<const char *> m_RequiredDeviceExtensions = {
                 "VK_KHR_swapchain",
-                "VK_KHR_portability_subset"
+                // "VK_KHR_portability_subset"
         };
 
         VkCommandPool m_SingleTimeCommandPool = VK_NULL_HANDLE;

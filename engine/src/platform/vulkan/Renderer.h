@@ -64,10 +64,10 @@ namespace Figment::Vulkan
         struct FrameResource
         {
             VulkanBindGroup *BindGroup = nullptr;
-            GlobalUniformData GlobalUniformData = {};
+            GlobalUniformData GlobalData = {};
             VkCommandBuffer CommandBuffer = VK_NULL_HANDLE;
             VkCommandBuffer GuiCommandBuffer = VK_NULL_HANDLE;
-            SynchronizationObjects SynchronizationObjects = {};
+            SynchronizationObjects SyncObjects = {};
         };
     private:
         constexpr static uint32_t MAX_FRAMES_IN_FLIGHT = 2;

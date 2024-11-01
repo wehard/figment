@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <set>
+#include <cstring>
 
 namespace Figment
 {
@@ -74,8 +75,8 @@ namespace Figment
         }
 
         std::vector<const char *> enabledExtensions = {
-                "VK_KHR_portability_enumeration",
-                "VK_KHR_get_physical_device_properties2"
+                // "VK_KHR_portability_enumeration",
+                // "VK_KHR_get_physical_device_properties2"
         };
 
         for (const auto &extension : enabledExtensions)
@@ -94,7 +95,7 @@ namespace Figment
         const char *validationLayers[] = { "VK_LAYER_KHRONOS_validation" };
         instanceCreateInfo.enabledLayerCount = 1;
         instanceCreateInfo.ppEnabledLayerNames = validationLayers;
-        instanceCreateInfo.flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+        // instanceCreateInfo.flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
 
         CheckVkResult(vkCreateInstance(&instanceCreateInfo, nullptr, &m_Instance));
     }

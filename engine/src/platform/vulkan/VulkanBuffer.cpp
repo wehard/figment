@@ -1,5 +1,6 @@
 #include "VulkanBuffer.h"
 #include "Log.h"
+#include <cstring>
 
 namespace Figment
 {
