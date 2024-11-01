@@ -3,3 +3,4 @@ app/public/index.data
 .idea
 build
 .DS_Store
+vcpkg_installed
