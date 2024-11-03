@@ -7,91 +7,115 @@ add_library(engine STATIC)
 
 set_property(TARGET engine PROPERTY CXX_STANDARD 20)
 
-# Platform-specific configurations
 if (EMSCRIPTEN)
-    target_compile_definitions(engine PRIVATE WEBGPU_BACKEND)
-    set(EMSCRIPTEN_PATH "~/dev/emsdk")
-    add_custom_target(setup_emscripten
-#            COMMAND source ${EMSCRIPTEN_PATH}/emsdk_env.sh
-    )
-    add_dependencies(engine setup_emscripten)
-    target_include_directories(engine PRIVATE src/platform/webgpu)
 
-    target_sources(engine PRIVATE
-            "lib/imgui/backends/imgui_impl_glfw.cpp"
-            "lib/imgui/backends/imgui_impl_wgpu.cpp"
-    )
-
-    target_compile_definitions(engine PRIVATE GL_SILENCE_DEPRECATION)
-    target_compile_options(engine PRIVATE -Wno-deprecated-literal-operator)
-
-    message(STATUS "Configuring engine for Emscripten")
 else ()
-    target_compile_definitions(engine PRIVATE VULKAN_BACKEND)
-    set(VULKAN_SDK "usr/lib/x86_64-linux-gnu/")
-    target_include_directories(engine PRIVATE ${VULKAN_SDK}/include)
-    target_link_libraries(engine "/usr/lib/x86_64-linux-gnu/libvulkan.so")
 
-    target_include_directories(engine PRIVATE "/opt/homebrew/Cellar/glfw/3.3.8/include")
-    target_include_directories(engine PRIVATE src/platform/vulkan)
-
-    target_sources(engine PRIVATE
-            "lib/imgui/backends/imgui_impl_glfw.cpp"
-            "lib/imgui/backends/imgui_impl_vulkan.cpp"
-    )
 endif ()
 
 message(STATUS "Configuring engine for ${CMAKE_BUILD_TYPE} (${CMAKE_SYSTEM_NAME})")
 
-target_include_directories(engine
-        PRIVATE
+target_include_directories(engine PUBLIC
         src
         src/core
         src/renderer
         src/scene
         src/scene/components
-        src/utils
-        src/physics
+
+        src/debug
+
         lib
         lib/glm
-        lib/entt
         lib/imgui
         lib/imgui/backends
+        lib/entt
 )
 
-file(GLOB_RECURSE SRC_FILES
-        "src/Application.cpp"
-        "src/core/FPSCounter.cpp"
-        "src/renderer/RenderStats.cpp"
-        "src/renderer/PerspectiveCamera.cpp"
+target_sources(engine PRIVATE
+        src/Application.cpp
+        src/core/FPSCounter.cpp
+        src/renderer/OrthographicCamera.cpp
+        src/renderer/RenderStats.cpp
+        src/renderer/PerspectiveCamera.cpp
 
-        "src/core/Window.cpp"
-        "src/core/Log.cpp"
-        "src/core/Image.cpp"
-        "src/core/Input.cpp"
-        "src/core/LayerStack.cpp"
-        "src/core/ResourceManager.cpp"
+        src/core/UUID.cpp
+        src/core/Window.cpp
+        src/core/Log.cpp
+        src/core/Image.cpp
+        src/core/Input.cpp
+        src/core/LayerStack.cpp
 
-        "lib/imgui/imgui.cpp"
-        "lib/imgui/imgui_draw.cpp"
-        "lib/imgui/imgui_widgets.cpp"
-        "lib/imgui/imgui_tables.cpp"
-        "lib/imgui/imgui_demo.cpp"
+
+        lib/imgui/imgui.cpp
+        lib/imgui/imgui_draw.cpp
+        lib/imgui/imgui_widgets.cpp
+        lib/imgui/imgui_tables.cpp
+        lib/imgui/imgui_demo.cpp
+        lib/imgui/backends/imgui_impl_glfw.cpp
 )
 
 if (EMSCRIPTEN)
-    file(GLOB_RECURSE WEBGPU_SRC_FILES
-            "src/platform/webgpu/*.cpp"
+    target_compile_definitions(engine PRIVATE WEBGPU_BACKEND)
+    set(EMSCRIPTEN_PATH "~/dev/emsdk")
+    add_custom_target(setup_emscripten
+            #            COMMAND source ${EMSCRIPTEN_PATH}/emsdk_env.sh
     )
-    target_sources(engine PRIVATE ${WEBGPU_SRC_FILES})
-else ()
-    file(GLOB_RECURSE VULKAN_SRC_FILES
-            "src/platform/vulkan/*.cpp"
-    )
-    target_sources(engine PRIVATE ${VULKAN_SRC_FILES})
-endif ()
+    add_dependencies(engine setup_emscripten)
 
-target_sources(engine PRIVATE ${SRC_FILES})
+    target_include_directories(engine PUBLIC
+            src/physics
+            src/platform/webgpu
+    )
+    target_sources(engine PRIVATE
+            src/App.cpp
+            src/PixelCanvas.cpp
+            src/scene/Scene.cpp
+            src/scene/Entity.cpp
+            src/scene/CameraController.cpp
+            src/renderer/Mesh.cpp
+            src/renderer/OverlayRenderer.cpp
+            src/renderer/BindGroup.cpp
+            src/renderer/RenderPipeline.cpp
+            src/renderer/ShapeRenderer.cpp
+            src/renderer/ComputePipeline.cpp
+            src/renderer/ParticleRenderer.cpp
+            src/renderer/ComputePass.cpp
+            src/renderer/MeshRenderer.cpp
+            src/physics/VerletPhysics.cpp
+            src/debug/DebugPanel.cpp
+
+
+            src/platform/webgpu/WebGPUContext.cpp
+            src/platform/webgpu/WebGPUFramebuffer.cpp
+            src/platform/webgpu/WebGPUGUIContext.cpp
+            src/platform/webgpu/WebGPURenderPipeline.cpp
+            src/platform/webgpu/WebGPUShader.cpp
+            src/platform/webgpu/WebGPUTexture.cpp
+            src/platform/webgpu/WebGPUWindow.cpp
+
+            lib/imgui/backends/imgui_impl_wgpu.cpp
+    )
+else ()
+    target_compile_definitions(engine PRIVATE VULKAN_BACKEND)
+
+    find_package(glfw3 CONFIG REQUIRED)
+    target_link_libraries(engine glfw)
+
+    find_package(Vulkan REQUIRED)
+    target_link_libraries(engine Vulkan::Vulkan)
+
+    target_include_directories(engine PUBLIC
+            src/platform/vulkan
+    )
+
+    file(GLOB_RECURSE VULKAN_SRC_FILES
+            src/platform/vulkan/*.cpp
+    )
+    target_sources(engine PRIVATE
+            ${VULKAN_SRC_FILES}
+            lib/imgui/backends/imgui_impl_vulkan.cpp
+    )
+endif ()
 
 #if (NOT EMSCRIPTEN)
 #    include(FetchContent)

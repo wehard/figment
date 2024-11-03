@@ -15,36 +15,13 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
     message(STATUS "Optimization level: -O0")
 endif ()
 
-target_include_directories(vk-app
-        PRIVATE
-        src
-        ../engine/src
-        ../engine/src/core
-        ../engine/src/scene
-        ../engine/src/debug
-        ../engine/src/scene/components
-        ../engine/src/physics
-        ../engine/src/renderer
-        ../engine/src/platform/vulkan
-        ../engine/lib
-        ../engine/lib/entt
-        ../engine/lib/imgui
-        ../engine/lib/imgui/backends
-        ../engine/lib/glm
-)
-
-target_include_directories(vk-app PRIVATE "/usr/include/GLFW")
-target_link_libraries(vk-app "/usr/lib/x86_64-linux-gnu/libglfw.so")
-
-file(GLOB_RECURSE SRC_FILES
-        "src/*.cpp"
-)
-
-target_sources(vk-app PRIVATE ${SRC_FILES})
-
 target_link_libraries(vk-app engine)
 
-# Build list of all shaders in the res directory
+target_sources(vk-app PRIVATE
+        src/main.cpp
+        src/MainLayer.cpp
+)
+
 file(GLOB_RECURSE SHADER_FILES
         "${CMAKE_CURRENT_SOURCE_DIR}/res/*.vert"
         "${CMAKE_CURRENT_SOURCE_DIR}/res/*.frag"

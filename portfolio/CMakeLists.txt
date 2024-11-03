@@ -1,11 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 project(portfolio)
 
-add_subdirectory(../engine engine)
-
 add_executable(portfolio)
-
-add_dependencies(portfolio engine)
 
 target_compile_definitions(portfolio PRIVATE WEBGPU_BACKEND)
 target_compile_definitions(portfolio PRIVATE GL_SILENCE_DEPRECATION)
@@ -68,8 +64,7 @@ set_target_properties(portfolio PROPERTIES LINK_FLAGS "\
         --shell-file ${CMAKE_CURRENT_SOURCE_DIR}/index.html\
 ")
 
-target_link_directories(portfolio PRIVATE ${CMAKE_BINARY_DIR}/engine)
-target_link_libraries(portfolio libengine.a)
+target_link_libraries(portfolio engine)
 
 add_custom_target(cleanup
         COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_BINARY_DIR}/portfolio.data
@@ -84,7 +79,7 @@ add_dependencies(portfolio cleanup)
 add_custom_command(
         TARGET portfolio
         PRE_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/res ${CMAKE_BINARY_DIR}/res
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/engine/res ${CMAKE_CURRENT_BINARY_DIR}/res
         COMMENT "Copied resources to ${CMAKE_BINARY_DIR}"
 )
 

@@ -5,7 +5,7 @@ add_executable(editor)
 
 set_property(TARGET editor PROPERTY CXX_STANDARD 20)
 
-add_dependencies(editor engine)
+target_link_libraries(editor engine)
 
 target_compile_definitions(editor PRIVATE GL_SILENCE_DEPRECATION)
 target_compile_definitions(editor PRIVATE WEBGPU_BACKEND_EMSCRIPTEN)
@@ -24,26 +24,25 @@ endif ()
 target_include_directories(editor
         PRIVATE
         src
-        ../engine/src
-        ../engine/src/core
-        ../engine/src/scene
-        ../engine/src/debug
-        ../engine/src/scene/components
-        ../engine/src/physics
-        ../engine/src/renderer
-        ../engine/src/platform/webgpu
-        ../engine/lib
-        ../engine/lib/entt
-        ../engine/lib/imgui
-        ../engine/lib/imgui/backends
-        ../engine/lib/glm
+#        ../engine/src
+#        ../engine/src/core
+#        ../engine/src/scene
+#        ../engine/src/debug
+#        ../engine/src/scene/components
+#        ../engine/src/physics
+#        ../engine/src/renderer
+#        ../engine/src/platform/webgpu
+#        ../engine/lib
+#        ../engine/lib/entt
+#        ../engine/lib/imgui
+#        ../engine/lib/imgui/backends
+#        ../engine/lib/glm
 )
 
-file(GLOB_RECURSE SRC_FILES
-        "src/*.cpp"
+target_sources(editor PRIVATE
+        src/main.cpp
+        src/EditorLayer.cpp
 )
-
-target_sources(editor PRIVATE ${SRC_FILES})
 
 set_target_properties(editor PROPERTIES LINK_FLAGS "\
         -s USE_GLFW=3\
@@ -63,8 +62,8 @@ set_target_properties(editor PROPERTIES LINK_FLAGS "\
         --pre-js ${CMAKE_CURRENT_SOURCE_DIR}/figment_api.js\
 ")
 
-target_link_directories(editor PRIVATE ${CMAKE_BINARY_DIR}/engine)
-target_link_libraries(editor libengine.a)
+#target_link_directories(editor PRIVATE ${CMAKE_BINARY_DIR}/engine)
+target_link_libraries(editor engine)
 
 add_custom_target(cleanup
         COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_BINARY_DIR}/editor.data
