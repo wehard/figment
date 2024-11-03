@@ -27,6 +27,8 @@ file(GLOB_RECURSE SHADER_FILES
         "${CMAKE_CURRENT_SOURCE_DIR}/res/*.frag"
 )
 
+add_dependencies(vk-app shaders)
+
 add_custom_target(shaders DEPENDS ${SHADER_FILES})
 
 add_custom_command(
