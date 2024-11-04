@@ -8,8 +8,6 @@ add_subdirectory(portfolio)
 add_subdirectory(vk-app)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-#enable_testing()
-#find_package(GTest CONFIG REQUIRED)
 
 #if (NOT EMSCRIPTEN)
 #    include(FetchContent)

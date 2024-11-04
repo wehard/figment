@@ -1,6 +1,9 @@
 {
+  "name": "figment",
+  "version": "0.0.1",
   "dependencies": [
     "glfw3",
-    "vulkan"
+    "vulkan",
+    "gtest"
   ]
 }

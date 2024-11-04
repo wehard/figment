@@ -23,6 +23,7 @@ target_include_directories(engine PUBLIC
         src/scene/components
 
         src/debug
+        src/utils
 
         lib
         lib/glm
@@ -160,4 +161,4 @@ endif ()
 #    gtest_discover_tests(figment_tests)
 #endif ()
 
-#add_subdirectory(test)
+add_subdirectory(test)

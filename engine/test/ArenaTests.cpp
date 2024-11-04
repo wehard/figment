@@ -3,7 +3,7 @@
 
 TEST(Arena, ShouldAllocateMemoryWhenSizeIsWithinLimit)
 {
-    Arena arena(1);
+    Arena arena(4);
     auto data = arena.Allocate<uint32_t>(1);
     ASSERT_NE(data, nullptr);
 }
@@ -43,7 +43,7 @@ TEST(Arena, ShouldAllocateDifferentTypes)
 
 TEST(Arena, ShouldNotAllocateMemoryWhenArenaIsFull)
 {
-    Arena arena(16);
+    Arena arena(4);
     auto data1 = arena.Allocate<uint32_t>(1);
     auto data2 = arena.Allocate<uint32_t>(1);
 

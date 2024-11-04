@@ -8,6 +8,8 @@ set_property(TARGET engine_tests PROPERTY CXX_STANDARD 20)
 
 add_dependencies(engine_tests engine)
 
+find_package(GTest CONFIG REQUIRED)
+
 target_sources(engine_tests PRIVATE
         ArenaTests.cpp
         AStarTests.cpp
@@ -17,6 +19,16 @@ target_sources(engine_tests PRIVATE
         ResourceManagerTests.cpp
 )
 
-target_link_libraries(engine_tests engine)
+target_link_libraries(engine_tests PRIVATE
+        engine
+        GTest::gtest
+        GTest::gtest_main
+        GTest::gmock
+        GTest::gmock_main
+)
+
+enable_testing()
+
+
 
 #gtest_discover_tests(engine_tests)
