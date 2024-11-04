@@ -6,6 +6,11 @@
     "vulkan",
     "glm",
     "entt",
+    {
+      "name": "imgui",
+      "version>=": "1.91.0",
+      "features": ["glfw-binding", "vulkan-binding"]
+    },
     "gtest"
   ]
 }
