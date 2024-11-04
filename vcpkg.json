@@ -5,6 +5,7 @@
     "glfw3",
     "vulkan",
     "glm",
+    "entt",
     "gtest"
   ]
 }
