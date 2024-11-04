@@ -1,6 +1,3 @@
 [submodule "engine/lib/imgui"]
 	path = engine/lib/imgui
 	url = git@github.com:ocornut/imgui.git
-[submodule "engine/lib/glm"]
-	path = engine/lib/glm
-	url = git@github.com:g-truc/glm.git
