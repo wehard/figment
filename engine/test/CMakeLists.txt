@@ -28,7 +28,3 @@ target_link_libraries(engine_tests PRIVATE
 )
 
 enable_testing()
-
-
-
-#gtest_discover_tests(engine_tests)

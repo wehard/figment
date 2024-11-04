@@ -1,15 +1,6 @@
 #include "Application.h"
 #include "Input.h"
-#include "PerspectiveCamera.h"
-#include "Image.h"
-
 #include "VulkanContext.h"
-#include "VulkanRenderPass.h"
-#include "VulkanTexture.h"
-#include "VulkanBuffer.h"
-#include "Renderer.h"
-
-#include "glm/glm.hpp"
 #include "MainLayer.h"
 
 using namespace Figment;
