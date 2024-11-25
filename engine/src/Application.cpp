@@ -25,7 +25,6 @@ namespace Figment
 
     void Application::Update()
     {
-        glfwPollEvents();
         Input::Update();
         RenderStats::Reset();
 
@@ -42,6 +41,7 @@ namespace Figment
                 continue;
             layer->OnUpdate(deltaTime);
         }
+        glfwPollEvents();
     }
 
     void Application::AddLayer(Layer *layer)

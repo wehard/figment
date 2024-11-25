@@ -98,6 +98,14 @@ namespace Figment
             abort();
     }
 
+    inline void checkVkResult(VkResult result)
+    {
+        if (result != VK_SUCCESS)
+        {
+            throw std::runtime_error("Vulkan error: " + vkResultToString(result));
+        }
+    }
+
     class VulkanContext : public RenderContext
     {
     public:
@@ -151,23 +159,15 @@ namespace Figment
 
         VkPipelineCache m_PipelineCache = VK_NULL_HANDLE;
 
-        uint32_t m_GraphicsQueueIndex = UINT32_MAX;
+        uint32_t m_GraphicsQueueIndex = 0;
         VkQueue m_GraphicsQueue = VK_NULL_HANDLE;
 
         VulkanSurfaceDetails m_SurfaceDetails = {};
-
-        const std::vector<const char *> m_RequiredDeviceExtensions = {
-                "VK_KHR_swapchain",
-#ifdef __APPLE__
-                "VK_KHR_portability_subset"
-#endif
-        };
-
         VkCommandPool m_SingleTimeCommandPool = VK_NULL_HANDLE;
 
-        void CreateInstance();
-        void CreateSurface();
-        void CreateDevice();
+        void createInstance(const VkApplicationInfo &applicationInfo);
+        void createSurface();
+        void createDevice();
         void CreateSwapchain();
         void CreatePipelineCache();
 

@@ -159,8 +159,8 @@ int main()
 {
     Application app({.Name = "Figment Editor", .Width = 1280, .Height = 720});
     auto window = app.GetWindow();
-    auto editorLayer = new EditorLayer(window);
-    app.AddLayer(editorLayer);
+    auto editorLayer = EditorLayer(window);
+    app.AddLayer(&editorLayer);
     app.Start();
     return 0;
 }

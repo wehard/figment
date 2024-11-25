@@ -4,11 +4,6 @@ namespace Figment
 {
     LayerStack::~LayerStack()
     {
-        for (Layer *layer : m_Layers)
-        {
-            layer->OnDetach();
-            delete layer;
-        }
     }
 
     void LayerStack::AddLayer(Layer *layer)

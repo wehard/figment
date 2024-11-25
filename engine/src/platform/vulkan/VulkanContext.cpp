@@ -17,10 +17,18 @@ namespace Figment
 
     void Figment::VulkanContext::Init(uint32_t width, uint32_t height)
     {
+        spdlog::set_level(spdlog::level::debug);
+        VkApplicationInfo applicationInfo = {};
+        applicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+        applicationInfo.pApplicationName = "Figment";
+        applicationInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+        applicationInfo.pEngineName = "Figment";
+        applicationInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+        applicationInfo.apiVersion = VK_API_VERSION_1_0;
 
-        CreateInstance();
-        CreateSurface();
-        CreateDevice();
+        createInstance(applicationInfo);
+        createSurface();
+        createDevice();
         CreateSwapchain();
 
         m_SingleTimeCommandPool = CreateCommandPool();
@@ -53,152 +61,242 @@ namespace Figment
         return (true);
     }
 
-    void Figment::VulkanContext::CreateInstance()
+    bool
+    checkInstanceExtensionSupport(const std::vector<const char *> &requestedExtensions)
     {
-        VkApplicationInfo applicationInfo = {};
-        applicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-        applicationInfo.pApplicationName = "Figment";
-        applicationInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-        applicationInfo.pEngineName = "Figment";
-        applicationInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-        applicationInfo.apiVersion = VK_API_VERSION_1_0;
+        uint32_t extensionCount;
+        checkVkResult(vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr));
+        std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+        checkVkResult(vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount,
+                availableExtensions.data()));
 
-        // Get required instance extensions
-        std::vector<const char *> instanceExtensions = std::vector<const char *>();
-        uint32_t glfwExtensionCount = 0;
-        const char **glfwExtensions;
-        glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-        for (size_t i = 0; i < glfwExtensionCount; i++)
+        std::set<std::string> requiredExtensions(requestedExtensions.begin(),
+                requestedExtensions.end());
+
+        for (const auto &extension : availableExtensions)
         {
-            instanceExtensions.push_back(glfwExtensions[i]);
+            if (requiredExtensions.contains(extension.extensionName))
+            {
+                spdlog::debug("Requested instance extension {} present", extension.extensionName);
+            }
+            requiredExtensions.erase(extension.extensionName);
         }
 
-        std::vector<const char *> enabledExtensions = {
-#ifdef __APPLE__
-                "VK_KHR_portability_enumeration",
-                "VK_KHR_get_physical_device_properties2"
-#endif
+        return requiredExtensions.empty();
+    }
+
+    bool
+    checkValidationLayerSupport(const std::vector<const char *> &requestedLayers)
+    {
+        uint32_t layerCount = 0;
+        checkVkResult(vkEnumerateInstanceLayerProperties(&layerCount, nullptr));
+        std::vector<VkLayerProperties> availableLayers(layerCount);
+        checkVkResult(vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data()));
+
+        std::set<std::string> requiredLayers(requestedLayers.begin(), requestedLayers.end());
+
+        for (const auto &layer : availableLayers)
+        {
+            if (requiredLayers.contains(layer.layerName))
+            {
+                spdlog::info("Requested layer {} present", layer.layerName);
+            }
+            requiredLayers.erase(layer.layerName);
+        }
+
+        return requiredLayers.empty();
+    }
+
+    void VulkanContext::createInstance(const VkApplicationInfo &applicationInfo)
+    {
+        const auto getGlfwExtensions = [](std::vector<const char *> &instanceExtensions)
+        {
+            uint32_t glfwExtensionCount = 0;
+            const char **glfwExtensions;
+            glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+            for (size_t i = 0; i < glfwExtensionCount; i++)
+            {
+                instanceExtensions.emplace_back(glfwExtensions[i]);
+            }
         };
 
-        for (const auto &extension : enabledExtensions)
+        auto instanceExtensions = std::vector<const char *> {};
+        auto validationLayers = std::vector<const char *> {};
+
+        getGlfwExtensions(instanceExtensions);
+
+#ifdef __APPLE__
+        instanceExtensions.emplace_back("VK_KHR_portability_enumeration");
+        instanceExtensions.emplace_back("VK_KHR_get_physical_device_properties2");
+#endif
+
+        instanceExtensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+        validationLayers.emplace_back("VK_LAYER_KHRONOS_validation");
+
+        if (!checkInstanceExtensionSupport(instanceExtensions))
         {
-            instanceExtensions.push_back(extension);
+            throw std::runtime_error("Instance extensions requested, but not available.");
         }
 
-        if (!CheckInstanceExtensionSupport(&instanceExtensions))
-            throw std::runtime_error("VkInstance does not support required extensions!");
+        if (!checkValidationLayerSupport(validationLayers))
+        {
+            throw std::runtime_error("Validation layers requested, but not available.");
+        }
 
         VkInstanceCreateInfo instanceCreateInfo = {};
         instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+        instanceCreateInfo.pNext = nullptr;
         instanceCreateInfo.pApplicationInfo = &applicationInfo;
         instanceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(instanceExtensions.size());
         instanceCreateInfo.ppEnabledExtensionNames = instanceExtensions.data();
-        const char *validationLayers[] = { "VK_LAYER_KHRONOS_validation" };
-        instanceCreateInfo.enabledLayerCount = 1;
-        instanceCreateInfo.ppEnabledLayerNames = validationLayers;
+        instanceCreateInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+        instanceCreateInfo.ppEnabledLayerNames = validationLayers.data();
 #ifdef __APPLE__
         instanceCreateInfo.flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
 #endif
 
-        CheckVkResult(vkCreateInstance(&instanceCreateInfo, nullptr, &m_Instance));
+        checkVkResult(vkCreateInstance(&instanceCreateInfo, nullptr, &m_Instance));
+
         spdlog::info("Vulkan instance created");
     }
 
-    void Figment::VulkanContext::CreateSurface()
+    void Figment::VulkanContext::createSurface()
     {
         CheckVkResult(glfwCreateWindowSurface(m_Instance, m_Window, nullptr, &m_Surface));
         spdlog::info("Vulkan surface created");
     }
-
-    static bool CheckDeviceExtensionSupport(VkPhysicalDevice device,
-            const std::vector<const char *> &requiredExtensions)
+    static std::vector<VkExtensionProperties> queryDeviceExtensions(VkPhysicalDevice physicalDevice)
     {
-        uint32_t extensionCount = 0;
-        vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
-        if (extensionCount == 0)
-            return (false);
+        uint32_t extensionCount;
+        checkVkResult(vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount,
+                nullptr));
         std::vector<VkExtensionProperties> extensions(extensionCount);
-        vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, extensions.data());
+        checkVkResult(vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount,
+                extensions.data()));
 
-        for (const auto deviceExtension : requiredExtensions)
-        {
-            bool hasExtension = false;
-            for (const auto &extension : extensions)
-            {
-                if (strcmp(deviceExtension, extension.extensionName) == 0)
-                {
-                    hasExtension = true;
-                    break;
-                }
-            }
-            if (!hasExtension)
-                return (false);
-        }
-        return (true);
+        return extensions;
     }
 
-    void Figment::VulkanContext::CreateDevice()
+    [[nodiscard]] bool
+    checkDeviceExtensionsSupport(const VkPhysicalDevice &physicalDevice,
+            const std::vector<const char *> &deviceExtensions)
     {
-        // Create Vulkan device
-        uint32_t deviceCount = 0;
-        vkEnumeratePhysicalDevices(m_Instance, &deviceCount, nullptr);
+        const auto availableExtensions = queryDeviceExtensions(physicalDevice);
 
-        if (deviceCount == 0)
+        std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
+
+        for (const auto &extension : availableExtensions)
         {
-            spdlog::error("No Vulkan devices found");
+            if (requiredExtensions.contains(extension.extensionName))
+            {
+                spdlog::debug("Requested device extension {} present", extension.extensionName);
+            }
+            requiredExtensions.erase(extension.extensionName);
         }
 
+        return requiredExtensions.empty();
+    }
+
+    static VkPhysicalDeviceProperties
+    GetPhysicalDeviceProperties(const VkPhysicalDevice &physicalDevice)
+    {
+        VkPhysicalDeviceProperties properties;
+        vkGetPhysicalDeviceProperties(physicalDevice, &properties);
+        return properties;
+    }
+
+    void VulkanContext::createDevice()
+    {
+        uint32_t deviceCount = 0;
+        checkVkResult(vkEnumeratePhysicalDevices(m_Instance, &deviceCount, nullptr));
+
         std::vector<VkPhysicalDevice> deviceList(deviceCount);
-        vkEnumeratePhysicalDevices(m_Instance, &deviceCount, deviceList.data());
+        checkVkResult(vkEnumeratePhysicalDevices(m_Instance, &deviceCount, deviceList.data()));
 
-        VkPhysicalDeviceProperties deviceProperties;
-        vkGetPhysicalDeviceProperties(deviceList[0], &deviceProperties);
+        for (const auto &dev : deviceList)
+        {
+            VkPhysicalDeviceProperties properties = GetPhysicalDeviceProperties(dev);
+            spdlog::debug("Physical device found: {}", properties.deviceName);
+        }
 
-        m_PhysicalDevice = deviceList[0];
-
-        spdlog::info("Vulkan physical device: {}", deviceProperties.deviceName);
-
-        // Logical device
+        for (const auto &dev : deviceList)
+        {
+            VkPhysicalDeviceProperties properties = GetPhysicalDeviceProperties(dev);
+            // if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU &&
+            //         properties.vendorID == 0x10DE) // NVIDIA
+            // {
+            m_PhysicalDevice = dev;
+            // m_PhysicalDeviceProperties = properties;
+            spdlog::info("Selected physical device: {}", properties.deviceName);
+            break;
+            // }
+        }
 
         uint32_t count;
         vkGetPhysicalDeviceQueueFamilyProperties(m_PhysicalDevice, &count, nullptr);
-        VkQueueFamilyProperties *queues = (VkQueueFamilyProperties *)malloc(sizeof(VkQueueFamilyProperties) * count);
-        vkGetPhysicalDeviceQueueFamilyProperties(m_PhysicalDevice, &count, queues);
-        for (uint32_t i = 0; i < count; i++)
-            if (queues[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
-            {
-                m_GraphicsQueueIndex = i;
+        std::vector<VkQueueFamilyProperties> queueFamilyProperties(count);
+        vkGetPhysicalDeviceQueueFamilyProperties(m_PhysicalDevice, &count,
+                queueFamilyProperties.data());
+
+        for (auto &queueFamilyProperty : queueFamilyProperties)
+        {
+            if (queueFamilyProperty.queueFlags & VK_QUEUE_GRAPHICS_BIT)
                 break;
-            }
-        free(queues);
+            m_GraphicsQueueIndex++;
+        }
 
         VkDeviceQueueCreateInfo queueCreateInfo = {};
         queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
         queueCreateInfo.queueFamilyIndex = m_GraphicsQueueIndex;
         queueCreateInfo.queueCount = 1;
-        float queuePriority = 1.0f;
+        constexpr float queuePriority = 1.0f;
         queueCreateInfo.pQueuePriorities = &queuePriority;
 
-        auto supported = CheckDeviceExtensionSupport(m_PhysicalDevice, m_RequiredDeviceExtensions);
+        // const auto requiredExtensions = std::vector {
+        //         VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME, VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME,
+        //         VK_EXT_ROBUSTNESS_2_EXTENSION_NAME, };
+        const auto requiredExtensions = std::vector<const char*> {"VK_KHR_swapchain", "VK_KHR_portability_subset"};
 
-        // Create logical device
+        if (!checkDeviceExtensionsSupport(m_PhysicalDevice, requiredExtensions))
+            throw std::runtime_error("Required device extensions are not supported!");
+
+        VkPhysicalDeviceDynamicRenderingFeaturesKHR dynamicRenderingFeature = {};
+        dynamicRenderingFeature.sType =
+                VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES_KHR;
+        dynamicRenderingFeature.dynamicRendering = VK_TRUE;
+
+        // VkPhysicalDeviceDescriptorBufferFeaturesEXT descriptorBufferFeatures = {};
+        // descriptorBufferFeatures.sType =
+        //         VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_FEATURES_EXT;
+        // descriptorBufferFeatures.descriptorBuffer                  = VK_TRUE;
+
+        VkPhysicalDeviceRobustness2FeaturesEXT robustness2Features = {};
+        robustness2Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_EXT;
+        robustness2Features.nullDescriptor = VK_TRUE;
+
+        // Chain descriptorBufferFeatures to dynamicRenderingFeature
+        dynamicRenderingFeature.pNext = &robustness2Features;
+        // Chain robustness2Features to descriptorBufferFeatures
+        // descriptorBufferFeatures.pNext           = &robustness2Features;
+
+        VkPhysicalDeviceFeatures deviceFeatures = {};
+        deviceFeatures.sampleRateShading = VK_TRUE;
+
         VkDeviceCreateInfo deviceCreateInfo = {};
         deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-        deviceCreateInfo.pNext = nullptr;
+        // deviceCreateInfo.pNext = &dynamicRenderingFeature;
         deviceCreateInfo.queueCreateInfoCount = 1;
         deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
         deviceCreateInfo.enabledLayerCount = 0;
         deviceCreateInfo.ppEnabledLayerNames = nullptr;
-        deviceCreateInfo.enabledExtensionCount = m_RequiredDeviceExtensions.size();
-        deviceCreateInfo.ppEnabledExtensionNames = m_RequiredDeviceExtensions.data();
-        VkPhysicalDeviceFeatures deviceFeatures = {}; // empty for now
+        deviceCreateInfo.enabledExtensionCount = requiredExtensions.size();
+        deviceCreateInfo.ppEnabledExtensionNames = requiredExtensions.data();
         deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
+        checkVkResult(vkCreateDevice(m_PhysicalDevice, &deviceCreateInfo, nullptr, &m_Device));
 
-        CheckVkResult(vkCreateDevice(m_PhysicalDevice, &deviceCreateInfo, nullptr, &m_Device));
         spdlog::info("Vulkan logical device created");
 
         vkGetDeviceQueue(m_Device, m_GraphicsQueueIndex, 0, &m_GraphicsQueue);
-        spdlog::info("Vulkan graphics queue created");
     }
 
     static VulkanContext::VulkanSurfaceDetails GetSurfaceDetails(VkPhysicalDevice device, VkSurfaceKHR surface)
