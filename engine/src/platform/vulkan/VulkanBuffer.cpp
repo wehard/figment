@@ -1,5 +1,4 @@
 #include "VulkanBuffer.h"
-#include "Log.h"
 #include <cstring>
 #include <spdlog/spdlog.h>
 

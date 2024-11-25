@@ -1,6 +1,5 @@
 #include <spdlog/spdlog.h>
 #include "VulkanWindow.h"
-#include "Log.h"
 #include "FigmentAssert.h"
 #include "VulkanContext.h"
 

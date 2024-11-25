@@ -1,5 +1,5 @@
+#include <spdlog/spdlog.h>
 #include "Image.h"
-#include "Log.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -18,7 +18,7 @@ namespace Figment
         image.m_Data = stbi_load(path.c_str(), &width, &height, &channels, STBI_rgb_alpha);
         if (!image.m_Data)
         {
-            FIG_LOG_ERROR("Failed to load image: %s", path.c_str());
+            spdlog::error("Failed to load image: {}", path);
         }
         image.m_Width = width;
         image.m_Height = height;

@@ -35,7 +35,6 @@ target_sources(engine PRIVATE
 
         src/core/UUID.cpp
         src/core/Window.cpp
-        src/core/Log.cpp
         src/core/Image.cpp
         src/core/Input.cpp
         src/core/LayerStack.cpp

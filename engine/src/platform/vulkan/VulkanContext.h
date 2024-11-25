@@ -4,7 +4,6 @@
 #include <GLFW/glfw3.h>
 
 #include "RenderContext.h"
-#include "Log.h"
 #include "Camera.h"
 #include "DeletionQueue.h"
 
@@ -13,6 +12,7 @@
 
 #include <vector>
 #include <string>
+#include <spdlog/spdlog.h>
 
 namespace Figment
 {
@@ -93,7 +93,7 @@ namespace Figment
     {
         if (result == 0)
             return;
-        FIG_LOG_ERROR("[Vulkan] Error: VkResult = %d\n", vkResultToString(result).c_str());
+        spdlog::error("[Vulkan] Error: VkResult = {}", vkResultToString(result));
         if (result < 0)
             abort();
     }

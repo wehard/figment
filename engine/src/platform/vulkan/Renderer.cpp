@@ -94,7 +94,7 @@ namespace Figment::Vulkan
             vkDestroyFramebuffer(m_Context.GetDevice(), framebuffer, nullptr);
         }
 
-        Log::Info("Renderer shutdown");
+        spdlog::info("Renderer shutdown");
 
         ImGui_ImplVulkan_Shutdown();
         ImGui_ImplGlfw_Shutdown();
