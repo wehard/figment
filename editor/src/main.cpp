@@ -1,17 +1,18 @@
-#include "App.h"
+#include "Application.h"
 #include "EditorLayer.h"
 
-#include <emscripten.h>
 #include <cstdio>
 #include <string>
-#include "WebGPUWindow.h"
 #include "Input.h"
+
+// #include "WebGPUWindow.h"
+// #include <emscripten.h>
 
 using namespace Figment;
 
+/*
 Figment::App *app;
 Figment::EditorLayer *editorLayer;
-
 extern "C"
 {
 
@@ -151,4 +152,15 @@ int main(int argc, char **argv)
     free((void *)0);
 
     emscripten_set_main_loop_arg(main_loop, app, 0, false);
+}
+*/
+
+int main()
+{
+    Application app({.Name = "Figment Editor", .Width = 1280, .Height = 720});
+    auto window = app.GetWindow();
+    auto editorLayer = new EditorLayer(window);
+    app.AddLayer(editorLayer);
+    app.Start();
+    return 0;
 }

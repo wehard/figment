@@ -1,7 +1,11 @@
 #pragma once
 
-#include "Figment.h"
-#include "OverlayRenderer.h"
+#include "Window.h"
+#include "Layer.h"
+#include "Scene.h"
+#include "SceneRenderer.h"
+#include "Entity.h"
+#include "Renderer.h"
 #include <string>
 
 namespace Figment
@@ -9,7 +13,7 @@ namespace Figment
     class EditorLayer : public Layer
     {
     public:
-        EditorLayer();
+        explicit EditorLayer(Window& window);
         ~EditorLayer() override;
         void OnAttach() override;
         void OnDetach() override;
@@ -20,8 +24,9 @@ namespace Figment
         void OnEvent(AppEvent event, void *eventData) override;
         std::unique_ptr<Scene> &GetScene() { return m_Scene; }
     private:
-        std::shared_ptr<WebGPUContext> m_Context;
-        std::unique_ptr<OverlayRenderer> m_OverlayRenderer;
+        Window& m_Window;
+        Vulkan::Renderer m_Renderer;
+        // std::unique_ptr<OverlayRenderer> m_OverlayRenderer;
         std::unique_ptr<Scene> m_Scene;
         Entity m_SelectedEntity;
 

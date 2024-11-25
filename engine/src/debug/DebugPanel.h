@@ -1,8 +1,9 @@
 #pragma once
 #include "Camera.h"
 #include "Entity.h"
+#include "Window.h"
 
 namespace Figment
 {
-    void DrawDebugPanel(Camera &camera, bool collapsed = false);
+    void DrawDebugPanel(const Window& window, Camera &camera, bool collapsed = false);
 }

@@ -1,24 +1,22 @@
 #include "DebugPanel.h"
+#include "Window.h"
 #include "Scene.h"
-#include "App.h"
 #include "RenderStats.h"
 #include "Input.h"
 #include "imgui.h"
 
 namespace Figment
 {
-    void DrawDebugPanel(Camera &camera, bool collapsed)
+    void DrawDebugPanel(const Window& window, Camera &camera, bool collapsed)
     {
-        auto window = App::Instance()->GetWindow();
-
         glm::vec2 mousePosition = Input::GetMousePosition();
-        glm::vec2 ndc = glm::vec2((mousePosition.x / ((float)window->GetWidth() * 0.5)) - 1.0,
-                (mousePosition.y / ((float)window->GetHeight() * 0.5)) - 1.0);
+        glm::vec2 ndc = glm::vec2((mousePosition.x / ((float)window.GetWidth() * 0.5)) - 1.0,
+                (mousePosition.y / ((float)window.GetHeight() * 0.5)) - 1.0);
         glm::vec3 mw = camera.ScreenToWorldSpace(mousePosition,
-                glm::vec2(window->GetWidth(), window->GetHeight()));
+                glm::vec2(window.GetWidth(), window.GetHeight()));
 
         ImGui::SetNextWindowCollapsed(collapsed, ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowPos(ImVec2(window->GetWidth() - 400, 0), ImGuiCond_Always);
+        ImGui::SetNextWindowPos(ImVec2(window.GetWidth() - 400, 0), ImGuiCond_Always);
         ImGui::SetNextWindowSize(ImVec2(400, 0), ImGuiCond_Always);
         ImGui::Begin("Debug Info");
         if (ImGui::TreeNodeEx("Window", ImGuiTreeNodeFlags_DefaultOpen))
@@ -29,12 +27,12 @@ namespace Figment
                 ImGui::TableSetColumnIndex(0);
                 ImGui::Text("Viewport");
                 ImGui::TableSetColumnIndex(1);
-                ImGui::Text("%dx%d", window->GetWidth(), window->GetHeight());
+                ImGui::Text("%dx%d", window.GetWidth(), window.GetHeight());
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
                 ImGui::Text("Framebuffer");
                 ImGui::TableSetColumnIndex(1);
-                ImGui::Text("%dx%d", window->GetFramebufferWidth(), window->GetFramebufferHeight());
+                ImGui::Text("%dx%d", window.GetFramebufferWidth(), window.GetFramebufferHeight());
                 ImGui::EndTable();
             }
 
@@ -125,10 +123,10 @@ namespace Figment
             ImGui::Text("Circle count: %d", RenderStats::CircleCount);
             ImGui::Text("Particle count: %d", RenderStats::ParticleCount);
             ImGui::Separator();
-            auto fpsCounter = App::Instance()->GetFPSCounter();
-            ImGui::Text("FPS: %.2f", fpsCounter.GetFPS());
-            ImGui::Text("Frame time: %.2f ms", fpsCounter.GetFrameTime());
-            ImGui::Text("Frame count: %d", fpsCounter.GetFrameCount());
+            // auto fpsCounter = App::Instance()->GetFPSCounter();
+            // ImGui::Text("FPS: %.2f", fpsCounter.GetFPS());
+            // ImGui::Text("Frame time: %.2f ms", fpsCounter.GetFrameTime());
+            // ImGui::Text("Frame count: %d", fpsCounter.GetFrameCount());
             ImGui::TreePop();
         }
         ImGui::End();

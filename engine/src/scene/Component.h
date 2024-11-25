@@ -1,12 +1,12 @@
 #pragma once
 
-#include "FigmentComponent.h"
+// #include "FigmentComponent.h"
 #include "UUID.h"
 #include "Camera.h"
 #include "glm/glm.hpp"
 #include "CameraController.h"
 #include "Utils.h"
-#include "Mesh.h"
+// #include "Mesh.h"
 #include <glm/gtc/matrix_transform.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/euler_angles.hpp>
@@ -79,14 +79,14 @@ namespace Figment
         QuadComponent() = default;
     };
 
-    struct GridComponent
-    {
-    public:
-        GridComponent(Mesh &mesh) : m_Mesh(mesh) { }
-        Mesh &GetMesh() { return m_Mesh; }
-    private:
-        Mesh &m_Mesh;
-    };
+    // struct GridComponent
+    // {
+    // public:
+    //     GridComponent(Mesh &mesh) : m_Mesh(mesh) { }
+    //     Mesh &GetMesh() { return m_Mesh; }
+    // private:
+    //     Mesh &m_Mesh;
+    // };
 
     struct CameraComponent
     {

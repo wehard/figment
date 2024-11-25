@@ -3,7 +3,7 @@
 #include "Scene.h"
 #include "Component.h"
 
-#include "entt.hpp"
+#include "entt/entt.hpp"
 #include <string>
 #include <random>
 

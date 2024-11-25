@@ -1,11 +1,11 @@
 #include "Scene.h"
 #include "Entity.h"
-#include "WebGPUWindow.h"
-#include "App.h"
+// #include "WebGPUWindow.h"
+// #include "App.h"
 
-#ifndef __EMSCRIPTEN__
-#include "ScriptEngine.h"
-#endif
+// #ifndef __EMSCRIPTEN__
+// #include "ScriptEngine.h"
+// #endif
 
 namespace Figment
 {
@@ -18,9 +18,9 @@ namespace Figment
         m_EditorCamera->GetPositionPtr()->z = 15.0;
         SetActiveCameraController(m_EditorCameraController);
 
-        auto m_Window = App::Instance()->GetWindow();
-        auto webGpuWindow = std::dynamic_pointer_cast<WebGPUWindow>(m_Window);
-        m_Renderer = std::make_unique<ShapeRenderer>(*webGpuWindow->GetContext<WebGPUContext>());
+        // auto m_Window = App::Instance()->GetWindow();
+        // auto webGpuWindow = std::dynamic_pointer_cast<WebGPUWindow>(m_Window);
+        // m_Renderer = std::make_unique<ShapeRenderer>(*webGpuWindow->GetContext<WebGPUContext>());
     }
 
     Scene::~Scene()
@@ -78,7 +78,7 @@ namespace Figment
 
     void Scene::OnUpdate(float deltaTime, glm::vec2 mousePosition, glm::vec2 viewportSize)
     {
-        m_Renderer->Begin(*m_ActiveCameraController->GetCamera()); // TODO: Make static
+        // m_Renderer->Begin(*m_ActiveCameraController->GetCamera()); // TODO: Make static
         m_ActiveCameraController->Update(deltaTime);
 
         glm::vec2 normalized = glm::vec2(mousePosition.x / viewportSize.x, mousePosition.y / viewportSize.y);
@@ -89,10 +89,10 @@ namespace Figment
         }
         else
         {
-            m_Renderer->ReadPixel((int)mousePosition.x, (int)mousePosition.y, [this](int32_t id)
-            {
-                m_HoveredId = id;
-            });
+            // m_Renderer->ReadPixel((int)mousePosition.x, (int)mousePosition.y, [this](int32_t id)
+            // {
+            //     m_HoveredId = id;
+            // });
         }
 
         for (auto &e : m_Registry.view<AnimateComponent>())
@@ -111,16 +111,16 @@ namespace Figment
             {
                 auto &circle = entity.GetComponent<CircleComponent>();
                 auto color = entity.GetHandle() == m_HoveredId ? glm::vec4(1.0, 1.0, 1.0, 1.0) : circle.Color;
-                m_Renderer->SubmitCircle(transform.Position, transform.Scale, color, (int)entity.GetHandle());
+                // m_Renderer->SubmitCircle(transform.Position, transform.Scale, color, (int)entity.GetHandle());
             }
             if (entity.HasComponent<QuadComponent>())
             {
                 auto &quad = entity.GetComponent<QuadComponent>();
                 auto color = entity.GetHandle() == m_HoveredId ? glm::vec4(1.0, 1.0, 1.0, 1.0) : quad.Color;
-                m_Renderer->SubmitQuad(transform.Position, transform.Scale, color, (int)entity.GetHandle());
+                // m_Renderer->SubmitQuad(transform.Position, transform.Scale, color, (int)entity.GetHandle());
             }
         }
-        m_Renderer->End();
+        // m_Renderer->End();
     }
 
     std::shared_ptr<CameraController> Scene::GetEditorCameraController()
@@ -140,7 +140,7 @@ namespace Figment
             auto &camera = entity.GetComponent<CameraComponent>();
             camera.Controller->GetCamera()->Resize((float)width, (float)height);
         }
-        m_Renderer->OnResize(width, height);
+        // m_Renderer->OnResize(width, height);
     }
 
     std::shared_ptr<CameraController> Scene::GetActiveCameraController()

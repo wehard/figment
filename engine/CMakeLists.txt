@@ -100,6 +100,11 @@ else ()
     )
     target_sources(engine PRIVATE
             ${VULKAN_SRC_FILES}
+            src/debug/DebugPanel.cpp
+            src/scene/CameraController.cpp
+            src/scene/Scene.cpp
+            src/scene/Entity.cpp
+
     )
     add_subdirectory(test)
 endif ()

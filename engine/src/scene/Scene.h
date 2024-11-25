@@ -1,12 +1,12 @@
 #pragma once
 
-#include "ShapeRenderer.h"
+// #include "ShapeRenderer.h"
 #include "CameraController.h"
 #include "Camera.h"
 #include "OrthographicCamera.h"
-#include "VerletPhysics.h"
+// #include "VerletPhysics.h"
 
-#include "entt.hpp"
+#include "entt/entt.hpp"
 #include <vector>
 
 namespace Figment
@@ -34,14 +34,14 @@ namespace Figment
 
         friend class Entity;
     private:
-        entt::registry m_Registry;
+        entt::registry m_Registry = entt::registry();
         uint32_t m_Width;
         uint32_t m_Height;
-        std::shared_ptr<WebGPUContext> m_GfxContext;
-        std::unique_ptr<ShapeRenderer> m_Renderer;
+        // std::shared_ptr<WebGPUContext> m_GfxContext;
+        // std::unique_ptr<ShapeRenderer> m_Renderer;
         std::shared_ptr<CameraController> m_EditorCameraController;
         std::shared_ptr<PerspectiveCamera> m_EditorCamera;
         std::shared_ptr<CameraController> m_ActiveCameraController;
-        VerletPhysics m_VerletPhysics;
+        // VerletPhysics m_VerletPhysics;
     };
 }

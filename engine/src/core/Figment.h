@@ -1,6 +1,6 @@
 #pragma once
 
-#include "App.h"
+// #include "App.h"
 #include "Log.h"
 #include "ModelLoader.h"
 #include "Layer.h"

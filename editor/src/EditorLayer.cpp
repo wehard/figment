@@ -1,47 +1,42 @@
 #include "EditorLayer.h"
-
+#include "DebugPanel.h"
 #include "imgui.h"
-#include "imgui_impl_wgpu.h"
+// #include "imgui_impl_wgpu.h"
 #include "imgui_impl_glfw.h"
 #include "glm/glm.hpp"
 #include "Input.h"
-#include "App.h"
-#include "WebGPUWindow.h"
+#include "Application.h"
 #include "Utils.h"
 
 namespace Figment
 {
-    EditorLayer::EditorLayer()
-            : Layer("EditorLayer")
+    EditorLayer::EditorLayer(Window &window)
+            : m_Window(window), m_Renderer(*window.GetContext<VulkanContext>()), Layer("EditorLayer")
     {
-        const auto window = std::dynamic_pointer_cast<WebGPUWindow>(App::Instance()->GetWindow());
-        m_Context = window->GetContext<WebGPUContext>();
-
-        auto width = (float)window->GetFramebufferWidth();
-        auto height = (float)window->GetFramebufferHeight();
-        m_Scene = std::make_unique<Scene>(window->GetFramebufferWidth(), window->GetFramebufferHeight());
+        m_Renderer.InitGui((GLFWwindow*)window.GetNative());
+        m_Scene = std::make_unique<Scene>(window.GetWidth(), window.GetHeight());
 
         // auto figmentEntity = m_Scene->CreateEntity("Figment");
         // figmentEntity.AddComponent<FigmentComponent>(m_Context->GetDevice());
         // auto &transform = figmentEntity.GetComponent<TransformComponent>();
         // transform.Rotation.x = -45.0f;
 
-        auto cameraEntity = m_Scene->CreateEntity("Camera");
-        cameraEntity.AddComponent<CameraComponent>(std::make_shared<PerspectiveCamera>(width / height));
+        // auto cameraEntity = m_Scene->CreateEntity("Camera");
+        // cameraEntity.AddComponent<CameraComponent>(std::make_shared<PerspectiveCamera>(width / height));
 
-        auto mesh = new Mesh(m_Context->GetDevice(), {
-                {{-1.0, -1.0, 0.0}, {0.0, 0.0}},
-                {{-1.0, 1.0, 0.0}, {0.0, 1.0}},
-                {{1.0, 1.0, 0.0}, {1.0, 1.0}},
-                {{1.0, -1.0, 0.0}, {1.0, 0.0}},
-            }, {
-                0, 2, 1, 0, 3, 2
-        });
-        auto grid = m_Scene->CreateEntity("Grid");
-        grid.AddComponent<GridComponent>(*mesh);
+        // auto mesh = new Mesh(m_Context->GetDevice(), {
+        //         {{-1.0, -1.0, 0.0}, {0.0, 0.0}},
+        //         {{-1.0, 1.0, 0.0}, {0.0, 1.0}},
+        //         {{1.0, 1.0, 0.0}, {1.0, 1.0}},
+        //         {{1.0, -1.0, 0.0}, {1.0, 0.0}},
+        //     }, {
+        //         0, 2, 1, 0, 3, 2
+        // });
+        // auto grid = m_Scene->CreateEntity("Grid");
+        // grid.AddComponent<GridComponent>(*mesh);
 
         // SelectEntity(figmentEntity);
-        m_OverlayRenderer = std::make_unique<OverlayRenderer>(*m_Context);
+        // m_OverlayRenderer = std::make_unique<OverlayRenderer>(*m_Context);
     }
 
     EditorLayer::~EditorLayer()
@@ -66,12 +61,12 @@ namespace Figment
 
     void EditorLayer::OnUpdate(float deltaTime)
     {
-        auto m_Window = App::Instance()->GetWindow();
-        m_Scene->OnUpdate(deltaTime, Input::GetMousePosition(), glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
+        // auto m_Window = App::Instance()->GetWindow();
+        m_Scene->OnUpdate(deltaTime, Input::GetMousePosition(), glm::vec2(m_Window.GetWidth(), m_Window.GetHeight()));
 
-        m_OverlayRenderer->Begin(*m_Scene->GetActiveCameraController()->GetCamera());
-        m_OverlayRenderer->DrawGrid();
-        m_OverlayRenderer->End();
+        // m_OverlayRenderer->Begin(*m_Scene->GetActiveCameraController()->GetCamera());
+        // m_OverlayRenderer->DrawGrid();
+        // m_OverlayRenderer->End();
 
         ImGuiIO &io = ImGui::GetIO();
         if (io.WantCaptureMouse || io.WantCaptureKeyboard)
@@ -85,7 +80,7 @@ namespace Figment
             auto &t = e.GetComponent<TransformComponent>();
             glm::vec3 p = m_Scene->GetActiveCameraController()->GetCamera()->ScreenToWorldSpace(
                     Input::GetMousePosition(),
-                    glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
+                    glm::vec2(m_Window.GetWidth(), m_Window.GetHeight()));
             t.Position = p;
             auto &b = e.AddComponent<VerletBodyComponent>();
             b.m_PreviousPosition = t.Position;
@@ -103,6 +98,24 @@ namespace Figment
         {
             SelectEntity(m_Scene->GetHoveredEntity());
         }
+        m_Renderer.BeginFrame();
+        m_Renderer.Begin(*m_Scene->GetActiveCameraController()->GetCamera());
+        {
+
+        }
+        m_Renderer.End();
+        m_Renderer.BeginGuiPass();
+        {
+            DrawDebugPanel(m_Window, *m_Scene->GetActiveCameraController()->GetCamera());
+
+            DrawScenePanel(m_Scene->GetEntities(), [this](Entity entity)
+            {
+                SelectEntity(entity);
+            });
+            DrawEntityInspectorPanel(m_SelectedEntity);
+        }
+        m_Renderer.EndGuiPass();
+        m_Renderer.EndFrame();
     }
 
     static void DrawVec3(const char *name, glm::vec3 *value, bool *syncValues)
@@ -129,44 +142,44 @@ namespace Figment
         }
     }
 
-    static void DrawFigmentEditor(FigmentComponent &figment, bool *editFigment)
-    {
-        ImGui::SetNextWindowSize(ImVec2(600, 400), ImGuiCond_Once);
-        ImGui::SetNextWindowPos(ImVec2((ImGui::GetIO().DisplaySize.x - 600) * 0.5f,
-                (ImGui::GetIO().DisplaySize.y - 400) * 0.5f), ImGuiCond_Once);
-
-        std::string title = "Figment Editor:" + std::to_string((uint64_t)&figment);
-
-        ImGui::Begin(title.c_str());
-        if (ImGui::Button("Save", ImVec2(100, 20)))
-            figment.Init();
-        ImGui::SameLine();
-        // Draw next button aligned to the right of window
-        ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 100);
-        if (ImGui::Button("Close", ImVec2(100, 20)))
-            *editFigment = !*editFigment;
-        if (ImGui::BeginTabBar("TabBar"))
-        {
-            ImVec2 contentSize = ImGui::GetContentRegionAvail();
-            if (ImGui::BeginTabItem("Shader"))
-            {
-                ImGui::InputTextMultiline("##ShaderCode", figment.Config.ShaderSourceBuffer,
-                        FigmentComponent::MaxShaderSourceSize,
-                        ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y), ImGuiInputTextFlags_AllowTabInput, nullptr, nullptr);
-                ImGui::EndTabItem();
-            }
-
-            if (ImGui::BeginTabItem("Compute"))
-            {
-                ImGui::InputTextMultiline("##ComputeCode", figment.Config.ComputeShaderSourceBuffer,
-                        FigmentComponent::MaxShaderSourceSize,
-                        ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y), ImGuiInputTextFlags_AllowTabInput, nullptr, nullptr);
-                ImGui::EndTabItem();
-            }
-            ImGui::EndTabBar();
-        }
-        ImGui::End();
-    }
+    // static void DrawFigmentEditor(FigmentComponent &figment, bool *editFigment)
+    // {
+    //     ImGui::SetNextWindowSize(ImVec2(600, 400), ImGuiCond_Once);
+    //     ImGui::SetNextWindowPos(ImVec2((ImGui::GetIO().DisplaySize.x - 600) * 0.5f,
+    //             (ImGui::GetIO().DisplaySize.y - 400) * 0.5f), ImGuiCond_Once);
+    //
+    //     std::string title = "Figment Editor:" + std::to_string((uint64_t)&figment);
+    //
+    //     ImGui::Begin(title.c_str());
+    //     if (ImGui::Button("Save", ImVec2(100, 20)))
+    //         figment.Init();
+    //     ImGui::SameLine();
+    //     // Draw next button aligned to the right of window
+    //     ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 100);
+    //     if (ImGui::Button("Close", ImVec2(100, 20)))
+    //         *editFigment = !*editFigment;
+    //     if (ImGui::BeginTabBar("TabBar"))
+    //     {
+    //         ImVec2 contentSize = ImGui::GetContentRegionAvail();
+    //         if (ImGui::BeginTabItem("Shader"))
+    //         {
+    //             ImGui::InputTextMultiline("##ShaderCode", figment.Config.ShaderSourceBuffer,
+    //                     FigmentComponent::MaxShaderSourceSize,
+    //                     ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y), ImGuiInputTextFlags_AllowTabInput, nullptr, nullptr);
+    //             ImGui::EndTabItem();
+    //         }
+    //
+    //         if (ImGui::BeginTabItem("Compute"))
+    //         {
+    //             ImGui::InputTextMultiline("##ComputeCode", figment.Config.ComputeShaderSourceBuffer,
+    //                     FigmentComponent::MaxShaderSourceSize,
+    //                     ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y), ImGuiInputTextFlags_AllowTabInput, nullptr, nullptr);
+    //             ImGui::EndTabItem();
+    //         }
+    //         ImGui::EndTabBar();
+    //     }
+    //     ImGui::End();
+    // }
 
     void EditorLayer::DrawScenePanel(const std::vector<Entity> &entities,
             const std::function<void(Entity)> &selectEntity)
@@ -231,8 +244,8 @@ namespace Figment
         ImGui::DragFloat("Radius", &circle.Radius, 0.1f, 0.1f, FLT_MAX, "%.2f");
     }
 
-    static void DrawFigmentComponent(FigmentComponent &figment)
-    {
+    // static void DrawFigmentComponent(FigmentComponent &figment)
+    // {
         // ImGui::Text("Figment\n%s", figment.ComputeShader->GetShaderSource().c_str());
         // ImGui::ColorEdit4("Color", (float *)&figment.Config.Color);
         // ImGui::Button("Edit source", ImVec2(100, 20));
@@ -251,7 +264,7 @@ namespace Figment
         //         ImGui::Text("%f %f %f", figment.Data[i].x, figment.Data[i].y, figment.Data[i].z);
         //     }
         // }
-    }
+    // }
 
     static void DrawCameraComponent(CameraComponent &camera, Scene &scene)
     {
@@ -317,18 +330,18 @@ namespace Figment
     }
 
     // Specialize the template for FigmentComponent
-    template<>
-    void EditorLayer::DisplayAddComponentEntry<FigmentComponent>(const std::string &entryName)
-    {
-        if (!m_SelectedEntity.HasComponent<FigmentComponent>())
-        {
-            if (ImGui::MenuItem(entryName.c_str()))
-            {
-                m_SelectedEntity.AddComponent<FigmentComponent>(m_Context->GetDevice());
-                ImGui::CloseCurrentPopup();
-            }
-        }
-    }
+    // template<>
+    // void EditorLayer::DisplayAddComponentEntry<FigmentComponent>(const std::string &entryName)
+    // {
+    //     if (!m_SelectedEntity.HasComponent<FigmentComponent>())
+    //     {
+    //         if (ImGui::MenuItem(entryName.c_str()))
+    //         {
+    //             // m_SelectedEntity.AddComponent<FigmentComponent>(m_Context->GetDevice());
+    //             ImGui::CloseCurrentPopup();
+    //         }
+    //     }
+    // }
 
     // Specialize the template for AnimateComponent
     template<>
@@ -368,7 +381,7 @@ namespace Figment
             DisplayAddComponentEntry<QuadComponent>("Quad");
             DisplayAddComponentEntry<CircleComponent>("Circle");
             DisplayAddComponentEntry<AnimateComponent>("Animate");
-            DisplayAddComponentEntry<FigmentComponent>("Figment");
+            // DisplayAddComponentEntry<FigmentComponent>("Figment");
             ImGui::EndPopup();
         }
 
@@ -376,28 +389,28 @@ namespace Figment
         DrawComponent<TransformComponent>("Transform", entity, DrawTransformComponent);
         DrawComponent<QuadComponent>("Quad", entity, DrawQuadComponent);
         DrawComponent<CircleComponent>("Circle", entity, DrawCircleComponent);
-        DrawComponent<FigmentComponent>("Figment", entity, [this](auto &component)
-        {
-            ImGui::ColorEdit4("Color", (float *)&component.Config.Color);
-            ImGui::Checkbox("Draw Points", &component.Config.DrawPoints);
-            // ImGui::InputInt("Count", &component.Config.Count);
-            if (!component.Initialized)
-            {
-                if (ImGui::Button("Initialize", ImVec2(100, 20)))
-                {
-                    component.Init();
-                }
-            }
-            static bool editFigment = false;
-            const char *label = editFigment ? "Close" : "Edit";
-            if (ImGui::Button(label, ImVec2(100, 20)))
-                editFigment = !editFigment;
-
-            if (editFigment)
-            {
-                DrawFigmentEditor(component, &editFigment);
-            }
-        });
+        // DrawComponent<FigmentComponent>("Figment", entity, [this](auto &component)
+        // {
+        //     ImGui::ColorEdit4("Color", (float *)&component.Config.Color);
+        //     ImGui::Checkbox("Draw Points", &component.Config.DrawPoints);
+        //     // ImGui::InputInt("Count", &component.Config.Count);
+        //     if (!component.Initialized)
+        //     {
+        //         if (ImGui::Button("Initialize", ImVec2(100, 20)))
+        //         {
+        //             component.Init();
+        //         }
+        //     }
+        //     static bool editFigment = false;
+        //     const char *label = editFigment ? "Close" : "Edit";
+        //     if (ImGui::Button(label, ImVec2(100, 20)))
+        //         editFigment = !editFigment;
+        //
+        //     if (editFigment)
+        //     {
+        //         DrawFigmentEditor(component, &editFigment);
+        //     }
+        // });
 
         DrawComponent<CameraComponent>("Camera", entity, [this](auto &component)
         {
@@ -457,7 +470,7 @@ namespace Figment
 
     void EditorLayer::OnImGuiRender()
     {
-        DrawDebugPanel(*m_Scene->GetActiveCameraController()->GetCamera());
+        DrawDebugPanel(m_Window, *m_Scene->GetActiveCameraController()->GetCamera());
 
         DrawScenePanel(m_Scene->GetEntities(), [this](Entity entity)
         {
