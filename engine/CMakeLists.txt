@@ -84,11 +84,13 @@ else ()
     find_package(glfw3 CONFIG REQUIRED)
     find_package(Vulkan REQUIRED)
     find_package(imgui CONFIG REQUIRED)
+    find_package(spdlog CONFIG REQUIRED)
 
     target_link_libraries(engine
             glfw
             Vulkan::Vulkan
             imgui::imgui
+            spdlog::spdlog
     )
 
     target_include_directories(engine PUBLIC

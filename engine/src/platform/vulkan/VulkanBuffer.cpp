@@ -1,6 +1,7 @@
 #include "VulkanBuffer.h"
 #include "Log.h"
 #include <cstring>
+#include <spdlog/spdlog.h>
 
 namespace Figment
 {
@@ -67,7 +68,7 @@ namespace Figment
             vkUnmapMemory(context.GetDevice(), m_BufferMemory);
         }
 
-        FIG_LOG_INFO("%s created: size = %d", descriptor.Name.c_str(), descriptor.ByteSize);
+        spdlog::info("{} created: size = {}", descriptor.Name, descriptor.ByteSize);
     }
 
     void VulkanBuffer::SetData(void *data, size_t byteSize)

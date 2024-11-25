@@ -77,7 +77,7 @@ private:
     }
 };
 
-#define FIG_LOG_INFO(...) Log::Info(__VA_ARGS__)
+// #define FIG_LOG_INFO(...) Log::Info(__VA_ARGS__)
 #define FIG_LOG_WARN(...) Log::Warn(__VA_ARGS__)
 #define FIG_LOG_ERROR(...) Log::Error(__VA_ARGS__)
 #define FIG_LOG_DEBUG(...) Log::Debug(__VA_ARGS__)

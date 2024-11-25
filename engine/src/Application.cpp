@@ -1,5 +1,5 @@
+#include <spdlog/spdlog.h>
 #include "Application.h"
-#include "Log.h"
 #include "Input.h"
 #include "RenderStats.h"
 
@@ -7,7 +7,6 @@ namespace Figment
 {
     Application::Application(const Application::Descriptor &&descriptor)
     {
-        Log::Init();
         m_Window = Window::Create(descriptor.Name, descriptor.Width, descriptor.Height);
         Input::Initialize((GLFWwindow *)m_Window->GetNative());
 
@@ -21,7 +20,7 @@ namespace Figment
             }
         });
 
-        Log::Info("Application created");
+        spdlog::info("Application created");
     }
 
     void Application::Update()
@@ -47,14 +46,14 @@ namespace Figment
 
     void Application::AddLayer(Layer *layer)
     {
-        Log::Info("Adding layer: %s", layer->GetName().c_str());
+        spdlog::info("Adding layer: {}", layer->GetName());
         m_LayerStack.AddLayer(layer);
         layer->OnAttach();
     }
 
     void Application::AddOverlay(Layer *overlay)
     {
-        Log::Info("Adding overlay: %s", overlay->GetName().c_str());
+        spdlog::info("Adding overlay: {}", overlay->GetName());
         m_LayerStack.AddOverlay(overlay);
         overlay->OnAttach();
     }

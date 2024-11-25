@@ -7,6 +7,7 @@
 #include <vector>
 #include <set>
 #include <cstring>
+#include <spdlog/spdlog.h>
 
 namespace Figment
 {
@@ -25,9 +26,7 @@ namespace Figment
         m_SingleTimeCommandPool = CreateCommandPool();
 
         if (glfwGetPhysicalDevicePresentationSupport(m_Instance, m_PhysicalDevice, 0))
-        {
-            FIG_LOG_INFO("Physical device supports presentation");
-        }
+            spdlog::info("Physical device supports presentation");
     }
 
     static bool CheckInstanceExtensionSupport(std::vector<const char *> *checkExtensions)
@@ -102,11 +101,13 @@ namespace Figment
 #endif
 
         CheckVkResult(vkCreateInstance(&instanceCreateInfo, nullptr, &m_Instance));
+        spdlog::info("Vulkan instance created");
     }
 
     void Figment::VulkanContext::CreateSurface()
     {
         CheckVkResult(glfwCreateWindowSurface(m_Instance, m_Window, nullptr, &m_Surface));
+        spdlog::info("Vulkan surface created");
     }
 
     static bool CheckDeviceExtensionSupport(VkPhysicalDevice device,
@@ -144,7 +145,7 @@ namespace Figment
 
         if (deviceCount == 0)
         {
-            FIG_LOG_ERROR("No Vulkan devices found");
+            spdlog::error("No Vulkan devices found");
         }
 
         std::vector<VkPhysicalDevice> deviceList(deviceCount);
@@ -155,7 +156,7 @@ namespace Figment
 
         m_PhysicalDevice = deviceList[0];
 
-        FIG_LOG_INFO("Vulkan physical device: %s", deviceProperties.deviceName);
+        spdlog::info("Vulkan physical device: {}", deviceProperties.deviceName);
 
         // Logical device
 
@@ -194,8 +195,10 @@ namespace Figment
         deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
 
         CheckVkResult(vkCreateDevice(m_PhysicalDevice, &deviceCreateInfo, nullptr, &m_Device));
+        spdlog::info("Vulkan logical device created");
 
         vkGetDeviceQueue(m_Device, m_GraphicsQueueIndex, 0, &m_GraphicsQueue);
+        spdlog::info("Vulkan graphics queue created");
     }
 
     static VulkanContext::VulkanSurfaceDetails GetSurfaceDetails(VkPhysicalDevice device, VkSurfaceKHR surface)
@@ -235,6 +238,8 @@ namespace Figment
                 .ImageCount = m_SurfaceDetails.surfaceCapabilities.minImageCount + 1,
                 .Transform = m_SurfaceDetails.surfaceCapabilities.currentTransform,
         });
+
+        spdlog::info("Vulkan swapchain created");
 
         m_DeletionQueue.Push([this]()
         {
@@ -366,7 +371,7 @@ namespace Figment
                 return i;
             }
         }
-        FIG_LOG_ERROR("Failed to find required memory type!");
+        spdlog::error("Failed to find required memory type!");
         return (-1);
     }
 

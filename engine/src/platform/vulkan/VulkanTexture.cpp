@@ -1,3 +1,4 @@
+#include <spdlog/spdlog.h>
 #include "VulkanTexture.h"
 #include "VulkanBuffer.h"
 
@@ -38,7 +39,7 @@ namespace Figment
 
         vkBindImageMemory(m_Context.GetDevice(), m_Image, m_ImageMemory, 0);
 
-        FIG_LOG_INFO("VulkanTexture created: width = %d, height = %d", descriptor.Width, descriptor.Height);
+        spdlog::info("VulkanTexture created: width = {}, height = {}", descriptor.Width, descriptor.Height);
 
         VulkanBuffer stagingBuffer = VulkanBuffer(m_Context, VulkanBufferDescriptor {
                 .Name = "VulkanTextureStagingBuffer",

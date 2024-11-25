@@ -1,3 +1,4 @@
+#include <spdlog/spdlog.h>
 #include "VulkanWindow.h"
 #include "Log.h"
 #include "FigmentAssert.h"
@@ -26,7 +27,7 @@ namespace Figment
 
         if (glfwVulkanSupported())
         {
-            FIG_LOG_INFO("Vulkan is supported");
+            spdlog::info("Vulkan is supported");
         }
         else
         {
@@ -36,7 +37,7 @@ namespace Figment
         uint32_t count;
         const char **extensions = glfwGetRequiredInstanceExtensions(&count);
 
-        FIG_LOG_INFO("GLFW version: %s", glfwGetVersionString());
+        spdlog::info("GLFW version: {}", glfwGetVersionString());
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
@@ -59,6 +60,6 @@ namespace Figment
         // Create vulkan surface
         // VkResult result = glfwCreateWindowSurface(instance, m_Window, nullptr, &surface);
 
-        FIG_LOG_INFO("Vulkan window created");
+        spdlog::info("Vulkan window created");
     }
 }
