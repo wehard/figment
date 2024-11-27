@@ -3,29 +3,28 @@
 #include "vulkan/vulkan.h"
 #include <GLFW/glfw3.h>
 
-#include "RenderContext.h"
 #include "Camera.h"
 #include "DeletionQueue.h"
+#include "RenderContext.h"
 
 #include "glm/vec3.hpp"
-#include "glm/mat4x4.hpp"
 
-#include <vector>
-#include <string>
 #include <spdlog/spdlog.h>
+#include <string>
+#include <vector>
 
 namespace Figment
 {
-    class VulkanBuffer;
-    class VulkanShader;
-    class VulkanRenderPass;
-    class VulkanBindGroup;
-    class VulkanSwapchain;
+class VulkanBuffer;
+class VulkanShader;
+class VulkanRenderPass;
+class VulkanBindGroup;
+class VulkanSwapchain;
 
-    static std::string vkResultToString(VkResult result)
+static std::string vkResultToString(VkResult result)
+{
+    switch (result)
     {
-        switch (result)
-        {
         case VK_SUCCESS:
             return "VK_SUCCESS";
         case VK_NOT_READY:
@@ -86,92 +85,84 @@ namespace Figment
             return "VK_ERROR_VALIDATION_FAILED_EXT";
         default:
             return "UNKNOWN_ERROR";
-        }
     }
-
-    inline void CheckVkResult(VkResult result)
-    {
-        if (result == 0)
-            return;
-        spdlog::error("[Vulkan] Error: VkResult = {}", vkResultToString(result));
-        if (result < 0)
-            abort();
-    }
-
-    inline void checkVkResult(VkResult result)
-    {
-        if (result != VK_SUCCESS)
-        {
-            throw std::runtime_error("Vulkan error: " + vkResultToString(result));
-        }
-    }
-
-    class VulkanContext : public RenderContext
-    {
-    public:
-        struct VulkanSurfaceDetails
-        {
-            VkSurfaceCapabilitiesKHR surfaceCapabilities = {};
-            std::vector<VkSurfaceFormatKHR> formats;
-            std::vector<VkPresentModeKHR> presentationModes;
-        };
-
-        [[nodiscard]] VkExtent2D getSwapchainExtent() const;
-        [[nodiscard]] VulkanSwapchain *getSwapchain() const;
-    public:
-        explicit VulkanContext(GLFWwindow *window) : m_Window(window) { }
-        ~VulkanContext() override;
-        void Init(uint32_t width, uint32_t height) override;
-
-        [[nodiscard]] VkInstance GetInstance() const { return m_Instance; }
-        [[nodiscard]] VkDevice GetDevice() const { return m_Device; };
-        [[nodiscard]] VkPhysicalDevice GetPhysicalDevice() const { return m_PhysicalDevice; }
-        [[nodiscard]] VkQueue GetGraphicsQueue() const { return m_GraphicsQueue; }
-        [[nodiscard]] VulkanSurfaceDetails SurfaceDetails() const { return m_SurfaceDetails; }
-        [[nodiscard]] VkDescriptorPool createDescriptorPool(std::vector<VkDescriptorPoolSize> poolSizes,
-                uint32_t maxSets) const;
-        [[nodiscard]] VkCommandPool createCommandPool() const;
-        [[nodiscard]] uint32_t getSwapchainImageCount() const;
-        [[nodiscard]] std::vector<VkImageView> getSwapchainImageViews() const;
-
-        void onResize(uint32_t width, uint32_t height) override;
-        [[nodiscard]] VkCommandBuffer beginSingleTimeCommands() const;
-        void endSingleTimeCommands(VkCommandBuffer commandBuffer) const;
-        void cleanup();
-
-        [[nodiscard]] uint32_t findMemoryTypeIndex(uint32_t allowedTypes, VkMemoryPropertyFlags properties) const;
-
-        struct Vertex
-        {
-            glm::vec3 Position;
-            glm::vec3 Color;
-        };
-
-    private:
-        GLFWwindow *m_Window;
-        VkInstance m_Instance = VK_NULL_HANDLE;
-        VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;
-        VkDevice m_Device = VK_NULL_HANDLE;
-        VkSurfaceKHR m_Surface = VK_NULL_HANDLE;
-        VulkanSwapchain *m_Swapchain = nullptr;
-
-        DeletionQueue m_DeletionQueue;
-
-        VkPipelineCache m_PipelineCache = VK_NULL_HANDLE;
-
-        uint32_t m_GraphicsQueueIndex = 0;
-        VkQueue m_GraphicsQueue = VK_NULL_HANDLE;
-
-        VulkanSurfaceDetails m_SurfaceDetails = {};
-        VkCommandPool m_SingleTimeCommandPool = VK_NULL_HANDLE;
-
-        void createInstance(const VkApplicationInfo &applicationInfo);
-        void createSurface();
-        void createDevice();
-        void createSwapchain();
-        void createPipelineCache();
-
-        void cleanupSwapchain() const;
-        void recreateSwapchain();
-    };
 }
+
+inline void checkVkResult(const VkResult result)
+{
+    if (result == VK_SUCCESS)
+        return;
+    spdlog::error("Vulkan error: VkResult = {}", vkResultToString(result));
+}
+
+class VulkanContext: public RenderContext
+{
+public:
+    struct VulkanSurfaceDetails
+    {
+        VkSurfaceCapabilitiesKHR surfaceCapabilities = {};
+        std::vector<VkSurfaceFormatKHR> formats;
+        std::vector<VkPresentModeKHR> presentationModes;
+    };
+
+    [[nodiscard]] VkExtent2D getSwapchainExtent() const;
+    [[nodiscard]] VulkanSwapchain* getSwapchain() const;
+
+public:
+    explicit VulkanContext(GLFWwindow* window): m_Window(window) {}
+    ~VulkanContext() override;
+    void Init(uint32_t width, uint32_t height) override;
+
+    [[nodiscard]] VkInstance GetInstance() const { return m_Instance; }
+    [[nodiscard]] VkDevice GetDevice() const { return m_Device; };
+    [[nodiscard]] VkPhysicalDevice GetPhysicalDevice() const { return m_PhysicalDevice; }
+    [[nodiscard]] VkQueue GetGraphicsQueue() const { return m_GraphicsQueue; }
+    [[nodiscard]] VulkanSurfaceDetails SurfaceDetails() const { return m_SurfaceDetails; }
+    [[nodiscard]] VkDescriptorPool createDescriptorPool(std::vector<VkDescriptorPoolSize> poolSizes,
+                                                        uint32_t maxSets) const;
+    [[nodiscard]] VkCommandPool createCommandPool() const;
+    [[nodiscard]] uint32_t getSwapchainImageCount() const;
+    [[nodiscard]] std::vector<VkImageView> getSwapchainImageViews() const;
+
+    void onResize(uint32_t width, uint32_t height) override;
+    [[nodiscard]] VkCommandBuffer beginSingleTimeCommands() const;
+    void endSingleTimeCommands(VkCommandBuffer commandBuffer) const;
+    void cleanup();
+
+    [[nodiscard]] uint32_t findMemoryTypeIndex(uint32_t allowedTypes,
+                                               VkMemoryPropertyFlags properties) const;
+
+    struct Vertex
+    {
+        glm::vec3 Position;
+        glm::vec3 Color;
+    };
+
+private:
+    GLFWwindow* m_Window;
+    VkInstance m_Instance             = VK_NULL_HANDLE;
+    VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;
+    VkDevice m_Device                 = VK_NULL_HANDLE;
+    VkSurfaceKHR m_Surface            = VK_NULL_HANDLE;
+    VulkanSwapchain* m_Swapchain      = nullptr;
+
+    DeletionQueue m_DeletionQueue;
+
+    VkPipelineCache m_PipelineCache       = VK_NULL_HANDLE;
+
+    uint32_t m_GraphicsQueueIndex         = 0;
+    VkQueue m_GraphicsQueue               = VK_NULL_HANDLE;
+
+    VulkanSurfaceDetails m_SurfaceDetails = {};
+    VkCommandPool m_SingleTimeCommandPool = VK_NULL_HANDLE;
+
+    void createInstance(const VkApplicationInfo& applicationInfo);
+    void createSurface();
+    void createDevice();
+    void createSwapchain();
+    void createPipelineCache();
+
+    void cleanupSwapchain() const;
+    void recreateSwapchain();
+};
+} // namespace Figment
