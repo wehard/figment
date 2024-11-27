@@ -1,6 +1,6 @@
 #include "LayerStack.h"
 
-namespace Figment
+namespace figment
 {
     LayerStack::~LayerStack()
     {

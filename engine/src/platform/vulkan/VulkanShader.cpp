@@ -2,7 +2,7 @@
 
 #include <fstream>
 
-namespace Figment
+namespace figment
 {
 static std::vector<char> ReadFile(const std::string& filename)
 {
@@ -45,4 +45,4 @@ VulkanShader::~VulkanShader()
     vkDestroyShaderModule(m_Context.GetDevice(), m_VertexModule, nullptr);
     vkDestroyShaderModule(m_Context.GetDevice(), m_FragmentModule, nullptr);
 }
-} // namespace Figment
+} // namespace figment

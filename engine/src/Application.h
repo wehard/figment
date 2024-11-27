@@ -6,7 +6,7 @@
 
 #include <cstdint>
 
-namespace Figment
+namespace figment
 {
 class Application
 {
@@ -35,4 +35,4 @@ private:
     float m_TimeSinceStart = 0;
 };
 
-} // namespace Figment
+} // namespace figment

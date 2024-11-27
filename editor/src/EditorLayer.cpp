@@ -8,7 +8,7 @@
 #include "Application.h"
 #include "Utils.h"
 
-namespace Figment
+namespace figment
 {
     EditorLayer::EditorLayer(Window &window)
             : m_Window(window), m_Renderer(*window.GetContext<VulkanContext>()), Layer("EditorLayer")

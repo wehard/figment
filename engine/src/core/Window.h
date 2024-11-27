@@ -7,7 +7,7 @@
 #include <string>
 #include <functional>
 
-namespace Figment
+namespace figment
 {
 
     class Window

@@ -1,6 +1,6 @@
 #include "VulkanRenderPass.h"
 
-namespace Figment
+namespace figment
 {
 VulkanRenderPass::VulkanRenderPass(const VulkanContext& context,
                                    const VulkanRenderPass::RenderPassDescriptor&& descriptor):

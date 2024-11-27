@@ -1,14 +1,15 @@
 #pragma once
 
-#include "Window.h"
 #include "RenderContext.h"
+#include "Window.h"
 
-namespace Figment
+namespace figment
 {
-    class VulkanWindow : public Window
-    {
-    public:
-        VulkanWindow(const std::string &title, uint32_t width, uint32_t height);
-    private:
-    };
-}
+class VulkanWindow: public Window
+{
+public:
+    VulkanWindow(const std::string& title, uint32_t width, uint32_t height);
+
+private:
+};
+} // namespace figment

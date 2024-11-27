@@ -5,7 +5,7 @@
 #include <spdlog/spdlog.h>
 #include <vector>
 
-namespace Figment
+namespace figment
 {
 VulkanContext::~VulkanContext() {}
 
@@ -476,4 +476,4 @@ VulkanSwapchain* VulkanContext::getSwapchain() const
 {
     return m_Swapchain;
 }
-} // namespace Figment
+} // namespace figment

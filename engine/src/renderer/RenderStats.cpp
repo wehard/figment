@@ -1,6 +1,6 @@
 #include "RenderStats.h"
 
-namespace Figment
+namespace figment
 {
     uint32_t RenderStats::DrawCalls = 0;
     uint32_t RenderStats::VertexCount = 0;

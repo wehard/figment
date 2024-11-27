@@ -1,6 +1,6 @@
 #include "FPSCounter.h"
 
-namespace Figment
+namespace figment
 {
     FPSCounter::FPSCounter()
             : m_FPS(0.0f), m_FrameTime(0.0f), m_TimeAccumulator(0.0f), m_FrameCount(0), m_TotalFrameCount(0)

@@ -1,81 +1,80 @@
 #pragma once
 
-#include <cstdint>
-#include <stack>
-#include <cstring>
 #include "Handle.h"
+#include <cstdint>
+#include <cstring>
+#include <functional>
+#include <stack>
 
-namespace Figment
+namespace figment
 {
-    template<typename T>
-    class Pool
+template<typename T>
+class Pool
+{
+public:
+    Pool() = delete;
+    explicit Pool(uint32_t capacity, std::function<void(T* item)>&& onDispose = nullptr):
+        m_Capacity(capacity), m_OnDispose(onDispose)
     {
-    public:
-        Pool() = delete;
-        explicit Pool(uint32_t capacity, std::function<void(T *item)> &&onDispose = nullptr) : m_Capacity(
-                capacity),
-                m_OnDispose(onDispose)
-        {
-            m_Data = (T *)malloc(sizeof(T) * capacity);
-            m_Generations = new uint32_t[capacity];
-        }
+        m_Data        = (T*)malloc(sizeof(T) * capacity);
+        m_Generations = new uint32_t[capacity];
+    }
 
-        ~Pool()
+    ~Pool()
+    {
+        if (m_OnDispose)
         {
-            if (m_OnDispose)
+            for (uint32_t i = 0; i < m_Count; i++)
             {
-                for (uint32_t i = 0; i < m_Count; i++)
-                {
-                    m_OnDispose(&m_Data[i]);
-                }
+                m_OnDispose(&m_Data[i]);
             }
-            free(m_Data);
         }
+        free(m_Data);
+    }
 
-        [[nodiscard]] uint32_t Capacity() const { return m_Capacity; }
+    [[nodiscard]] uint32_t Capacity() const { return m_Capacity; }
 
-        [[nodiscard]] uint32_t Count() const { return m_Count; }
+    [[nodiscard]] uint32_t Count() const { return m_Count; }
 
-        T *Get(Handle<T> handle)
+    T* Get(Handle<T> handle)
+    {
+        auto currentGeneration = m_Generations[handle.index];
+        if (currentGeneration != handle.generation)
         {
-            auto currentGeneration = m_Generations[handle.index];
-            if (currentGeneration != handle.generation)
-            {
-                return nullptr;
-            }
-            return &m_Data[handle.index];
+            return nullptr;
         }
+        return &m_Data[handle.index];
+    }
 
-        template<typename... Args>
-        Handle<T> Create(Args &&... args)
-        {
-            auto data = T(std::forward<Args>(args)...);
+    template<typename... Args>
+    Handle<T> Create(Args&&... args)
+    {
+        auto data = T(std::forward<Args>(args)...);
 
-            memcpy(&m_Data[m_Count], &data, sizeof(T));
-            auto handle = Handle<T>(m_Count, m_Generations[m_Count]);
-            m_Count++;
-            return handle;
-        }
+        memcpy(&m_Data[m_Count], &data, sizeof(T));
+        auto handle = Handle<T>(m_Count, m_Generations[m_Count]);
+        m_Count++;
+        return handle;
+    }
 
-        void Delete(Handle<T> handle)
-        {
-            m_Data[handle.index].generation++;
-            m_Count--;
-            m_FreeList.push(handle.index);
-        }
+    void Delete(Handle<T> handle)
+    {
+        m_Data[handle.index].generation++;
+        m_Count--;
+        m_FreeList.push(handle.index);
+    }
 
-        constexpr static uint32_t DefaultCapacity = 10;
-    private:
-        uint32_t m_Capacity = DefaultCapacity;
-        uint32_t m_Count = 0;
-        T *m_Data = nullptr;
-        uint32_t *m_Generations;
-        std::stack<uint32_t> m_FreeList;
+    constexpr static uint32_t DefaultCapacity = 10;
 
-        const std::function<void(T *item)> &m_OnDispose = nullptr;
+private:
+    uint32_t m_Capacity = DefaultCapacity;
+    uint32_t m_Count    = 0;
+    T* m_Data           = nullptr;
+    uint32_t* m_Generations;
+    std::stack<uint32_t> m_FreeList;
 
-        void Resize(uint32_t capacity)
-        {
-        }
-    };
-}
+    const std::function<void(T* item)>& m_OnDispose = nullptr;
+
+    void Resize(uint32_t capacity) {}
+};
+} // namespace figment

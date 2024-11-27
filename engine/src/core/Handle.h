@@ -2,23 +2,26 @@
 
 #include <cstdint>
 
-namespace Figment
+namespace figment
 {
-    template<typename T>
-    class Pool;
+template<typename T>
+class Pool;
 
-    template<typename T>
-    struct Handle
+template<typename T>
+struct Handle
+{
+    explicit Handle(uint32_t index = 0, uint32_t generation = 0):
+        index(index), generation(generation)
     {
-        explicit Handle(uint32_t index = 0, uint32_t generation = 0) : index(index), generation(generation) { }
+    }
 
-        [[nodiscard]] uint32_t Index() const { return index; }
-        [[nodiscard]] uint32_t Generation() const { return generation; }
+    [[nodiscard]] uint32_t Index() const { return index; }
+    [[nodiscard]] uint32_t Generation() const { return generation; }
 
-    private:
-        friend class Pool<T>;
+private:
+    friend class Pool<T>;
 
-        uint32_t index = 0;
-        uint32_t generation = 0;
-    };
-}
+    uint32_t index      = 0;
+    uint32_t generation = 0;
+};
+} // namespace figment

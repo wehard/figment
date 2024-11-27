@@ -5,7 +5,7 @@
 #include "Input.h"
 #include "imgui.h"
 
-namespace Figment
+namespace figment
 {
     void DrawDebugPanel(const Window& window, Camera &camera, bool collapsed)
     {

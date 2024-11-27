@@ -2,7 +2,7 @@
 #include <cstring>
 #include <spdlog/spdlog.h>
 
-namespace Figment
+namespace figment
 {
     static uint32_t FindMemoryTypeIndex(VkPhysicalDevice physicalDevice, uint32_t allowedTypes,
             VkMemoryPropertyFlags properties)

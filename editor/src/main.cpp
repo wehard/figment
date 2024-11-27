@@ -8,7 +8,7 @@
 // #include "WebGPUWindow.h"
 // #include <emscripten.h>
 
-using namespace Figment;
+using namespace figment;
 
 /*
 Figment::App *app;

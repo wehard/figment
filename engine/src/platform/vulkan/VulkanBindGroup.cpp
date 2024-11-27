@@ -1,7 +1,7 @@
 #include "VulkanBindGroup.h"
 #include "VulkanBuffer.h"
 
-namespace Figment
+namespace figment
 {
 VulkanBindGroup::VulkanBindGroup(const VulkanContext& context,
                                  const BindGroupDescriptor& descriptor):

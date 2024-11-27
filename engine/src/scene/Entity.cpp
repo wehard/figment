@@ -1,6 +1,6 @@
 #include "Entity.h"
 
-namespace Figment
+namespace figment
 {
     Entity::Entity(entt::entity handle, Scene *scene) : m_Handle(handle), m_Scene(scene)
     {

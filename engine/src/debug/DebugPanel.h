@@ -3,7 +3,7 @@
 #include "Entity.h"
 #include "Window.h"
 
-namespace Figment
+namespace figment
 {
-    void DrawDebugPanel(const Window& window, Camera &camera, bool collapsed = false);
+void DrawDebugPanel(const Window& window, Camera& camera, bool collapsed = false);
 }

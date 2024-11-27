@@ -1,40 +1,41 @@
 #pragma once
 
-#include "Window.h"
 #include "Layer.h"
 #include "Scene.h"
+#include "Window.h"
 // #include "SceneRenderer.h"
 #include "Entity.h"
 #include "Renderer.h"
 #include <string>
 
-namespace Figment
+namespace figment
 {
-    class EditorLayer : public Layer
-    {
-    public:
-        explicit EditorLayer(Window& window);
-        ~EditorLayer() override;
-        void OnAttach() override;
-        void OnDetach() override;
-        void OnEnable() override;
-        void OnDisable() override;
-        void OnUpdate(float deltaTime) override;
-        void OnImGuiRender() override;
-        void OnEvent(AppEvent event, void *eventData) override;
-        std::unique_ptr<Scene> &GetScene() { return m_Scene; }
-    private:
-        Window& m_Window;
-        Vulkan::Renderer m_Renderer;
-        // std::unique_ptr<OverlayRenderer> m_OverlayRenderer;
-        std::unique_ptr<Scene> m_Scene;
-        Entity m_SelectedEntity;
+class EditorLayer: public Layer
+{
+public:
+    explicit EditorLayer(Window& window);
+    ~EditorLayer() override;
+    void OnAttach() override;
+    void OnDetach() override;
+    void OnEnable() override;
+    void OnDisable() override;
+    void OnUpdate(float deltaTime) override;
+    void OnImGuiRender() override;
+    void OnEvent(AppEvent event, void* eventData) override;
+    std::unique_ptr<Scene>& GetScene() { return m_Scene; }
 
-        void SelectEntity(Entity entity);
-        void DrawEntityInspectorPanel(Entity entity);
-        void DrawScenePanel(const std::vector<Entity> &entities,
-                const std::function<void(Entity)> &selectEntity = nullptr);
-        template<typename T>
-        void DisplayAddComponentEntry(const std::string &entryName);
-    };
-}
+private:
+    Window& m_Window;
+    vulkan::Renderer m_Renderer;
+    // std::unique_ptr<OverlayRenderer> m_OverlayRenderer;
+    std::unique_ptr<Scene> m_Scene;
+    Entity m_SelectedEntity;
+
+    void SelectEntity(Entity entity);
+    void DrawEntityInspectorPanel(Entity entity);
+    void DrawScenePanel(const std::vector<Entity>& entities,
+                        const std::function<void(Entity)>& selectEntity = nullptr);
+    template<typename T>
+    void DisplayAddComponentEntry(const std::string& entryName);
+};
+} // namespace figment

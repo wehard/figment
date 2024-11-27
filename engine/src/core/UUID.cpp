@@ -2,7 +2,7 @@
 
 #include <random>
 
-namespace Figment
+namespace figment
 {
 
 static std::random_device s_Device;

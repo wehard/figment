@@ -2,7 +2,7 @@
 #include "CameraController.h"
 #include "Input.h"
 
-namespace Figment
+namespace figment
 {
     CameraController::CameraController(std::shared_ptr<PerspectiveCamera> camera)
             : m_Camera(camera), m_MovementSpeed(60.0), m_RotationSpeed(0.1), m_FpsCamera(false)

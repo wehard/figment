@@ -2,7 +2,7 @@
 #include "VulkanBuffer.h"
 #include <spdlog/spdlog.h>
 
-namespace Figment
+namespace figment
 {
 VulkanTexture::VulkanTexture(const VulkanContext& context,
                              const VulkanTextureDescriptor&& descriptor):
@@ -232,4 +232,4 @@ glm::vec4 VulkanTexture::GetPixel(int x, int y) const
 
     return {r, g, b, a};
 }
-} // namespace Figment
+} // namespace figment

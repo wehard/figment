@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-namespace Figment
+namespace figment
 {
 class VulkanBuffer;
 class VulkanShader;

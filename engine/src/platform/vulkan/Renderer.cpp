@@ -3,7 +3,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
 
-namespace Figment::Vulkan
+namespace figment::vulkan
 {
 Renderer::Renderer(const VulkanContext& context):
     m_Context(context), m_ResourceManager(context, {.Buffers = 128})
@@ -489,4 +489,4 @@ void Renderer::EndGuiPass()
         checkVkResult(vkEndCommandBuffer(GetGuiCommandBuffer()));
     }
 }
-} // namespace Figment::Vulkan
+} // namespace figment::vulkan

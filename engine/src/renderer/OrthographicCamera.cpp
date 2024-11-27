@@ -2,7 +2,7 @@
 #include "Input.h"
 #include <glm/gtc/matrix_transform.hpp>
 
-namespace Figment
+namespace figment
 {
     OrthographicCamera::OrthographicCamera() : Camera(CameraType::Orthographic)
     {

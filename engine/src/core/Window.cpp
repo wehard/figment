@@ -8,7 +8,7 @@
 #include "VulkanWindow.h"
 #endif
 
-namespace Figment
+namespace figment
 {
     std::shared_ptr<Window> Window::Create(const std::string &title, const uint32_t width, const uint32_t height)
     {

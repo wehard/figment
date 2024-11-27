@@ -3,7 +3,7 @@
 #include "ResourceManager.h"
 #include "VulkanContext.h"
 
-using namespace Figment;
+using namespace figment;
 
 struct MockRenderContext : public VulkanContext
 {

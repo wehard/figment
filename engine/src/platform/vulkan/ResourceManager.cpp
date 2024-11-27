@@ -5,7 +5,7 @@
 #include "WebGPUBuffer.h"
 #endif
 
-namespace Figment
+namespace figment
 {
     
 }

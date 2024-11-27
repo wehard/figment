@@ -1,6 +1,6 @@
 #include "VulkanPipeline.h"
 
-namespace Figment
+namespace figment
 {
     VulkanPipeline::VulkanPipeline(const VulkanContext &context, const PipelineDescriptor &&descriptor) : m_Context(
             context)

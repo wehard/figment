@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "Pool.h"
 
-using namespace Figment;
+using namespace figment;
 
 struct TestStruct
 {

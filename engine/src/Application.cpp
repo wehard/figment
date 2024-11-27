@@ -3,7 +3,7 @@
 #include "RenderStats.h"
 #include <spdlog/spdlog.h>
 
-namespace Figment
+namespace figment
 {
 Application::Application(const Descriptor&& descriptor)
 {
@@ -26,8 +26,6 @@ Application::Application(const Descriptor&& descriptor)
 
 void Application::Update()
 {
-    glfwPollEvents();
-
     Input::Update();
     RenderStats::Reset();
 
@@ -44,6 +42,7 @@ void Application::Update()
             continue;
         layer->OnUpdate(deltaTime);
     }
+    glfwPollEvents();
 }
 
 void Application::AddLayer(Layer* layer)
@@ -81,4 +80,4 @@ void Application::Start()
         layer->OnDisable();
     }
 }
-} // namespace Figment
+} // namespace figment

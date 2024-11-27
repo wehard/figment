@@ -4,7 +4,7 @@
 #include "../lib/glm/glm/glm.hpp"
 #include "Random.h"
 
-using namespace Figment;
+using namespace figment;
 
 struct NodeData
 {

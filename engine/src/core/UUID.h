@@ -3,30 +3,29 @@
 #include <cstdint>
 #include <unordered_map>
 
-namespace Figment
+namespace figment
 {
-    class UUID
-    {
-    public:
-        UUID();
-        explicit UUID(uint64_t uuid);
+class UUID
+{
+public:
+    UUID();
+    explicit UUID(uint64_t uuid);
 
-        explicit operator uint64_t() const
-        { return m_UUID; }
+    explicit operator uint64_t() const { return m_UUID; }
 
-    private:
-        uint64_t m_UUID;
-    };
-}
+private:
+    uint64_t m_UUID;
+};
+} // namespace figment
 
 namespace std
 {
-    template<>
-    struct hash<Figment::UUID>
+template<>
+struct hash<figment::UUID>
+{
+    std::size_t operator()(const figment::UUID& uuid) const
     {
-        std::size_t operator()(const Figment::UUID &uuid) const
-        {
-            return std::hash<uint64_t>()((uint64_t)uuid);
-        }
-    };
-}
+        return std::hash<uint64_t>()((uint64_t)uuid);
+    }
+};
+} // namespace std
