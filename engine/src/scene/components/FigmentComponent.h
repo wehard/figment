@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Utils.h"
+#include "FileUtils.h"
 #include "WebGPUShader.h"
 #include "WebGPUBuffer.h"
 #include <string>

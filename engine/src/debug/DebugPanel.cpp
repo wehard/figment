@@ -1,5 +1,5 @@
 #include "DebugPanel.h"
-#include "Window.h"
+#include "BaseWindow.h"
 #include "Scene.h"
 #include "RenderStats.h"
 #include "Input.h"

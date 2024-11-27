@@ -1,15 +1,17 @@
 #include "imgui_renderer.h"
+#include "utils.h"
+#include "window.h"
 
 #include <VulkanSwapchain.h>
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
-#include <utils.h>
-#include <window.h>
+#include <FileUtils.h>
+#include <BaseWindow.h>
 
 namespace figment::vulkan
 {
-ImGuiRenderer::ImGuiRenderer(const Window& window):
+ImGuiRenderer::ImGuiRenderer(const vulkan::Window& window):
     window(window), ctx(*window.GetContext<Context>())
 {
     const std::array<VkFormat, 1> colorAttachmentFormats = {VK_FORMAT_B8G8R8A8_UNORM};

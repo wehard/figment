@@ -1,7 +1,9 @@
 #pragma once
 
-#include "Window.h"
+#include "BaseWindow.h"
 #include <vulkan/vulkan.h>
+#include <vector>
+#include <string>
 
 namespace figment::vulkan
 {

@@ -6,12 +6,12 @@
 #include <sstream>
 #include <istream>
 
-class Utils
+class FileUtils
 {
 private:
 public:
-    Utils() = delete;
-    ~Utils() = delete;
+    FileUtils() = delete;
+    ~FileUtils() = delete;
     static std::string LoadFile(const std::string &filePath)
     {
         std::string result;

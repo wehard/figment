@@ -2,11 +2,11 @@
 
 #include "FPSCounter.h"
 #include "LayerStack.h"
-#include "Window.h"
+#include "BaseWindow.h"
 #include "imgui_renderer.h"
 
 #include <cstdint>
-#include <window.h>
+#include <BaseWindow.h>
 
 namespace figment
 {

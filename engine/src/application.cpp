@@ -3,7 +3,7 @@
 #include "RenderStats.h"
 
 #include <spdlog/spdlog.h>
-#include <window.h>
+#include <BaseWindow.h>
 
 namespace figment
 {

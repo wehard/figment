@@ -2,7 +2,7 @@
 
 #include "Entity.h"
 #include "Framebuffer.h"
-#include "Window.h"
+#include "BaseWindow.h"
 #include "GUIContext.h"
 #include "PerspectiveCamera.h"
 #include "Scene.h"

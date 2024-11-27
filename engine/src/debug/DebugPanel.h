@@ -1,7 +1,7 @@
 #pragma once
 #include "Camera.h"
 #include "Entity.h"
-#include "Window.h"
+#include "BaseWindow.h"
 
 namespace figment
 {

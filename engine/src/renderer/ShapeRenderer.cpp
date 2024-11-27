@@ -4,7 +4,7 @@
 #include "WebGPUTexture.h"
 #include "WebGPUShader.h"
 #include "WebGPURenderPipeline.h"
-#include "Utils.h"
+#include "FileUtils.h"
 #include "RenderPass.h"
 #include "RenderStats.h"
 #include <vector>

@@ -14,7 +14,6 @@
 
 namespace figment::vulkan
 {
-class VulkanSwapchain;
 class Context: public RenderContext
 {
 public:

@@ -1,5 +1,4 @@
 #include "context.h"
-#include "VulkanSwapchain.h"
 #include "utils.h"
 
 #include <set>
@@ -22,9 +21,7 @@ void Context::Init(uint32_t width, uint32_t height)
     applicationInfo.apiVersion         = VK_MAKE_API_VERSION(0, 1, 3, 0);
 
     createInstance(applicationInfo);
-    // createSurface();
     createDevice();
-    // createSwapchain();
 
     m_SingleTimeCommandPool = createCommandPool();
 
@@ -134,12 +131,6 @@ void Context::createInstance(const VkApplicationInfo& applicationInfo)
 
     spdlog::info("Vulkan instance created");
 }
-
-// void Context::createSurface()
-// {
-//     checkVkResult(glfwCreateWindowSurface(m_Instance, m_Window, nullptr, &m_Surface));
-//     spdlog::info("Vulkan surface created");
-// }
 
 static std::vector<VkExtensionProperties> queryDeviceExtensions(VkPhysicalDevice physicalDevice)
 {
@@ -312,34 +303,6 @@ static Context::VulkanSurfaceDetails getSurfaceDetails(VkPhysicalDevice device,
     return surfaceDetails;
 }
 
-// void Context::createSwapchain()
-// {
-//     m_SurfaceDetails = getSurfaceDetails(m_PhysicalDevice, m_Surface);
-//     m_Swapchain      = new VulkanSwapchain(
-//         m_Device, {
-//                            .Surface           = m_Surface,
-//                            .SurfaceFormat     = m_SurfaceDetails.formats[0].format,
-//                            .SurfaceColorSpace = m_SurfaceDetails.formats[0].colorSpace,
-//                            .PresentMode       = m_SurfaceDetails.presentationModes[0],
-//                            .Extent            =
-//                            m_SurfaceDetails.surfaceCapabilities.currentExtent, .ImageCount =
-//                            m_SurfaceDetails.surfaceCapabilities.minImageCount + 1, .Transform =
-//                            m_SurfaceDetails.surfaceCapabilities.currentTransform,
-//                   });
-//
-//     spdlog::info("Vulkan swapchain created");
-//
-//     m_DeletionQueue.Push(
-//         [this]()
-//         {
-//             // for (int i = 0; i < m_FrameData.ImageViews.size(); ++i)
-//             // {
-//             //     vkDestroyImageView(m_Device, m_FrameData.ImageViews[i], nullptr);
-//             // }
-//             // vkDestroySwapchainKHR(m_Device, m_Swapchain, nullptr);
-//         });
-// }
-
 void Context::createPipelineCache()
 {
     VkPipelineCacheCreateInfo pipelineCacheCreateInfo = {};
@@ -386,22 +349,6 @@ void Context::onResize(uint32_t width, uint32_t height)
 {
     // recreateSwapchain();
 }
-
-// void Context::cleanupSwapchain() const
-// {
-//     vkDestroySwapchainKHR(m_Device, m_Swapchain->Get(), nullptr);
-//     delete m_Swapchain;
-// }
-//
-// void Context::recreateSwapchain()
-// {
-//     vkDeviceWaitIdle(m_Device);
-//
-//     cleanupSwapchain();
-//     createSwapchain();
-//
-//     // vkResetCommandPool(m_Device, m_CommandPool, 0);
-// }
 
 VkCommandBuffer Context::beginSingleTimeCommands() const
 {
@@ -467,24 +414,4 @@ uint32_t Context::findMemoryTypeIndex(uint32_t allowedTypes, VkMemoryPropertyFla
     spdlog::error("Failed to find required memory type!");
     return (-1);
 }
-
-// uint32_t Context::getSwapchainImageCount() const
-// {
-//     return m_Swapchain->GetImageCount();
-// }
-//
-// std::vector<VkImageView> Context::getSwapchainImageViews() const
-// {
-//     return m_Swapchain->GetImageViews();
-// }
-//
-// VkExtent2D Context::getSwapchainExtent() const
-// {
-//     return m_Swapchain->GetExtent();
-// }
-//
-// VulkanSwapchain* Context::getSwapchain() const
-// {
-//     return m_Swapchain;
-// }
 } // namespace figment::vulkan

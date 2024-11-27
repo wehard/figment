@@ -1,6 +1,6 @@
 #include "MeshRenderer.h"
 #include "WebGPUCommand.h"
-#include "Utils.h"
+#include "FileUtils.h"
 #include "RenderStats.h"
 
 namespace Figment

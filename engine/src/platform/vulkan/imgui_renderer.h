@@ -4,7 +4,7 @@
 
 #include <imgui.h>
 #include <texture.h>
-#include <window.h>
+#include "window.h"
 
 namespace figment::vulkan
 {
@@ -12,7 +12,7 @@ namespace figment::vulkan
 class ImGuiRenderer
 {
 public:
-    explicit ImGuiRenderer(const Window& window);
+    explicit ImGuiRenderer(const vulkan::Window& window);
     ~ImGuiRenderer();
 
     void beginFrame();

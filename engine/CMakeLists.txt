@@ -34,7 +34,7 @@ target_sources(engine PRIVATE
         src/renderer/PerspectiveCamera.cpp
 
         src/core/UUID.cpp
-        src/core/Window.cpp
+        src/core/BaseWindow.cpp
         src/core/Image.cpp
         src/core/Input.cpp
         src/core/LayerStack.cpp

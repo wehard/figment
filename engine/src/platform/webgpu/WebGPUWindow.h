@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Window.h"
+#include "BaseWindow.h"
 #include "WebGPUContext.h"
 #include <string>
 #include <GLFW/glfw3.h>

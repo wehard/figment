@@ -4,7 +4,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/euler_angles.hpp"
 #include "Input.h"
-#include "Window.h"
+#include "BaseWindow.h"
 
 MainLayer::MainLayer(const VulkanContext &context, GLFWwindow *window)
         : Layer("MainLayer"), m_Context(context),

@@ -3,7 +3,7 @@
 #include "Entity.h"
 #include "Layer.h"
 #include "Scene.h"
-#include "Window.h"
+#include "BaseWindow.h"
 #include <string>
 
 namespace figment
