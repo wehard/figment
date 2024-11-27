@@ -1,4 +1,4 @@
-#include "VulkanWindow.h"
+#include "window.h"
 #include "FigmentAssert.h"
 #include "context.h"
 #include <spdlog/spdlog.h>
@@ -12,12 +12,12 @@ static void glfwFramebufferSizeCallback(GLFWwindow* window, int width, int heigh
         {.Width = width, .Height = height, .FramebufferWidth = width, .FramebufferHeight = height});
 }
 
-VulkanWindow::VulkanWindow(const std::string& title, uint32_t width, uint32_t height):
-    Window(title, width, height)
+Window::Window(const std::string& title, const uint32_t width, const uint32_t height):
+    figment::Window(title, width, height)
 {
     if (!glfwInit())
     {
-        FIGMENT_ASSERT(false, "Failed to initialize GLFW");
+        spdlog::error("Failed to initialize GLFW");
     }
 
     if (glfwVulkanSupported())
@@ -26,29 +26,27 @@ VulkanWindow::VulkanWindow(const std::string& title, uint32_t width, uint32_t he
     }
     else
     {
-        FIGMENT_ASSERT(false, "Vulkan is not supported");
+        spdlog::error("Vulkan is not supported");
     }
-
-    uint32_t count;
-    const char** extensions = glfwGetRequiredInstanceExtensions(&count);
 
     spdlog::info("GLFW version: {}", glfwGetVersionString());
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-    m_Window = glfwCreateWindow((int)width, (int)height, title.c_str(), nullptr, nullptr);
+    window = glfwCreateWindow(static_cast<int>(width), static_cast<int>(height), title.c_str(),
+                              nullptr, nullptr);
 
-    if (!m_Window)
+    if (!window)
     {
         FIGMENT_ASSERT(false, "Failed to create GLFW window");
     }
 
-    glfwShowWindow(m_Window);
-    glfwSetFramebufferSizeCallback(m_Window, glfwFramebufferSizeCallback);
-    glfwSetWindowUserPointer(m_Window, this);
+    glfwShowWindow(window);
+    glfwSetFramebufferSizeCallback(window, glfwFramebufferSizeCallback);
+    glfwSetWindowUserPointer(window, this);
 
-    m_RenderContext = std::make_shared<Context>(m_Window);
+    m_RenderContext = std::make_shared<Context>(window);
     m_RenderContext->Init(m_Width, m_Height);
 
     // Create vulkan surface

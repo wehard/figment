@@ -5,9 +5,11 @@
 
 namespace figment
 {
-Application::Application(const Descriptor&& descriptor)
+Application::Application(const Descriptor&& descriptor):
+    m_Window(Window::Create(descriptor.Name, descriptor.Width, descriptor.Height)),
+    imguiRenderer(static_cast<GLFWwindow*>(m_Window->GetNative()),
+                  *m_Window->GetContext<vulkan::Context>())
 {
-    m_Window = Window::Create(descriptor.Name, descriptor.Width, descriptor.Height);
     Input::Initialize(static_cast<GLFWwindow*>(m_Window->GetNative()));
 
     m_Window->SetResizeEventCallback(
@@ -20,7 +22,6 @@ Application::Application(const Descriptor&& descriptor)
                 layer->OnEvent(AppEvent::WindowResize, (void*)&eventData);
             }
         });
-
     spdlog::info("Application created");
 }
 
@@ -42,6 +43,16 @@ void Application::Update()
             continue;
         layer->OnUpdate(deltaTime);
     }
+
+    imguiRenderer.beginFrame();
+    for (auto layer: m_LayerStack)
+    {
+        if (!layer->m_Enabled)
+            continue;
+        layer->OnImGuiRender();
+    }
+    imguiRenderer.endFrame();
+
     glfwPollEvents();
 }
 

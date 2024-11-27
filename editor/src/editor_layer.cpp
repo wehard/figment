@@ -10,10 +10,9 @@
 
 namespace figment
 {
-EditorLayer::EditorLayer(Window& window):
-    m_Window(window), m_Renderer(*window.GetContext<vulkan::Context>()), Layer("EditorLayer")
+EditorLayer::EditorLayer(Window& window): m_Window(window), Layer("EditorLayer")
 {
-    m_Renderer.InitGui((GLFWwindow*)window.GetNative());
+    // m_Renderer.InitGui((GLFWwindow*)window.GetNative());
     m_Scene = std::make_unique<Scene>(window.GetWidth(), window.GetHeight());
 
     // auto figmentEntity = m_Scene->CreateEntity("Figment");
@@ -90,20 +89,20 @@ void EditorLayer::OnUpdate(float deltaTime)
     {
         SelectEntity(m_Scene->GetHoveredEntity());
     }
-    m_Renderer.BeginFrame();
-    m_Renderer.Begin(*m_Scene->GetActiveCameraController()->GetCamera());
-    {
-    }
-    m_Renderer.End();
-    m_Renderer.BeginGuiPass();
-    {
-        DrawDebugPanel(m_Window, *m_Scene->GetActiveCameraController()->GetCamera());
-
-        DrawScenePanel(m_Scene->GetEntities(), [this](Entity entity) { SelectEntity(entity); });
-        DrawEntityInspectorPanel(m_SelectedEntity);
-    }
-    m_Renderer.EndGuiPass();
-    m_Renderer.EndFrame();
+    // m_Renderer.BeginFrame();
+    // m_Renderer.Begin(*m_Scene->GetActiveCameraController()->GetCamera());
+    // {
+    // }
+    // m_Renderer.End();
+    // m_Renderer.BeginGuiPass();
+    // {
+    //     DrawDebugPanel(m_Window, *m_Scene->GetActiveCameraController()->GetCamera());
+    //
+    //     DrawScenePanel(m_Scene->GetEntities(), [this](Entity entity) { SelectEntity(entity); });
+    //     DrawEntityInspectorPanel(m_SelectedEntity);
+    // }
+    // m_Renderer.EndGuiPass();
+    // m_Renderer.EndFrame();
 }
 
 static void DrawVec3(const char* name, glm::vec3* value, bool* syncValues)
@@ -462,8 +461,8 @@ void EditorLayer::OnImGuiRender()
 {
     DrawDebugPanel(m_Window, *m_Scene->GetActiveCameraController()->GetCamera());
 
-    DrawScenePanel(m_Scene->GetEntities(), [this](Entity entity) { SelectEntity(entity); });
-    DrawEntityInspectorPanel(m_SelectedEntity);
+    // DrawScenePanel(m_Scene->GetEntities(), [this](Entity entity) { SelectEntity(entity); });
+    // DrawEntityInspectorPanel(m_SelectedEntity);
     // DrawWGSLShaderEditor(*m_Renderer->GetShader());
 }
 

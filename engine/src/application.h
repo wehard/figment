@@ -3,6 +3,7 @@
 #include "FPSCounter.h"
 #include "LayerStack.h"
 #include "Window.h"
+#include "imgui_renderer.h"
 
 #include <cstdint>
 
@@ -27,6 +28,7 @@ public:
 
 private:
     std::shared_ptr<Window> m_Window;
+    vulkan::ImGuiRenderer imguiRenderer;
     LayerStack m_LayerStack;
     bool m_InputEnabled = true;
     FPSCounter m_FPSCounter;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "vulkan/vulkan.h"
+#define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
 #include "Camera.h"
@@ -50,6 +51,9 @@ public:
 
     [[nodiscard]] uint32_t findMemoryTypeIndex(uint32_t allowedTypes,
                                                VkMemoryPropertyFlags properties) const;
+
+    PFN_vkCmdBeginRenderingKHR vkCmdBeginRenderingKHR = nullptr;
+    PFN_vkCmdEndRenderingKHR vkCmdEndRenderingKHR     = nullptr;
 
     struct Vertex
     {

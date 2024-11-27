@@ -19,7 +19,7 @@ void Context::Init(uint32_t width, uint32_t height)
     applicationInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
     applicationInfo.pEngineName        = "Figment";
     applicationInfo.engineVersion      = VK_MAKE_VERSION(1, 0, 0);
-    applicationInfo.apiVersion         = VK_API_VERSION_1_0;
+    applicationInfo.apiVersion         = VK_MAKE_API_VERSION(0, 1, 3, 0);
 
     createInstance(applicationInfo);
     createSurface();
@@ -30,6 +30,11 @@ void Context::Init(uint32_t width, uint32_t height)
 
     if (glfwGetPhysicalDevicePresentationSupport(m_Instance, m_PhysicalDevice, 0))
         spdlog::info("Physical device supports presentation");
+
+    vkCmdBeginRenderingKHR = reinterpret_cast<PFN_vkCmdBeginRenderingKHR>(
+        vkGetInstanceProcAddr(m_Instance, "vkCmdBeginRenderingKHR"));
+    vkCmdEndRenderingKHR = reinterpret_cast<PFN_vkCmdEndRenderingKHR>(
+        vkGetInstanceProcAddr(m_Instance, "vkCmdEndRenderingKHR"));
 }
 
 bool checkInstanceExtensionSupport(const std::vector<const char*>& requestedExtensions)
@@ -99,6 +104,8 @@ void Context::createInstance(const VkApplicationInfo& applicationInfo)
 #endif
 
     instanceExtensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+    instanceExtensions.emplace_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
+    // instanceExtensions.emplace_back(VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME);
     validationLayers.emplace_back("VK_LAYER_KHRONOS_validation");
 
     if (!checkInstanceExtensionSupport(instanceExtensions))
@@ -227,9 +234,11 @@ void Context::createDevice()
     // const auto requiredExtensions = std::vector {
     //         VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME, VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME,
     //         VK_EXT_ROBUSTNESS_2_EXTENSION_NAME, };
-    const auto requiredExtensions = std::vector<const char*>{VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+    const auto requiredExtensions           = std::vector<const char*>{
+        VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME, VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME,
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 #ifdef __APPLE__
-                                                             "VK_KHR_portability_subset"
+        "VK_KHR_portability_subset"
 #endif
     };
 
@@ -251,7 +260,7 @@ void Context::createDevice()
     robustness2Features.nullDescriptor       = VK_TRUE;
 
     // Chain descriptorBufferFeatures to dynamicRenderingFeature
-    dynamicRenderingFeature.pNext            = &robustness2Features;
+    // dynamicRenderingFeature.pNext            = &robustness2Features;
     // Chain robustness2Features to descriptorBufferFeatures
     // descriptorBufferFeatures.pNext           = &robustness2Features;
 
@@ -260,7 +269,7 @@ void Context::createDevice()
 
     VkDeviceCreateInfo deviceCreateInfo      = {};
     deviceCreateInfo.sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-    // deviceCreateInfo.pNext = &dynamicRenderingFeature;
+    deviceCreateInfo.pNext                   = &dynamicRenderingFeature;
     deviceCreateInfo.queueCreateInfoCount    = 1;
     deviceCreateInfo.pQueueCreateInfos       = &queueCreateInfo;
     deviceCreateInfo.enabledLayerCount       = 0;

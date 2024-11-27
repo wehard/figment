@@ -1,11 +1,9 @@
 #pragma once
 
+#include "Entity.h"
 #include "Layer.h"
 #include "Scene.h"
 #include "Window.h"
-// #include "SceneRenderer.h"
-#include "Entity.h"
-#include "renderer.h"
 #include <string>
 
 namespace figment
@@ -26,7 +24,6 @@ public:
 
 private:
     Window& m_Window;
-    vulkan::Renderer m_Renderer;
     // std::unique_ptr<OverlayRenderer> m_OverlayRenderer;
     std::unique_ptr<Scene> m_Scene;
     Entity m_SelectedEntity;

@@ -5,10 +5,10 @@
 
 namespace figment::vulkan
 {
-class VulkanWindow: public Window
+class Window: public figment::Window
 {
 public:
-    VulkanWindow(const std::string& title, uint32_t width, uint32_t height);
+    Window(const std::string& title, uint32_t width, uint32_t height);
 
 private:
 };
