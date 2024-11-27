@@ -51,7 +51,7 @@ namespace Figment
             m_FramebufferWidth = resizeData.FramebufferWidth;
             m_FramebufferHeight = resizeData.FramebufferHeight;
 
-            m_RenderContext->OnResize(resizeData.Width, resizeData.Height);
+            m_RenderContext->onResize(resizeData.Width, resizeData.Height);
 
             if (ResizeEventCallback != nullptr)
             {

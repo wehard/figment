@@ -32,7 +32,7 @@ namespace Figment
         VkMemoryAllocateInfo memoryAllocateInfo = {};
         memoryAllocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         memoryAllocateInfo.allocationSize = memoryRequirements.size;
-        memoryAllocateInfo.memoryTypeIndex = m_Context.FindMemoryTypeIndex(memoryRequirements.memoryTypeBits,
+        memoryAllocateInfo.memoryTypeIndex = m_Context.findMemoryTypeIndex(memoryRequirements.memoryTypeBits,
                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
         CheckVkResult(vkAllocateMemory(m_Context.GetDevice(), &memoryAllocateInfo, nullptr, &m_ImageMemory));
@@ -90,7 +90,7 @@ namespace Figment
 
     void VulkanTexture::TransitionImageLayout(VkImageLayout oldLayout, VkImageLayout newLayout) const
     {
-        auto commandBuffer = m_Context.BeginSingleTimeCommands();
+        auto commandBuffer = m_Context.beginSingleTimeCommands();
 
         VkImageMemoryBarrier barrier = {};
         barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -154,12 +154,12 @@ namespace Figment
 
         vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 
-        m_Context.EndSingleTimeCommands(commandBuffer);
+        m_Context.endSingleTimeCommands(commandBuffer);
     }
 
     void VulkanTexture::CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) const
     {
-        auto commandBuffer = m_Context.BeginSingleTimeCommands();
+        auto commandBuffer = m_Context.beginSingleTimeCommands();
 
         VkBufferImageCopy region = {};
         region.bufferOffset = 0;
@@ -176,13 +176,13 @@ namespace Figment
 
         vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
-        m_Context.EndSingleTimeCommands(commandBuffer);
+        m_Context.endSingleTimeCommands(commandBuffer);
     }
 
     glm::vec4 VulkanTexture::GetPixel(int x, int y) const
     {
         TransitionImageLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-        auto commandBuffer = m_Context.BeginSingleTimeCommands();
+        auto commandBuffer = m_Context.beginSingleTimeCommands();
 
         auto dstBuffer = VulkanBuffer(m_Context, VulkanBufferDescriptor {
                 .Name = "VulkanTextureDstBuffer",
@@ -206,7 +206,7 @@ namespace Figment
         vkCmdCopyImageToBuffer(commandBuffer, m_Image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                 dstBuffer.Get(), 1, &copyImageToBufferInfo);
 
-        m_Context.EndSingleTimeCommands(commandBuffer);
+        m_Context.endSingleTimeCommands(commandBuffer);
         TransitionImageLayout(VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
         auto data = dstBuffer.Map();

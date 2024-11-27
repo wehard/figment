@@ -45,7 +45,7 @@ namespace Figment::Vulkan
         initInfo.Queue = m_Context.GetGraphicsQueue();
         initInfo.QueueFamily = 0;
         initInfo.PipelineCache = VK_NULL_HANDLE;
-        initInfo.DescriptorPool = m_Context.CreateDescriptorPool({
+        initInfo.DescriptorPool = m_Context.createDescriptorPool({
                 { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
                 { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
                 { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
@@ -67,9 +67,9 @@ namespace Figment::Vulkan
         initInfo.CheckVkResultFn = CheckVkResult;
         ImGui_ImplVulkan_Init(&initInfo);
 
-        auto commandBuffer = m_Context.BeginSingleTimeCommands();
+        auto commandBuffer = m_Context.beginSingleTimeCommands();
         ImGui_ImplVulkan_CreateFontsTexture();
-        m_Context.EndSingleTimeCommands(commandBuffer);
+        m_Context.endSingleTimeCommands(commandBuffer);
     }
 
     void Renderer::Shutdown()
@@ -110,7 +110,7 @@ namespace Figment::Vulkan
         renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
         renderPassBeginInfo.renderPass = m_OpaquePass->Get();
         renderPassBeginInfo.renderArea.offset = { 0, 0 };
-        renderPassBeginInfo.renderArea.extent = m_Context.GetSwapchainExtent();
+        renderPassBeginInfo.renderArea.extent = m_Context.getSwapchainExtent();
         VkClearValue clearValues[] = {
                 { 0.1f, 0.1f, 0.1f, 1.0f }};
         renderPassBeginInfo.pClearValues = clearValues;
@@ -177,7 +177,7 @@ namespace Figment::Vulkan
     {
         m_OpaquePass = std::make_unique<VulkanRenderPass>(m_Context, VulkanRenderPass::RenderPassDescriptor {
                 .ColorAttachment = {
-                        .Format = m_Context.GetSwapchain()->GetFormat(),
+                        .Format = m_Context.getSwapchain()->GetFormat(),
                         .Samples = VK_SAMPLE_COUNT_1_BIT,
                         .LoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
                         .StoreOp = VK_ATTACHMENT_STORE_OP_STORE,
@@ -192,8 +192,8 @@ namespace Figment::Vulkan
     void Renderer::CreatePipeline()
     {
         m_OpaquePipeline = std::make_unique<VulkanPipeline>(m_Context, VulkanPipeline::PipelineDescriptor {
-                .ViewportWidth = m_Context.GetSwapchainExtent().width,
-                .ViewportHeight = m_Context.GetSwapchainExtent().height,
+                .ViewportWidth = m_Context.getSwapchainExtent().width,
+                .ViewportHeight = m_Context.getSwapchainExtent().height,
                 .VertexInput = {
                         .Binding = 0,
                         .Stride = sizeof(Vertex),
@@ -233,18 +233,18 @@ namespace Figment::Vulkan
 
     void Renderer::CreateFramebuffers()
     {
-        m_Framebuffers.resize(m_Context.GetSwapchainImageCount());
+        m_Framebuffers.resize(m_Context.getSwapchainImageCount());
         for (size_t i = 0; i < m_Framebuffers.size(); i++)
         {
-            std::array<VkImageView, 1> attachments = { m_Context.GetSwapchainImageViews()[i] };
+            std::array<VkImageView, 1> attachments = { m_Context.getSwapchainImageViews()[i] };
 
             VkFramebufferCreateInfo framebufferCreateInfo = {};
             framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
             framebufferCreateInfo.renderPass = m_OpaquePass->Get();
             framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
             framebufferCreateInfo.pAttachments = attachments.data();
-            framebufferCreateInfo.width = m_Context.GetSwapchainExtent().width;
-            framebufferCreateInfo.height = m_Context.GetSwapchainExtent().height;
+            framebufferCreateInfo.width = m_Context.getSwapchainExtent().width;
+            framebufferCreateInfo.height = m_Context.getSwapchainExtent().height;
             framebufferCreateInfo.layers = 1;
 
             CheckVkResult(vkCreateFramebuffer(m_Context.GetDevice(), &framebufferCreateInfo, nullptr,
@@ -275,18 +275,18 @@ namespace Figment::Vulkan
 
     void Renderer::CreateGuiFramebuffers()
     {
-        m_GuiFramebuffers.resize(m_Context.GetSwapchainImageCount());
+        m_GuiFramebuffers.resize(m_Context.getSwapchainImageCount());
         for (size_t i = 0; i < m_GuiFramebuffers.size(); i++)
         {
-            std::array<VkImageView, 1> attachments = { m_Context.GetSwapchainImageViews()[i] };
+            std::array<VkImageView, 1> attachments = { m_Context.getSwapchainImageViews()[i] };
 
             VkFramebufferCreateInfo framebufferCreateInfo = {};
             framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
             framebufferCreateInfo.renderPass = m_GuiPass->Get();
             framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
             framebufferCreateInfo.pAttachments = attachments.data();
-            framebufferCreateInfo.width = m_Context.GetSwapchainExtent().width;
-            framebufferCreateInfo.height = m_Context.GetSwapchainExtent().height;
+            framebufferCreateInfo.width = m_Context.getSwapchainExtent().width;
+            framebufferCreateInfo.height = m_Context.getSwapchainExtent().height;
             framebufferCreateInfo.layers = 1;
 
             CheckVkResult(vkCreateFramebuffer(m_Context.GetDevice(), &framebufferCreateInfo, nullptr,
@@ -341,7 +341,7 @@ namespace Figment::Vulkan
     }
     void Renderer::CreateDescriptorPool()
     {
-        m_DescriptorPool = m_Context.CreateDescriptorPool({
+        m_DescriptorPool = m_Context.createDescriptorPool({
                 {
                         .type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
                         .descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT)
@@ -356,7 +356,7 @@ namespace Figment::Vulkan
 
         CheckVkResult(vkResetFences(m_Context.GetDevice(), 1, &m_SynchronizationObjects[m_FrameIndex].FenceDraw));
 
-        m_ImageIndex = m_Context.GetSwapchain()->GetNextImageIndex(
+        m_ImageIndex = m_Context.getSwapchain()->GetNextImageIndex(
                 m_SynchronizationObjects[m_FrameIndex].SemaphoreImageAvailable);
     }
 
@@ -388,7 +388,7 @@ namespace Figment::Vulkan
         presentInfo.waitSemaphoreCount = 1;
         presentInfo.pWaitSemaphores = &m_SynchronizationObjects[m_FrameIndex].SemaphoreRenderFinished;
         presentInfo.swapchainCount = 1;
-        auto swapChain = m_Context.GetSwapchain()->Get();
+        auto swapChain = m_Context.getSwapchain()->Get();
         presentInfo.pSwapchains = &swapChain;
         presentInfo.pImageIndices = &m_ImageIndex;
 
@@ -431,7 +431,7 @@ namespace Figment::Vulkan
 
     void Renderer::CreateCommandPool()
     {
-        m_CommandPool = m_Context.CreateCommandPool();
+        m_CommandPool = m_Context.createCommandPool();
     }
 
     void Renderer::CreateCommandBuffers()
@@ -449,7 +449,7 @@ namespace Figment::Vulkan
 
     void Renderer::CreateGuiCommandPool()
     {
-        m_GuiCommandPool = m_Context.CreateCommandPool();
+        m_GuiCommandPool = m_Context.createCommandPool();
     }
 
     void Renderer::CreateGuiCommandBuffers()
@@ -488,8 +488,8 @@ namespace Figment::Vulkan
             renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
             renderPassBeginInfo.renderPass = GetGuiRenderPass();
             renderPassBeginInfo.framebuffer = GetCurrentGuiFramebuffer();
-            renderPassBeginInfo.renderArea.extent.width = m_Context.GetSwapchainExtent().width;
-            renderPassBeginInfo.renderArea.extent.height = m_Context.GetSwapchainExtent().height;
+            renderPassBeginInfo.renderArea.extent.width = m_Context.getSwapchainExtent().width;
+            renderPassBeginInfo.renderArea.extent.height = m_Context.getSwapchainExtent().height;
             VkClearValue clearValues[] = {
                     { 0.1f, 0.1f, 0.1f, 1.0f }};
             renderPassBeginInfo.pClearValues = clearValues;

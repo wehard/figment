@@ -11,11 +11,11 @@
 
 namespace Figment
 {
-    Figment::VulkanContext::~VulkanContext()
+    VulkanContext::~VulkanContext()
     {
     }
 
-    void Figment::VulkanContext::Init(uint32_t width, uint32_t height)
+    void VulkanContext::Init(uint32_t width, uint32_t height)
     {
         spdlog::set_level(spdlog::level::debug);
         VkApplicationInfo applicationInfo = {};
@@ -29,36 +29,12 @@ namespace Figment
         createInstance(applicationInfo);
         createSurface();
         createDevice();
-        CreateSwapchain();
+        createSwapchain();
 
-        m_SingleTimeCommandPool = CreateCommandPool();
+        m_SingleTimeCommandPool = createCommandPool();
 
         if (glfwGetPhysicalDevicePresentationSupport(m_Instance, m_PhysicalDevice, 0))
             spdlog::info("Physical device supports presentation");
-    }
-
-    static bool CheckInstanceExtensionSupport(std::vector<const char *> *checkExtensions)
-    {
-        uint32_t extensionCount = 0;
-        vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-        std::vector<VkExtensionProperties> extensions(extensionCount);
-        vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
-
-        for (const auto &checkExtension : *checkExtensions)
-        {
-            bool hasExtension = false;
-            for (const auto &extension : extensions)
-            {
-                if (strcmp(checkExtension, extension.extensionName) == 0)
-                {
-                    hasExtension = true;
-                    break;
-                }
-            }
-            if (!hasExtension)
-                return (false);
-        }
-        return (true);
     }
 
     bool
@@ -112,8 +88,7 @@ namespace Figment
         const auto getGlfwExtensions = [](std::vector<const char *> &instanceExtensions)
         {
             uint32_t glfwExtensionCount = 0;
-            const char **glfwExtensions;
-            glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+            const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
             for (size_t i = 0; i < glfwExtensionCount; i++)
             {
                 instanceExtensions.emplace_back(glfwExtensions[i]);
@@ -160,7 +135,7 @@ namespace Figment
         spdlog::info("Vulkan instance created");
     }
 
-    void Figment::VulkanContext::createSurface()
+    void VulkanContext::createSurface()
     {
         CheckVkResult(glfwCreateWindowSurface(m_Instance, m_Window, nullptr, &m_Surface));
         spdlog::info("Vulkan surface created");
@@ -194,11 +169,16 @@ namespace Figment
             requiredExtensions.erase(extension.extensionName);
         }
 
+        for (const auto &extension : requiredExtensions)
+        {
+            spdlog::error("Required device extension {} not present", extension);
+        }
+
         return requiredExtensions.empty();
     }
 
     static VkPhysicalDeviceProperties
-    GetPhysicalDeviceProperties(const VkPhysicalDevice &physicalDevice)
+    getPhysicalDeviceProperties(const VkPhysicalDevice &physicalDevice)
     {
         VkPhysicalDeviceProperties properties;
         vkGetPhysicalDeviceProperties(physicalDevice, &properties);
@@ -215,13 +195,13 @@ namespace Figment
 
         for (const auto &dev : deviceList)
         {
-            VkPhysicalDeviceProperties properties = GetPhysicalDeviceProperties(dev);
+            VkPhysicalDeviceProperties properties = getPhysicalDeviceProperties(dev);
             spdlog::debug("Physical device found: {}", properties.deviceName);
         }
 
         for (const auto &dev : deviceList)
         {
-            VkPhysicalDeviceProperties properties = GetPhysicalDeviceProperties(dev);
+            VkPhysicalDeviceProperties properties = getPhysicalDeviceProperties(dev);
             // if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU &&
             //         properties.vendorID == 0x10DE) // NVIDIA
             // {
@@ -255,7 +235,11 @@ namespace Figment
         // const auto requiredExtensions = std::vector {
         //         VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME, VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME,
         //         VK_EXT_ROBUSTNESS_2_EXTENSION_NAME, };
-        const auto requiredExtensions = std::vector<const char*> {"VK_KHR_swapchain", "VK_KHR_portability_subset"};
+        const auto requiredExtensions = std::vector<const char*> {VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+#ifdef __APPLE__
+            "VK_KHR_portability_subset"
+#endif
+        };
 
         if (!checkDeviceExtensionsSupport(m_PhysicalDevice, requiredExtensions))
             throw std::runtime_error("Required device extensions are not supported!");
@@ -299,7 +283,7 @@ namespace Figment
         vkGetDeviceQueue(m_Device, m_GraphicsQueueIndex, 0, &m_GraphicsQueue);
     }
 
-    static VulkanContext::VulkanSurfaceDetails GetSurfaceDetails(VkPhysicalDevice device, VkSurfaceKHR surface)
+    static VulkanContext::VulkanSurfaceDetails getSurfaceDetails(VkPhysicalDevice device, VkSurfaceKHR surface)
     {
         VulkanContext::VulkanSurfaceDetails surfaceDetails;
 
@@ -324,9 +308,9 @@ namespace Figment
         return surfaceDetails;
     }
 
-    void Figment::VulkanContext::CreateSwapchain()
+    void VulkanContext::createSwapchain()
     {
-        m_SurfaceDetails = GetSurfaceDetails(m_PhysicalDevice, m_Surface);
+        m_SurfaceDetails = getSurfaceDetails(m_PhysicalDevice, m_Surface);
         m_Swapchain = new VulkanSwapchain(m_Device, {
                 .Surface = m_Surface,
                 .SurfaceFormat = m_SurfaceDetails.formats[0].format,
@@ -349,7 +333,7 @@ namespace Figment
         });
     }
 
-    void Figment::VulkanContext::CreatePipelineCache()
+    void VulkanContext::createPipelineCache()
     {
         VkPipelineCacheCreateInfo pipelineCacheCreateInfo = {};
         pipelineCacheCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
@@ -361,7 +345,7 @@ namespace Figment
         CheckVkResult(vkCreatePipelineCache(m_Device, &pipelineCacheCreateInfo, nullptr, &m_PipelineCache));
     }
 
-    VkDescriptorPool VulkanContext::CreateDescriptorPool(std::vector<VkDescriptorPoolSize> poolSizes,
+    VkDescriptorPool VulkanContext::createDescriptorPool(std::vector<VkDescriptorPoolSize> poolSizes,
             uint32_t maxSets) const
     {
         VkDescriptorPoolCreateInfo descriptorPoolCreateInfo = {};
@@ -377,7 +361,7 @@ namespace Figment
         return descriptorPool;
     }
 
-    VkCommandPool Figment::VulkanContext::CreateCommandPool() const
+    VkCommandPool VulkanContext::createCommandPool() const
     {
         VkCommandPool commandPool;
         VkCommandPoolCreateInfo poolInfo = {};
@@ -389,28 +373,28 @@ namespace Figment
         return commandPool;
     }
 
-    void VulkanContext::OnResize(uint32_t width, uint32_t height)
+    void VulkanContext::onResize(uint32_t width, uint32_t height)
     {
-        RecreateSwapchain();
+        recreateSwapchain();
     }
 
-    void VulkanContext::CleanupSwapchain()
+    void VulkanContext::cleanupSwapchain() const
     {
         vkDestroySwapchainKHR(m_Device, m_Swapchain->Get(), nullptr);
         delete m_Swapchain;
     }
 
-    void VulkanContext::RecreateSwapchain()
+    void VulkanContext::recreateSwapchain()
     {
         vkDeviceWaitIdle(m_Device);
 
-        CleanupSwapchain();
-        CreateSwapchain();
+        cleanupSwapchain();
+        createSwapchain();
 
         // vkResetCommandPool(m_Device, m_CommandPool, 0);
     }
 
-    VkCommandBuffer VulkanContext::BeginSingleTimeCommands() const
+    VkCommandBuffer VulkanContext::beginSingleTimeCommands() const
     {
         VkCommandBufferAllocateInfo allocInfo = {};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -430,7 +414,7 @@ namespace Figment
         return commandBuffer;
     }
 
-    void VulkanContext::EndSingleTimeCommands(VkCommandBuffer commandBuffer) const
+    void VulkanContext::endSingleTimeCommands(VkCommandBuffer commandBuffer) const
     {
         vkEndCommandBuffer(commandBuffer);
 
@@ -445,7 +429,7 @@ namespace Figment
         vkFreeCommandBuffers(m_Device, m_SingleTimeCommandPool, 1, &commandBuffer);
     }
 
-    void VulkanContext::Cleanup()
+    void VulkanContext::cleanup()
     {
         // std::vector<VkFence> fences;
         // fences.reserve(m_SynchronizationObjects.size());
@@ -457,7 +441,7 @@ namespace Figment
         m_DeletionQueue.Flush();
     }
 
-    uint32_t VulkanContext::FindMemoryTypeIndex(uint32_t allowedTypes, VkMemoryPropertyFlags properties) const
+    uint32_t VulkanContext::findMemoryTypeIndex(uint32_t allowedTypes, VkMemoryPropertyFlags properties) const
     {
         VkPhysicalDeviceMemoryProperties memoryProperties;
         vkGetPhysicalDeviceMemoryProperties(m_PhysicalDevice, &memoryProperties);
@@ -473,22 +457,22 @@ namespace Figment
         return (-1);
     }
 
-    uint32_t VulkanContext::GetSwapchainImageCount() const
+    uint32_t VulkanContext::getSwapchainImageCount() const
     {
         return m_Swapchain->GetImageCount();
     }
 
-    std::vector<VkImageView> VulkanContext::GetSwapchainImageViews() const
+    std::vector<VkImageView> VulkanContext::getSwapchainImageViews() const
     {
         return m_Swapchain->GetImageViews();
     }
 
-    VkExtent2D VulkanContext::GetSwapchainExtent() const
+    VkExtent2D VulkanContext::getSwapchainExtent() const
     {
         return m_Swapchain->GetExtent();
     }
 
-    VulkanSwapchain *VulkanContext::GetSwapchain() const
+    VulkanSwapchain *VulkanContext::getSwapchain() const
     {
         return m_Swapchain;
     }

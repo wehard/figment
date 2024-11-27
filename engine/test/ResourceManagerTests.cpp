@@ -9,7 +9,7 @@ struct MockRenderContext : public VulkanContext
 {
     MockRenderContext() : VulkanContext(nullptr) { }
     void Init(uint32_t width, uint32_t height) override { }
-    void OnResize(uint32_t width, uint32_t height) override { }
+    void onResize(uint32_t width, uint32_t height) override { }
 };
 
 TEST(ResourceManager, TestResourceManagerInitialization)

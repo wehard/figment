@@ -42,7 +42,7 @@ target_include_directories(editor
 target_sources(editor PRIVATE
         src/main.cpp
         src/EditorLayer.cpp
-        src/SceneRenderer.cpp
+#        src/SceneRenderer.cpp
 )
 
 #set_target_properties(editor PROPERTIES LINK_FLAGS "\

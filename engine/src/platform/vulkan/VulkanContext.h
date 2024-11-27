@@ -116,8 +116,8 @@ namespace Figment
             std::vector<VkPresentModeKHR> presentationModes;
         };
 
-        [[nodiscard]] VkExtent2D GetSwapchainExtent() const;
-        [[nodiscard]] VulkanSwapchain *GetSwapchain() const;
+        [[nodiscard]] VkExtent2D getSwapchainExtent() const;
+        [[nodiscard]] VulkanSwapchain *getSwapchain() const;
     public:
         explicit VulkanContext(GLFWwindow *window) : m_Window(window) { }
         ~VulkanContext() override;
@@ -128,18 +128,18 @@ namespace Figment
         [[nodiscard]] VkPhysicalDevice GetPhysicalDevice() const { return m_PhysicalDevice; }
         [[nodiscard]] VkQueue GetGraphicsQueue() const { return m_GraphicsQueue; }
         [[nodiscard]] VulkanSurfaceDetails SurfaceDetails() const { return m_SurfaceDetails; }
-        [[nodiscard]] VkDescriptorPool CreateDescriptorPool(std::vector<VkDescriptorPoolSize> poolSizes,
+        [[nodiscard]] VkDescriptorPool createDescriptorPool(std::vector<VkDescriptorPoolSize> poolSizes,
                 uint32_t maxSets) const;
-        [[nodiscard]] VkCommandPool CreateCommandPool() const;
-        [[nodiscard]] uint32_t GetSwapchainImageCount() const;
-        [[nodiscard]] std::vector<VkImageView> GetSwapchainImageViews() const;
+        [[nodiscard]] VkCommandPool createCommandPool() const;
+        [[nodiscard]] uint32_t getSwapchainImageCount() const;
+        [[nodiscard]] std::vector<VkImageView> getSwapchainImageViews() const;
 
-        void OnResize(uint32_t width, uint32_t height) override;
-        [[nodiscard]] VkCommandBuffer BeginSingleTimeCommands() const;
-        void EndSingleTimeCommands(VkCommandBuffer commandBuffer) const;
-        void Cleanup();
+        void onResize(uint32_t width, uint32_t height) override;
+        [[nodiscard]] VkCommandBuffer beginSingleTimeCommands() const;
+        void endSingleTimeCommands(VkCommandBuffer commandBuffer) const;
+        void cleanup();
 
-        [[nodiscard]] uint32_t FindMemoryTypeIndex(uint32_t allowedTypes, VkMemoryPropertyFlags properties) const;
+        [[nodiscard]] uint32_t findMemoryTypeIndex(uint32_t allowedTypes, VkMemoryPropertyFlags properties) const;
 
         struct Vertex
         {
@@ -168,10 +168,10 @@ namespace Figment
         void createInstance(const VkApplicationInfo &applicationInfo);
         void createSurface();
         void createDevice();
-        void CreateSwapchain();
-        void CreatePipelineCache();
+        void createSwapchain();
+        void createPipelineCache();
 
-        void CleanupSwapchain();
-        void RecreateSwapchain();
+        void cleanupSwapchain() const;
+        void recreateSwapchain();
     };
 }
