@@ -1,14 +1,13 @@
 #pragma once
 
 #include "context.h"
+#include "window.h"
 
 #include <imgui.h>
 #include <texture.h>
-#include "window.h"
 
 namespace figment::vulkan
 {
-
 class ImGuiRenderer
 {
 public:

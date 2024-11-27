@@ -2,12 +2,9 @@
 #include "utils.h"
 #include "window.h"
 
-#include <VulkanSwapchain.h>
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
-#include <FileUtils.h>
-#include <BaseWindow.h>
 
 namespace figment::vulkan
 {
@@ -108,7 +105,7 @@ void ImGuiRenderer::beginFrame()
     }
 
     {
-        constexpr VkClearValue colorClearValue = {.color = {0.0f, 0.0f, 0.0f, 0.0f}};
+        constexpr VkClearValue colorClearValue = {.color = {0.1f, 0.1f, 0.3f, 1.0f}};
 
         constexpr VkClearValue depthClearValue = {
             .depthStencil = {1.0f, 0},
@@ -134,7 +131,7 @@ void ImGuiRenderer::beginFrame()
         renderingInfo.sType              = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR;
         renderingInfo.renderArea         = {
                     .offset = {0, 0},
-                    .extent = window.surfaceCapabilities().currentExtent,
+                    .extent = {window.GetWidth(), window.GetHeight()},
         };
         renderingInfo.layerCount           = 1;
         renderingInfo.colorAttachmentCount = 1;
