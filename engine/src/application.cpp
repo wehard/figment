@@ -1,18 +1,18 @@
 #include "application.h"
 #include "Input.h"
 #include "RenderStats.h"
+
 #include <spdlog/spdlog.h>
+#include <window.h>
 
 namespace figment
 {
 Application::Application(const Descriptor&& descriptor):
-    m_Window(Window::Create(descriptor.Name, descriptor.Width, descriptor.Height)),
-    imguiRenderer(static_cast<GLFWwindow*>(m_Window->GetNative()),
-                  *m_Window->GetContext<vulkan::Context>())
+    window(descriptor.Name, descriptor.Width, descriptor.Height), imguiRenderer(window)
 {
-    Input::Initialize(static_cast<GLFWwindow*>(m_Window->GetNative()));
+    Input::Initialize(window.GetNative());
 
-    m_Window->SetResizeEventCallback(
+    window.SetResizeEventCallback(
         [this](Window::ResizeEventData eventData)
         {
             for (auto layer: m_LayerStack)
@@ -43,6 +43,7 @@ void Application::Update()
             continue;
         layer->OnUpdate(deltaTime);
     }
+    window.nextImage();
 
     imguiRenderer.beginFrame();
     for (auto layer: m_LayerStack)
@@ -52,6 +53,8 @@ void Application::Update()
         layer->OnImGuiRender();
     }
     imguiRenderer.endFrame();
+
+    window.present();
 
     glfwPollEvents();
 }
@@ -79,7 +82,7 @@ void Application::Start()
         layer->OnEnable();
     }
 
-    while (!m_Window->ShouldClose() && !Input::GetKey(GLFW_KEY_ESCAPE))
+    while (!window.ShouldClose() && !Input::GetKey(GLFW_KEY_ESCAPE))
     {
         Update();
     }

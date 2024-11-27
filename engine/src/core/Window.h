@@ -2,10 +2,12 @@
 
 #include "RenderContext.h"
 
-#include <GLFW/glfw3.h>
+// #include <GLFW/glfw3.h>
 #include <functional>
 #include <memory>
 #include <string>
+
+class GLFWwindow;
 
 namespace figment
 {
@@ -27,21 +29,21 @@ public:
 
     virtual ~Window() = default;
 
-    bool ShouldClose() { return glfwWindowShouldClose(window); }
+    bool ShouldClose() { return false; }
     [[nodiscard]] uint32_t GetWidth() const { return m_Width; };
     [[nodiscard]] uint32_t GetHeight() const { return m_Height; };
     [[nodiscard]] uint32_t GetFramebufferWidth() const { return m_FramebufferWidth; };
     [[nodiscard]] uint32_t GetFramebufferHeight() const { return m_FramebufferHeight; };
 
     void SetResizeEventCallback(ResizeEventCallbackFn callback) { ResizeEventCallback = callback; }
-    void* GetNative() { return window; }
+    [[nodiscard]] GLFWwindow* GetNative() const { return window; }
 
-    std::shared_ptr<RenderContext> GetContext() { return m_RenderContext; }
+    std::shared_ptr<RenderContext> GetContext() { return renderContext; }
 
     template<class T>
-    std::shared_ptr<T> GetContext()
+    std::shared_ptr<T> GetContext() const
     {
-        return std::static_pointer_cast<T>(m_RenderContext);
+        return std::static_pointer_cast<T>(renderContext);
     }
 
     ResizeEventCallbackFn ResizeEventCallback;
@@ -52,7 +54,7 @@ public:
         m_FramebufferWidth  = resizeData.FramebufferWidth;
         m_FramebufferHeight = resizeData.FramebufferHeight;
 
-        m_RenderContext->onResize(resizeData.Width, resizeData.Height);
+        renderContext->onResize(resizeData.Width, resizeData.Height);
 
         if (ResizeEventCallback != nullptr)
         {
@@ -66,12 +68,12 @@ protected:
     {
     }
 
-    GLFWwindow* window                             = nullptr;
-    std::shared_ptr<RenderContext> m_RenderContext = nullptr;
+    GLFWwindow* window                           = nullptr;
+    std::shared_ptr<RenderContext> renderContext = nullptr;
 
-    uint32_t m_Width                               = 0;
-    uint32_t m_Height                              = 0;
-    uint32_t m_FramebufferWidth                    = 0;
-    uint32_t m_FramebufferHeight                   = 0;
+    uint32_t m_Width                             = 0;
+    uint32_t m_Height                            = 0;
+    uint32_t m_FramebufferWidth                  = 0;
+    uint32_t m_FramebufferHeight                 = 0;
 };
 } // namespace figment

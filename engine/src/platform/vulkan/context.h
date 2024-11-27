@@ -25,8 +25,8 @@ public:
         std::vector<VkPresentModeKHR> presentationModes;
     };
 
-    [[nodiscard]] VkExtent2D getSwapchainExtent() const;
-    [[nodiscard]] VulkanSwapchain* getSwapchain() const;
+    // [[nodiscard]] VkExtent2D getSwapchainExtent() const;
+    // [[nodiscard]] VulkanSwapchain* getSwapchain() const;
 
 public:
     explicit Context(GLFWwindow* window): m_Window(window) {}
@@ -41,8 +41,8 @@ public:
     [[nodiscard]] VkDescriptorPool createDescriptorPool(std::vector<VkDescriptorPoolSize> poolSizes,
                                                         uint32_t maxSets) const;
     [[nodiscard]] VkCommandPool createCommandPool() const;
-    [[nodiscard]] uint32_t getSwapchainImageCount() const;
-    [[nodiscard]] std::vector<VkImageView> getSwapchainImageViews() const;
+    // [[nodiscard]] uint32_t getSwapchainImageCount() const;
+    // [[nodiscard]] std::vector<VkImageView> getSwapchainImageViews() const;
 
     void onResize(uint32_t width, uint32_t height) override;
     [[nodiscard]] VkCommandBuffer beginSingleTimeCommands() const;
@@ -66,8 +66,8 @@ private:
     VkInstance m_Instance             = VK_NULL_HANDLE;
     VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;
     VkDevice m_Device                 = VK_NULL_HANDLE;
-    VkSurfaceKHR m_Surface            = VK_NULL_HANDLE;
-    VulkanSwapchain* m_Swapchain      = nullptr;
+    // VkSurfaceKHR m_Surface            = VK_NULL_HANDLE;
+    // VulkanSwapchain* m_Swapchain      = nullptr;
 
     DeletionQueue m_DeletionQueue;
 
@@ -80,12 +80,12 @@ private:
     VkCommandPool m_SingleTimeCommandPool = VK_NULL_HANDLE;
 
     void createInstance(const VkApplicationInfo& applicationInfo);
-    void createSurface();
+    // void createSurface();
     void createDevice();
-    void createSwapchain();
+    // void createSwapchain();
     void createPipelineCache();
 
-    void cleanupSwapchain() const;
-    void recreateSwapchain();
+    // void cleanupSwapchain() const;
+    // void recreateSwapchain();
 };
 } // namespace figment::vulkan

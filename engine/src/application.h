@@ -6,6 +6,7 @@
 #include "imgui_renderer.h"
 
 #include <cstdint>
+#include <window.h>
 
 namespace figment
 {
@@ -24,10 +25,10 @@ public:
     void AddLayer(Layer* layer);
     void AddOverlay(Layer* overlay);
 
-    [[nodiscard]] const Window& GetWindow() const { return *m_Window; }
+    [[nodiscard]] const Window& GetWindow() const { return window; }
 
 private:
-    std::shared_ptr<Window> m_Window;
+    vulkan::Window window;
     vulkan::ImGuiRenderer imguiRenderer;
     LayerStack m_LayerStack;
     bool m_InputEnabled = true;

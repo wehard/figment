@@ -103,24 +103,24 @@ void Renderer::Shutdown()
 
 void Renderer::Begin(const Camera& camera)
 {
-    VkCommandBufferBeginInfo bufferBeginInfo  = {};
-    bufferBeginInfo.sType                     = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
-    VkRenderPassBeginInfo renderPassBeginInfo = {};
-    renderPassBeginInfo.sType                 = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassBeginInfo.renderPass            = m_OpaquePass->Get();
-    renderPassBeginInfo.renderArea.offset     = {0, 0};
-    renderPassBeginInfo.renderArea.extent     = m_Context.getSwapchainExtent();
-    VkClearValue clearValues[]                = {{0.1f, 0.1f, 0.1f, 1.0f}};
-    renderPassBeginInfo.pClearValues          = clearValues;
-    renderPassBeginInfo.clearValueCount       = 1;
-
-    renderPassBeginInfo.framebuffer           = m_Framebuffers[m_ImageIndex];
-
-    VkCommandBuffer commandBuffer             = m_CommandBuffers[m_FrameIndex];
-    checkVkResult(vkBeginCommandBuffer(commandBuffer, &bufferBeginInfo));
-
-    vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+    // VkCommandBufferBeginInfo bufferBeginInfo  = {};
+    // bufferBeginInfo.sType                     = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    //
+    // VkRenderPassBeginInfo renderPassBeginInfo = {};
+    // renderPassBeginInfo.sType                 = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    // renderPassBeginInfo.renderPass            = m_OpaquePass->Get();
+    // renderPassBeginInfo.renderArea.offset     = {0, 0};
+    // renderPassBeginInfo.renderArea.extent     = m_Context.getSwapchainExtent();
+    // VkClearValue clearValues[]                = {{0.1f, 0.1f, 0.1f, 1.0f}};
+    // renderPassBeginInfo.pClearValues          = clearValues;
+    // renderPassBeginInfo.clearValueCount       = 1;
+    //
+    // renderPassBeginInfo.framebuffer           = m_Framebuffers[m_ImageIndex];
+    //
+    // VkCommandBuffer commandBuffer             = m_CommandBuffers[m_FrameIndex];
+    // checkVkResult(vkBeginCommandBuffer(commandBuffer, &bufferBeginInfo));
+    //
+    // vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 }
 
 void Renderer::Draw(Buffer& buffer, glm::mat4 transform, Camera& camera)
@@ -171,17 +171,17 @@ void Renderer::OnResize(uint32_t width, uint32_t height)
 
 void Renderer::CreateRenderPass()
 {
-    m_OpaquePass = std::make_unique<VulkanRenderPass>(
-        m_Context,
-        VulkanRenderPass::RenderPassDescriptor{
-            .ColorAttachment = {.Format         = m_Context.getSwapchain()->GetFormat(),
-                                .Samples        = VK_SAMPLE_COUNT_1_BIT,
-                                .LoadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR,
-                                .StoreOp        = VK_ATTACHMENT_STORE_OP_STORE,
-                                .StencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-                                .StencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-                                .InitialLayout  = VK_IMAGE_LAYOUT_UNDEFINED,
-                                .FinalLayout    = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL}});
+    // m_OpaquePass = std::make_unique<VulkanRenderPass>(
+    //     m_Context,
+    //     VulkanRenderPass::RenderPassDescriptor{
+    //         .ColorAttachment = {.Format         = m_Context.getSwapchain()->GetFormat(),
+    //                             .Samples        = VK_SAMPLE_COUNT_1_BIT,
+    //                             .LoadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR,
+    //                             .StoreOp        = VK_ATTACHMENT_STORE_OP_STORE,
+    //                             .StencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+    //                             .StencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+    //                             .InitialLayout  = VK_IMAGE_LAYOUT_UNDEFINED,
+    //                             .FinalLayout    = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL}});
 }
 
 void Renderer::CreatePipeline()
@@ -220,23 +220,23 @@ void Renderer::CreatePipeline()
 
 void Renderer::CreateFramebuffers()
 {
-    m_Framebuffers.resize(m_Context.getSwapchainImageCount());
-    for (size_t i = 0; i < m_Framebuffers.size(); i++)
-    {
-        std::array<VkImageView, 1> attachments        = {m_Context.getSwapchainImageViews()[i]};
-
-        VkFramebufferCreateInfo framebufferCreateInfo = {};
-        framebufferCreateInfo.sType                   = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        framebufferCreateInfo.renderPass              = m_OpaquePass->Get();
-        framebufferCreateInfo.attachmentCount         = static_cast<uint32_t>(attachments.size());
-        framebufferCreateInfo.pAttachments            = attachments.data();
-        framebufferCreateInfo.width                   = m_Context.getSwapchainExtent().width;
-        framebufferCreateInfo.height                  = m_Context.getSwapchainExtent().height;
-        framebufferCreateInfo.layers                  = 1;
-
-        checkVkResult(vkCreateFramebuffer(m_Context.GetDevice(), &framebufferCreateInfo, nullptr,
-                                          &m_Framebuffers[i]));
-    }
+    // m_Framebuffers.resize(m_Context.getSwapchainImageCount());
+    // for (size_t i = 0; i < m_Framebuffers.size(); i++)
+    // {
+    //     std::array<VkImageView, 1> attachments        = {m_Context.getSwapchainImageViews()[i]};
+    //
+    //     VkFramebufferCreateInfo framebufferCreateInfo = {};
+    //     framebufferCreateInfo.sType                   =
+    //     VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO; framebufferCreateInfo.renderPass =
+    //     m_OpaquePass->Get(); framebufferCreateInfo.attachmentCount         =
+    //     static_cast<uint32_t>(attachments.size()); framebufferCreateInfo.pAttachments =
+    //     attachments.data(); framebufferCreateInfo.width                   =
+    //     m_Context.getSwapchainExtent().width; framebufferCreateInfo.height                  =
+    //     m_Context.getSwapchainExtent().height; framebufferCreateInfo.layers                  = 1;
+    //
+    //     checkVkResult(vkCreateFramebuffer(m_Context.GetDevice(), &framebufferCreateInfo, nullptr,
+    //                                       &m_Framebuffers[i]));
+    // }
 }
 
 void Renderer::CreateGuiRenderPass()
@@ -258,23 +258,23 @@ void Renderer::CreateGuiPipeline() {}
 
 void Renderer::CreateGuiFramebuffers()
 {
-    m_GuiFramebuffers.resize(m_Context.getSwapchainImageCount());
-    for (size_t i = 0; i < m_GuiFramebuffers.size(); i++)
-    {
-        std::array<VkImageView, 1> attachments        = {m_Context.getSwapchainImageViews()[i]};
-
-        VkFramebufferCreateInfo framebufferCreateInfo = {};
-        framebufferCreateInfo.sType                   = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        framebufferCreateInfo.renderPass              = m_GuiPass->Get();
-        framebufferCreateInfo.attachmentCount         = static_cast<uint32_t>(attachments.size());
-        framebufferCreateInfo.pAttachments            = attachments.data();
-        framebufferCreateInfo.width                   = m_Context.getSwapchainExtent().width;
-        framebufferCreateInfo.height                  = m_Context.getSwapchainExtent().height;
-        framebufferCreateInfo.layers                  = 1;
-
-        checkVkResult(vkCreateFramebuffer(m_Context.GetDevice(), &framebufferCreateInfo, nullptr,
-                                          &m_GuiFramebuffers[i]));
-    }
+    // m_GuiFramebuffers.resize(m_Context.getSwapchainImageCount());
+    // for (size_t i = 0; i < m_GuiFramebuffers.size(); i++)
+    // {
+    //     std::array<VkImageView, 1> attachments        = {m_Context.getSwapchainImageViews()[i]};
+    //
+    //     VkFramebufferCreateInfo framebufferCreateInfo = {};
+    //     framebufferCreateInfo.sType                   =
+    //     VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO; framebufferCreateInfo.renderPass =
+    //     m_GuiPass->Get(); framebufferCreateInfo.attachmentCount         =
+    //     static_cast<uint32_t>(attachments.size()); framebufferCreateInfo.pAttachments =
+    //     attachments.data(); framebufferCreateInfo.width                   =
+    //     m_Context.getSwapchainExtent().width; framebufferCreateInfo.height                  =
+    //     m_Context.getSwapchainExtent().height; framebufferCreateInfo.layers                  = 1;
+    //
+    //     checkVkResult(vkCreateFramebuffer(m_Context.GetDevice(), &framebufferCreateInfo, nullptr,
+    //                                       &m_GuiFramebuffers[i]));
+    // }
 }
 
 void Renderer::CreateGlobalUniformBuffers()
@@ -334,8 +334,8 @@ void Renderer::BeginFrame()
     checkVkResult(
         vkResetFences(m_Context.GetDevice(), 1, &m_SynchronizationObjects[m_FrameIndex].FenceDraw));
 
-    m_ImageIndex = m_Context.getSwapchain()->GetNextImageIndex(
-        m_SynchronizationObjects[m_FrameIndex].SemaphoreImageAvailable);
+    // m_ImageIndex = m_Context.getSwapchain()->GetNextImageIndex(
+    //     m_SynchronizationObjects[m_FrameIndex].SemaphoreImageAvailable);
 }
 
 void Renderer::EndFrame()
@@ -364,8 +364,8 @@ void Renderer::EndFrame()
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores = &m_SynchronizationObjects[m_FrameIndex].SemaphoreRenderFinished;
     presentInfo.swapchainCount  = 1;
-    auto swapChain              = m_Context.getSwapchain()->Get();
-    presentInfo.pSwapchains     = &swapChain;
+    // auto swapChain              = m_Context.getSwapchain()->Get();
+    // presentInfo.pSwapchains     = &swapChain;
     presentInfo.pImageIndices   = &m_ImageIndex;
 
     checkVkResult(vkQueuePresentKHR(m_Context.GetGraphicsQueue(), &presentInfo));
@@ -468,15 +468,15 @@ void Renderer::BeginGuiPass()
     }
 
     {
-        VkRenderPassBeginInfo renderPassBeginInfo    = {};
-        renderPassBeginInfo.sType                    = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassBeginInfo.renderPass               = GetGuiRenderPass();
-        renderPassBeginInfo.framebuffer              = GetCurrentGuiFramebuffer();
-        renderPassBeginInfo.renderArea.extent.width  = m_Context.getSwapchainExtent().width;
-        renderPassBeginInfo.renderArea.extent.height = m_Context.getSwapchainExtent().height;
-        VkClearValue clearValues[]                   = {{0.1f, 0.1f, 0.1f, 1.0f}};
-        renderPassBeginInfo.pClearValues             = clearValues;
-        renderPassBeginInfo.clearValueCount          = 1;
+        VkRenderPassBeginInfo renderPassBeginInfo = {};
+        renderPassBeginInfo.sType                 = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderPassBeginInfo.renderPass            = GetGuiRenderPass();
+        renderPassBeginInfo.framebuffer           = GetCurrentGuiFramebuffer();
+        // renderPassBeginInfo.renderArea.extent.width  = m_Context.getSwapchainExtent().width;
+        // renderPassBeginInfo.renderArea.extent.height = m_Context.getSwapchainExtent().height;
+        VkClearValue clearValues[]                = {{0.1f, 0.1f, 0.1f, 1.0f}};
+        renderPassBeginInfo.pClearValues          = clearValues;
+        renderPassBeginInfo.clearValueCount       = 1;
         vkCmdBeginRenderPass(GetGuiCommandBuffer(), &renderPassBeginInfo,
                              VK_SUBPASS_CONTENTS_INLINE);
     }
