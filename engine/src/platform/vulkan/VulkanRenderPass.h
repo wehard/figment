@@ -1,7 +1,7 @@
 #pragma once
-#include "VulkanContext.h"
+#include "context.h"
 
-namespace figment
+namespace figment::vulkan
 {
 class VulkanRenderPass
 {
@@ -24,14 +24,14 @@ public:
     };
 
     VulkanRenderPass() = delete;
-    VulkanRenderPass(const VulkanContext& context, const RenderPassDescriptor&& descriptor);
+    VulkanRenderPass(const Context& context, const RenderPassDescriptor&& descriptor);
     ~VulkanRenderPass();
 
     [[nodiscard]] VkRenderPass Get() const { return m_RenderPass; }
 
 private:
-    const VulkanContext& m_Context;
+    const Context& m_Context;
     VkRenderPass m_RenderPass = VK_NULL_HANDLE;
 };
 
-} // namespace figment
+} // namespace figment::vulkan

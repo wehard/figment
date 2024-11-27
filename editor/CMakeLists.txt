@@ -24,25 +24,25 @@ endif ()
 target_include_directories(editor
         PRIVATE
         src
-#        ../engine/src
-#        ../engine/src/core
-#        ../engine/src/scene
-#        ../engine/src/debug
-#        ../engine/src/scene/components
-#        ../engine/src/physics
-#        ../engine/src/renderer
-#        ../engine/src/platform/webgpu
-#        ../engine/lib
-#        ../engine/lib/entt
-#        ../engine/lib/imgui
-#        ../engine/lib/imgui/backends
-#        ../engine/lib/glm
+        #        ../engine/src
+        #        ../engine/src/core
+        #        ../engine/src/scene
+        #        ../engine/src/debug
+        #        ../engine/src/scene/components
+        #        ../engine/src/physics
+        #        ../engine/src/renderer
+        #        ../engine/src/platform/webgpu
+        #        ../engine/lib
+        #        ../engine/lib/entt
+        #        ../engine/lib/imgui
+        #        ../engine/lib/imgui/backends
+        #        ../engine/lib/glm
 )
 
 target_sources(editor PRIVATE
         src/main.cpp
-        src/EditorLayer.cpp
-#        src/SceneRenderer.cpp
+        src/editor_layer.cpp
+        #        src/SceneRenderer.cpp
 )
 
 #set_target_properties(editor PROPERTIES LINK_FLAGS "\

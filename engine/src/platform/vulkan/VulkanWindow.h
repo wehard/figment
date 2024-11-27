@@ -3,7 +3,7 @@
 #include "RenderContext.h"
 #include "Window.h"
 
-namespace figment
+namespace figment::vulkan
 {
 class VulkanWindow: public Window
 {
@@ -12,4 +12,4 @@ public:
 
 private:
 };
-} // namespace figment
+} // namespace figment::vulkan

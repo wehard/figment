@@ -1,8 +1,9 @@
 #include "VulkanShader.h"
+#include "utils.h"
 
 #include <fstream>
 
-namespace figment
+namespace figment::vulkan
 {
 static std::vector<char> ReadFile(const std::string& filename)
 {
@@ -29,7 +30,7 @@ static VkShaderModule CreateShaderModule(const VkDevice& device, const std::vect
     return (shaderModule);
 }
 
-VulkanShader::VulkanShader(const VulkanContext& vkContext, const std::string& vertexPath,
+VulkanShader::VulkanShader(const Context& vkContext, const std::string& vertexPath,
                            const std::string& fragmentPath):
     m_Context(vkContext)
 {
@@ -45,4 +46,4 @@ VulkanShader::~VulkanShader()
     vkDestroyShaderModule(m_Context.GetDevice(), m_VertexModule, nullptr);
     vkDestroyShaderModule(m_Context.GetDevice(), m_FragmentModule, nullptr);
 }
-} // namespace figment
+} // namespace figment::vulkan

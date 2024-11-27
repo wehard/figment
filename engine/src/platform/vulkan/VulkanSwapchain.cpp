@@ -1,6 +1,7 @@
 #include "VulkanSwapchain.h"
+#include "utils.h"
 
-namespace figment
+namespace figment::vulkan
 {
 static VkImageView CreateVkImageView(VkDevice device, VkImage image, VkFormat format,
                                      VkImageAspectFlags aspectFlags)
@@ -67,4 +68,4 @@ uint32_t VulkanSwapchain::GetNextImageIndex(VkSemaphore presentSemaphore)
                                         presentSemaphore, VK_NULL_HANDLE, &imageIndex));
     return imageIndex;
 }
-} // namespace figment
+} // namespace figment::vulkan

@@ -27,7 +27,7 @@ target_include_directories(engine PUBLIC
 )
 
 target_sources(engine PRIVATE
-        src/Application.cpp
+        src/application.cpp
         src/core/FPSCounter.cpp
         src/renderer/OrthographicCamera.cpp
         src/renderer/RenderStats.cpp

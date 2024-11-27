@@ -1,8 +1,10 @@
 #include "VulkanRenderPass.h"
 
-namespace figment
+#include <utils.h>
+
+namespace figment::vulkan
 {
-VulkanRenderPass::VulkanRenderPass(const VulkanContext& context,
+VulkanRenderPass::VulkanRenderPass(const Context& context,
                                    const VulkanRenderPass::RenderPassDescriptor&& descriptor):
     m_Context(context)
 {
@@ -66,4 +68,4 @@ VulkanRenderPass::VulkanRenderPass(const VulkanContext& context,
 }
 
 VulkanRenderPass::~VulkanRenderPass() {}
-} // namespace Figment
+} // namespace figment::vulkan

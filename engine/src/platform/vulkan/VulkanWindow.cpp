@@ -1,9 +1,9 @@
 #include "VulkanWindow.h"
 #include "FigmentAssert.h"
-#include "VulkanContext.h"
+#include "context.h"
 #include <spdlog/spdlog.h>
 
-namespace figment
+namespace figment::vulkan
 {
 static void glfwFramebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
@@ -12,7 +12,7 @@ static void glfwFramebufferSizeCallback(GLFWwindow* window, int width, int heigh
         {.Width = width, .Height = height, .FramebufferWidth = width, .FramebufferHeight = height});
 }
 
-figment::VulkanWindow::VulkanWindow(const std::string& title, uint32_t width, uint32_t height):
+VulkanWindow::VulkanWindow(const std::string& title, uint32_t width, uint32_t height):
     Window(title, width, height)
 {
     if (!glfwInit())
@@ -48,7 +48,7 @@ figment::VulkanWindow::VulkanWindow(const std::string& title, uint32_t width, ui
     glfwSetFramebufferSizeCallback(m_Window, glfwFramebufferSizeCallback);
     glfwSetWindowUserPointer(m_Window, this);
 
-    m_RenderContext = std::make_shared<VulkanContext>(m_Window);
+    m_RenderContext = std::make_shared<Context>(m_Window);
     m_RenderContext->Init(m_Width, m_Height);
 
     // Create vulkan surface
@@ -56,4 +56,4 @@ figment::VulkanWindow::VulkanWindow(const std::string& title, uint32_t width, ui
 
     spdlog::info("Vulkan window created");
 }
-} // namespace figment
+} // namespace figment::vulkan

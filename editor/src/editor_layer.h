@@ -5,7 +5,7 @@
 #include "Window.h"
 // #include "SceneRenderer.h"
 #include "Entity.h"
-#include "Renderer.h"
+#include "renderer.h"
 #include <string>
 
 namespace figment

@@ -1,11 +1,12 @@
-#include "Renderer.h"
+#include "renderer.h"
 #include "VulkanSwapchain.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
+#include "utils.h"
 
 namespace figment::vulkan
 {
-Renderer::Renderer(const VulkanContext& context):
+Renderer::Renderer(const Context& context):
     m_Context(context), m_ResourceManager(context, {.Buffers = 128})
 {
     m_Shader =
@@ -122,10 +123,10 @@ void Renderer::Begin(const Camera& camera)
     vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 }
 
-void Renderer::Draw(VulkanBuffer& buffer, glm::mat4 transform, Camera& camera)
+void Renderer::Draw(Buffer& buffer, glm::mat4 transform, Camera& camera)
 {
     VkCommandBuffer commandBuffer = m_CommandBuffers[m_FrameIndex];
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_OpaquePipeline->Get());
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_OpaquePipeline->vkPipeline);
 
     GlobalUniformData ubo = {
         .Model      = transform,
@@ -133,20 +134,20 @@ void Renderer::Draw(VulkanBuffer& buffer, glm::mat4 transform, Camera& camera)
         .Projection = camera.GetProjectionMatrix(),
     };
     // m_UBO.Projection[1][1] *= -1;
-    m_GlobalUniformBuffers[m_FrameIndex]->SetData(&ubo, sizeof(GlobalUniformData));
+    // m_GlobalUniformBuffers[m_FrameIndex]->SetData(&ubo, sizeof(GlobalUniformData));
 
-    VkBuffer buffers[]     = {buffer.Get()};
+    VkBuffer buffers[]     = {buffer.vkBuffer};
     VkDeviceSize offsets[] = {0};
     vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
 
     vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                            m_OpaquePipeline->GetLayout(), 0, 1, m_BindGroups[m_FrameIndex]->Get(),
-                            0, nullptr);
+                            m_OpaquePipeline->layout.vkLayout, 0, 1,
+                            m_BindGroups[m_FrameIndex]->Get(), 0, nullptr);
 
     PushConstantData pushConstantData = {.Model = transform};
 
-    vkCmdPushConstants(commandBuffer, m_OpaquePipeline->GetLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0,
-                       sizeof(PushConstantData), &pushConstantData);
+    vkCmdPushConstants(commandBuffer, m_OpaquePipeline->layout.vkLayout, VK_SHADER_STAGE_VERTEX_BIT,
+                       0, sizeof(PushConstantData), &pushConstantData);
 
     vkCmdDraw(commandBuffer, 6, 1, 0, 0);
 }
@@ -185,34 +186,36 @@ void Renderer::CreateRenderPass()
 
 void Renderer::CreatePipeline()
 {
-    m_OpaquePipeline = std::make_unique<VulkanPipeline>(
-        m_Context,
-        VulkanPipeline::PipelineDescriptor{
-            .ViewportWidth               = m_Context.getSwapchainExtent().width,
-            .ViewportHeight              = m_Context.getSwapchainExtent().height,
-            .VertexInput                 = {.Binding    = 0,
-                                            .Stride     = sizeof(Vertex),
-                                            .InputRate  = VK_VERTEX_INPUT_RATE_VERTEX,
-                                            .Attributes = {{.location = 0,
-                                                            .binding  = 0,
-                                                            .format   = VK_FORMAT_R32G32B32_SFLOAT,
-                                                            .offset   = offsetof(Vertex, Position)},
-                                                           {.location = 1,
-                                                            .binding  = 0,
-                                                            .format   = VK_FORMAT_R32G32B32_SFLOAT,
-                                                            .offset   = offsetof(Vertex, Color)}}},
-            .RenderPass                  = m_OpaquePass->Get(),
-            .VertexModule                = m_Shader->GetVertexModule(),
-            .FragmentModule              = m_Shader->GetFragmentModule(),
-            .DescriptorSetLayoutBindings = {{.binding         = 0,
-                                             .descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                                             .descriptorCount = 1,
-                                             .stageFlags      = VK_SHADER_STAGE_VERTEX_BIT,
-                                             .pImmutableSamplers = nullptr}},
-            .PushConstantStageFlags      = VK_SHADER_STAGE_VERTEX_BIT,
-            .PushConstantOffset          = 0,
-            .PushConstantSize            = sizeof(PushConstantData),
-        });
+    // m_OpaquePipeline = std::make_unique<Pipeline>(
+    //     m_Context,
+    //     VulkanPipeline::PipelineDescriptor{
+    //         .ViewportWidth               = m_Context.getSwapchainExtent().width,
+    //         .ViewportHeight              = m_Context.getSwapchainExtent().height,
+    //         .VertexInput                 = {.Binding    = 0,
+    //                                         .Stride     = sizeof(Vertex),
+    //                                         .InputRate  = VK_VERTEX_INPUT_RATE_VERTEX,
+    //                                         .Attributes = {{.location = 0,
+    //                                                         .binding  = 0,
+    //                                                         .format   =
+    //                                                         VK_FORMAT_R32G32B32_SFLOAT, .offset
+    //                                                         = offsetof(Vertex, Position)},
+    //                                                        {.location = 1,
+    //                                                         .binding  = 0,
+    //                                                         .format   =
+    //                                                         VK_FORMAT_R32G32B32_SFLOAT, .offset
+    //                                                         = offsetof(Vertex, Color)}}},
+    //         .RenderPass                  = m_OpaquePass->Get(),
+    //         .VertexModule                = m_Shader->GetVertexModule(),
+    //         .FragmentModule              = m_Shader->GetFragmentModule(),
+    //         .DescriptorSetLayoutBindings = {{.binding         = 0,
+    //                                          .descriptorType  =
+    //                                          VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, .descriptorCount
+    //                                          = 1, .stageFlags      = VK_SHADER_STAGE_VERTEX_BIT,
+    //                                          .pImmutableSamplers = nullptr}},
+    //         .PushConstantStageFlags      = VK_SHADER_STAGE_VERTEX_BIT,
+    //         .PushConstantOffset          = 0,
+    //         .PushConstantSize            = sizeof(PushConstantData),
+    //     });
 }
 
 void Renderer::CreateFramebuffers()
@@ -283,13 +286,14 @@ void Renderer::CreateGlobalUniformBuffers()
 
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
     {
-        m_GlobalUniformBuffers[i] =
-            new VulkanBuffer(m_Context, {.Name             = "UniformBuffer",
-                                         .Data             = &uniformData,
-                                         .ByteSize         = sizeof(GlobalUniformData),
-                                         .Usage            = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                                         .MemoryProperties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                                                             VK_MEMORY_PROPERTY_HOST_COHERENT_BIT});
+        // m_GlobalUniformBuffers[i] =
+        //     new VulkanBuffer(m_Context, {.Name             = "UniformBuffer",
+        //                                  .Data             = &uniformData,
+        //                                  .ByteSize         = sizeof(GlobalUniformData),
+        //                                  .Usage            = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+        //                                  .MemoryProperties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
+        //                                  |
+        //                                                      VK_MEMORY_PROPERTY_HOST_COHERENT_BIT});
     }
 }
 
@@ -299,11 +303,11 @@ void Renderer::CreateDescriptorSets()
 
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
     {
-        m_BindGroups[i] = new VulkanBindGroup(
+        m_BindGroups[i] = new BindGroup(
             m_Context,
-            VulkanBindGroup::BindGroupDescriptor{
+            BindGroup::BindGroupDescriptor{
                 .DescriptorPool = m_DescriptorPool,
-                .Bindings       = {VulkanBindGroup::BindingDescriptor{
+                .Bindings       = {BindGroup::BindingDescriptor{
                           .DescriptorSetLayoutBinding = {.binding = 0,
                                                          .descriptorType =
                                                              VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,

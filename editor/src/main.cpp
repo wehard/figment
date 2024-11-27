@@ -1,9 +1,9 @@
-#include "Application.h"
-#include "EditorLayer.h"
+#include "application.h"
+#include "editor_layer.h"
 
+#include "Input.h"
 #include <cstdio>
 #include <string>
-#include "Input.h"
 
 // #include "WebGPUWindow.h"
 // #include <emscripten.h>
@@ -158,7 +158,7 @@ int main(int argc, char **argv)
 int main()
 {
     Application app({.Name = "Figment Editor", .Width = 1280, .Height = 720});
-    auto window = app.GetWindow();
+    auto window      = app.GetWindow();
     auto editorLayer = EditorLayer(window);
     app.AddLayer(&editorLayer);
     app.Start();

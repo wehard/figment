@@ -1,14 +1,14 @@
 #pragma once
 
-#include "VulkanContext.h"
+#include "context.h"
 #include <string>
 
-namespace figment
+namespace figment::vulkan
 {
 class VulkanShader
 {
 public:
-    VulkanShader(const VulkanContext& vkContext, const std::string& vertexPath,
+    VulkanShader(const Context& vkContext, const std::string& vertexPath,
                  const std::string& fragmentPath);
     ~VulkanShader();
 
@@ -16,8 +16,8 @@ public:
     [[nodiscard]] VkShaderModule GetFragmentModule() const { return m_FragmentModule; }
 
 private:
-    const VulkanContext& m_Context;
+    const Context& m_Context;
     VkShaderModule m_VertexModule;
     VkShaderModule m_FragmentModule;
 };
-} // namespace figment
+} // namespace figment::vulkan

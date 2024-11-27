@@ -1,15 +1,16 @@
-#include "VulkanContext.h"
+#include "context.h"
 #include "VulkanSwapchain.h"
+#include "utils.h"
 
 #include <set>
 #include <spdlog/spdlog.h>
 #include <vector>
 
-namespace figment
+namespace figment::vulkan
 {
-VulkanContext::~VulkanContext() {}
+Context::~Context() {}
 
-void VulkanContext::Init(uint32_t width, uint32_t height)
+void Context::Init(uint32_t width, uint32_t height)
 {
     spdlog::set_level(spdlog::level::debug);
     VkApplicationInfo applicationInfo  = {};
@@ -75,7 +76,7 @@ bool checkValidationLayerSupport(const std::vector<const char*>& requestedLayers
     return requiredLayers.empty();
 }
 
-void VulkanContext::createInstance(const VkApplicationInfo& applicationInfo)
+void Context::createInstance(const VkApplicationInfo& applicationInfo)
 {
     const auto getGlfwExtensions = [](std::vector<const char*>& instanceExtensions)
     {
@@ -127,7 +128,7 @@ void VulkanContext::createInstance(const VkApplicationInfo& applicationInfo)
     spdlog::info("Vulkan instance created");
 }
 
-void VulkanContext::createSurface()
+void Context::createSurface()
 {
     checkVkResult(glfwCreateWindowSurface(m_Instance, m_Window, nullptr, &m_Surface));
     spdlog::info("Vulkan surface created");
@@ -176,7 +177,7 @@ getPhysicalDeviceProperties(const VkPhysicalDevice& physicalDevice)
     return properties;
 }
 
-void VulkanContext::createDevice()
+void Context::createDevice()
 {
     uint32_t deviceCount = 0;
     checkVkResult(vkEnumeratePhysicalDevices(m_Instance, &deviceCount, nullptr));
@@ -274,10 +275,10 @@ void VulkanContext::createDevice()
     vkGetDeviceQueue(m_Device, m_GraphicsQueueIndex, 0, &m_GraphicsQueue);
 }
 
-static VulkanContext::VulkanSurfaceDetails getSurfaceDetails(VkPhysicalDevice device,
-                                                             VkSurfaceKHR surface)
+static Context::VulkanSurfaceDetails getSurfaceDetails(VkPhysicalDevice device,
+                                                       VkSurfaceKHR surface)
 {
-    VulkanContext::VulkanSurfaceDetails surfaceDetails;
+    Context::VulkanSurfaceDetails surfaceDetails;
 
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &surfaceDetails.surfaceCapabilities);
 
@@ -301,7 +302,7 @@ static VulkanContext::VulkanSurfaceDetails getSurfaceDetails(VkPhysicalDevice de
     return surfaceDetails;
 }
 
-void VulkanContext::createSwapchain()
+void Context::createSwapchain()
 {
     m_SurfaceDetails = getSurfaceDetails(m_PhysicalDevice, m_Surface);
     m_Swapchain      = new VulkanSwapchain(
@@ -328,7 +329,7 @@ void VulkanContext::createSwapchain()
         });
 }
 
-void VulkanContext::createPipelineCache()
+void Context::createPipelineCache()
 {
     VkPipelineCacheCreateInfo pipelineCacheCreateInfo = {};
     pipelineCacheCreateInfo.sType           = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
@@ -341,8 +342,8 @@ void VulkanContext::createPipelineCache()
         vkCreatePipelineCache(m_Device, &pipelineCacheCreateInfo, nullptr, &m_PipelineCache));
 }
 
-VkDescriptorPool VulkanContext::createDescriptorPool(std::vector<VkDescriptorPoolSize> poolSizes,
-                                                     uint32_t maxSets) const
+VkDescriptorPool Context::createDescriptorPool(std::vector<VkDescriptorPoolSize> poolSizes,
+                                               uint32_t maxSets) const
 {
     VkDescriptorPoolCreateInfo descriptorPoolCreateInfo = {};
     descriptorPoolCreateInfo.sType         = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -358,7 +359,7 @@ VkDescriptorPool VulkanContext::createDescriptorPool(std::vector<VkDescriptorPoo
     return descriptorPool;
 }
 
-VkCommandPool VulkanContext::createCommandPool() const
+VkCommandPool Context::createCommandPool() const
 {
     VkCommandPool commandPool;
     VkCommandPoolCreateInfo poolInfo = {};
@@ -370,18 +371,18 @@ VkCommandPool VulkanContext::createCommandPool() const
     return commandPool;
 }
 
-void VulkanContext::onResize(uint32_t width, uint32_t height)
+void Context::onResize(uint32_t width, uint32_t height)
 {
     recreateSwapchain();
 }
 
-void VulkanContext::cleanupSwapchain() const
+void Context::cleanupSwapchain() const
 {
     vkDestroySwapchainKHR(m_Device, m_Swapchain->Get(), nullptr);
     delete m_Swapchain;
 }
 
-void VulkanContext::recreateSwapchain()
+void Context::recreateSwapchain()
 {
     vkDeviceWaitIdle(m_Device);
 
@@ -391,7 +392,7 @@ void VulkanContext::recreateSwapchain()
     // vkResetCommandPool(m_Device, m_CommandPool, 0);
 }
 
-VkCommandBuffer VulkanContext::beginSingleTimeCommands() const
+VkCommandBuffer Context::beginSingleTimeCommands() const
 {
     VkCommandBufferAllocateInfo allocInfo = {};
     allocInfo.sType                       = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -411,7 +412,7 @@ VkCommandBuffer VulkanContext::beginSingleTimeCommands() const
     return commandBuffer;
 }
 
-void VulkanContext::endSingleTimeCommands(VkCommandBuffer commandBuffer) const
+void Context::endSingleTimeCommands(VkCommandBuffer commandBuffer) const
 {
     vkEndCommandBuffer(commandBuffer);
 
@@ -426,7 +427,7 @@ void VulkanContext::endSingleTimeCommands(VkCommandBuffer commandBuffer) const
     vkFreeCommandBuffers(m_Device, m_SingleTimeCommandPool, 1, &commandBuffer);
 }
 
-void VulkanContext::cleanup()
+void Context::cleanup()
 {
     // std::vector<VkFence> fences;
     // fences.reserve(m_SynchronizationObjects.size());
@@ -439,8 +440,7 @@ void VulkanContext::cleanup()
     m_DeletionQueue.Flush();
 }
 
-uint32_t VulkanContext::findMemoryTypeIndex(uint32_t allowedTypes,
-                                            VkMemoryPropertyFlags properties) const
+uint32_t Context::findMemoryTypeIndex(uint32_t allowedTypes, VkMemoryPropertyFlags properties) const
 {
     VkPhysicalDeviceMemoryProperties memoryProperties;
     vkGetPhysicalDeviceMemoryProperties(m_PhysicalDevice, &memoryProperties);
@@ -457,23 +457,23 @@ uint32_t VulkanContext::findMemoryTypeIndex(uint32_t allowedTypes,
     return (-1);
 }
 
-uint32_t VulkanContext::getSwapchainImageCount() const
+uint32_t Context::getSwapchainImageCount() const
 {
     return m_Swapchain->GetImageCount();
 }
 
-std::vector<VkImageView> VulkanContext::getSwapchainImageViews() const
+std::vector<VkImageView> Context::getSwapchainImageViews() const
 {
     return m_Swapchain->GetImageViews();
 }
 
-VkExtent2D VulkanContext::getSwapchainExtent() const
+VkExtent2D Context::getSwapchainExtent() const
 {
     return m_Swapchain->GetExtent();
 }
 
-VulkanSwapchain* VulkanContext::getSwapchain() const
+VulkanSwapchain* Context::getSwapchain() const
 {
     return m_Swapchain;
 }
-} // namespace figment
+} // namespace figment::vulkan

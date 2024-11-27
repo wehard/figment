@@ -1,8 +1,8 @@
 #pragma once
 
-#include "VulkanContext.h"
+#include "context.h"
 
-namespace figment
+namespace figment::vulkan
 {
 struct VulkanSwapchainDescriptor
 {
@@ -40,4 +40,4 @@ private:
     std::vector<VkImageView> m_ImageViews;
     uint32_t m_ImageCount = 0;
 };
-} // namespace figment
+} // namespace figment::vulkan

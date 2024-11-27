@@ -1,21 +1,23 @@
 #pragma once
 
-#include "VulkanContext.h"
+#include "context.h"
 
-namespace figment
+#include "buffer.h"
+
+namespace figment::vulkan
 {
-class VulkanBindGroup
+class BindGroup
 {
 public:
     struct VulkanBufferInfo
     {
-        VulkanBuffer* Buffer;
+        vulkan::Buffer* Buffer;
     };
 
     struct BindingDescriptor
     {
         VkDescriptorSetLayoutBinding DescriptorSetLayoutBinding;
-        VulkanBuffer* Buffer;
+        vulkan::Buffer* Buffer;
     };
 
     struct BindGroupDescriptor
@@ -25,15 +27,15 @@ public:
     };
 
 public:
-    VulkanBindGroup(const VulkanContext& context, const BindGroupDescriptor& descriptor);
-    ~VulkanBindGroup();
+    BindGroup(const Context& context, const BindGroupDescriptor& descriptor);
+    ~BindGroup();
     [[nodiscard]] VkDescriptorSet* Get() { return &m_DescriptorSet; }
     [[nodiscard]] VkDescriptorSetLayout GetLayout() const { return m_DescriptorSetLayout; }
 
 private:
-    const VulkanContext& m_Context;
+    const Context& m_Context;
     VkDescriptorSet m_DescriptorSet             = VK_NULL_HANDLE;
     VkDescriptorSetLayout m_DescriptorSetLayout = VK_NULL_HANDLE;
 };
 
-} // namespace figment
+} // namespace figment::vulkan

@@ -10,14 +10,15 @@
 
 namespace figment
 {
-    std::shared_ptr<Window> Window::Create(const std::string &title, const uint32_t width, const uint32_t height)
-    {
+std::shared_ptr<Window> Window::Create(const std::string& title, const uint32_t width,
+                                       const uint32_t height)
+{
 #if defined(WEBGPU_BACKEND)
-        return std::make_shared<WebGPUWindow>(title, width, height);
+    return std::make_shared<WebGPUWindow>(title, width, height);
 #elif defined(VULKAN_BACKEND)
-        return std::make_shared<VulkanWindow>(title, width, height);
+    return std::make_shared<vulkan::VulkanWindow>(title, width, height);
 #endif
-        FIGMENT_ASSERT(false, "Window creation not implemented for this platform");
-        return nullptr;
-    }
+    FIGMENT_ASSERT(false, "Window creation not implemented for this platform");
+    return nullptr;
 }
+} // namespace figment

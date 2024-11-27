@@ -1,10 +1,10 @@
-#include "VulkanBindGroup.h"
-#include "VulkanBuffer.h"
+#include "bind_group.h"
+#include "context.h"
+#include "utils.h"
 
-namespace figment
+namespace figment::vulkan
 {
-VulkanBindGroup::VulkanBindGroup(const VulkanContext& context,
-                                 const BindGroupDescriptor& descriptor):
+BindGroup::BindGroup(const Context& context, const BindGroupDescriptor& descriptor):
     m_Context(context)
 {
     std::vector<VkDescriptorSetLayoutBinding> layoutBindings;
@@ -34,9 +34,9 @@ VulkanBindGroup::VulkanBindGroup(const VulkanContext& context,
     for (int i = 0; i < descriptor.Bindings.size(); i++)
     {
         VkDescriptorBufferInfo bufferInfo{};
-        bufferInfo.buffer                    = descriptor.Bindings[i].Buffer->Get();
+        bufferInfo.buffer                    = descriptor.Bindings[i].Buffer->vkBuffer;
         bufferInfo.offset                    = 0;
-        bufferInfo.range                     = descriptor.Bindings[i].Buffer->ByteSize();
+        bufferInfo.range                     = descriptor.Bindings[i].Buffer->byteSize;
 
         VkWriteDescriptorSet descriptorWrite = {};
         descriptorWrite.sType                = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -54,8 +54,8 @@ VulkanBindGroup::VulkanBindGroup(const VulkanContext& context,
     }
 }
 
-VulkanBindGroup::~VulkanBindGroup()
+BindGroup::~BindGroup()
 {
     // TODO: Implement destructor
 }
-} // namespace Figment
+} // namespace figment::vulkan

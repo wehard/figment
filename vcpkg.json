@@ -2,16 +2,19 @@
   "name": "figment",
   "version": "0.0.1",
   "dependencies": [
-    "glfw3",
-    "vulkan",
-    "glm",
     "entt",
+    "glfw3",
+    "glm",
+    "gtest",
     {
       "name": "imgui",
-      "version>=": "1.91.0",
-      "features": ["glfw-binding", "vulkan-binding"]
+      "features": [
+        "glfw-binding",
+        "vulkan-binding"
+      ],
+      "version>=": "1.91.0"
     },
-    "gtest",
-    "spdlog"
+    "spdlog",
+    "vulkan"
   ]
 }
