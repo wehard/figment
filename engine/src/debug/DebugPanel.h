@@ -1,9 +1,12 @@
 #pragma once
+#include "BaseWindow.h"
 #include "Camera.h"
 #include "Entity.h"
-#include "BaseWindow.h"
+
+#include <FPSCounter.h>
 
 namespace figment
 {
-void DrawDebugPanel(const Window& window, Camera& camera, bool collapsed = false);
+void DrawDebugPanel(const Window& window, Camera& camera, const FPSCounter& fpsCounter,
+                    bool collapsed = false);
 }

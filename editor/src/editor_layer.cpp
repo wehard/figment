@@ -2,8 +2,8 @@
 #include "DebugPanel.h"
 #include "imgui.h"
 // #include "imgui_impl_wgpu.h"
-#include "Input.h"
 #include "FileUtils.h"
+#include "Input.h"
 #include "application.h"
 #include "glm/glm.hpp"
 #include "imgui_impl_glfw.h"
@@ -459,10 +459,11 @@ static void DrawActiveCameraSection(CameraController& cameraController)
 
 void EditorLayer::OnImGuiRender()
 {
-    DrawDebugPanel(m_Window, *m_Scene->GetActiveCameraController()->GetCamera());
+    DrawDebugPanel(m_Window, *m_Scene->GetActiveCameraController()->GetCamera(),
+                   Application::FPScounter);
 
-    // DrawScenePanel(m_Scene->GetEntities(), [this](Entity entity) { SelectEntity(entity); });
-    // DrawEntityInspectorPanel(m_SelectedEntity);
+    DrawScenePanel(m_Scene->GetEntities(), [this](Entity entity) { SelectEntity(entity); });
+    DrawEntityInspectorPanel(m_SelectedEntity);
     // DrawWGSLShaderEditor(*m_Renderer->GetShader());
 }
 
