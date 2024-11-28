@@ -1,6 +1,7 @@
 #pragma once
 
 #include "BaseWindow.h"
+#include "swapchain.h"
 #include <string>
 #include <vector>
 #include <vulkan/vulkan.h>
@@ -16,8 +17,8 @@ public:
     void render(const VkCommandBuffer& commandBuffer);
 
     VkSurfaceCapabilitiesKHR surfaceCapabilities() const { return surfaceCapabilitiesKhr; }
-    VkImageView swapChainImageView() const { return imageViews[imageIndex]; }
-    VkImage& swapchainImage() { return images[imageIndex]; }
+    VkImageView swapChainImageView() const { return swapchain.imageViews[imageIndex]; }
+    VkImage& swapchainImage() { return swapchain.images[imageIndex]; }
 
     std::vector<VkSemaphore> renderFinishedSemaphores = {};
     std::vector<VkFence> fences                       = {};
@@ -29,12 +30,9 @@ public:
     VkSurfaceFormatKHR surfaceFormat                  = {};
 
 private:
-    VkSwapchainKHR swapchain                        = VK_NULL_HANDLE;
+    Swapchain swapchain                             = {};
     VkSurfaceKHR surface                            = VK_NULL_HANDLE;
     VkSurfaceCapabilitiesKHR surfaceCapabilitiesKhr = {};
-    uint32_t imageCount                             = 0;
-    std::vector<VkImage> images                     = {};
-    std::vector<VkImageView> imageViews             = {};
     uint32_t imageIndex                             = 0;
 };
 } // namespace figment::vulkan
