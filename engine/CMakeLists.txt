@@ -40,8 +40,8 @@ target_sources(engine PRIVATE
         src/core/LayerStack.cpp
 )
 
-find_package(glm CONFIG REQUIRED)
-target_link_libraries(engine glm::glm)
+#find_package(glm CONFIG REQUIRED)
+#target_link_libraries(engine glm::glm)
 
 if (EMSCRIPTEN)
     target_compile_definitions(engine PRIVATE WEBGPU_BACKEND)
