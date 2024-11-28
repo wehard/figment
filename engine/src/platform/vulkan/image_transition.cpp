@@ -72,7 +72,7 @@ LayoutTransitionInfo getLayoutTransitionInfo(const VkImageLayout oldLayout,
             break;
         case VK_IMAGE_LAYOUT_PRESENT_SRC_KHR:
             info.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-            info.dstStageMask  = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+            info.dstStageMask  = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
             break;
         default:
             break;
