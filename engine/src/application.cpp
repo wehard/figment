@@ -14,7 +14,6 @@ Application::Application(const Descriptor&& descriptor):
     window(descriptor.Name, descriptor.Width, descriptor.Height),
     imguiRenderer({
         .window         = window.GetNative(),
-        .viewport       = {0, 0, (float)descriptor.Width, (float)descriptor.Height, 0, 1},
         .instance       = window.GetContext<vulkan::Context>()->GetInstance(),
         .device         = window.GetContext<vulkan::Context>()->GetDevice(),
         .physicalDevice = window.GetContext<vulkan::Context>()->GetPhysicalDevice(),

@@ -81,27 +81,25 @@ void ImGuiRenderer::begin(const VkCommandBuffer& commandBuffer, const VkImage& r
                           VK_IMAGE_LAYOUT_UNDEFINED,
                           VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
-    {
-        constexpr VkClearValue colorClearValue           = {.color = {0.1f, 0.1f, 0.15f, 1.0f}};
+    constexpr VkClearValue colorClearValue           = {.color = {0.1f, 0.1f, 0.15f, 1.0f}};
 
-        VkRenderingAttachmentInfoKHR colorAttachmentInfo = {};
-        colorAttachmentInfo.sType          = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
-        colorAttachmentInfo.imageView      = renderTargetView;
-        colorAttachmentInfo.imageLayout    = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL_KHR;
-        colorAttachmentInfo.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        colorAttachmentInfo.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;
-        colorAttachmentInfo.clearValue     = colorClearValue;
+    VkRenderingAttachmentInfoKHR colorAttachmentInfo = {};
+    colorAttachmentInfo.sType          = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
+    colorAttachmentInfo.imageView      = renderTargetView;
+    colorAttachmentInfo.imageLayout    = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL_KHR;
+    colorAttachmentInfo.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    colorAttachmentInfo.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;
+    colorAttachmentInfo.clearValue     = colorClearValue;
 
-        VkRenderingInfoKHR renderingInfo   = {};
-        renderingInfo.sType                = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR;
-        renderingInfo.renderArea           = renderArea;
-        renderingInfo.layerCount           = 1;
-        renderingInfo.colorAttachmentCount = 1;
-        renderingInfo.pColorAttachments    = &colorAttachmentInfo;
-        renderingInfo.pDepthAttachment     = nullptr;
+    VkRenderingInfoKHR renderingInfo   = {};
+    renderingInfo.sType                = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR;
+    renderingInfo.renderArea           = renderArea;
+    renderingInfo.layerCount           = 1;
+    renderingInfo.colorAttachmentCount = 1;
+    renderingInfo.pColorAttachments    = &colorAttachmentInfo;
+    renderingInfo.pDepthAttachment     = nullptr;
 
-        vkCmdBeginRenderingKHR(commandBuffer, &renderingInfo);
-    }
+    vkCmdBeginRenderingKHR(commandBuffer, &renderingInfo);
 
     ImGui::Begin("ImGuiRenderer info");
     ImGui::Text("This is some useful text.");
