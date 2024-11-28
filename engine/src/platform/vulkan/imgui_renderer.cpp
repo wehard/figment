@@ -46,6 +46,8 @@ ImGuiRenderer::ImGuiRenderer(const Descriptor&& descriptor)
     ImGui_ImplVulkan_Init(&initInfo);
 
     device = descriptor.device;
+
+    spdlog::info("ImGui version: {}", ImGui::GetVersion());
 }
 
 ImGuiRenderer::~ImGuiRenderer()
@@ -100,6 +102,10 @@ void ImGuiRenderer::begin(const VkCommandBuffer& commandBuffer, const VkImage& r
 
         vkCmdBeginRenderingKHR(commandBuffer, &renderingInfo);
     }
+
+    ImGui::Begin("ImGuiRenderer info");
+    ImGui::Text("This is some useful text.");
+    ImGui::End();
 }
 
 void ImGuiRenderer::end(const VkCommandBuffer& commandBuffer) const
