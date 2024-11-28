@@ -1,4 +1,5 @@
 #include "context.h"
+#include "debug_tools.h"
 #include "utils.h"
 
 #include <set>
@@ -32,6 +33,8 @@ void Context::Init(uint32_t width, uint32_t height)
         vkGetInstanceProcAddr(m_Instance, "vkCmdBeginRenderingKHR"));
     vkCmdEndRenderingKHR = reinterpret_cast<PFN_vkCmdEndRenderingKHR>(
         vkGetInstanceProcAddr(m_Instance, "vkCmdEndRenderingKHR"));
+
+    debug::init(m_Instance);
 }
 
 bool checkInstanceExtensionSupport(const std::vector<const char*>& requestedExtensions)

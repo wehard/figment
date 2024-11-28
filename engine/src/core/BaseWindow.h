@@ -2,12 +2,11 @@
 
 #include "RenderContext.h"
 
-// #include <GLFW/glfw3.h>
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
 #include <functional>
 #include <memory>
 #include <string>
-
-class GLFWwindow;
 
 namespace figment
 {
@@ -29,7 +28,7 @@ public:
 
     virtual ~Window() = default;
 
-    bool ShouldClose() { return false; }
+    bool ShouldClose() { return glfwWindowShouldClose(window); }
     [[nodiscard]] uint32_t GetWidth() const { return m_Width; };
     [[nodiscard]] uint32_t GetHeight() const { return m_Height; };
     [[nodiscard]] uint32_t GetFramebufferWidth() const { return m_FramebufferWidth; };

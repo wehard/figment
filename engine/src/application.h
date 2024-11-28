@@ -1,12 +1,12 @@
 #pragma once
 
+#include "BaseWindow.h"
 #include "FPSCounter.h"
 #include "LayerStack.h"
-#include "BaseWindow.h"
 #include "imgui_renderer.h"
 
-#include <cstdint>
 #include <BaseWindow.h>
+#include <cstdint>
 
 namespace figment
 {
@@ -27,12 +27,13 @@ public:
 
     [[nodiscard]] const Window& GetWindow() const { return window; }
 
+    static FPSCounter FPScounter;
+
 private:
     vulkan::Window window;
     vulkan::ImGuiRenderer imguiRenderer;
     LayerStack m_LayerStack;
-    bool m_InputEnabled = true;
-    FPSCounter m_FPSCounter;
+    bool m_InputEnabled    = true;
     float m_CurrentTime    = 0;
     float m_LastTime       = 0;
     float m_TimeSinceStart = 0;

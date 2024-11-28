@@ -1,9 +1,9 @@
 #pragma once
 
 #include "BaseWindow.h"
-#include <vulkan/vulkan.h>
-#include <vector>
 #include <string>
+#include <vector>
+#include <vulkan/vulkan.h>
 
 namespace figment::vulkan
 {
@@ -13,9 +13,19 @@ public:
     Window(const std::string& title, uint32_t width, uint32_t height);
 
     void nextImage();
-    void present();
+    void render(const VkCommandBuffer& commandBuffer);
+
     VkSurfaceCapabilitiesKHR surfaceCapabilities() const { return surfaceCapabilitiesKhr; }
     VkImageView swapChainImageView() const { return imageViews[imageIndex]; }
+    VkImage& swapchainImage() { return images[imageIndex]; }
+
+    std::vector<VkSemaphore> renderFinishedSemaphores = {};
+    std::vector<VkFence> fences                       = {};
+    std::vector<VkSemaphore> imageAvailableSemaphores = {};
+
+    constexpr static uint32_t MAX_FRAMES_IN_FLIGHT    = 2;
+    uint32_t frameIndex                               = 0;
+    VkSurfaceFormatKHR surfaceFormat                  = {};
 
 private:
     VkSwapchainKHR swapchain                        = VK_NULL_HANDLE;

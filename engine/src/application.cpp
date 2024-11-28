@@ -2,13 +2,41 @@
 #include "Input.h"
 #include "RenderStats.h"
 
-#include <spdlog/spdlog.h>
 #include <BaseWindow.h>
+#include <spdlog/spdlog.h>
 
 namespace figment
 {
+FPSCounter Application::FPScounter;
+
 Application::Application(const Descriptor&& descriptor):
-    window(descriptor.Name, descriptor.Width, descriptor.Height), imguiRenderer(window)
+    window(descriptor.Name, descriptor.Width, descriptor.Height),
+    imguiRenderer({
+        .window         = window.GetNative(),
+        .viewport       = {0, 0, (float)descriptor.Width, (float)descriptor.Height, 0, 1},
+        .instance       = window.GetContext<vulkan::Context>()->GetInstance(),
+        .device         = window.GetContext<vulkan::Context>()->GetDevice(),
+        .physicalDevice = window.GetContext<vulkan::Context>()->GetPhysicalDevice(),
+        .queue          = window.GetContext<vulkan::Context>()->GetGraphicsQueue(),
+        .descriptorPool = window.GetContext<vulkan::Context>()->createDescriptorPool(
+            {
+                {VK_DESCRIPTOR_TYPE_SAMPLER, 256},
+                {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 256},
+                {VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 256},
+                {VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 256},
+                {VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 256},
+                {VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 256},
+                {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 256},
+                {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 256},
+                {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 256},
+                {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 256},
+                {VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 256},
+            },
+            256),
+        .commandPool     = window.GetContext<vulkan::Context>()->createCommandPool(),
+        .minImageCount   = window.surfaceCapabilities().minImageCount,
+        .swapchainFormat = window.surfaceFormat.format,
+    })
 {
     Input::Initialize(window.GetNative());
 
@@ -35,7 +63,7 @@ void Application::Update()
     m_LastTime      = m_CurrentTime;
     m_TimeSinceStart += deltaTime;
 
-    m_FPSCounter.Update(deltaTime);
+    FPScounter.Update(deltaTime);
 
     for (auto layer: m_LayerStack)
     {
@@ -43,18 +71,20 @@ void Application::Update()
             continue;
         layer->OnUpdate(deltaTime);
     }
+
     window.nextImage();
 
-    imguiRenderer.beginFrame();
+    imguiRenderer.begin(window.swapchainImage(), window.swapChainImageView(),
+                        {.extent = {window.GetWidth(), window.GetHeight()}}, window.frameIndex);
     for (auto layer: m_LayerStack)
     {
         if (!layer->m_Enabled)
             continue;
         layer->OnImGuiRender();
     }
-    imguiRenderer.endFrame();
+    imguiRenderer.end(window.frameIndex);
 
-    window.present();
+    window.render(imguiRenderer.commandBuffer(window.frameIndex));
 
     glfwPollEvents();
 }
@@ -93,5 +123,6 @@ void Application::Start()
             continue;
         layer->OnDisable();
     }
+    vkQueueWaitIdle(window.GetContext<vulkan::Context>()->GetGraphicsQueue());
 }
 } // namespace figment

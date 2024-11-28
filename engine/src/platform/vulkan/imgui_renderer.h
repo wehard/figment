@@ -11,18 +11,36 @@ namespace figment::vulkan
 class ImGuiRenderer
 {
 public:
-    explicit ImGuiRenderer(const vulkan::Window& window);
+    struct Descriptor
+    {
+        GLFWwindow* window              = nullptr;
+        VkViewport viewport             = {};
+        VkInstance instance             = VK_NULL_HANDLE;
+        VkDevice device                 = VK_NULL_HANDLE;
+        VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+        VkQueue queue                   = VK_NULL_HANDLE;
+        VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
+        VkCommandPool commandPool       = VK_NULL_HANDLE;
+        uint32_t minImageCount          = 0;
+        VkFormat swapchainFormat        = VK_FORMAT_UNDEFINED;
+    };
+    explicit ImGuiRenderer(const Descriptor&& descriptor);
     ~ImGuiRenderer();
 
-    void beginFrame();
-    void endFrame();
+    void begin(const VkImage& renderTarget, const VkImageView& renderTargetView,
+               VkRect2D renderArea, uint32_t frameIndex);
+    void end(uint32_t frameIndex) const;
+
+    VkCommandBuffer commandBuffer(const uint32_t index) const { return commandBuffers[index]; }
 
 private:
-    const Context& ctx;
-    const Window& window;
-    ImGuiContext* imguiContext    = nullptr;
-    VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
-    Texture depthAttachment       = {};
+    PFN_vkCmdBeginRenderingKHR vkCmdBeginRenderingKHR = nullptr;
+    PFN_vkCmdEndRenderingKHR vkCmdEndRenderingKHR     = nullptr;
+
+    ImGuiContext* imguiContext                        = nullptr;
+    std::vector<VkCommandBuffer> commandBuffers       = {};
+    VkDevice device                                   = VK_NULL_HANDLE;
+    VkImage rt                                        = VK_NULL_HANDLE;
 };
 
 } // namespace figment::vulkan
