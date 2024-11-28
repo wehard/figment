@@ -59,11 +59,6 @@ void ImGuiRenderer::begin(const VkCommandBuffer& commandBuffer, const VkImage& r
                           const VkImageView& renderTargetView, const VkRect2D renderArea)
 {
     rt = renderTarget;
-    if (firstFrame)
-    {
-        firstFrame = false;
-        ImGui_ImplVulkan_CreateFontsTexture();
-    }
 
     ImGui_ImplGlfw_NewFrame();
     ImGui_ImplVulkan_NewFrame();
