@@ -66,14 +66,6 @@ void ImGuiRenderer::begin(const VkCommandBuffer& commandBuffer, const VkImage& r
     ImGui_ImplVulkan_NewFrame();
     ImGui::NewFrame();
 
-    {
-        vkResetCommandBuffer(commandBuffer, 0);
-
-        VkCommandBufferBeginInfo bufferBeginInfo = {};
-        bufferBeginInfo.sType                    = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        vkBeginCommandBuffer(commandBuffer, &bufferBeginInfo);
-    }
-
     debug::beginLabel(commandBuffer, "ImGui Rendering");
 
     transitionImageLayout(commandBuffer,
@@ -120,6 +112,5 @@ void ImGuiRenderer::end(const VkCommandBuffer& commandBuffer) const
                           VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
     debug::endLabel(commandBuffer);
-    vkEndCommandBuffer(commandBuffer);
 }
 } // namespace figment::vulkan

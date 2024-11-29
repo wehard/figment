@@ -7,6 +7,7 @@
 
 #include <BaseWindow.h>
 #include <cstdint>
+#include <renderer.h>
 
 namespace figment
 {
@@ -31,6 +32,7 @@ public:
 
 private:
     vulkan::Window window;
+    vulkan::Renderer renderer;
     vulkan::ImGuiRenderer imguiRenderer;
     LayerStack m_LayerStack;
     bool m_InputEnabled    = true;

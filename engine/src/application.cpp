@@ -12,6 +12,7 @@ FPSCounter Application::FPScounter;
 
 Application::Application(const Descriptor&& descriptor):
     window(descriptor.Name, descriptor.Width, descriptor.Height),
+    renderer(*window.GetContext<vulkan::Context>()),
     imguiRenderer({
         .window         = window.GetNative(),
         .instance       = window.GetContext<vulkan::Context>()->GetInstance(),
@@ -71,10 +72,9 @@ void Application::Update()
         layer->OnUpdate(deltaTime);
     }
 
-    window.nextImage();
+    auto fd = renderer.begin(window.swapchain());
 
-    imguiRenderer.begin(window.commandBuffers[window.frameIndex], window.swapchainImage(),
-                        window.swapChainImageView(),
+    imguiRenderer.begin(fd.commandBuffer, fd.image, fd.imageView,
                         {.extent = {window.GetWidth(), window.GetHeight()}});
     for (auto layer: m_LayerStack)
     {
@@ -82,9 +82,9 @@ void Application::Update()
             continue;
         layer->OnImGuiRender();
     }
-    imguiRenderer.end(window.commandBuffers[window.frameIndex]);
+    imguiRenderer.end(fd.commandBuffer);
 
-    window.render(window.commandBuffers[window.frameIndex]);
+    renderer.end(window.swapchain());
 
     glfwPollEvents();
 }

@@ -99,7 +99,7 @@ Window::Window(const std::string& title, const uint32_t width, const uint32_t he
 
     const auto formats = details.formats[0];
     surfaceFormat      = formats;
-    swapchain          = createSwapchain(renderContext->GetDevice(),
+    _swapchain         = createSwapchain(renderContext->GetDevice(),
                                          {
                                              .surface           = surface,
                                              .surfaceFormat     = formats.format,
@@ -108,76 +108,8 @@ Window::Window(const std::string& title, const uint32_t width, const uint32_t he
                                              .extent            = {width, height},
                                              .imageCount        = 2,
                                              .transform         = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR,
-                                });
-
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-    {
-        renderFinishedSemaphores.emplace_back(createSemaphore(
-            renderContext->GetDevice(), fmt::format("renderFinishedSemaphore {}", i).c_str()));
-        fences.emplace_back(
-            createFence(renderContext->GetDevice(), true, fmt::format("fence {}", i).c_str()));
-        imageAvailableSemaphores.emplace_back(createSemaphore(
-            renderContext->GetDevice(), fmt::format("imageAvailableSemaphore {}", i).c_str()));
-    }
-    const auto commandPool = renderContext->createCommandPool();
-    commandBuffers.resize(Window::MAX_FRAMES_IN_FLIGHT);
-    for (uint32_t i = 0; i < Window::MAX_FRAMES_IN_FLIGHT; i++)
-    {
-        VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
-        commandBufferAllocateInfo.sType       = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        commandBufferAllocateInfo.commandPool = commandPool;
-        commandBufferAllocateInfo.level       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        commandBufferAllocateInfo.commandBufferCount = 1;
-
-        checkVkResult(vkAllocateCommandBuffers(renderContext->GetDevice(),
-                                               &commandBufferAllocateInfo, &commandBuffers[i]));
-    }
+                                 });
 
     spdlog::info("Vulkan window created");
-}
-
-void Window::nextImage()
-{
-    const auto vkCtx = GetContext<vulkan::Context>();
-    debug::beginLabel(vkCtx->GetGraphicsQueue(), "Frame");
-
-    vkWaitForFences(vkCtx->GetDevice(), 1, &fences[frameIndex], VK_TRUE,
-                    std::numeric_limits<uint64_t>::max());
-    vkResetFences(vkCtx->GetDevice(), 1, &fences[frameIndex]);
-
-    imageIndex = swapchainNextImageIndex(vkCtx->GetDevice(), swapchain.swapchain,
-                                         imageAvailableSemaphores[frameIndex]);
-}
-
-void Window::render(const VkCommandBuffer& commandBuffer)
-{
-    const auto vkCtx                  = GetContext<vulkan::Context>();
-
-    VkSubmitInfo submitInfo           = {};
-    submitInfo.sType                  = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    VkSemaphore waitSemaphores[]      = {imageAvailableSemaphores[frameIndex]};
-    VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-    submitInfo.waitSemaphoreCount     = 1;
-    submitInfo.pWaitSemaphores        = waitSemaphores;
-    submitInfo.pWaitDstStageMask      = waitStages;
-    submitInfo.commandBufferCount     = 1;
-    submitInfo.pCommandBuffers        = &commandBuffer;
-    VkSemaphore signalSemaphores[]    = {renderFinishedSemaphores[frameIndex]};
-    submitInfo.signalSemaphoreCount   = 1;
-    submitInfo.pSignalSemaphores      = signalSemaphores;
-
-    debug::endLabel(vkCtx->GetGraphicsQueue());
-    checkVkResult(vkQueueSubmit(vkCtx->GetGraphicsQueue(), 1, &submitInfo, fences[frameIndex]));
-
-    VkPresentInfoKHR presentInfo   = {};
-    presentInfo.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-    presentInfo.waitSemaphoreCount = 1;
-    presentInfo.pWaitSemaphores    = &renderFinishedSemaphores[frameIndex];
-    presentInfo.swapchainCount     = 1;
-    presentInfo.pSwapchains        = &swapchain.swapchain;
-    presentInfo.pImageIndices      = &imageIndex;
-
-    checkVkResult(vkQueuePresentKHR(vkCtx->GetGraphicsQueue(), &presentInfo));
-    frameIndex = (frameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 } // namespace figment::vulkan

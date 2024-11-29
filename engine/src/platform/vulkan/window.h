@@ -13,24 +13,15 @@ class Window: public figment::Window
 public:
     Window(const std::string& title, uint32_t width, uint32_t height);
 
-    void nextImage();
-    void render(const VkCommandBuffer& commandBuffer);
-
     VkSurfaceCapabilitiesKHR surfaceCapabilities() const { return surfaceCapabilitiesKhr; }
-    VkImageView swapChainImageView() const { return swapchain.imageViews[imageIndex]; }
-    VkImage& swapchainImage() { return swapchain.images[imageIndex]; }
+    VkImageView swapChainImageView() const { return _swapchain.imageViews[imageIndex]; }
+    VkImage& swapchainImage() { return _swapchain.images[imageIndex]; }
+    Swapchain swapchain() const { return _swapchain; }
 
-    std::vector<VkSemaphore> renderFinishedSemaphores = {};
-    std::vector<VkFence> fences                       = {};
-    std::vector<VkSemaphore> imageAvailableSemaphores = {};
-    std::vector<VkCommandBuffer> commandBuffers       = {};
-
-    constexpr static uint32_t MAX_FRAMES_IN_FLIGHT    = 2;
-    uint32_t frameIndex                               = 0;
-    VkSurfaceFormatKHR surfaceFormat                  = {};
+    VkSurfaceFormatKHR surfaceFormat = {};
 
 private:
-    Swapchain swapchain                             = {};
+    Swapchain _swapchain                            = {};
     VkSurfaceKHR surface                            = VK_NULL_HANDLE;
     VkSurfaceCapabilitiesKHR surfaceCapabilitiesKhr = {};
     uint32_t imageIndex                             = 0;
