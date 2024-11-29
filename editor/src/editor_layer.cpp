@@ -194,7 +194,7 @@ void EditorLayer::DrawScenePanel(const std::vector<Entity>& entities,
         if (ImGui::IsItemHovered())
         {
             ImGui::BeginTooltip();
-            ImGui::Text("UUID: %llu", (uint64_t)id.UUID);
+            ImGui::Text("UUID: %lu", (uint64_t)id.UUID);
             ImGui::EndTooltip();
         }
         ImGui::PopID();
