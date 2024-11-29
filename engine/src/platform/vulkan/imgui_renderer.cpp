@@ -57,27 +57,18 @@ ImGuiRenderer::~ImGuiRenderer()
     ImGui::DestroyContext(imguiContext);
 }
 
-void ImGuiRenderer::begin(const VkCommandBuffer& commandBuffer, const VkImage& renderTarget,
-                          const VkImageView& renderTargetView, const VkRect2D renderArea)
+void ImGuiRenderer::begin(const VkCommandBuffer& commandBuffer, const RenderTarget&& target) const
 {
-    rt = renderTarget;
-
+    debug::beginLabel(commandBuffer, "ImGui Rendering");
     ImGui_ImplGlfw_NewFrame();
     ImGui_ImplVulkan_NewFrame();
     ImGui::NewFrame();
-
-    debug::beginLabel(commandBuffer, "ImGui Rendering");
-
-    transitionImageLayout(commandBuffer,
-                          renderTarget,
-                          VK_IMAGE_LAYOUT_UNDEFINED,
-                          VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
     constexpr VkClearValue colorClearValue           = {.color = {0.1f, 0.1f, 0.15f, 1.0f}};
 
     VkRenderingAttachmentInfoKHR colorAttachmentInfo = {};
     colorAttachmentInfo.sType          = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
-    colorAttachmentInfo.imageView      = renderTargetView;
+    colorAttachmentInfo.imageView      = target.imageView;
     colorAttachmentInfo.imageLayout    = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL_KHR;
     colorAttachmentInfo.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;
     colorAttachmentInfo.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;
@@ -85,7 +76,7 @@ void ImGuiRenderer::begin(const VkCommandBuffer& commandBuffer, const VkImage& r
 
     VkRenderingInfoKHR renderingInfo   = {};
     renderingInfo.sType                = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR;
-    renderingInfo.renderArea           = renderArea;
+    renderingInfo.renderArea           = target.renderArea;
     renderingInfo.layerCount           = 1;
     renderingInfo.colorAttachmentCount = 1;
     renderingInfo.pColorAttachments    = &colorAttachmentInfo;
@@ -105,11 +96,6 @@ void ImGuiRenderer::end(const VkCommandBuffer& commandBuffer) const
 
     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
     vkCmdEndRenderingKHR(commandBuffer);
-
-    transitionImageLayout(commandBuffer,
-                          rt,
-                          VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-                          VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
     debug::endLabel(commandBuffer);
 }

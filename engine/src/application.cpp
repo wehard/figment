@@ -4,6 +4,7 @@
 
 #include <BaseWindow.h>
 #include <debug_tools.h>
+#include <image_transition.h>
 #include <spdlog/spdlog.h>
 
 namespace figment
@@ -72,17 +73,22 @@ void Application::update()
         layer->OnUpdate(deltaTime);
     }
 
-    auto fd = renderer.begin(window.swapchain());
+    const auto renderData = renderer.begin(window.swapchain());
 
-    imguiRenderer.begin(fd.commandBuffer, fd.image, fd.imageView,
-                        {.extent = {window.GetWidth(), window.GetHeight()}});
-    for (auto layer: m_LayerStack)
+    imguiRenderer.begin(
+        renderData.commandBuffer,
+        {
+            .image      = renderData.image,
+            .imageView  = renderData.imageView,
+            .renderArea = {.offset = {0, 0}, .extent = {window.GetWidth(), window.GetHeight()}},
+        });
+    for (const auto layer: m_LayerStack)
     {
         if (!layer->m_Enabled)
             continue;
         layer->OnImGuiRender();
     }
-    imguiRenderer.end(fd.commandBuffer);
+    imguiRenderer.end(renderData.commandBuffer);
 
     renderer.end(window.swapchain());
 

@@ -22,11 +22,17 @@ public:
         uint32_t minImageCount          = 0;
         VkFormat swapchainFormat        = VK_FORMAT_UNDEFINED;
     };
+
+    struct RenderTarget
+    {
+        VkImage image;
+        VkImageView imageView;
+        VkRect2D renderArea;
+    };
     explicit ImGuiRenderer(const Descriptor&& descriptor);
     ~ImGuiRenderer();
 
-    void begin(const VkCommandBuffer& commandBuffer, const VkImage& renderTarget,
-               const VkImageView& renderTargetView, VkRect2D renderArea);
+    void begin(const VkCommandBuffer& commandBuffer, const RenderTarget&& target) const;
     void end(const VkCommandBuffer& commandBuffer) const;
 
 private:
@@ -35,8 +41,6 @@ private:
 
     ImGuiContext* imguiContext                        = nullptr;
     VkDevice device                                   = VK_NULL_HANDLE;
-    VkImage rt                                        = VK_NULL_HANDLE;
-    bool firstFrame                                   = true;
 };
 
 } // namespace figment::vulkan

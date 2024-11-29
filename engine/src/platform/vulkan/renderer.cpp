@@ -1,6 +1,7 @@
 
 #include "renderer.h"
 
+#include <image_transition.h>
 #include <swapchain.h>
 #include <synchronization.h>
 
@@ -52,6 +53,10 @@ Renderer::Data Renderer::begin(const Swapchain& swapchain)
     imageIndex = swapchainNextImageIndex(context.GetDevice(), swapchain.swapchain,
                                          imageAvailableSemaphore());
 
+    transitionImageLayout(commandBuffers[frameIndex],
+                          swapchain.images[imageIndex],
+                          VK_IMAGE_LAYOUT_UNDEFINED,
+                          VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
     return {commandBuffers[frameIndex], swapchain.images[imageIndex],
             swapchain.imageViews[imageIndex]};
 }
@@ -63,6 +68,10 @@ void Renderer::render()
 
 void Renderer::end(const Swapchain& swapchain)
 {
+    transitionImageLayout(commandBuffers[frameIndex],
+                          swapchain.images[imageIndex],
+                          VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                          VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
     checkVkResult(vkEndCommandBuffer(commandBuffers[frameIndex]));
 
     constexpr VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
