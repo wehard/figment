@@ -21,12 +21,12 @@ public:
         uint32_t Height;
     };
     explicit Application(const Descriptor&& descriptor);
-    void Start();
-    void Update();
-    void AddLayer(Layer* layer);
-    void AddOverlay(Layer* overlay);
+    void start();
+    void update();
+    void addLayer(Layer* layer);
+    void addOverlay(Layer* overlay);
 
-    [[nodiscard]] const Window& GetWindow() const { return window; }
+    [[nodiscard]] const Window& getWindow() const { return window; }
 
     static FPSCounter FPScounter;
 

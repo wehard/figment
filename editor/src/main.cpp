@@ -158,9 +158,9 @@ int main(int argc, char **argv)
 int main()
 {
     Application app({.Name = "Figment Editor", .Width = 1920, .Height = 1080});
-    auto window      = app.GetWindow();
+    auto window      = app.getWindow();
     auto editorLayer = EditorLayer(window);
-    app.AddLayer(&editorLayer);
-    app.Start();
+    app.addLayer(&editorLayer);
+    app.start();
     return 0;
 }

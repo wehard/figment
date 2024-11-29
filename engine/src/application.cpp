@@ -53,7 +53,7 @@ Application::Application(const Descriptor&& descriptor):
     spdlog::info("Application created");
 }
 
-void Application::Update()
+void Application::update()
 {
     Input::Update();
     RenderStats::Reset();
@@ -89,21 +89,21 @@ void Application::Update()
     glfwPollEvents();
 }
 
-void Application::AddLayer(Layer* layer)
+void Application::addLayer(Layer* layer)
 {
     spdlog::info("Adding layer: {}", layer->GetName());
     m_LayerStack.AddLayer(layer);
     layer->OnAttach();
 }
 
-void Application::AddOverlay(Layer* overlay)
+void Application::addOverlay(Layer* overlay)
 {
     spdlog::info("Adding overlay: {}", overlay->GetName());
     m_LayerStack.AddOverlay(overlay);
     overlay->OnAttach();
 }
 
-void Application::Start()
+void Application::start()
 {
     for (auto layer: m_LayerStack)
     {
@@ -114,7 +114,7 @@ void Application::Start()
 
     while (!window.ShouldClose() && !Input::GetKey(GLFW_KEY_ESCAPE))
     {
-        Update();
+        update();
     }
 
     for (auto layer: m_LayerStack)
