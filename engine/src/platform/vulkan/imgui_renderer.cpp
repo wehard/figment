@@ -59,7 +59,7 @@ ImGuiRenderer::~ImGuiRenderer()
 
 void ImGuiRenderer::begin(const VkCommandBuffer& commandBuffer, const RenderTarget&& target) const
 {
-    debug::beginLabel(commandBuffer, "ImGui Rendering");
+    debug::beginLabel(commandBuffer, "ImGuiRenderer");
     ImGui_ImplGlfw_NewFrame();
     ImGui_ImplVulkan_NewFrame();
     ImGui::NewFrame();
@@ -84,9 +84,15 @@ void ImGuiRenderer::begin(const VkCommandBuffer& commandBuffer, const RenderTarg
 
     vkCmdBeginRenderingKHR(commandBuffer, &renderingInfo);
 
-    ImGui::Begin("ImGuiRenderer info");
-    ImGui::Text("This is some useful text.");
-    ImGui::End();
+    if (showDebugInfo)
+    {
+        ImGui::Begin("ImGuiRenderer");
+        ImGui::Text("ImGui version: %s", ImGui::GetVersion());
+        ImGui::Text("Render area: %d x %d", target.renderArea.extent.width,
+                    target.renderArea.extent.height);
+        ImGui::Text("Vulkan device: %p", device);
+        ImGui::End();
+    }
 }
 
 void ImGuiRenderer::end(const VkCommandBuffer& commandBuffer) const

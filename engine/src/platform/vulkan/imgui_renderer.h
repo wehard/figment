@@ -36,6 +36,7 @@ public:
     void end(const VkCommandBuffer& commandBuffer) const;
 
 private:
+    static constexpr bool showDebugInfo               = false;
     PFN_vkCmdBeginRenderingKHR vkCmdBeginRenderingKHR = nullptr;
     PFN_vkCmdEndRenderingKHR vkCmdEndRenderingKHR     = nullptr;
 
