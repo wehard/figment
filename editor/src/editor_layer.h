@@ -1,9 +1,9 @@
 #pragma once
 
+#include "BaseWindow.h"
 #include "Entity.h"
 #include "Layer.h"
 #include "Scene.h"
-#include "BaseWindow.h"
 #include <string>
 
 namespace figment
@@ -13,7 +13,7 @@ class EditorLayer: public Layer
 public:
     explicit EditorLayer(Window& window);
     ~EditorLayer() override;
-    void OnAttach() override;
+    void OnAttach(const Context& context) override;
     void OnDetach() override;
     void OnEnable() override;
     void OnDisable() override;

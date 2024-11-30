@@ -1,5 +1,6 @@
 #pragma once
 
+#include "renderer.h"
 #include <string>
 
 namespace figment
@@ -17,10 +18,14 @@ enum class AppEvent
 class Layer
 {
 public:
+    struct Context
+    {
+        figment::vulkan::Renderer* renderer;
+    };
     explicit Layer(const std::string& name = "Layer", bool enabled = true):
         m_Name(name), m_Enabled(enabled){};
     virtual ~Layer()                                      = default;
-    virtual void OnAttach()                               = 0;
+    virtual void OnAttach(const Context& context)         = 0;
     virtual void OnDetach()                               = 0;
     virtual void OnEnable()                               = 0;
     virtual void OnDisable()                              = 0;

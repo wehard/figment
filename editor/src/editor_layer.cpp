@@ -1,6 +1,7 @@
 #include "editor_layer.h"
 #include "DebugPanel.h"
 #include "imgui.h"
+#include <spdlog/spdlog.h>
 // #include "imgui_impl_wgpu.h"
 #include "FileUtils.h"
 #include "Input.h"
@@ -41,13 +42,25 @@ EditorLayer::EditorLayer(Window& window): m_Window(window), Layer("EditorLayer")
 
 EditorLayer::~EditorLayer() {}
 
-void EditorLayer::OnAttach() {}
+void EditorLayer::OnAttach(const Context& context)
+{
+    spdlog::info("EditorLayer attached");
+}
 
-void EditorLayer::OnDetach() {}
+void EditorLayer::OnDetach()
+{
+    spdlog::info("EditorLayer detached");
+}
 
-void EditorLayer::OnEnable() {}
+void EditorLayer::OnEnable()
+{
+    spdlog::info("EditorLayer enabled");
+}
 
-void EditorLayer::OnDisable() {}
+void EditorLayer::OnDisable()
+{
+    spdlog::info("EditorLayer disabled");
+}
 
 void EditorLayer::OnUpdate(float deltaTime)
 {
