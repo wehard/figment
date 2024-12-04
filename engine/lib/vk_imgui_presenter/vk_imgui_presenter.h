@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 #include <limits>
 #include <stdexcept>
+#include <string>
 #include <vector>
 #include <vulkan/vulkan.h>
 
