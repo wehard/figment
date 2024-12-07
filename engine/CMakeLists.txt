@@ -90,7 +90,6 @@ else ()
             Vulkan::Vulkan
             imgui::imgui
             spdlog::spdlog
-            vk_imgui_presenter
     )
 
     target_include_directories(engine PUBLIC
@@ -109,5 +108,4 @@ else ()
 
     )
     add_subdirectory(test)
-    add_subdirectory(lib/vk_imgui_presenter)
 endif ()

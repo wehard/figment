@@ -81,7 +81,7 @@ Window::Window(const std::string& title, const uint32_t width, const uint32_t he
     glfwSetFramebufferSizeCallback(window, glfwFramebufferSizeCallback);
     glfwSetWindowUserPointer(window, this);
 
-    renderContext = std::make_shared<vulkan::Context>(window);
+    renderContext = std::make_shared<vulkan::Context>();
     renderContext->Init(m_Width, m_Height);
     const auto renderContext = GetContext<vulkan::Context>();
 

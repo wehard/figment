@@ -15,11 +15,11 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
     message(STATUS "Optimization level: -O0")
 endif ()
 
-target_link_libraries(vk-app engine)
+add_subdirectory(/Users/willehard/dev/vk_imgui_presenter ${CMAKE_BINARY_DIR}/vk_imgui_presenter)
+target_link_libraries(vk-app engine vk_imgui_presenter)
 
 target_sources(vk-app PRIVATE
         src/main.cpp
-        src/MainLayer.cpp
 )
 
 file(GLOB_RECURSE SHADER_FILES
@@ -29,19 +29,19 @@ file(GLOB_RECURSE SHADER_FILES
 
 add_dependencies(vk-app shaders)
 
-add_custom_target(shaders DEPENDS ${SHADER_FILES})
-
-add_custom_command(
-        TARGET shaders
-        PRE_BUILD
-        COMMAND for file in "${CMAKE_CURRENT_SOURCE_DIR}/res/*.vert" ";" do glslangValidator $\${file} -o $\${file}.spv -V --quiet ";" done
-        COMMAND for file in "${CMAKE_CURRENT_SOURCE_DIR}/res/*.frag" ";" do glslangValidator $\${file} -o $\${file}.spv -V --quiet ";" done
-        COMMENT "Compiling shaders"
-)
-
-add_custom_command(
-        TARGET shaders
-        PRE_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/res ${CMAKE_CURRENT_BINARY_DIR}/res
-        COMMENT "Copied resources to ${CMAKE_CURRENT_BINARY_DIR}"
-)
+#add_custom_target(shaders DEPENDS ${SHADER_FILES})
+#
+#add_custom_command(
+#        TARGET shaders
+#        PRE_BUILD
+#        COMMAND for file in "${CMAKE_CURRENT_SOURCE_DIR}/res/*.vert" ";" do glslangValidator $\${file} -o $\${file}.spv -V --quiet ";" done
+#        COMMAND for file in "${CMAKE_CURRENT_SOURCE_DIR}/res/*.frag" ";" do glslangValidator $\${file} -o $\${file}.spv -V --quiet ";" done
+#        COMMENT "Compiling shaders"
+#)
+#
+#add_custom_command(
+#        TARGET shaders
+#        PRE_BUILD
+#        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/res ${CMAKE_CURRENT_BINARY_DIR}/res
+#        COMMENT "Copied resources to ${CMAKE_CURRENT_BINARY_DIR}"
+#)

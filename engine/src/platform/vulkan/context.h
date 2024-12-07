@@ -28,7 +28,7 @@ public:
     // [[nodiscard]] VulkanSwapchain* getSwapchain() const;
 
 public:
-    explicit Context(GLFWwindow* window): m_Window(window) {}
+    // explicit Context(GLFWwindow* window): m_Window(window) {}
     ~Context() override;
     void Init(uint32_t width, uint32_t height) override;
 
@@ -61,7 +61,7 @@ public:
     };
 
 private:
-    GLFWwindow* m_Window;
+    // GLFWwindow* m_Window;
     VkInstance m_Instance             = VK_NULL_HANDLE;
     VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;
     VkDevice m_Device                 = VK_NULL_HANDLE;
