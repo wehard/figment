@@ -15,8 +15,8 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
     message(STATUS "Optimization level: -O0")
 endif ()
 
-add_subdirectory(/Users/willehard/dev/vk_imgui_presenter ${CMAKE_BINARY_DIR}/vk_imgui_presenter)
-target_link_libraries(vk-app engine vk_imgui_presenter)
+add_subdirectory(/Users/willehard/dev/vk_debug_tools ${CMAKE_BINARY_DIR}/vk_debug_tools)
+target_link_libraries(vk-app engine vk_debug_tools)
 
 target_sources(vk-app PRIVATE
         src/main.cpp
