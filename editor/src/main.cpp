@@ -157,7 +157,7 @@ int main(int argc, char **argv)
 
 int main()
 {
-    Application app({.Name = "Figment Editor", .Width = 1920, .Height = 1080});
+    Application app({.Name = "Figment Editor", .Width = 1280, .Height = 720});
     auto window      = app.getWindow();
     auto editorLayer = EditorLayer(window);
     app.addLayer(&editorLayer);

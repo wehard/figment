@@ -105,7 +105,7 @@ Window::Window(const std::string& title, const uint32_t width, const uint32_t he
                                              .surfaceFormat     = formats.format,
                                              .surfaceColorSpace = formats.colorSpace,
                                              .presentMode       = VK_PRESENT_MODE_IMMEDIATE_KHR,
-                                             .extent            = {width, height},
+                                             .extent            = details.surfaceCapabilities.currentExtent,
                                              .imageCount        = 2,
                                              .transform         = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR,
                                  });

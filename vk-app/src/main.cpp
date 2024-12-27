@@ -35,8 +35,8 @@ int main()
                             {
                                 .image      = presenter.getImage(),
                                 .imageView  = presenter.getImageView(),
-                                .renderArea = {0, 0, presenter.getWindowExtent().width,
-                                               presenter.getWindowExtent().height},
+                                .renderArea = {0, 0, presenter.getSurfaceExtent().width,
+                                               presenter.getSurfaceExtent().height},
                             });
         ImGui::Begin("Window");
         ImGui::Text("Hello, world!");

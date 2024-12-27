@@ -75,13 +75,16 @@ void Application::update()
 
     const auto renderData = renderer.begin(window.swapchain());
 
-    imguiRenderer.begin(
-        renderData.commandBuffer,
-        {
-            .image      = renderData.image,
-            .imageView  = renderData.imageView,
-            .renderArea = {.offset = {0, 0}, .extent = {window.GetWidth(), window.GetHeight()}},
-        });
+    imguiRenderer.begin(renderData.commandBuffer,
+                        {
+                            .image     = renderData.image,
+                            .imageView = renderData.imageView,
+                            .renderArea =
+                                {
+                                    .offset = {0, 0},
+                                    .extent = window.surfaceCapabilities().currentExtent,
+                                },
+                        });
     for (const auto layer: m_LayerStack)
     {
         if (!layer->m_Enabled)
