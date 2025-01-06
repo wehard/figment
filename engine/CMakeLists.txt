@@ -28,6 +28,7 @@ target_include_directories(engine PUBLIC
 
 target_sources(engine PRIVATE
         src/application.cpp
+        src/renderer2.cpp
         src/core/FPSCounter.cpp
         src/renderer/OrthographicCamera.cpp
         src/renderer/RenderStats.cpp
@@ -105,7 +106,7 @@ else ()
             src/scene/CameraController.cpp
             src/scene/Scene.cpp
             src/scene/Entity.cpp
-
+            src/renderer2.cpp
     )
     add_subdirectory(test)
 endif ()

@@ -8,13 +8,13 @@
 #include "application.h"
 #include "glm/glm.hpp"
 #include "imgui_impl_glfw.h"
+#include "renderer2.h"
 
 namespace figment
 {
-EditorLayer::EditorLayer(Window& window): m_Window(window), Layer("EditorLayer")
+EditorLayer::EditorLayer(): Layer("EditorLayer")
 {
     // m_Renderer.InitGui((GLFWwindow*)window.GetNative());
-    m_Scene = std::make_unique<Scene>(window.GetWidth(), window.GetHeight());
 
     // auto figmentEntity = m_Scene->CreateEntity("Figment");
     // figmentEntity.AddComponent<FigmentComponent>(m_Context->GetDevice());
@@ -45,6 +45,8 @@ EditorLayer::~EditorLayer() {}
 void EditorLayer::OnAttach(const Context& context)
 {
     spdlog::info("EditorLayer attached");
+    m_Scene  = std::make_unique<Scene>(context.window->GetWidth(), context.window->GetHeight());
+    m_Window = context.window;
 }
 
 void EditorLayer::OnDetach()
@@ -66,7 +68,7 @@ void EditorLayer::OnUpdate(float deltaTime)
 {
     // auto m_Window = App::Instance()->GetWindow();
     m_Scene->OnUpdate(deltaTime, Input::GetMousePosition(),
-                      glm::vec2(m_Window.GetWidth(), m_Window.GetHeight()));
+                      glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
 
     // m_OverlayRenderer->Begin(*m_Scene->GetActiveCameraController()->GetCamera());
     // m_OverlayRenderer->DrawGrid();
@@ -83,7 +85,7 @@ void EditorLayer::OnUpdate(float deltaTime)
         Entity e    = m_Scene->CreateEntity("New");
         auto& t     = e.GetComponent<TransformComponent>();
         glm::vec3 p = m_Scene->GetActiveCameraController()->GetCamera()->ScreenToWorldSpace(
-            Input::GetMousePosition(), glm::vec2(m_Window.GetWidth(), m_Window.GetHeight()));
+            Input::GetMousePosition(), glm::vec2(m_Window->GetWidth(), m_Window->GetHeight()));
         t.Position           = p;
         auto& b              = e.AddComponent<VerletBodyComponent>();
         b.m_PreviousPosition = t.Position;
@@ -102,6 +104,9 @@ void EditorLayer::OnUpdate(float deltaTime)
     {
         SelectEntity(m_Scene->GetHoveredEntity());
     }
+    Renderer::BeginDrawing();
+    Renderer::EndDrawing();
+
     // m_Renderer.BeginFrame();
     // m_Renderer.Begin(*m_Scene->GetActiveCameraController()->GetCamera());
     // {
@@ -472,7 +477,7 @@ static void DrawActiveCameraSection(CameraController& cameraController)
 
 void EditorLayer::OnImGuiRender()
 {
-    DrawDebugPanel(m_Window, *m_Scene->GetActiveCameraController()->GetCamera(),
+    DrawDebugPanel(*m_Window, *m_Scene->GetActiveCameraController()->GetCamera(),
                    Application::FPScounter);
 
     DrawScenePanel(m_Scene->GetEntities(), [this](Entity entity) { SelectEntity(entity); });

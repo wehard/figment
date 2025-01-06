@@ -102,14 +102,14 @@ void Application::addLayer(Layer* layer)
 {
     spdlog::info("Adding layer: {}", layer->GetName());
     m_LayerStack.AddLayer(layer);
-    layer->OnAttach({.renderer = &renderer});
+    layer->OnAttach({.window = &window});
 }
 
 void Application::addOverlay(Layer* overlay)
 {
     spdlog::info("Adding overlay: {}", overlay->GetName());
     m_LayerStack.AddOverlay(overlay);
-    overlay->OnAttach({.renderer = &renderer});
+    overlay->OnAttach({.window = &window});
 }
 
 void Application::start()

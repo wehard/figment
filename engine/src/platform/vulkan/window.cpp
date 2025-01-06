@@ -13,10 +13,21 @@ static void glfwFramebufferSizeCallback(GLFWwindow* window, const int width, con
 {
     const auto figmentWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
     figmentWindow->OnResize({
-        .Width             = width,
-        .Height            = height,
+        .Width             = static_cast<int>(figmentWindow->GetWidth()),
+        .Height            = static_cast<int>(figmentWindow->GetHeight()),
         .FramebufferWidth  = width,
         .FramebufferHeight = height,
+    });
+}
+
+static void glfwWindowSizeCallback(GLFWwindow* window, const int width, const int height)
+{
+    const auto figmentWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
+    figmentWindow->OnResize({
+        .Width             = width,
+        .Height            = height,
+        .FramebufferWidth  = static_cast<int>(figmentWindow->GetFramebufferWidth()),
+        .FramebufferHeight = static_cast<int>(figmentWindow->GetFramebufferHeight()),
     });
 }
 
@@ -67,7 +78,7 @@ Window::Window(const std::string& title, const uint32_t width, const uint32_t he
     spdlog::info("GLFW version: {}", glfwGetVersionString());
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
     window = glfwCreateWindow(static_cast<int>(width), static_cast<int>(height), title.c_str(),
                               nullptr, nullptr);
@@ -79,7 +90,11 @@ Window::Window(const std::string& title, const uint32_t width, const uint32_t he
 
     glfwShowWindow(window);
     glfwSetFramebufferSizeCallback(window, glfwFramebufferSizeCallback);
+    glfwSetWindowSizeCallback(window, glfwWindowSizeCallback);
     glfwSetWindowUserPointer(window, this);
+
+    glfwGetFramebufferSize(window, reinterpret_cast<int*>(&m_FramebufferWidth),
+                           reinterpret_cast<int*>(&m_FramebufferHeight));
 
     renderContext = std::make_shared<vulkan::Context>();
     renderContext->Init(m_Width, m_Height);

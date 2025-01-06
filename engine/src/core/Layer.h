@@ -1,6 +1,7 @@
 #pragma once
 
-#include "renderer.h"
+#include "renderer2.h"
+#include "window.h"
 #include <string>
 
 namespace figment
@@ -20,10 +21,10 @@ class Layer
 public:
     struct Context
     {
-        figment::vulkan::Renderer* renderer;
+        figment::vulkan::Window* window;
     };
     explicit Layer(const std::string& name = "Layer", bool enabled = true):
-        m_Name(name), m_Enabled(enabled){};
+        m_Name(name), m_Enabled(enabled) {};
     virtual ~Layer()                                      = default;
     virtual void OnAttach(const Context& context)         = 0;
     virtual void OnDetach()                               = 0;

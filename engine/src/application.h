@@ -5,9 +5,10 @@
 #include "LayerStack.h"
 #include "imgui_renderer.h"
 
+#include "renderer.h"
+#include "renderer2.h"
 #include <BaseWindow.h>
 #include <cstdint>
-#include <renderer.h>
 
 namespace figment
 {
@@ -32,7 +33,7 @@ public:
 
 private:
     vulkan::Window window;
-    vulkan::Renderer renderer;
+    figment::vulkan::Renderer renderer;
     vulkan::ImGuiRenderer imguiRenderer;
     LayerStack m_LayerStack;
     bool m_InputEnabled    = true;

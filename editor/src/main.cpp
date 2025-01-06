@@ -159,7 +159,7 @@ int main()
 {
     Application app({.Name = "Figment Editor", .Width = 1280, .Height = 720});
     auto window      = app.getWindow();
-    auto editorLayer = EditorLayer(window);
+    auto editorLayer = EditorLayer();
     app.addLayer(&editorLayer);
     app.start();
     return 0;

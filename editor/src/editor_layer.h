@@ -11,7 +11,7 @@ namespace figment
 class EditorLayer: public Layer
 {
 public:
-    explicit EditorLayer(Window& window);
+    explicit EditorLayer();
     ~EditorLayer() override;
     void OnAttach(const Context& context) override;
     void OnDetach() override;
@@ -23,8 +23,7 @@ public:
     std::unique_ptr<Scene>& GetScene() { return m_Scene; }
 
 private:
-    Window& m_Window;
-    // std::unique_ptr<OverlayRenderer> m_OverlayRenderer;
+    vulkan::Window* m_Window;
     std::unique_ptr<Scene> m_Scene;
     Entity m_SelectedEntity;
 
